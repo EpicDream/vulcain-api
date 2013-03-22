@@ -1,9 +1,10 @@
-module Shopelia
+module Vulcain
   class Login
     include ActionsHelper
     
     def initialize(user)
       @user = user
+      self.class.class_eval { include(RueDuCommerce) }
     end
     
     def create

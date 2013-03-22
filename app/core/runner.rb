@@ -1,5 +1,5 @@
 # -*- encoding : utf-8 -*-
-require_relative 'shopelia'
+require_relative 'vulcain'
 require_relative 'rue_du_commerce'
 require 'date'
 
@@ -11,10 +11,10 @@ cb = CB.new("212918291291", "01", "16", "678")
 # account.class.class_eval { include(RueDuCommerce) }
 # account.create
 
-login = Shopelia::Login.new(user)
+login = Vulcain::Login.new(user)
 login.class.class_eval { include(RueDuCommerce) }
 login.create
 
-order = Shopelia::Order.new("http://m.rueducommerce.fr/fiche-produit/Galaxytab2-P5110-16Go-Blanc-OP", cb)
+order = Vulcain::Order.new("http://m.rueducommerce.fr/fiche-produit/Galaxytab2-P5110-16Go-Blanc-OP", cb)
 order.class.class_eval { include(RueDuCommerce) }
 order.create

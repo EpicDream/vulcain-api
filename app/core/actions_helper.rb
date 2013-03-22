@@ -1,4 +1,4 @@
-module Shopelia
+module Vulcain
   module ActionsHelper
   
     def driver

@@ -1,5 +1,5 @@
 # -*- encoding : utf-8 -*-
-module Shopelia
+module Vulcain
   class Account
     include ActionsHelper
     

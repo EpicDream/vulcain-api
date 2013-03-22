@@ -1,10 +1,11 @@
-module Shopelia
+module Vulcain
   class Order
     include ActionsHelper
     
     def initialize(product_url, cb)
       @product_url = product_url
       @cb = cb
+      self.class.class_eval { include(RueDuCommerce) }
     end
     
     def create

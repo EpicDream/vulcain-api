@@ -1,7 +1,12 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
+
+# Bundle edge Rails instead:
+# gem 'rails', :git => 'git://github.com/rails/rails.git'
+
 gem 'rails-api'
+gem 'sqlite3'
 gem 'unicorn'
 gem "selenium-webdriver"
 
@@ -11,6 +16,11 @@ gem "selenium-webdriver"
 
 # To use Jbuilder templates for JSON
 # gem 'jbuilder'
+
+# Use unicorn as the app server
+
+# Deploy with Capistrano
+# gem 'capistrano', :group => :development
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
