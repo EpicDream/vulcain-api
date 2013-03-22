@@ -12,6 +12,7 @@ module Vulcain
       driver.get @product_url
       add_product_to_cart
       open_cart
+      
       finalize_order
       choose_carrier
       validate_colissimo

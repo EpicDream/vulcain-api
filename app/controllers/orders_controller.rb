@@ -1,4 +1,3 @@
-require 'vulcain'
 class OrdersController < ApplicationController
   
   def create
