@@ -10,6 +10,9 @@ gem 'sqlite3'
 gem 'unicorn'
 gem "selenium-webdriver"
 
+gem "httparty"
+gem "redis"
+
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
