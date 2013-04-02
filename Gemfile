@@ -5,6 +5,8 @@ gem 'rails-api'
 gem 'sqlite3'
 gem 'unicorn'
 gem "amqp", "~> 0.9.0"
+gem "httparty"
+gem "redis"
 
 group :test do
   gem "mocha", :require => false

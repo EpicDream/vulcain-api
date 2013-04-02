@@ -58,5 +58,14 @@ module Vulcain
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    # REDIS config
+    config.redis_config = {
+      :host => 'pasteur.epicdream.fr',
+      :port => 6379,
+      :timeout => 20,
+      :password => '54be5bab7259f887d5d27f8a1153d61e'
+    }
+
   end
 end
