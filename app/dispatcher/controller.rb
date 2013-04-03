@@ -1,6 +1,5 @@
 # encoding: utf-8
 require "amqp"
-require_relative 'message'
 
 class AMQPController
   USER = "guest"
@@ -11,7 +10,7 @@ class AMQPController
     AMQP.start(:host => IP_DISPATCHER, :username => USER, :password => PASSWORD) do |connection|
       channel = AMQP::Channel.new(connection)
       exchange = channel.headers("amq.match", :durable => true)
-      exchange.publish Marshal.dump(message), :headers => {:dispatcher => "api"}
+      exchange.publish message, :headers => {:queue => "api-queue"}
       EM.add_timer(1) do
         connection.close { EventMachine.stop }
       end
@@ -19,7 +18,6 @@ class AMQPController
   end
 end
 
-session_id = 1
-message_1 = Message.new(:action, {:action => :order}, session_id.to_s)
-message_2 = Message.new(:response, {:response => :ok}, session_id.to_s)
+message_1 = {:verb => :action, :content => "order", :session => {:shopelia => "1"}}.to_json
+message_2 = {:verb => :response, :content => "ok", :session => {:shopelia => "1"}}.to_json
 
