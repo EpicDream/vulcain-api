@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "amqp"
+require "#{Rails.root}/app/strategies/rue_du_commerce/rue_du_commerce"
 
 class AMQPController
   USER = "guest"
@@ -17,6 +18,10 @@ class AMQPController
     end
   end
 end
+class Strategy
+end
+context = {user:{email:"madmax_1181@yopmail.com"}, order:{account_password:"shopelia2013"}}
+strategy = RueDuCommerce.new(context).login
 
 message_1 = {:verb => :action, :content => "order", :session => {:shopelia => "1"}}.to_json
 message_2 = {:verb => :response, :content => "ok", :session => {:shopelia => "1"}}.to_json
