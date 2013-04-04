@@ -34,17 +34,17 @@ class Strategy
   end
   
   def confirm message
-    message = {'verb' => 'confirm', 'content' => message}
+    message = {'verb' => 'confirm', 'content' => message}.merge!(context)
     exchanger.publish message
   end
   
   def terminate
-    message = {'verb' => 'terminate'}
+    message = {'verb' => 'terminate'}.merge!(context)
     exchanger.publish message
   end
   
   def message message
-    message = {'verb' => 'message', 'content' => message}
+    message = {'verb' => 'message', 'content' => message}.merge!(context)
     exchanger.publish message
     self_exchanger.publish({'verb' => 'next_step'})
   end
