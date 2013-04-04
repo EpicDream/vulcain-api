@@ -31,13 +31,17 @@ module Dispatcher
     end
     
     def reload_vulcain exchange, vulcain_id
-      undef_klasses = File.read(File.join(File.dirname(__FILE__), 'strategies/undef_klasses.rb'))
-      driver = File.read(File.join(File.dirname(__FILE__), 'strategies/driver.rb'))
-      strategy = File.read(File.join(File.dirname(__FILE__), 'strategies/strategy.rb'))
-      rdc = File.read(File.join(File.dirname(__FILE__), 'strategies/rue_du_commerce/rue_du_commerce.rb'))
+      undef_klasses = strategy_file('undef_klasses.rb')
+      driver = strategy_file('driver.rb')
+      strategy = strategy_file('strategy.rb')
+      rdc = strategy_file('rue_du_commerce/rue_du_commerce.rb')
       
       message = {'verb' => 'reload', 'context' => undef_klasses + "\n" + driver + "\n" + strategy + "\n" + rdc}
       exchange.publish message.to_json, :headers => { :vulcain => vulcain_id}
+    end
+    
+    def strategy_file name
+      File.read("#{Rails.root}/lib/strategies/#{name}")
     end
   
   end

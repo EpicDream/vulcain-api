@@ -17,8 +17,3 @@ end
 require_relative 'amqp_runner'
 require_relative 'vulcain_pool'
 require_relative 'worker'
-
-Dispatcher::Worker.new.start
-
-
-

@@ -20,12 +20,14 @@ module Dispatcher
           message = JSON.parse(message)
           
           case message['verb']
-          when 'confirm' 
+          when 'confirm'
             puts "\nDispatcher confirm \n#{message.inspect}"
           when 'message'
             puts "\nDispatcher message \n #{message.inspect}"
           when 'terminate'
             puts "\nDispatcher terminate \n#{message.inspect}"
+          when 'failure'
+            puts "\nDispatcher Failure \n#{message.inspect}"
           end
         end
 

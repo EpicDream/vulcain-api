@@ -7,7 +7,7 @@ class OrdersController < ApplicationController
     unless check_parameters
       render :json => {:error => "Missing or Bad parameters"}.to_json, :status => 451
     else
-      AMQPController.request(message)
+      Dispatcher::AMQPController.request(message)
     end
   end
   
