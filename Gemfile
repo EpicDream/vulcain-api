@@ -7,6 +7,7 @@ gem 'unicorn'
 gem "amqp", "~> 0.9.0"
 gem "httparty"
 gem "redis"
+gem "selenium-webdriver"
 
 group :test do
   gem "mocha", :require => false
