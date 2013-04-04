@@ -18,11 +18,15 @@ class AMQPController
     end
   end
 end
-class Strategy
-end
-context = {user:{email:"madmax_1181@yopmail.com"}, order:{account_password:"shopelia2013"}}
-strategy = RueDuCommerce.new(context).login
 
-message_1 = {:verb => :action, :content => "order", :session => {:shopelia => "1"}}.to_json
+context = {user:{email:"madmax_1181@yopmail.com"}, order:{account_password:"shopelia"}}
+
+message_1 = { :verb => :action, 
+              :vendor => "RueDuCommerce",
+              :strategy => "login",
+              :context => context,
+              :session => {:shopelia => "1"}
+            }.to_json
+            
 message_2 = {:verb => :response, :content => "ok", :session => {:shopelia => "1"}}.to_json
 

@@ -25,8 +25,19 @@ module Dispatcher
           raise "Can't start open channel to Vulcains MQ on #{ip}"
         end
         exchange = channel.headers("amq.match", :durable => true)
+        reload_vulcain(exchange, vulcain_id)
         Vulcain.new(exchange, vulcain_id)
       end
+    end
+    
+    def reload_vulcain exchange, vulcain_id
+      undef_klasses = File.read(File.join(File.dirname(__FILE__), 'strategies/undef_klasses.rb'))
+      driver = File.read(File.join(File.dirname(__FILE__), 'strategies/driver.rb'))
+      strategy = File.read(File.join(File.dirname(__FILE__), 'strategies/strategy.rb'))
+      rdc = File.read(File.join(File.dirname(__FILE__), 'strategies/rue_du_commerce/rue_du_commerce.rb'))
+      
+      message = {'verb' => 'reload', 'context' => undef_klasses + "\n" + driver + "\n" + strategy + "\n" + rdc}
+      exchange.publish message.to_json, :headers => { :vulcain => vulcain_id}
     end
   
   end

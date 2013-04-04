@@ -3,14 +3,14 @@ module Dispatcher
   class Worker
     
     def initialize
-      # strategy.exchange = Exchanger.new()
     end
     
     def start
       Dispatcher::AmqpRunner.start do |channel, exchange|
         @pool = VulcainPool.new
         vulcain = @pool.pop
-
+        
+        
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:API_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
           message["session"]["vulcain_id"] = vulcain.id
