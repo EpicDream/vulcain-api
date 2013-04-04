@@ -33,7 +33,7 @@ class RueDuCommerce
   SHIP_ACCESS_CODE = '//*[@id="content"]/form/div/div[3]/div/div[10]/input'
   COUNTRY_SELECT = '//*[@id="content"]/form/div/div[3]/div/div[14]/select'
   VALIDATE_SHIP_ADDRESS = '//*[@id="content"]/div[4]/div[2]/div/form/input[1]'
-  VAIDATE_SHIPPING = '//*[@id="btnValidContinue"]'
+  VALIDATE_SHIPPING = '//*[@id="btnValidContinue"]'
   VALIDATE_CARD_PAYMENT = '//*[@id="inpMop1"]'
   VALIDATE_VISA_CARD = '//*[@id="content"]/div/form/div[1]/input[2]'
   CREDIT_CARD_NUMBER = '//*[@id="CARD_NUMBER"]'
@@ -41,6 +41,9 @@ class RueDuCommerce
   CREDIT_CARD_EXPIRE_MONTH = '//*[@id="contentSips"]/form[2]/select[1]'
   CREDIT_CARD_EXPIRE_YEAR = '//*[@id="contentSips"]/form[2]/select[2]'
   VALIDATE_PAYMENT = '//*[@id="contentSips"]/form[2]/input[9]'  
+  TOTAL_ARTICLE = '//*[@id="dsprecap"]/div[4]/div[2]/div[2]/span'
+  TOTAL_SHIPPING = '//*[@id="dsprecap"]/div[4]/div[2]/div[4]/span'
+  TOTAL_TTC = '//*[@id="dsprecap"]/div[4]/div[2]/div[6]/span'
   
   def initialize context
     @context = context
@@ -71,8 +74,9 @@ class RueDuCommerce
     end
   end
   
-  def login
+  def order
     Strategy.new(@context) do
+      
       step(1) do
         open_url URL
         click_on_if_exists SKIP
@@ -80,32 +84,42 @@ class RueDuCommerce
         fill EMAIL_LOGIN, with:context['user']['email']
         fill PASSWORD_LOGIN, with:context['order']['account_password']
         click_on LOGIN_BUTTON
+        message Strategy::LOGGED_MESSAGE
       end
-    end
-  end
-  
-  def order
-    Strategy.new(@context) do
-      step(1) do
-        #ensure empty cart
+      
+      step(2) do
         click_on MY_CART
         click_on_all([REMOVE_PRODUCT]) { |element| element || exists?(REMOVE_PRODUCT)}
         raise unless exists? EMPTY_CART_MESSAGE
-
-        #order
-        open_url context[:order].product_url
+        message Strategy::EMPTIED_CART_MESSAGE
+      end
+      
+      step(3) do
+        open_url context['order']['product_url']
         click_on ADD_TO_CART
         click_on ACCESS_CART
         click_on FINALIZE_ORDER
         click_on VALIDATE_SHIP_ADDRESS
-        click_on VAIDATE_SHIPPING
-        click_on VALIDATE_CARD_PAYMENT
-        click_on VALIDATE_VISA_CARD
-        fill CREDIT_CARD_NUMBER, with:context[:order].card_number
-        fill CREDIT_CARD_CRYPTO, with:context[:order].card_crypto
-        select_option CREDIT_CARD_EXPIRE_MONTH, context[:order].expire_month
-        select_option CREDIT_CARD_EXPIRE_YEAR, context[:order].expire_year
-        click_on VALIDATE_PAYMENT
+        click_on VALIDATE_SHIPPING
+        message = {
+          Strategy::PRICE_KEY => get_text(TOTAL_ARTICLE), 
+          Strategy::SHIPPING_PRICE_KEY => get_text(TOTAL_SHIPPING), 
+          Strategy::TOTAL_TTC_KEY => get_text(TOTAL_TTC)
+        }
+        confirm message
+      end
+      
+      step(4) do |response|
+        if response == Strategy::RESPONSE_OK
+          click_on VALIDATE_CARD_PAYMENT
+          click_on VALIDATE_VISA_CARD
+          fill CREDIT_CARD_NUMBER, with:context['order']['card_number']
+          fill CREDIT_CARD_CRYPTO, with:context['order']['card_crypto']
+          select_option CREDIT_CARD_EXPIRE_MONTH, context['order']['expire_month']
+          select_option CREDIT_CARD_EXPIRE_YEAR, context['order']['expire_year']
+          click_on VALIDATE_PAYMENT
+        end
+        terminate
       end
     end
   end

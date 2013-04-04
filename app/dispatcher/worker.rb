@@ -9,25 +9,23 @@ module Dispatcher
       Dispatcher::AmqpRunner.start do |channel, exchange|
         @pool = VulcainPool.new
         vulcain = @pool.pop
-        
-        
+
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:API_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
-          message["session"]["vulcain_id"] = vulcain.id
-          puts "Dispatcher Vulcain queue received : #{message.inspect}"
-          
+          message['session']['vulcain_id'] = vulcain.id
           vulcain.exchange.publish message.to_json, :headers => { :vulcain => vulcain.id}
         end
 
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:VULCAINS_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
-          puts "Dispatcher Vulcain queue received : #{message.inspect}"
           
           case message['verb']
-          when 'ask' 
-            puts "Dispatcher message type ask"
-          when 'close' 
-            puts "Dispatcher message type close. Im' free for another order now"
+          when 'confirm' 
+            puts "\nDispatcher confirm \n#{message.inspect}"
+          when 'message'
+            puts "\nDispatcher message \n #{message.inspect}"
+          when 'terminate'
+            puts "\nDispatcher terminate \n#{message.inspect}"
           end
         end
 

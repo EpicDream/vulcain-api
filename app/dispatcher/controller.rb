@@ -19,14 +19,34 @@ class AMQPController
   end
 end
 
-context = {user:{email:"madmax_1181@yopmail.com"}, order:{account_password:"shopelia"}}
+context = { :user => { email:"madmax_1181@yopmail.com"}, 
+            :order => { account_password:"shopelia", 
+                        product_url:'http://www.rueducommerce.fr/Composants/Cle-USB/Cles-USB/LEXAR/4845912-Cle-USB-2-0-Lexar-JumpDrive-V10-8Go-LJDV10-8GBASBEU.htm',
+                        card_number:'202923019201',
+                        card_crypto:'1341',
+                        expire_month:'08',
+                        expire_year:'16'
+                      }
+          }
 
 message_1 = { :verb => :action, 
               :vendor => "RueDuCommerce",
-              :strategy => "login",
+              :strategy => "order",
               :context => context,
               :session => {:shopelia => "1"}
             }.to_json
             
-message_2 = {:verb => :response, :content => "ok", :session => {:shopelia => "1"}}.to_json
+            
+message_ok = {
+  :verb => :response, 
+  :content => "ok", 
+  :context => context,
+  :session => {:shopelia => "1"}
+  }.to_json
+  message_nok = {
+    :verb => :response, 
+    :content => "nok", 
+    :context => context,
+    :session => {:shopelia => "1"}
+    }.to_json
 

@@ -1,22 +1,27 @@
 class Strategy
+  LOGGED_MESSAGE = 'logged'
+  EMPTIED_CART_MESSAGE = 'empty_cart'
+  PRICE_KEY = 'price'
+  SHIPPING_PRICE_KEY = 'shipping_price'
+  TOTAL_TTC_KEY = 'total_ttc'
+  RESPONSE_OK = 'ok'
   
-  attr_accessor :context, :exchanger
+  attr_accessor :context, :exchanger, :self_exchanger
   
-  def initialize context, exchanger=nil, &block
+  def initialize context, &block
     @driver = Driver.new
     @block = block
     @context = context
-    @exchanger = exchanger
     @step = 0
     @steps = []
   end
   
   def start
-    self.instance_eval(&@steps[@step])
+    @steps[@step].call
   end
   
-  def next_step
-    self.instance_eval(&@steps[@step += 1])
+  def next_step response=nil
+    @steps[@step += 1].call(response)
   end
   
   def step n, &block
@@ -28,8 +33,24 @@ class Strategy
     start
   end
   
-  def ask message
+  def confirm message
+    message = {'verb' => 'confirm', 'content' => message}
     exchanger.publish message
+  end
+  
+  def terminate
+    message = {'verb' => 'terminate'}
+    exchanger.publish message
+  end
+  
+  def message message
+    message = {'verb' => 'message', 'content' => message}
+    exchanger.publish message
+    self_exchanger.publish({'verb' => 'next_step'})
+  end
+  
+  def get_text xpath
+    @driver.find_element(xpath).text
   end
   
   def open_url url
