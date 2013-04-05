@@ -40,6 +40,7 @@ class Strategy
   
   def terminate
     message = {'verb' => 'terminate'}.merge!({'session' => context['session']})
+    @driver.quit
     exchanger.publish message
   end
   
