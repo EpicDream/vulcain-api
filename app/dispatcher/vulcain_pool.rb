@@ -3,7 +3,7 @@ module Dispatcher
   class VulcainPool
   
     def initialize pool_size=1
-      @vulcains = [["127.0.0.1", "1"]]
+      @vulcains = [[VULCAIN_HOST, "1"]]
       @pool = pool
     end
   
