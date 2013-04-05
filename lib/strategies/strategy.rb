@@ -35,18 +35,18 @@ class Strategy
   
   def confirm message
     message = {'verb' => 'confirm', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish message
+    exchanger.publish(message, context['session'])
   end
   
   def terminate
     message = {'verb' => 'terminate'}.merge!({'session' => context['session']})
     @driver.quit
-    exchanger.publish message
+    exchanger.publish(message, context['session'])
   end
   
   def message message
     message = {'verb' => 'message', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish message
+    exchanger.publish(message, context['session'])
     self_exchanger.publish({'verb' => 'next_step'})
   end
   
