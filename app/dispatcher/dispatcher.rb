@@ -17,3 +17,5 @@ end
 require_relative 'amqp_runner'
 require_relative 'vulcain_pool'
 require_relative 'worker'
+require_relative 'controller'
+require_relative 'shopelia_callback'
