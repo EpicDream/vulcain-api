@@ -1,18 +1,13 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
-
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
-
 gem 'rails-api'
 gem 'sqlite3'
 gem 'unicorn'
-gem "selenium-webdriver"
-
+gem "amqp", "~> 0.9.0"
 gem "httparty"
 gem "redis"
-
+gem "selenium-webdriver"
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
@@ -31,5 +26,5 @@ gem "redis"
 group :test do
   gem 'vcr'
   gem 'webmock'
+  gem "mocha", :require => false
 end
-
