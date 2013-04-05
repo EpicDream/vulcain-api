@@ -5,8 +5,8 @@ require "json"
 module Dispatcher
   USER = "guest"
   PASSWORD = "guest"
-  HOST = "127.0.0.1"
-  VULCAIN_HOST = "127.0.0.1"
+  HOST = "178.33.60.114"
+  VULCAIN_HOST = "178.33.60.114"
   VULCAINS_USER = "guest"
   VULCAINS_PASSWORD = "guest"
   Vulcain = Struct.new(:exchange, :id)
