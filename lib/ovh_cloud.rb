@@ -67,7 +67,6 @@ module Ovh
     def get_tasks(project_name=self.config['project_name'])
       tasks = []
       data = call_api('getTasks', {'projectName' => project_name, 'objectTypeName' => 'instance'})
-      pp data
     end
 
     def get_task(task_id, project_name=self.config['project_name'])
@@ -181,7 +180,6 @@ module Ovh
       ['project_name', 'zone_name', 'offer_name', 'image_name'].each do |param|
         instance_data[param.camelize(:lower)] = instance.config[param] unless instance_data[param].present?
       end
-      
       task_data = instance.call_api('newInstanceFromImage', instance_data)
       task = Ovh::Task.create(task_data, instance.project_name)
       instance.task = task
@@ -223,9 +221,12 @@ module Ovh
 
     attr_accessor :language, :billing_country, :id, :start_date, :login
 
-    def initialize
-      options = Rack::Utils.escape({'password' => self.config['password'], 'login' => self.config['login']}.to_json)
+    def initialize(login=nil, password=nil)
+      options = Rack::Utils.escape({'password' => password || self.config['password'], 'login' => login || self.config['login']}.to_json)
       response = HTTParty.get("#{self.config['session_handler']}/login?params=#{options}")
+      if response['error'].present?
+        raise RuntimeError, response['error']
+      end
 
       @id = response['answer']['id']
       @language = response['answer']['language']

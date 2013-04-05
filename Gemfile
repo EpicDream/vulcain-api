@@ -27,3 +27,9 @@ gem "redis"
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
+
+group :test do
+  gem 'vcr'
+  gem 'webmock'
+end
+
