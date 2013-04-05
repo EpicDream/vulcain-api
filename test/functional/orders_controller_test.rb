@@ -18,7 +18,7 @@ class OrdersControllerTest < ActionController::TestCase
   test "create with correct parameters should call dispatcher with correct message" do
     Dispatcher::AMQPController.expects(:request).with(dispatcher_message)
     
-    post :create, context:context
+    post :create, context:context.to_json
     
     assert_response 200
   end
@@ -29,12 +29,8 @@ class OrdersControllerTest < ActionController::TestCase
     { user:{ email:"madmax_1181@yopmail.com"}, 
       order:{ account_password:"shopelia", 
               product_url:'http://www.rueducommerce.fr/Composants/Cle-USB/Cles-USB/LEXAR/4845912-Cle-USB-2-0-Lexar-JumpDrive-V10-8Go-LJDV10-8GBASBEU.htm',
-              card_number:'202923019201',
-              card_crypto:'1341',
-              expire_month:'08',
-              expire_year:'16'
             },
-      session:{uuid:"SJZJI9999", callback_url:"127.0.0.1/order/12901"}      
+      session:{uuid:"SJZJI9999", callback_url:"127.0.0.1/order/12901", state:"order"}      
     }
   end
   

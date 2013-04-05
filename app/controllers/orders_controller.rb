@@ -1,7 +1,9 @@
 class OrdersController < ApplicationController
   USER_KEYS = ['email']
-  ORDER_KEYS = ['account_password', 'card_number', 'card_crypto', 'expire_month', 'expire_year', 'product_url']
-  SESSION_KEYS = ['uuid', 'callback_url']
+  ORDER_KEYS = ['account_password', 'product_url']
+  SESSION_KEYS = ['uuid', 'callback_url', 'state']
+  
+  before_filter :set_context
   
   def create
     unless check_parameters
@@ -13,11 +15,15 @@ class OrdersController < ApplicationController
   
   private
   
+  def set_context
+    @context = JSON.parse(params['context']) if params['context']
+  end
+  
   def check_parameters
-    params['context'] &&
-    assert_keys(params['context']['user'].keys, USER_KEYS) && 
-    assert_keys(params['context']['order'].keys, ORDER_KEYS) &&
-    assert_keys(params['context']['session'].keys, SESSION_KEYS)
+    @context &&
+    assert_keys(@context['user'].keys, USER_KEYS) && 
+    assert_keys(@context['order'].keys, ORDER_KEYS) &&
+    assert_keys(@context['session'].keys, SESSION_KEYS)
   rescue
     false
   end
@@ -26,7 +32,7 @@ class OrdersController < ApplicationController
     { :verb => :action, 
       :vendor => 'RueDuCommerce',
       :strategy => 'order',
-      :context => params['context'],
+      :context => @context,
     }.to_json
   end
 end
