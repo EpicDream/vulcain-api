@@ -44,60 +44,79 @@ class RueDuCommerce
   TOTAL_ARTICLE = '//*[@id="dsprecap"]/div[4]/div[2]/div[2]/span'
   TOTAL_SHIPPING = '//*[@id="dsprecap"]/div[4]/div[2]/div[4]/span'
   TOTAL_TTC = '//*[@id="dsprecap"]/div[4]/div[2]/div[6]/span'
+  UNLOG_BUTTON = '//*[@id="content"]/div[2]/div[2]/div/a/img'
+  
+  attr_accessor :context, :strategy
   
   def initialize context
     @context = context
+    @strategy = instanciate_strategy
   end
   
-  def account
-    Strategy.new(@context) do
-      step(1) do
-        open_url URL
-        click_on_if_exists SKIP
-        click_on MY_ACCOUNT
-        fill EMAIL_CREATE, with:context[:user].email
-        click_on CREATE_ACCOUNT
-        fill PASSWORD_CREATE, with:context[:order].account_password
-        fill PASSWORD_CONFIRM, with:context[:order].account_password
-        select_option BIRTH_DAY, context[:user].birthday.day.to_s
-        select_option BIRTH_MONTH, context[:user].birthday.month.to_s
-        select_option BIRTH_YEAR, context[:user].birthday.year.to_s
-        fill PHONE, with:context[:user].telephone
-        click_on_radio context[:user].gender, {0 => CIVILITY_M, 1 =>  CIVILITY_MME, 2 =>  CIVILITY_MLLE}
-        fill FIRSTNAME, with:context[:user].firstname
-        fill LASTNAME, with:context[:user].lastname
-        fill ADDRESS, with:context[:user].address
-        fill POSTALCODE, with:context[:user].postalcode
-        fill CITY, with:context[:user].city
-        click_on VALIDATE_ACCOUNT_CREATION
-      end
-    end
-  end
-  
-  def order
+  def instanciate_strategy
     Strategy.new(@context) do
       
-      step(1) do
+      step('run') do
+        run_step('create account') if account.new_account
+        run_step('login')
+        run_step('empty cart')
+        run_step('add to cart')
+        run_step('finalize order')
+      end
+      
+      step('unlog') do
+        click_on UNLOG_BUTTON
+      end
+      
+      step('create account') do
         open_url URL
         click_on_if_exists SKIP
         click_on MY_ACCOUNT
-        fill EMAIL_LOGIN, with:context['user']['email']
-        fill PASSWORD_LOGIN, with:context['order']['account_password']
+        fill EMAIL_CREATE, with:account.email
+        click_on CREATE_ACCOUNT
+        fill PASSWORD_CREATE, with:account.password
+        fill PASSWORD_CONFIRM, with:account.password
+        select_option BIRTH_DAY, user.birthday.day.to_s
+        select_option BIRTH_MONTH, user.birthday.month.to_s
+        select_option BIRTH_YEAR, user.birthday.year.to_s
+        fill PHONE, with:user.telephone
+        click_on_radio user.gender, {'0' => CIVILITY_M, '1' =>  CIVILITY_MME, '2' =>  CIVILITY_MLLE}
+        fill FIRSTNAME, with:user.firstname
+        fill LASTNAME, with:user.lastname
+        fill ADDRESS, with:user.address
+        fill POSTALCODE, with:user.postalcode
+        fill CITY, with:user.city
+        click_on VALIDATE_ACCOUNT_CREATION
+        run_step('unlog')
+      end
+      
+      step('login') do
+        open_url URL
+        click_on_if_exists SKIP
+        click_on MY_ACCOUNT
+        fill EMAIL_LOGIN, with:account.email
+        fill PASSWORD_LOGIN, with:account.password
         click_on LOGIN_BUTTON
         message Strategy::LOGGED_MESSAGE
       end
       
-      step(2) do
+      step('empty cart') do
         click_on MY_CART
         click_on_all([REMOVE_PRODUCT]) { |element| element || exists?(REMOVE_PRODUCT)}
         raise unless exists? EMPTY_CART_MESSAGE
         message Strategy::EMPTIED_CART_MESSAGE
       end
       
-      step(3) do
-        open_url context['order']['product_url']
-        click_on ADD_TO_CART
-        click_on ACCESS_CART
+      step('add to cart') do
+        order.products_urls.each do |url|
+          open_url url
+          click_on ADD_TO_CART
+          click_on ACCESS_CART #can not be
+        end
+      end
+      
+      step('finalize order') do
+        click_on ACCESS_CART #can not be
         click_on FINALIZE_ORDER
         click_on VALIDATE_SHIP_ADDRESS
         click_on VALIDATE_SHIPPING
@@ -106,11 +125,11 @@ class RueDuCommerce
           Strategy::SHIPPING_PRICE_KEY => get_text(TOTAL_SHIPPING), 
           Strategy::TOTAL_TTC_KEY => get_text(TOTAL_TTC)
         }
-        confirm message
+        confirm message, next_step:'payment'
       end
       
-      step(4) do
-        if context['response'] == Strategy::RESPONSE_OK
+      step('payment') do
+        if response.content == Strategy::RESPONSE_OK
           click_on VALIDATE_CARD_PAYMENT
           click_on VALIDATE_VISA_CARD
           fill CREDIT_CARD_NUMBER, with:context['credentials']['card_number']
@@ -122,5 +141,6 @@ class RueDuCommerce
         terminate
       end
     end
+    
   end
 end

@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Strategy
   LOGGED_MESSAGE = 'logged'
   EMPTIED_CART_MESSAGE = 'empty_cart'
@@ -5,49 +7,52 @@ class Strategy
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
+  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
+  attr_accessor :account, :order, :response, :user
   
   def initialize context, &block
     @driver = Driver.new
     @block = block
-    @context = context
-    @step = 0
-    @steps = []
+    self.context = context
+    @next_step = nil
+    @steps = {}
+    self.instance_eval(&@block)
   end
   
   def start
-    @steps[@step].call
+    @steps['run'].call
   end
   
-  def next_step response=nil
-    @steps[@step += 1].call(response)
+  def next_step
+    @steps[@next_step].call
+    @next_step = nil
   end
   
-  def step n, &block
-    @steps[n - 1] = block
+  def run_step name
+    @steps[name].call
   end
   
-  def run
-    self.instance_eval(&@block)
-    start
+  def step name, &block
+    @steps[name] = block
   end
   
-  def confirm message
-    message = {'verb' => 'confirm', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish(message, context['session'])
-  end
-  
-  def terminate
-    message = {'verb' => 'terminate'}.merge!({'session' => context['session']})
-    @driver.quit
-    exchanger.publish(message, context['session'])
+  def confirm message, state={}
+    @next_step = state[:next_step]
+    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
+    exchanger.publish(message, @session)
   end
   
   def message message
-    message = {'verb' => 'message', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish(message, context['session'])
-    self_exchanger.publish({'verb' => 'next_step'})
+    message = {'verb' => MESSAGES_VERBS[:message], 'content' => message}
+    exchanger.publish(message, @session)
+  end
+  
+  def terminate
+    message = {'verb' => MESSAGES_VERBS[:terminate]}
+    @driver.quit
+    exchanger.publish(message, @session)
   end
   
   def get_text xpath
@@ -112,6 +117,39 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
+  end
+  
+  private
+  
+  def context=context
+    @account = OpenStruct.new
+    @order = OpenStruct.new
+    @response = OpenStruct.new
+    @user = OpenStruct.new
+    if context['account']
+      @account.password = context['account']['password']
+      @account.email = context['account']['email']
+      @account.new_account = context['account']['new_account'] == 'true'
+    end
+    if context['order']
+      @order.products_urls = context['order']['products_urls']
+    end
+    if context['response']
+      @response.content = context['response']['content']
+    end
+    if context['user']
+      birthday = context['user']['birthday']
+      @user.birthday = OpenStruct.new(day:birthday['day'], month:birthday['month'], year:birthday['year'])
+      @user.telephone = context['user']['telephone']
+      @user.gender = context['user']['gender']
+      @user.firstname = context['user']['firstname']
+      @user.lastname = context['user']['lastname']
+      @user.address = context['user']['address']
+      @user.postalcode = context['user']['postalcode']
+      @user.city = context['user']['city']
+    end
+    @session = context['session']
+    @context = context
   end
   
 end

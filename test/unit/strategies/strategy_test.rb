@@ -3,7 +3,8 @@ require 'test_helper'
 class StrategyTest < ActiveSupport::TestCase
   
   setup do
-    @context = {}
+    @context = {'account' => {'email' => 'madmax_1181@yopmail.com', 'password' => 'shopelia'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'token' => 'dzjdzj2102901'}}
   end
   
   teardown do
@@ -12,7 +13,7 @@ class StrategyTest < ActiveSupport::TestCase
   test "it should respond to open_url, fill input, select option, click_on : radio_button, links with label" do
     text = nil
     strategy = Strategy.new(@context) do
-      step(1) do
+      step('test') do
         open_url "http://www.rueducommerce.fr/home/index.htm"
         click_on '//*[@id="linkJsAccount"]/div/div[2]/span[1]'
         fill '//*[@id="loginNewAccEmail"]', with:'madmax_031@yopmail.com'
@@ -22,7 +23,7 @@ class StrategyTest < ActiveSupport::TestCase
         text = get_text '//*[@id="content"]/form/div/div[3]/div/p[2]'
       end
     end
-    assert strategy.run
+    assert strategy.run_step('test')
     assert_equal "Adresse de facturation", text
     strategy.driver.quit
   end
