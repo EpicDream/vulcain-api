@@ -122,34 +122,50 @@ class Strategy
   private
   
   def context=context
-    @account = OpenStruct.new
-    @order = OpenStruct.new
-    @response = OpenStruct.new
-    @user = OpenStruct.new
-    if context['account']
-      @account.password = context['account']['password']
-      @account.email = context['account']['email']
-      @account.new_account = context['account']['new_account'] == 'true'
-    end
-    if context['order']
-      @order.products_urls = context['order']['products_urls']
-    end
-    if context['response']
-      @response.content = context['response']['content']
-    end
-    if context['user']
-      birthday = context['user']['birthday']
-      @user.birthday = OpenStruct.new(day:birthday['day'], month:birthday['month'], year:birthday['year'])
-      @user.telephone = context['user']['telephone']
-      @user.gender = context['user']['gender']
-      @user.firstname = context['user']['firstname']
-      @user.lastname = context['user']['lastname']
-      @user.address = context['user']['address']
-      @user.postalcode = context['user']['postalcode']
-      @user.city = context['user']['city']
-    end
+    self.account = context['account']
+    self.order = context['order']
+    self.response = context['response']
+    self.user = context['user']
     @session = context['session']
     @context = context
+  end
+  
+  def account=account_context
+    @account = OpenStruct.new
+    if account_context
+      @account.password = account_context['password']
+      @account.email = account_context['email']
+      @account.new_account = account_context['new_account'] == 'true'
+    end
+  end
+  
+  def order=order_context
+    @order = OpenStruct.new
+    if order_context
+      @order.products_urls = order_context['products_urls']
+    end
+  end
+  
+  def response=response_context
+    @response = OpenStruct.new
+    if response_context
+      @response.content = response_context['content']
+    end
+  end
+  
+  def user=user_context
+    @user = OpenStruct.new
+    if user_context
+      birthday = user_context['birthday']
+      @user.birthday = OpenStruct.new(day:birthday['day'], month:birthday['month'], year:birthday['year'])
+      @user.telephone = user_context['telephone']
+      @user.gender = user_context['gender']
+      @user.firstname = user_context['firstname']
+      @user.lastname = user_context['lastname']
+      @user.address = user_context['address']
+      @user.postalcode = user_context['postalcode']
+      @user.city = user_context['city']
+    end
   end
   
 end

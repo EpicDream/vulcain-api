@@ -43,7 +43,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   test "account creation" do
-    skip
+    skip "Can' create account each time!"
     strategy.run_step('create account')
   end
   
