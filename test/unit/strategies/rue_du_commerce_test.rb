@@ -29,12 +29,12 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     @strategy.driver.quit
   end
   
-  test "named steps strategies" do
+  test "login" do
     strategy.exchanger.expects(:publish).with({"verb"=>"message", "content"=>"logged"}, {"uuid"=>"0129801H", "callback_url"=>"http://", "token"=>"dzjdzj2102901"})
     strategy.run_step('login')
   end
   
-  test "empty basket before order" do
+  test "empty basket" do
     strategy.exchanger.expects(:publish).times(2)
     strategy.run_step('login')
     strategy.run_step('add to cart')

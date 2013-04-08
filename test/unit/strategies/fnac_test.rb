@@ -6,36 +6,45 @@ class FnacTest < ActiveSupport::TestCase
   PRODUCT_2_URL = "http://www.fnac.com/Samsung-Galaxy-Tab-2-10-1-16-Go-Blanc/a4191560/w-4#bl=HGMICBLO1"
   PRODUCT_3_URL = "http://musique.fnac.com/a5267711/Saez-Miami-CD-album"
   
+  attr_accessor :strategy
+  
   setup do
-    @context = {}
+    @context = {'account' => {'email' => 'marie_rose_06@yopmail.com', 'password' => 'shopelia2013'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'token' => 'dzjdzj2102901'},
+                'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL, PRODUCT_3_URL]},
+                'user' => {'birthday' => {'day' => '1', 'month' => '4', 'year' => '1985'},
+                           'telephone' => '0134562345',
+                           'firstname' => 'Pierre',
+                           'gender' => '1',
+                           'lastname' => 'Legrand',
+                           'address' => '12 rue des lilas',
+                           'postalcode' => '75017',
+                           'city' => 'Paris'}
+                }
+                
+    @strategy = Fnac.new(@context).strategy
+    @strategy.exchanger = stub()
   end
   
-  test "it should empty basket before order" do
-    # strategy = Strategy.new(@context) do
-    #   step(1) do
-    #     open_url Fnac::URL
-    #     click_on Fnac::MY_ACCOUNT
-    #     fill Fnac::EMAIL_LOGIN, with:"madmax_11@yopmail.com"
-    #     fill Fnac::PASSWORD_LOGIN, with:"shopelia2013"
-    #     click_on Fnac::LOGIN_BUTTON
-    #   
-    #     open_url PRODUCT_1_URL
-    #     click_on Fnac::ADD_TO_CART
-    #     open_url PRODUCT_2_URL
-    #     click_on Fnac::ADD_TO_CART
-    #     open_url PRODUCT_3_URL
-    #     click_on Fnac::ADD_TO_CART
-    #   
-    #     click_on Fnac::ACCESS_CART
-    #     click_on_all([Fnac::REMOVE_PRODUCT, Fnac::REMOVE_ALONE_PRODUCT]) do |element| 
-    #       element || exists?(Fnac::ARTICLE_LIST)
-    #     end
-    #     !exists?(Fnac::ARTICLE_LIST)
-    #   end
-    # end
-    # 
-    # assert strategy.run
-    # strategy.driver.quit
+  teardown do
+    @strategy.driver.quit
+  end
+  
+  test "account creation" do
+    skip
+    strategy.run_step('create account')
+  end
+  
+  test "login" do
+    strategy.run_step('login')
+  end
+  
+  test "empty basket" do
+    strategy.exchanger.expects(:publish).times(2)
+    strategy.run_step('login')
+    strategy.run_step('add to cart')
+    strategy.run_step('empty cart')
+    assert !strategy.exists?(Fnac::ARTICLE_LIST)
   end
   
 end
