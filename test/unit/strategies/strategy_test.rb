@@ -10,6 +10,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   test "it should respond to open_url, fill input, select option, click_on : radio_button, links with label" do
+    text = nil
     strategy = Strategy.new(@context) do
       step(1) do
         open_url "http://www.rueducommerce.fr/home/index.htm"
@@ -18,9 +19,11 @@ class StrategyTest < ActiveSupport::TestCase
         click_on '//*[@id="loginNewAccSubmit"]'
         select_option '//*[@id="content"]/form/div/div[2]/div/div[7]/select[1]', "12"
         click_on '//*[@id="content"]/form/div/div[3]/div/div[3]/input[1]'
+        text = get_text '//*[@id="content"]/form/div/div[3]/div/p[2]'
       end
     end
     assert strategy.run
+    assert_equal "Adresse de facturation", text
     strategy.driver.quit
   end
   
