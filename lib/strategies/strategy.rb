@@ -6,7 +6,7 @@ class Strategy
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
   
-  attr_accessor :context, :exchanger, :self_exchanger
+  attr_accessor :context, :exchanger, :self_exchanger, :driver
   
   def initialize context, &block
     @driver = Driver.new

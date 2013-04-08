@@ -2,6 +2,10 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 
+def require_strategy strategy
+  require "#{Rails.root}/lib/strategies/#{strategy}/#{strategy}"
+end
+
 class ActiveSupport::TestCase
   VCR.configure do |c|
     c.cassette_library_dir = 'test/fixtures/cassettes'
@@ -15,3 +19,5 @@ class ActiveSupport::TestCase
     c.allow_http_connections_when_no_cassette = true
   end
 end
+
+require 'mocha/setup'

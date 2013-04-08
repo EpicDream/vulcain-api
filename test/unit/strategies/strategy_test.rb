@@ -7,12 +7,10 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   teardown do
-    `killall Google\\ Chrome` #osx
   end
   
   test "it should respond to open_url, fill input, select option, click_on : radio_button, links with label" do
-    driver = Driver.new
-    strategy = Strategy.new(@context, driver) do
+    strategy = Strategy.new(@context) do
       step(1) do
         open_url "http://www.rueducommerce.fr/home/index.htm"
         click_on '//*[@id="linkJsAccount"]/div/div[2]/span[1]'
@@ -23,8 +21,7 @@ class StrategyTest < ActiveSupport::TestCase
       end
     end
     assert strategy.run
-    driver.quit
-    
+    strategy.driver.quit
   end
   
 end
