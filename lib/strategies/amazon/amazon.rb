@@ -33,6 +33,8 @@ class Amazon
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
   SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a'
   
+  SIZE_COMBO_BOX = '//*[@id="dropdown_size_name"]'
+  
   attr_accessor :context, :strategy
   
   def initialize context
@@ -75,10 +77,32 @@ class Amazon
         message Strategy::LOGGED_MESSAGE
       end
       
+      step('set options') do
+        message = {:questions => []}
+        if exists? SIZE_COMBO_BOX
+          options = options_of_select(SIZE_COMBO_BOX)
+          options.delete_if { |value, text| value == "-1"}
+          questions.merge!({'1' => {action:"select_option(#{SIZE_COMBO_BOX}, #{answer})"}})
+          question = { :text => "Choix de la taille",
+                       :id => "1",
+                       :options => options
+               }
+          message[:questions] << question 
+        end
+        message
+      end
+      
       step('add to cart') do
         order.products_urls.each do |url|
           open_url url
-          click_on ADD_TO_CART
+          wait_for([ADD_TO_CART])
+          if exists?(SIZE_COMBO_BOX) #|| exists?...
+            message = run_step('set options')
+            ask message, next_step:'add'
+            
+          else
+            click_on ADD_TO_CART
+          end
         end
       end
       
@@ -124,6 +148,9 @@ class Amazon
       end
       
       step('payment') do
+        #message : prices
+        #confirm ?
+        terminate
       end
       
     end

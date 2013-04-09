@@ -4,7 +4,8 @@ require_strategy 'amazon'
 class AmazonTest < ActiveSupport::TestCase
   PRODUCT_URL_1 = 'http://www.amazon.fr/C%C3%A9line-Romans-2-Louis-Ferdinand/dp/2070107973/ref=pd_sim_b_2'
   PRODUCT_URL_2 = 'http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4'
-  
+  PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
+
   attr_accessor :strategy
   
   setup do
@@ -63,6 +64,14 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
     strategy.run_step('finalize order')
+  end
+  
+  test "choices on 'taille' and 'couleur" do
+    strategy.exchanger.expects(:publish).times(1)
+    @context['order']['products_urls'] = [PRODUCT_URL_3]
+    strategy.context = @context
+    strategy.run_step('login')
+    strategy.run_step('add to cart')
   end
   
 end

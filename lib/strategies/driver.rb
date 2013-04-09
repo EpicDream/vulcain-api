@@ -32,12 +32,16 @@ class Driver
   end
 
   def select_option select, value
-    options = select.find_elements(:tag_name, "option")
+    options = options_of_select(select)
     options.each do |option|
       next unless option.attribute("value") == value
       option.click
       break
     end
+  end
+  
+  def options_of_select select
+    select.find_elements(:tag_name, "option")
   end
   
   def click_on element

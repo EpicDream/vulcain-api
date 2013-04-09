@@ -10,7 +10,7 @@ class Strategy
   MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
-  attr_accessor :account, :order, :response, :user
+  attr_accessor :account, :order, :response, :user, :questions
   
   def initialize context, &block
     @driver = Driver.new
@@ -18,6 +18,7 @@ class Strategy
     self.context = context
     @next_step = nil
     @steps = {}
+    @questions = {}
     self.instance_eval(&@block)
   end
   
@@ -38,7 +39,7 @@ class Strategy
     @steps[name] = block
   end
   
-  def confirm message, state={}
+  def ask message, state={}
     @next_step = state[:next_step]
     message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
     exchanger.publish(message, @session)
@@ -120,6 +121,14 @@ class Strategy
     @driver.select_option(select, value)
   end
   
+  def options_of_select xpath
+    select = @driver.find_element(xpath)
+    options = @driver.options_of_select select
+    options.inject({}) do |options, option|
+      options.merge!({option.attribute("value") => option.text})
+    end
+  end
+  
   def exists? xpath
     !!@driver.find_element(xpath, nowait:true)
   end
@@ -136,8 +145,6 @@ class Strategy
     @driver.accept_alert
   end
   
-  private
-  
   def context=context
     self.account = context['account']
     self.order = context['order']
@@ -146,6 +153,8 @@ class Strategy
     @session = context['session']
     @context = context
   end
+  
+  private
   
   def account=account_context
     @account = OpenStruct.new

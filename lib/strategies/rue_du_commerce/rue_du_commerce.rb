@@ -125,7 +125,7 @@ class RueDuCommerce
           Strategy::SHIPPING_PRICE_KEY => get_text(TOTAL_SHIPPING), 
           Strategy::TOTAL_TTC_KEY => get_text(TOTAL_TTC)
         }
-        confirm message, next_step:'payment'
+        ask message, next_step:'payment'
       end
       
       step('payment') do
