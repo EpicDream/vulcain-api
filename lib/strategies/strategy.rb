@@ -67,6 +67,14 @@ class Strategy
     @driver.click_on @driver.find_element(xpath)
   end
   
+  def click_on_links_with_text text, &block
+    elements = @driver.find_links_with_text text
+    elements.each do |element| 
+      @driver.click_on element
+      block.call if block_given?
+    end
+  end
+  
   def click_on_if_exists xpath
     element = @driver.find_element(xpath, nowait:true)
     @driver.click_on(element) if element
@@ -90,6 +98,15 @@ class Strategy
       continue = yield element
       raise if continue && Time.now - start > 30
     end while continue
+  end
+  
+  def click_on_button_with_name name
+    button = @driver.find_input_with_value(name)
+    @driver.click_on button
+  end
+  
+  def find_any_element xpaths
+    @driver.find_any_element xpaths
   end
   
   def fill xpath, args={}
@@ -164,7 +181,12 @@ class Strategy
       @user.first_name = user_context['first_name']
       @user.last_name = user_context['last_name']
       address = user_context['address']
-      @user.address = OpenStruct.new(address_1:address['address1'], zip:address['zip'], city:address['city'], country:address['country'])
+      @user.address = OpenStruct.new(address_1:address['address1'],
+                                     address_2:address['address2'],
+                                     additionnal_address:address['additionnal_address'],
+                                           zip:address['zip'], 
+                                           city:address['city'], 
+                                           country:address['country'])
     end
   end
   

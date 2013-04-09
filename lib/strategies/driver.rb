@@ -49,6 +49,24 @@ class Driver
     waiting { driver.find_elements(:xpath => xpath).first }
   end
   
+  def find_any_element xpaths
+    waiting { 
+      xpaths.inject(nil) do |element, xpath|
+        element = driver.find_elements(:xpath => xpath).first 
+        break element if element
+        element
+      end
+    }
+  end
+  
+  def find_links_with_text text
+    waiting { driver.find_elements(:link_text => text) }
+  end
+  
+  def find_input_with_value value
+    waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
+  end
+  
   private
   
   def waiting
@@ -56,7 +74,8 @@ class Driver
       begin
         yield
       rescue => e
-        sleep(0.1) and retry
+        puts e.inspect
+        sleep(0.1) and retry #retry < 1000 times else raise
       end  
     end
   end
