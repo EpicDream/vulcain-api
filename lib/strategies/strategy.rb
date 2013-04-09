@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Strategy
   LOGGED_MESSAGE = 'logged'
   EMPTIED_CART_MESSAGE = 'empty_cart'
@@ -5,48 +7,52 @@ class Strategy
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
+  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
   
-  attr_accessor :context, :exchanger, :self_exchanger
+  attr_accessor :context, :exchanger, :self_exchanger, :driver
+  attr_accessor :account, :order, :response, :user
   
   def initialize context, &block
     @driver = Driver.new
     @block = block
-    @context = context
-    @step = 0
-    @steps = []
+    self.context = context
+    @next_step = nil
+    @steps = {}
+    self.instance_eval(&@block)
   end
   
   def start
-    @steps[@step].call
+    @steps['run'].call
   end
   
-  def next_step response=nil
-    @steps[@step += 1].call(response)
+  def next_step
+    @steps[@next_step].call
+    @next_step = nil
   end
   
-  def step n, &block
-    @steps[n - 1] = block
+  def run_step name
+    @steps[name].call
   end
   
-  def run
-    self.instance_eval(&@block)
-    start
+  def step name, &block
+    @steps[name] = block
   end
   
-  def confirm message
-    message = {'verb' => 'confirm', 'content' => message}.merge!(context)
-    exchanger.publish message
-  end
-  
-  def terminate
-    message = {'verb' => 'terminate'}.merge!(context)
-    exchanger.publish message
+  def confirm message, state={}
+    @next_step = state[:next_step]
+    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
+    exchanger.publish(message, @session)
   end
   
   def message message
-    message = {'verb' => 'message', 'content' => message}.merge!(context)
-    exchanger.publish message
-    self_exchanger.publish({'verb' => 'next_step'})
+    message = {'verb' => MESSAGES_VERBS[:message], 'content' => message}
+    exchanger.publish(message, @session)
+  end
+  
+  def terminate
+    message = {'verb' => MESSAGES_VERBS[:terminate]}
+    @driver.quit
+    exchanger.publish(message, @session)
   end
   
   def get_text xpath
@@ -111,6 +117,55 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
+  end
+  
+  private
+  
+  def context=context
+    self.account = context['account']
+    self.order = context['order']
+    self.answer = context['answer']
+    self.user = context['user']
+    @session = context['session']
+    @context = context
+  end
+  
+  def account=account_context
+    @account = OpenStruct.new
+    if account_context
+      @account.password = account_context['password']
+      @account.login = account_context['login']
+      @account.new_account = account_context['new_account'] == 'true'
+    end
+  end
+  
+  def order=order_context
+    @order = OpenStruct.new
+    if order_context
+      @order.products_urls = order_context['products_urls']
+    end
+  end
+  
+  def answer=answer_context
+    @answer = OpenStruct.new
+    if answer_context
+      @answer.content = answer_context['content']
+    end
+  end
+  
+  def user=user_context
+    @user = OpenStruct.new
+    if user_context
+      birthdate = user_context['birthdate']
+      @user.birthdate = OpenStruct.new(day:birthdate['day'], month:birthdate['month'], year:birthdate['year'])
+      @user.land_phone = user_context['land_phone']
+      @user.mobile_phone = user_context['mobile_phone']
+      @user.gender = user_context['gender']
+      @user.first_name = user_context['first_name']
+      @user.last_name = user_context['last_name']
+      address = user_context['address']
+      @user.address = OpenStruct.new(address_1:address['address1'], zip:address['zip'], city:address['city'], country:address['country'])
+    end
   end
   
 end

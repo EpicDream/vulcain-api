@@ -1,11 +1,10 @@
-class OrdersController < ApplicationController
-  USER_KEYS = ['email']
-  ORDER_KEYS = ['account_password', 'product_url']
+class PaymentsController < ApplicationController
   SESSION_KEYS = ['uuid', 'callback_url', 'state']
   
   before_filter :set_context
   
   def create
+    puts params.inspect
     unless check_parameters
       render :json => {:error => "Missing or Bad parameters"}.to_json, :status => 451
     else
@@ -21,18 +20,17 @@ class OrdersController < ApplicationController
   
   def check_parameters
     @context &&
-    assert_keys(@context['user'].keys, USER_KEYS) && 
-    assert_keys(@context['order'].keys, ORDER_KEYS) &&
+    @context['response'] &&
     assert_keys(@context['session'].keys, SESSION_KEYS)
   rescue
     false
   end
   
   def message
-    { :verb => :action, 
-      :vendor => 'RueDuCommerce',
-      :strategy => 'order',
-      :context => @context,
+    { :verb => :response, 
+      :vendor => "RueDuCommerce",
+      :context => @context
     }.to_json
   end
+  
 end

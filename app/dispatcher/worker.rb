@@ -9,26 +9,19 @@ module Dispatcher
       Dispatcher::AmqpRunner.start do |channel, exchange|
         @pool = VulcainPool.new
         vulcain = @pool.pop
-
+        shopelia = ShopeliaCallback.new
+        callback_url = nil
+        
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:API_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
-          message['session']['vulcain_id'] = vulcain.id
+          callback_url = message['context']['session']['callback_url']
+          message['context']['session']['vulcain_id'] = vulcain.id
           vulcain.exchange.publish message.to_json, :headers => { :vulcain => vulcain.id}
         end
 
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:VULCAINS_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
-          
-          case message['verb']
-          when 'confirm'
-            puts "\nDispatcher confirm \n#{message.inspect}"
-          when 'message'
-            puts "\nDispatcher message \n #{message.inspect}"
-          when 'terminate'
-            puts "\nDispatcher terminate \n#{message.inspect}"
-          when 'failure'
-            puts "\nDispatcher Failure \n#{message.inspect}"
-          end
+          shopelia.request(callback_url, message)
         end
 
       end
