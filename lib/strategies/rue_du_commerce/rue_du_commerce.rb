@@ -72,20 +72,20 @@ class RueDuCommerce
         open_url URL
         click_on_if_exists SKIP
         click_on MY_ACCOUNT
-        fill EMAIL_CREATE, with:account.email
+        fill EMAIL_CREATE, with:account.login
         click_on CREATE_ACCOUNT
         fill PASSWORD_CREATE, with:account.password
         fill PASSWORD_CONFIRM, with:account.password
-        select_option BIRTH_DAY, user.birthday.day.to_s
-        select_option BIRTH_MONTH, user.birthday.month.to_s
-        select_option BIRTH_YEAR, user.birthday.year.to_s
-        fill PHONE, with:user.telephone
+        select_option BIRTH_DAY, user.birthdate.day.to_s
+        select_option BIRTH_MONTH, user.birthdate.month.to_s
+        select_option BIRTH_YEAR, user.birthdate.year.to_s
+        fill PHONE, with:user.mobile_phone
         click_on_radio user.gender, {'0' => CIVILITY_M, '1' =>  CIVILITY_MME, '2' =>  CIVILITY_MLLE}
-        fill FIRSTNAME, with:user.firstname
-        fill LASTNAME, with:user.lastname
-        fill ADDRESS, with:user.address
-        fill POSTALCODE, with:user.postalcode
-        fill CITY, with:user.city
+        fill FIRSTNAME, with:user.first_name
+        fill LASTNAME, with:user.last_name
+        fill ADDRESS, with:user.address.address_1
+        fill POSTALCODE, with:user.address.zip
+        fill CITY, with:user.address.city
         click_on VALIDATE_ACCOUNT_CREATION
         run_step('unlog')
       end
@@ -94,7 +94,7 @@ class RueDuCommerce
         open_url URL
         click_on_if_exists SKIP
         click_on MY_ACCOUNT
-        fill EMAIL_LOGIN, with:account.email
+        fill EMAIL_LOGIN, with:account.login
         fill PASSWORD_LOGIN, with:account.password
         click_on LOGIN_BUTTON
         message Strategy::LOGGED_MESSAGE
@@ -132,10 +132,10 @@ class RueDuCommerce
         if response.content == Strategy::RESPONSE_OK
           click_on VALIDATE_CARD_PAYMENT
           click_on VALIDATE_VISA_CARD
-          fill CREDIT_CARD_NUMBER, with:context['credentials']['card_number']
-          fill CREDIT_CARD_CRYPTO, with:context['credentials']['card_crypto']
-          select_option CREDIT_CARD_EXPIRE_MONTH, context['credentials']['expire_month']
-          select_option CREDIT_CARD_EXPIRE_YEAR, context['credentials']['expire_year']
+          fill CREDIT_CARD_NUMBER, with:order.credentials.number
+          fill CREDIT_CARD_CRYPTO, with:order.credentials.cvv
+          select_option CREDIT_CARD_EXPIRE_MONTH, order.credentials.exp_month
+          select_option CREDIT_CARD_EXPIRE_YEAR, order.credentials.exp_year
           click_on VALIDATE_PAYMENT
         end
         terminate

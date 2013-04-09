@@ -8,17 +8,26 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   attr_accessor :strategy
   
   setup do
-    @context = {'account' => {'email' => 'marie_rose_06@yopmail.com', 'password' => 'shopelia'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'token' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL]},
-                'user' => {'birthday' => {'day' => '1', 'month' => '4', 'year' => '1985'},
-                           'telephone' => '0134562345',
-                           'firstname' => 'Pierre',
+    @context = {'account' => {'login' => 'marie_rose_08@yopmail.com', 'password' => 'shopelia2013'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'order'},
+                'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL],
+                            'credentials' => {
+                              'owner' => '', 
+                              'number' => '', 
+                              'exp_month' => '',
+                              'exp_year' => '',
+                              'cvv' => ''}},
+                'user' => {'birthdate' => {'day' => '1', 'month' => '4', 'year' => '1985'},
+                           'mobile_phone' => '0134562345',
+                           'land_phone' => '0134562345',
+                           'first_name' => 'Pierre',
                            'gender' => '1',
-                           'lastname' => 'Legrand',
-                           'address' => '12 rue des lilas',
-                           'postalcode' => '75017',
-                           'city' => 'Paris'}
+                           'last_name' => 'Legrand',
+                           'address' => { 'address1' => '12 rue des lilas',
+                                          'zip' => '75002',
+                                          'city' => 'Paris',
+                                          'country' => 'France'}
+                          }
                 }
                 
     @strategy = RueDuCommerce.new(@context).strategy
@@ -30,7 +39,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   test "login" do
-    strategy.exchanger.expects(:publish).with({"verb"=>"message", "content"=>"logged"}, {"uuid"=>"0129801H", "callback_url"=>"http://", "token"=>"dzjdzj2102901"})
+    strategy.exchanger.expects(:publish).with({"verb"=>"message", "content"=>"logged"}, {"uuid"=>"0129801H", "callback_url"=>"http://", "state"=>"order"})
     strategy.run_step('login')
   end
   
@@ -43,7 +52,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   test "account creation" do
-    skip "Can' create account each time!"
+    # skip "Can' create account each time!"
     strategy.run_step('create account')
   end
   

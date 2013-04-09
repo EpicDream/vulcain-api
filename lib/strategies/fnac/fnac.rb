@@ -19,7 +19,7 @@ class Fnac
   PASSWORD_LOGIN = '//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtPassword"]'
   EMAIL_LOGIN = '//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtEmail"]'
   LOGIN_BUTTON = '//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_btnPoursuivre"]'
-  MY_CART = '//*[@id="cartouche"]/p/span[1]/a'
+  MY_CART = '//*[@id="monPanier"]/p[1]/span[1]/a'
   ADD_TO_CART = '//*[@id="content"]/div[2]/div[3]/div[1]/div[2]/a'
   ACCESS_CART = '//*[@id="navlist"]/li[2]/a'
   REMOVE_PRODUCT = '//*[@id="ShoppingCartDiv"]/div/div/div/div[1]/div/ul/li[2]/p/a[2]'
@@ -70,16 +70,16 @@ class Fnac
       step('create account') do
         open_url URL
         click_on MY_ACCOUNT
-        fill EMAIL_CREATE, with:account.email
+        fill EMAIL_CREATE, with:account.login
         fill PASSWORD_CREATE, with:account.password
         fill PASSWORD_CONFIRM, with:account.password
         click_on CREATE_ACCOUNT
         click_on_radio user.gender, {'0' => CIVILITY_M, '1' =>  CIVILITY_MME, '2' =>  CIVILITY_MLLE}
-        fill LASTNAME, with:user.lastname
-        fill FIRSTNAME, with:user.firstname
-        select_option BIRTH_DAY, user.birthday.day.to_s.rjust(2, "0")
-        select_option BIRTH_MONTH, user.birthday.month.to_s.rjust(2, "0")
-        fill BIRTH_YEAR, with:user.birthday.year.to_s
+        fill LASTNAME, with:user.last_name
+        fill FIRSTNAME, with:user.first_name
+        select_option BIRTH_DAY, user.birthdate.day.to_s.rjust(2, "0")
+        select_option BIRTH_MONTH, user.birthdate.month.to_s.rjust(2, "0")
+        fill BIRTH_YEAR, with:user.birthdate.year.to_s
         click_on DONT_ACCEPT_NEWSLETTER
         click_on VALIDATE_ACCOUNT_CREATION
       end
@@ -87,7 +87,7 @@ class Fnac
       step('login') do
         open_url URL
         click_on MY_ACCOUNT
-        fill EMAIL_LOGIN, with:account.email
+        fill EMAIL_LOGIN, with:account.login
         fill PASSWORD_LOGIN, with:account.password
         click_on LOGIN_BUTTON
         message Strategy::LOGGED_MESSAGE
@@ -116,8 +116,8 @@ class Fnac
         click_on ACCEPT_CUG
         click_on VALIDATE_ORDER
 
-        fill ORDER_EMAIL, with:context[:user].email
-        fill ORDER_PASSWORD, with:context[:order].account_password
+        fill ORDER_EMAIL, with:user.login
+        fill ORDER_PASSWORD, with:user.password
         click_on ORDER_LOGIN
 
         wait_for([POSTAL_ADDRESS_LABEL])
@@ -126,10 +126,10 @@ class Fnac
           accept_alert
         end
 
-        fill SHIP_ADDRESS, with:context[:user].address
-        fill SHIP_POSTALCODE, with:context[:user].postalcode
-        fill SHIP_CITY, with:context[:user].city
-        fill SHIP_MOBILE_PHONE, with:context[:user].telephone
+        fill SHIP_ADDRESS, with:user.address.address_1
+        fill SHIP_POSTALCODE, with:user.address.zip
+        fill SHIP_CITY, with:user.address.city
+        fill SHIP_MOBILE_PHONE, user.mobile_phone
 
         click_on VALIDATE_SHIPPING
         if click_on_if_exists ADDRESS_CONFIRM
@@ -139,11 +139,11 @@ class Fnac
         click_on VALIDATE_VISA_CARD
         click_on VALIDATE_PAYMENT_CHOICE
 
-        fill CREDIT_CARD_HOLDER, with:context[:order].holder
-        fill CREDIT_CARD_NUMBER, with:context[:order].card_number
-        fill CREDIT_CARD_CRYPTO, with:context[:order].card_crypto
-        select_option CREDIT_CARD_EXPIRE_MONTH, context[:order].expire_month.to_s.rjust(2, "0")
-        select_option CREDIT_CARD_EXPIRE_YEAR, context[:order].expire_year.to_s
+        fill CREDIT_CARD_HOLDER, order.credentials.holder
+        fill CREDIT_CARD_NUMBER, order.credentials.number
+        fill CREDIT_CARD_CRYPTO, order.credentials.cvv
+        select_option CREDIT_CARD_EXPIRE_MONTH, order.credentials.exp_month.to_s.rjust(2, "0")
+        select_option CREDIT_CARD_EXPIRE_YEAR, order.credentials.exp_year.to_s
         click_on VALIDATE_PAYMENT
       end
     end

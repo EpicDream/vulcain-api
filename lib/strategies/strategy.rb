@@ -124,7 +124,7 @@ class Strategy
   def context=context
     self.account = context['account']
     self.order = context['order']
-    self.response = context['response']
+    self.answer = context['answer']
     self.user = context['user']
     @session = context['session']
     @context = context
@@ -134,7 +134,7 @@ class Strategy
     @account = OpenStruct.new
     if account_context
       @account.password = account_context['password']
-      @account.email = account_context['email']
+      @account.login = account_context['login']
       @account.new_account = account_context['new_account'] == 'true'
     end
   end
@@ -146,25 +146,25 @@ class Strategy
     end
   end
   
-  def response=response_context
-    @response = OpenStruct.new
-    if response_context
-      @response.content = response_context['content']
+  def answer=answer_context
+    @answer = OpenStruct.new
+    if answer_context
+      @answer.content = answer_context['content']
     end
   end
   
   def user=user_context
     @user = OpenStruct.new
     if user_context
-      birthday = user_context['birthday']
-      @user.birthday = OpenStruct.new(day:birthday['day'], month:birthday['month'], year:birthday['year'])
-      @user.telephone = user_context['telephone']
+      birthdate = user_context['birthdate']
+      @user.birthdate = OpenStruct.new(day:birthdate['day'], month:birthdate['month'], year:birthdate['year'])
+      @user.land_phone = user_context['land_phone']
+      @user.mobile_phone = user_context['mobile_phone']
       @user.gender = user_context['gender']
-      @user.firstname = user_context['firstname']
-      @user.lastname = user_context['lastname']
-      @user.address = user_context['address']
-      @user.postalcode = user_context['postalcode']
-      @user.city = user_context['city']
+      @user.first_name = user_context['first_name']
+      @user.last_name = user_context['last_name']
+      address = user_context['address']
+      @user.address = OpenStruct.new(address_1:address['address1'], zip:address['zip'], city:address['city'], country:address['country'])
     end
   end
   
