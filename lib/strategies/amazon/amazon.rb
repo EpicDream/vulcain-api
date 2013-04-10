@@ -12,7 +12,7 @@ class Amazon
   LOGIN_PASSWORD = '//*[@id="ap_password"]'
   LOGIN_SUBMIT = '//*[@id="signInSubmit"]'
   UNLOG_URL = 'http://www.amazon.fr/gp/flex/sign-out.html/ref=gno_signout?ie=UTF8&action=sign-out&path=%2Fgp%2Fyourstore%2Fhome&signIn=1&useRedirectOnSuccess=1'
-  ADD_TO_CART = '//*[@id="bb_atc_button"]'
+  ADD_TO_CART = '//*[@id="bb_atc_button" or @id="addToCartButton"]'
   ACCESS_CART = '//*[@id="nav-cart"]/span[1]/span/span[3]'
   DELETE_LINK_NAME = 'Supprimer'
   EMPTIED_CART_MESSAGE = '//*[@id="cart-active-items"]/div[2]/h3'
@@ -33,7 +33,13 @@ class Amazon
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
   SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a'
   
-  SIZE_COMBO_BOX = '//*[@id="dropdown_size_name"]'
+  SELECT_SIZE = '//*[@id="dropdown_size_name"]'
+  SELECT_COLOR = '//*[@id="selected_color_name"]'
+  COLORS = '//div[@key="color_name"]'
+  COLOR_SELECTOR = lambda { |id| "//*[@id='color_name_#{id}']"}
+  UNAVAILABLE_COLORS = '//div[@class="swatchUnavailable"]'
+  
+  OPEN_SESSION_TITLE = '//*[@id="ap_signin1a_pagelet"]'
   
   attr_accessor :context, :strategy
   
@@ -47,6 +53,7 @@ class Amazon
 
       step('run') do
         run_step('create account') if account.new_account
+        run_step('unlog')
         run_step('login')
         run_step('empty cart')
         run_step('add to cart')
@@ -77,32 +84,63 @@ class Amazon
         message Strategy::LOGGED_MESSAGE
       end
       
-      step('set options') do
-        message = {:questions => []}
-        if exists? SIZE_COMBO_BOX
-          options = options_of_select(SIZE_COMBO_BOX)
-          options.delete_if { |value, text| value == "-1"}
-          questions.merge!({'1' => {action:"select_option(#{SIZE_COMBO_BOX}, #{answer})"}})
-          question = { :text => "Choix de la taille",
-                       :id => "1",
-                       :options => options
-               }
-          message[:questions] << question 
+      step('size option') do
+        options = options_of_select(SELECT_SIZE)
+        options.delete_if { |value, text| value == "-1"}
+        questions.merge!({'1' => "select_option('#{SELECT_SIZE}', answer)"})
+        { :text => "Choix de la taille", :id => "1", :options => options }
+      end
+      
+      step('color option') do
+        colors = find_elements(COLORS).inject({}) do |colors, element|
+          hash = { element.attribute('count') => element.attribute('title').gsub(/Cliquez pour sélectionner /, '') }
+          colors.merge!(hash)
         end
-        message
+        unavailable = find_elements(UNAVAILABLE_COLORS).map do |element|
+          element.attribute('id').gsub(/color_name_/, '')
+        end
+        colors.delete_if { |id, title|  unavailable.include?(id)}
+        questions.merge!({'2' => "click_on(COLOR_SELECTOR.(answer))"})
+        { :text => "Choix de la couleur", :id => "2", :options => colors }
+      end
+      
+      step('select options') do
+        if steps_options.none?
+          sleep(1)
+          click_on ADD_TO_CART
+          run_step 'add to cart'
+        else
+          message = {:questions => []}
+          question = run_step(steps_options.shift)
+          message[:questions] << question 
+          ask message, next_step:'select option'
+        end
+      end
+      
+      step('select option') do
+        raise unless answers || answers.any?
+        answers.each do |_answer|
+          answer = _answer.answer
+          action = questions[_answer.question_id]
+          eval(action)
+        end
+        run_step('select options')
       end
       
       step('add to cart') do
-        order.products_urls.each do |url|
+        if url = order.products_urls.shift
           open_url url
           wait_for([ADD_TO_CART])
-          if exists?(SIZE_COMBO_BOX) #|| exists?...
-            message = run_step('set options')
-            ask message, next_step:'add'
-            
-          else
+          steps_options << 'size option' if exists?(SELECT_SIZE)
+          steps_options << 'color option' if exists?(SELECT_COLOR)
+          
+          if steps_options.empty?
             click_on ADD_TO_CART
+            run_step 'add to cart'
+          else
+            run_step('select options')
           end
+          
         end
       end
       

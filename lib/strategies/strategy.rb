@@ -10,7 +10,7 @@ class Strategy
   MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
-  attr_accessor :account, :order, :response, :user, :questions
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options
   
   def initialize context, &block
     @driver = Driver.new
@@ -18,6 +18,7 @@ class Strategy
     self.context = context
     @next_step = nil
     @steps = {}
+    @steps_options = []
     @questions = {}
     self.instance_eval(&@block)
   end
@@ -26,8 +27,8 @@ class Strategy
     @steps['run'].call
   end
   
-  def next_step
-    @steps[@next_step].call
+  def next_step args=nil
+    @steps[@next_step].call(args)
     @next_step = nil
   end
   
@@ -110,6 +111,10 @@ class Strategy
     @driver.find_any_element xpaths
   end
   
+  def find_elements xpath
+    @driver.find_elements xpath
+  end
+  
   def fill xpath, args={}
     input = @driver.find_element(xpath)
     input.clear
@@ -148,7 +153,7 @@ class Strategy
   def context=context
     self.account = context['account']
     self.order = context['order']
-    self.answer = context['answer']
+    self.answers = context['answers']
     self.user = context['user']
     @session = context['session']
     @context = context
@@ -172,27 +177,28 @@ class Strategy
     end
   end
   
-  def answer=answer_context
-    @answer = OpenStruct.new
-    if answer_context
-      @answer.content = answer_context['content']
+  def answers=answers
+    if answers
+      @answers = answers.map do |answer|
+        OpenStruct.new(:question_id => answer['question_id'], :answer => answer['answer'])
+      end
     end
   end
   
   def user=user_context
     @user = OpenStruct.new
     if user_context
-      birthdate = user_context['birthdate']
-      @user.birthdate = OpenStruct.new(day:birthdate['day'], month:birthdate['month'], year:birthdate['year'])
-      @user.land_phone = user_context['land_phone']
-      @user.mobile_phone = user_context['mobile_phone']
-      @user.gender = user_context['gender']
-      @user.first_name = user_context['first_name']
-      @user.last_name = user_context['last_name']
-      address = user_context['address']
-      @user.address = OpenStruct.new(address_1:address['address1'],
-                                     address_2:address['address2'],
-                                     additionnal_address:address['additionnal_address'],
+      birthdate           = user_context['birthdate']
+      @user.birthdate     = OpenStruct.new(day:birthdate['day'], month:birthdate['month'], year:birthdate['year'])
+      @user.land_phone    = user_context['land_phone']
+      @user.mobile_phone  = user_context['mobile_phone']
+      @user.gender        = user_context['gender']
+      @user.first_name    = user_context['first_name']
+      @user.last_name     = user_context['last_name']
+      address             = user_context['address']
+      @user.address       = OpenStruct.new(address_1:address['address1'],
+                                           address_2:address['address2'],
+                                           additionnal_address:address['additionnal_address'],
                                            zip:address['zip'], 
                                            city:address['city'], 
                                            country:address['country'])

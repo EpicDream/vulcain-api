@@ -53,6 +53,10 @@ class Driver
     waiting { driver.find_elements(:xpath => xpath).first }
   end
   
+  def find_elements xpath
+    waiting { driver.find_elements(:xpath => xpath) }
+  end
+  
   def find_any_element xpaths
     waiting { 
       xpaths.inject(nil) do |element, xpath|

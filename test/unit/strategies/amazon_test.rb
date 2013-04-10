@@ -66,12 +66,38 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('finalize order')
   end
   
-  test "choices on 'taille' and 'couleur" do
+  test "log and unlog" do
+    strategy.exchanger.expects(:publish).times(1)
+    strategy.run_step('login')
+    strategy.run_step('unlog')
+    assert strategy.exists? Amazon::OPEN_SESSION_TITLE
+  end
+  
+  test "choices on 'taille' and 'couleur'" do
     strategy.exchanger.expects(:publish).times(1)
     @context['order']['products_urls'] = [PRODUCT_URL_3]
     strategy.context = @context
     strategy.run_step('login')
+    ask_message = {'verb' => 'ask', 'content' => {:questions => [size_question]}}
+    strategy.exchanger.expects(:publish).with(ask_message, @context['session'])
+    ask_message = {'verb' => 'ask', 'content' => {:questions => [color_question]}}
+    strategy.exchanger.expects(:publish).with(ask_message, @context['session'])
     strategy.run_step('add to cart')
+    @context.merge!({'answers' => [{'question_id' => '1', 'answer' => '0'}]})
+    strategy.context = @context
+    strategy.run_step('select option')
+    @context.merge!({'answers' => [{'question_id' => '2', 'answer' => '0'}]})
+    strategy.context = @context
+    strategy.run_step('select option')
   end
   
+  private
+  
+  def size_question
+    {:text => 'Choix de la taille', :id => '1', :options => {'0' => '28', '1' => '30', '2' => '32', '3' => '34', '4' => '36', '5' => 'FR : 28 (Taille Fabricant : 1)', '6' => 'FR : 30 (Taille Fabricant : 2)', '7' => 'FR : 32 (Taille Fabricant : 2)', '8' => 'FR : 34 (Taille Fabricant : 2)', '9' => 'FR : 36 (Taille Fabricant : 1)'}}
+  end
+  
+  def color_question
+    {:text => 'Choix de la couleur', :id => '2', :options => {'0' => 'Jet Black'}}
+  end
 end
