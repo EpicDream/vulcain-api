@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'ostruct'
 
 class Strategy
@@ -39,6 +40,10 @@ class Strategy
   
   def step name, &block
     @steps[name] = block
+  end
+  
+  def run
+    run_step('run')
   end
   
   def ask message, state={}
