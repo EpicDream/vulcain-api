@@ -19,7 +19,7 @@ class Amazon
   ORDER_BUTTON_NAME = 'Passer la commande'
   ORDER_PASSWORD = '//*[@id="ap_password"]'
   ORDER_LOGIN_SUBMIT = '//*[@id="signInSubmit"]'
-  SELECT_SHIPMENT_TITLE = '/html/body/div[4]/div[2]/div[1]/h1'
+  NEW_ADDRESS_TITLE = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div'
   SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
   SHIPMENT_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
   SHIPMENT_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
@@ -128,7 +128,7 @@ class Amazon
       end
       
       step('add to cart') do
-        if url = order.products_urls.shift
+        if url = next_product_url
           open_url url
           wait_for([ADD_TO_CART])
           steps_options << 'size option' if exists?(SELECT_SIZE)
@@ -176,7 +176,7 @@ class Amazon
         click_on_button_with_name ORDER_BUTTON_NAME
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
-        wait_for [SELECT_SHIPMENT_TITLE]
+        wait_for [NEW_ADDRESS_TITLE]
         if exists? SHIPMENT_SEND_TO_THIS_ADDRESS
           click_on SHIPMENT_SEND_TO_THIS_ADDRESS
         else

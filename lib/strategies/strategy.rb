@@ -20,6 +20,7 @@ class Strategy
     @steps = {}
     @steps_options = []
     @questions = {}
+    @product_url_index = 0
     self.instance_eval(&@block)
   end
   
@@ -55,6 +56,10 @@ class Strategy
     message = {'verb' => MESSAGES_VERBS[:terminate]}
     @driver.quit
     exchanger.publish(message, @session)
+  end
+  
+  def next_product_url
+    order.products_urls[(@product_url_index += 1) - 1]
   end
   
   def get_text xpath
@@ -151,57 +156,29 @@ class Strategy
   end
   
   def context=context
-    self.account = context['account']
-    self.order = context['order']
-    self.answers = context['answers']
-    self.user = context['user']
-    @session = context['session']
     @context = context
+    @account = object_to_openstruct context['account']
+    @order = object_to_openstruct context['order']
+    @answers = object_to_openstruct context['answers']
+    @user = object_to_openstruct context['user']
+    @session = context['session']
   end
   
   private
   
-  def account=account_context
-    @account = OpenStruct.new
-    if account_context
-      @account.password = account_context['password']
-      @account.login = account_context['login']
-      @account.new_account = account_context['new_account'] == 'true'
-    end
-  end
-  
-  def order=order_context
-    @order = OpenStruct.new
-    if order_context
-      @order.products_urls = order_context['products_urls']
-    end
-  end
-  
-  def answers=answers
-    if answers
-      @answers = answers.map do |answer|
-        OpenStruct.new(:question_id => answer['question_id'], :answer => answer['answer'])
+  def object_to_openstruct(object)
+    case object
+    when Hash
+      object = object.clone
+      object.each do |key, value|
+        object[key] = object_to_openstruct(value)
       end
-    end
-  end
-  
-  def user=user_context
-    @user = OpenStruct.new
-    if user_context
-      birthdate           = user_context['birthdate']
-      @user.birthdate     = OpenStruct.new(day:birthdate['day'], month:birthdate['month'], year:birthdate['year'])
-      @user.land_phone    = user_context['land_phone']
-      @user.mobile_phone  = user_context['mobile_phone']
-      @user.gender        = user_context['gender']
-      @user.first_name    = user_context['first_name']
-      @user.last_name     = user_context['last_name']
-      address             = user_context['address']
-      @user.address       = OpenStruct.new(address_1:address['address1'],
-                                           address_2:address['address2'],
-                                           additionnal_address:address['additionnal_address'],
-                                           zip:address['zip'], 
-                                           city:address['city'], 
-                                           country:address['country'])
+      OpenStruct.new(object)
+    when Array
+      object = object.clone
+      object.map! { |i| object_to_openstruct(i) }
+    else
+      object
     end
   end
   

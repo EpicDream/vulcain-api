@@ -9,7 +9,7 @@ class AmazonTest < ActiveSupport::TestCase
   attr_accessor :strategy
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_07@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'marie_rose_09@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1, PRODUCT_URL_2],
                             'credentials' => {
@@ -24,8 +24,8 @@ class AmazonTest < ActiveSupport::TestCase
                            'first_name' => 'Pierre',
                            'gender' => '1',
                            'last_name' => 'Legrand',
-                           'address' => { 'address1' => '12 rue des lilas',
-                                          'address2' => '',
+                           'address' => { 'address_1' => '12 rue des lilas',
+                                          'address_2' => '',
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
@@ -38,7 +38,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   teardown do
-    #@strategy.driver.quit
+    @strategy.driver.quit
   end
   
   test "account creation" do
