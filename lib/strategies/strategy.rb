@@ -157,10 +157,10 @@ class Strategy
   
   def context=context
     @context = context
-    @account = object_to_openstruct context['account']
-    @order = object_to_openstruct context['order']
-    @answers = object_to_openstruct context['answers']
-    @user = object_to_openstruct context['user']
+    ['account', 'order', 'answers', 'user'].each do |ivar|
+      next unless context[ivar]
+      instance_variable_set "@#{ivar}", object_to_openstruct(context[ivar])
+    end
     @session = context['session']
   end
   
