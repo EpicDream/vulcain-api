@@ -1,5 +1,6 @@
-class PaymentsController < ApplicationController
+class AnswersController < ApplicationController
   SESSION_KEYS = ['uuid', 'callback_url', 'state']
+  ANSWERS_KEYS = ['question_id', 'answer']
   
   before_filter :set_context
   
@@ -14,20 +15,21 @@ class PaymentsController < ApplicationController
   private
   
   def set_context
-    @context = JSON.parse(params['context']) if params['context']
+    @context = params['context']
   end
   
   def check_parameters
     @context &&
-    @context['response'] &&
-    assert_keys(@context['session'].keys, SESSION_KEYS)
+    @context['answers'] &&
+    @context['answers'].count > 0 &&
+    assert_keys(@context['session'].keys, SESSION_KEYS) &&
+    @context['answers'].inject(true) { |valid, answer| valid && assert_keys(answer.keys, ANSWERS_KEYS)  }
   rescue
     false
   end
   
   def message
-    { :verb => :response, 
-      :vendor => "RueDuCommerce",
+    { :verb => :answer, 
       :context => @context
     }.to_json
   end

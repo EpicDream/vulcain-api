@@ -1,55 +1,69 @@
+# encoding: utf-8
+require 'ostruct'
+
 class Strategy
   LOGGED_MESSAGE = 'logged'
-  EMPTIED_CART_MESSAGE = 'empty_cart'
+  EMPTIED_CART_MESSAGE = 'cart emptied'
   PRICE_KEY = 'price'
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
+  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
   
-  attr_accessor :context, :exchanger, :self_exchanger
+  attr_accessor :context, :exchanger, :self_exchanger, :driver
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options
   
   def initialize context, &block
     @driver = Driver.new
     @block = block
-    @context = context
-    @step = 0
-    @steps = []
+    self.context = context
+    @next_step = nil
+    @steps = {}
+    @steps_options = []
+    @questions = {}
+    @product_url_index = 0
+    self.instance_eval(&@block)
   end
   
   def start
-    @steps[@step].call
+    @steps['run'].call
   end
   
-  def next_step response=nil
-    @steps[@step += 1].call(response)
+  def next_step args=nil
+    @steps[@next_step].call(args)
   end
   
-  def step n, &block
-    @steps[n - 1] = block
+  def run_step name
+    @steps[name].call
+  end
+  
+  def step name, &block
+    @steps[name] = block
   end
   
   def run
-    self.instance_eval(&@block)
-    start
+    run_step('run')
   end
   
-  def confirm message
-    message = {'verb' => 'confirm', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish(message, context['session'])
-  end
-  
-  def terminate
-    message = {'verb' => 'terminate'}.merge!({'session' => context['session']})
-    puts @driver.driver.page_source
-    
-    @driver.quit
-    exchanger.publish(message, context['session'])
+  def ask message, state={}
+    @next_step = state[:next_step]
+    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
+    exchanger.publish(message, @session)
   end
   
   def message message
-    message = {'verb' => 'message', 'content' => message}.merge!({'session' => context['session']})
-    exchanger.publish(message, context['session'])
-    self_exchanger.publish({'verb' => 'next_step'})
+    message = {'verb' => MESSAGES_VERBS[:message], 'content' => message}
+    exchanger.publish(message, @session)
+  end
+  
+  def terminate
+    message = {'verb' => MESSAGES_VERBS[:terminate]}
+    @driver.quit
+    exchanger.publish(message, @session)
+  end
+  
+  def next_product_url
+    order.products_urls[(@product_url_index += 1) - 1]
   end
   
   def get_text xpath
@@ -62,6 +76,14 @@ class Strategy
   
   def click_on xpath
     @driver.click_on @driver.find_element(xpath)
+  end
+  
+  def click_on_links_with_text text, &block
+    elements = @driver.find_links_with_text text
+    elements.each do |element| 
+      @driver.click_on element
+      block.call if block_given?
+    end
   end
   
   def click_on_if_exists xpath
@@ -89,6 +111,19 @@ class Strategy
     end while continue
   end
   
+  def click_on_button_with_name name
+    button = @driver.find_input_with_value(name)
+    @driver.click_on button
+  end
+  
+  def find_any_element xpaths
+    @driver.find_any_element xpaths
+  end
+  
+  def find_elements xpath
+    @driver.find_elements xpath
+  end
+  
   def fill xpath, args={}
     input = @driver.find_element(xpath)
     input.clear
@@ -98,6 +133,14 @@ class Strategy
   def select_option xpath, value
     select = @driver.find_element(xpath)
     @driver.select_option(select, value)
+  end
+  
+  def options_of_select xpath
+    select = @driver.find_element(xpath)
+    options = @driver.options_of_select select
+    options.inject({}) do |options, option|
+      options.merge!({option.attribute("value") => option.text})
+    end
   end
   
   def exists? xpath
@@ -114,6 +157,34 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
+  end
+  
+  def context=context
+    @context ||= {}
+    @context = @context.merge!(context)
+    ['account', 'order', 'answers', 'user'].each do |ivar|
+      next unless context[ivar]
+      instance_variable_set "@#{ivar}", object_to_openstruct(context[ivar])
+    end
+    @session = context['session']
+  end
+  
+  private
+  
+  def object_to_openstruct(object)
+    case object
+    when Hash
+      object = object.clone
+      object.each do |key, value|
+        object[key] = object_to_openstruct(value)
+      end
+      OpenStruct.new(object)
+    when Array
+      object = object.clone
+      object.map! { |i| object_to_openstruct(i) }
+    else
+      object
+    end
   end
   
 end

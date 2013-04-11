@@ -34,7 +34,7 @@ module Dispatcher
       undef_klasses = strategy_file('undef_klasses.rb')
       driver = strategy_file('driver.rb')
       strategy = strategy_file('strategy.rb')
-      rdc = strategy_file('rue_du_commerce/rue_du_commerce.rb')
+      rdc = strategy_file('amazon/amazon.rb')
       
       message = {'verb' => 'reload', 'context' => undef_klasses + "\n" + driver + "\n" + strategy + "\n" + rdc}
       exchange.publish message.to_json, :headers => { :vulcain => vulcain_id}

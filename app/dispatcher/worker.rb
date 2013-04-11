@@ -21,6 +21,7 @@ module Dispatcher
 
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:VULCAINS_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
+          puts "Message from Vulcain : \n#{message.inspect}"
           shopelia.request(callback_url, message)
         end
 

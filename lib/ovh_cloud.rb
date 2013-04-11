@@ -164,7 +164,7 @@ module Ovh
     def self.find_all(project_name=nil)
       instances = []
       virtual = self.new(project_name)
-      project_name = virtual.config['project_name'] unless project_name.present?
+      project_name = project_name || virtual.config['project_name']
       data = virtual.call_api('getInstances', {'projectName' => project_name})
       data.each do |instance_data|
         instance = self.new(project_name)
@@ -174,11 +174,25 @@ module Ovh
       instances
     end
 
+    def start
+      task_data = self.call_api('startInstance', {'instanceId' => self.id})
+      task = Ovh::Task.create(task_data, self.project_name)
+      self.task = task
+      self
+    end
+
+    def stop
+      task_data = self.call_api('stopInstance', {'instanceId' => self.id})
+      task = Ovh::Task.create(task_data, self.project_name)
+      self.task = task
+      self
+    end
+
     def self.create(name, instance_data, project_name=nil)
       instance = self.new(project_name)
       instance_data['name'] = name
       ['project_name', 'zone_name', 'offer_name', 'image_name'].each do |param|
-        instance_data[param.camelize(:lower)] = instance.config[param] unless instance_data[param].present?
+        instance_data[param.camelize(:lower)] = instance_data[param] || instance.config[param]
       end
       task_data = instance.call_api('newInstanceFromImage', instance_data)
       task = Ovh::Task.create(task_data, instance.project_name)
