@@ -4,7 +4,6 @@ class PaymentsController < ApplicationController
   before_filter :set_context
   
   def create
-    puts params.inspect
     unless check_parameters
       render :json => {:error => "Missing or Bad parameters"}.to_json, :status => 451
     else
