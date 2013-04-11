@@ -31,7 +31,6 @@ class Strategy
   
   def next_step args=nil
     @steps[@next_step].call(args)
-    @next_step = nil
   end
   
   def run_step name
@@ -161,7 +160,8 @@ class Strategy
   end
   
   def context=context
-    @context = context
+    @context ||= {}
+    @context = @context.merge!(context)
     ['account', 'order', 'answers', 'user'].each do |ivar|
       next unless context[ivar]
       instance_variable_set "@#{ivar}", object_to_openstruct(context[ivar])

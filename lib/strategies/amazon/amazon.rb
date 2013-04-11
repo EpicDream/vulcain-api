@@ -59,8 +59,6 @@ class Amazon
         run_step('login')
         run_step('empty cart')
         run_step('add to cart')
-        # run_step('finalize order')
-        # run_step('payment')
       end
       
       step('create account') do
@@ -142,7 +140,8 @@ class Amazon
           else
             run_step('select options')
           end
-          
+        else
+          run_step('finalize order')
         end
       end
       
@@ -185,6 +184,7 @@ class Amazon
           run_step 'fill shipping form'
         end
         click_on SHIPMENT_CONTINUE
+        # run_step('payment')
       end
       
       step('payment') do
