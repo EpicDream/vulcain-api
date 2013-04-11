@@ -26,7 +26,7 @@ class OrdersControllerTest < ActionController::TestCase
   
   def request_body
     {'context' => {'account' => {'login' => 'marie_rose_09@yopmail.com', 'password' => 'shopelia2013'},
-                   'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                   'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                    'order' => {'products_urls' => ['url']}},
       'vendor' => 'RueDuCommerce'
     }

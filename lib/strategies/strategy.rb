@@ -22,6 +22,7 @@ class Strategy
     @steps_options = []
     @questions = {}
     @product_url_index = 0
+    @products = []
     self.instance_eval(&@block)
   end
   
@@ -64,6 +65,10 @@ class Strategy
   
   def next_product_url
     order.products_urls[(@product_url_index += 1) - 1]
+  end
+  
+  def stack_product product
+    @products << product
   end
   
   def get_text xpath
@@ -122,6 +127,15 @@ class Strategy
   
   def find_elements xpath
     @driver.find_elements xpath
+  end
+  
+  def find_element xpath
+    find_elements(xpath).first
+  end
+  
+  def image_url xpath
+    element = find_element(xpath)
+    element.attribute('src') if element
   end
   
   def fill xpath, args={}

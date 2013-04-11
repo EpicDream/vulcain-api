@@ -34,14 +34,16 @@ class Amazon
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
   SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a'
-  
   SELECT_SIZE = '//*[@id="dropdown_size_name"]'
   SELECT_COLOR = '//*[@id="selected_color_name"]'
   COLORS = '//div[@key="color_name"]'
   COLOR_SELECTOR = lambda { |id| "//*[@id='color_name_#{id}']"}
   UNAVAILABLE_COLORS = '//div[@class="swatchUnavailable"]'
-  
   OPEN_SESSION_TITLE = '//*[@id="ap_signin1a_pagelet"]'
+  PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"]'
+  PRICE = '//*[@id="priceBlock"]'
+  TITLE = '//*[@id="btAsinTitle"]'
+  IMAGE = '//*[@id="original-main-image"]'
   
   attr_accessor :context, :strategy
   
@@ -127,10 +129,24 @@ class Amazon
         run_step('select options')
       end
       
+      step('build product') do
+        product = OpenStruct.new
+        product.shipping_text = get_text(PRICE_PLUS_SHIPPING) if exists? PRICE_PLUS_SHIPPING
+        product.price_text = get_text(PRICE).gsub(/Détails/i, '')
+        product.title = get_text TITLE
+        product.image_url = image_url(IMAGE)
+        product.shipping = (product.shipping_text =~ /\+\s+EUR\s+([\d,]+)/i) and $1.gsub(/,/,'.').to_f
+        product.price = (product.price_text =~ /([\d,]+)/i) and $1.gsub(/,/,'.').to_f
+        puts product.inspect
+        stack_product(product)
+      end
+      
       step('add to cart') do
         if url = next_product_url
           open_url url
           wait_for([ADD_TO_CART])
+          run_step('build product')
+          
           steps_options << 'size option' if exists?(SELECT_SIZE)
           steps_options << 'color option' if exists?(SELECT_COLOR)
           
