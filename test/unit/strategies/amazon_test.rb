@@ -5,7 +5,8 @@ class AmazonTest < ActiveSupport::TestCase
   PRODUCT_URL_1 = 'http://www.amazon.fr/C%C3%A9line-Romans-2-Louis-Ferdinand/dp/2070107973/ref=pd_sim_b_2'
   PRODUCT_URL_2 = 'http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4'
   PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
-
+  PRODUCT_URL_4 = 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'
+  
   attr_accessor :strategy
   
   setup do
@@ -38,7 +39,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   teardown do
-    @strategy.driver.quit
+    #@strategy.driver.quit
   end
   
   test "account creation" do
@@ -63,7 +64,6 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
-    strategy.run_step('finalize order')
   end
   
   test "log and unlog" do
@@ -89,6 +89,14 @@ class AmazonTest < ActiveSupport::TestCase
     @context.merge!({'answers' => [{'question_id' => '2', 'answer' => '0'}]})
     strategy.context = @context
     strategy.run_step('select option')
+  end
+  
+  test "get product object with price, shipping price, title and image url" do
+    strategy.exchanger.expects(:publish).times(2)
+    @context['order']['products_urls'] = [PRODUCT_URL_4, PRODUCT_URL_3]
+    strategy.context = @context
+    strategy.run_step('login')
+    strategy.run_step('add to cart')
   end
   
   private

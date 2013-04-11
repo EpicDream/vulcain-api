@@ -1,7 +1,7 @@
 class OrdersController < ApplicationController
   VENDOR_KEY = 'vendor'
   ACCOUNT_KEYS = ['login', 'password']
-  SESSION_KEYS = ['uuid', 'callback_url', 'state']
+  SESSION_KEYS = ['uuid', 'callback_url']
   ORDER_KEYS = ['products_urls']
   VENDORS = ['Amazon', 'RueDuCommerce', 'Fnac']
   
