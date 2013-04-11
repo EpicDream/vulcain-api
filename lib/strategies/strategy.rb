@@ -3,7 +3,7 @@ require 'ostruct'
 
 class Strategy
   LOGGED_MESSAGE = 'logged'
-  EMPTIED_CART_MESSAGE = 'empty_cart'
+  EMPTIED_CART_MESSAGE = 'cart emptied'
   PRICE_KEY = 'price'
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'

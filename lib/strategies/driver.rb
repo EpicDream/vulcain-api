@@ -7,12 +7,14 @@ $selenium_headless_runner.start
 class Driver
   USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17"
   TIMEOUT = 20
+  MAX_ATTEMPTS_ON_RAISE = 20
   
   attr_accessor :driver, :wait
   
   def initialize options={}
     @driver = Selenium::WebDriver.for :chrome, :switches => ["--user-agent=#{options[:user_agent] || USER_AGENT}"]
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
+    @attempts = 0
   end
   
   def quit
@@ -82,8 +84,13 @@ class Driver
       begin
         yield
       rescue => e
-        puts e.inspect
-        sleep(0.1) and retry #retry < 1000 times else raise
+        if @attempts += 1 <= MAX_ATTEMPTS_ON_RAISE
+          sleep(0.1) and retry
+        else
+          puts e.inspect
+          @attempts = 0
+          raise
+        end
       end  
     end
   end

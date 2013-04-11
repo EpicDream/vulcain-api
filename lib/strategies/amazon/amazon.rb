@@ -184,13 +184,13 @@ class Amazon
           run_step 'fill shipping form'
         end
         click_on SHIPMENT_CONTINUE
-        # run_step('payment')
+        run_step('payment')
       end
       
       step('payment') do
         #message : prices
         #confirm ?
-        terminate
+        #terminate
       end
       
     end
