@@ -15,6 +15,7 @@ class Driver
     @driver = Selenium::WebDriver.for :chrome, :switches => ["--user-agent=#{options[:user_agent] || USER_AGENT}"]
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
+    @driver.manage.delete_all_cookies
   end
   
   def quit

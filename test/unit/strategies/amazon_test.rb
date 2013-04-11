@@ -63,7 +63,6 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
-    strategy.run_step('finalize order')
   end
   
   test "log and unlog" do

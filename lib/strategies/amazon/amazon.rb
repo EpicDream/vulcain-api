@@ -30,7 +30,7 @@ class Amazon
   SHIPMENT_ZIP = '//*[@id="enterAddressPostalCode"]'
   SHIPMENT_PHONE = '//*[@id="enterAddressPhoneNumber"]'
   SHIPMENT_SUBMIT = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[6]/span/span/input'
-  SHIPMENT_CONTINUE = '//*[@id="continue"]'
+  SHIPMENT_CONTINUE = '//*[@id="continue"] | //*[@id="shippingOptionFormId"]/div[1]/div[2]/div/span/span/input'
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
   SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a'
