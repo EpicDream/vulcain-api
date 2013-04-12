@@ -14,11 +14,11 @@ class AmazonTest < ActiveSupport::TestCase
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1, PRODUCT_URL_2],
                             'credentials' => {
-                              'owner' => '', 
-                              'number' => '', 
-                              'exp_month' => '',
-                              'exp_year' => '',
-                              'cvv' => ''}},
+                              'holder' => 'MARIE ROSE', 
+                              'number' => '101290129019201', 
+                              'exp_month' => 1,
+                              'exp_year' => 2014,
+                              'cvv' => 123}},
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
                            'mobile_phone' => '0134562345',
                            'land_phone' => '0134562345',
@@ -41,7 +41,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      strategy.driver.quit
+      #strategy.driver.quit
     rescue
     end
   end
@@ -64,7 +64,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "finalize order" do
-    strategy.exchanger.expects(:publish).times(6)
+    strategy.exchanger.expects(:publish).times(8)
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
@@ -97,20 +97,61 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "get product object with price, shipping price, title and image url" do
-    strategy.exchanger.expects(:publish).times(4)
-    message = {'verb' => 'message', 'content' => products}
-    strategy.exchanger.expects(:publish).with(message, @context['session'])
-    @context['order']['products_urls'] = [PRODUCT_URL_4, PRODUCT_URL_3]
+    strategy.exchanger.expects(:publish).times(7)
+    @context['order']['products_urls'] = [PRODUCT_URL_4]
     strategy.context = @context
     strategy.run_step('login')
+    strategy.run_step('empty cart')
     strategy.run_step('add to cart')
+    message = {'verb' => 'message', 'content' => products}
+    strategy.exchanger.expects(:publish).with(message, @context['session'])
     strategy.run_step('finalize order')
+    strategy.run_step('payment')
+  end
+  
+  test "something interesting" do
+    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
+                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                 'order' => {'products_urls' => ['http://www.amazon.fr/La-Belle-Clochard-Peggy-Lee/dp/B0065HDMNO'],
+                             'credentials' => {
+                               'holder' => 'M ERICE LARCHEVEQUE', 
+                               'number' => '4561003435926735', 
+                               'exp_month' => 5,
+                               'exp_year' => 2013,
+                               'cvv' => 400}},
+                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                            'mobile_phone' => '0959497434',
+                            'land_phone' => '0959497434',
+                            'first_name' => 'Eric',
+                            'gender' => 1,
+                            'last_name' => 'Larcheveque',
+                            'address' => { 'address_1' => '14 boulevard du Chateau',
+                                           'address_2' => '',
+                                           'additionnal_address' => '',
+                                           'zip' => '92200',
+                                           'city' => ' Neuilly sur Seine',
+                                           'country' => 'France'}
+                           }
+                 }
+
+     @strategy = Amazon.new(@context).strategy
+     @strategy.exchanger = stub()
+     @strategy.self_exchanger = @strategy.exchanger
+     
+     strategy.exchanger.expects(:publish).times(10)
+     strategy.run_step('unlog')
+     strategy.run_step('login')
+     strategy.run_step('remove credit card')
+     strategy.run_step('empty cart')
+     strategy.run_step('add to cart')
+     strategy.run_step('finalize order')
+     strategy.run_step('payment')
   end
   
   private
   
   def products
-    {:products => [{"shipping_text"=>"EUR 25,95 + EUR 6,61 (livraison)", "price_text"=>"Prix : EUR 25,95", "title"=>"Lampe frontale TIKKA² Gris", "image_url"=>"http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg", "shipping"=>6.61, "price"=>25.95}, {"shipping_text"=>"", "price_text"=>"Prix : EUR 40,00 & livraison et retour gratuits ", "title"=>"Oakley Represent Short homme", "image_url"=>"http://ecx.images-amazon.com/images/I/41Ba3%2BKXceL._AA300_.jpg", "shipping"=>0, "price"=>40.0}]}
+    {:products => [{'shipping_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'title' => 'Lampe frontale TIKKA² Gris', 'image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'shipping' => 6.61, 'price' => 25.95}]}
   end
   
   def size_question
