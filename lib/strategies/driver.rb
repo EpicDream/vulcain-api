@@ -86,7 +86,7 @@ class Driver
         yield
       rescue => e
         if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
-          sleep(0.1) and retry
+          sleep(1) and retry
         else
           puts e.inspect
           @attempts = 0
