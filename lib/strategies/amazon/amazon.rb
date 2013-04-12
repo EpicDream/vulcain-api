@@ -45,6 +45,14 @@ class Amazon
   TITLE = '//*[@id="btAsinTitle"]'
   IMAGE = '//*[@id="original-main-image"]'
   
+  ADD_NEW_CREDIT_CARD = '//*[@id="add-credit-card"]'
+  CREDIT_CARD_NUMBER = '//*[@id="newCreditCardNumber"]'
+  CREDIT_CARD_HOLDER = '//*[@id="ccname"]'
+  CREDIT_CARD_EXP_MONTH = '//*[@id="ccmonth"]'
+  CREDIT_CARD_EXP_YEAR = '//*[@id="ccyear"]'
+  CREDIT_CARD_CVV = '//*[@id="securitycode"]'
+  SUBMIT_NEW_CARD = '//*[@id="new-cc"]/tbody/tr[3]/td[2]/span/span/input'
+  
   attr_accessor :context, :strategy
   
   def initialize context
@@ -198,12 +206,19 @@ class Amazon
           run_step 'fill shipping form'
         end
         click_on SHIPMENT_CONTINUE
-        run_step('payment')
+        message({products:products}, next_step:'payment')
       end
       
       step('payment') do
-        message({products:products})
-        terminate
+        #Check card exists? => remove
+        click_on ADD_NEW_CREDIT_CARD
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on SUBMIT_NEW_CARD
+        #terminate
       end
       
     end
