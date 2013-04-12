@@ -191,6 +191,7 @@ class Amazon
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
         wait_for [NEW_ADDRESS_TITLE]
+        sleep(2)
         if exists? SHIPMENT_SEND_TO_THIS_ADDRESS
           click_on SHIPMENT_SEND_TO_THIS_ADDRESS
         else
