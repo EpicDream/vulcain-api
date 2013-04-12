@@ -1,9 +1,28 @@
 # encoding: utf-8
-require 'ostruct'
+require "ostruct"
+
+class Object
+  def to_openstruct
+    case self
+    when Hash
+      object = self.clone
+      object.each do |key, value|
+        object[key] = value.to_openstruct
+      end
+      OpenStruct.new(object)
+    when Array
+      object = self.clone
+      object.map! { |element| element.to_openstruct }
+    else
+      self
+    end
+  end
+end
 
 class Strategy
   LOGGED_MESSAGE = 'logged'
   EMPTIED_CART_MESSAGE = 'cart emptied'
+  CB_REMOVED = 'credit card removed'
   CART_FILLED = 'cart filled'
   PRICE_KEY = 'price'
   SHIPPING_PRICE_KEY = 'shipping_price'
@@ -180,27 +199,9 @@ class Strategy
     @context = @context.merge!(context)
     ['account', 'order', 'answers', 'user'].each do |ivar|
       next unless context[ivar]
-      instance_variable_set "@#{ivar}", object_to_openstruct(context[ivar])
+      instance_variable_set "@#{ivar}", context[ivar].to_openstruct
     end
     @session = context['session']
-  end
-  
-  private
-  
-  def object_to_openstruct(object)
-    case object
-    when Hash
-      object = object.clone
-      object.each do |key, value|
-        object[key] = object_to_openstruct(value)
-      end
-      OpenStruct.new(object)
-    when Array
-      object = object.clone
-      object.map! { |i| object_to_openstruct(i) }
-    else
-      object
-    end
   end
   
 end

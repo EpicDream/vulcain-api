@@ -29,7 +29,8 @@ class Amazon
   SHIPMENT_CITY = '//*[@id="enterAddressCity"]'
   SHIPMENT_ZIP = '//*[@id="enterAddressPostalCode"]'
   SHIPMENT_PHONE = '//*[@id="enterAddressPhoneNumber"]'
-  SHIPMENT_SUBMIT = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[6]/span/span/input'
+  SHIPMENT_SUBMIT = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[6]/span/span/input |
+                     //*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[5]/span/span/input'
   SHIPMENT_CONTINUE = '//*[@id="continue"] | //*[@id="shippingOptionFormId"]/div[1]/div[2]/div/span/span/input'
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
@@ -52,6 +53,14 @@ class Amazon
   CREDIT_CARD_EXP_YEAR = '//*[@id="ccyear"]'
   CREDIT_CARD_CVV = '//*[@id="securitycode"]'
   SUBMIT_NEW_CARD = '//*[@id="new-cc"]/tbody/tr[3]/td[2]/span/span/input'
+  CONTINUE_TO_PAYMENT = '//*[@id="continue-top"]'
+  USE_THIS_ADDRESS = '//*[@id="existingaddresses"]/div[9]/input[3]'
+  VALIDATE_ORDER = '//*[@id="buybutton"]/div[2]/p/input'
+  ORDER_SUMMARY = '//*[@id="SPCSubtotals-marketplace-table"]'
+  
+  PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
+  REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
+  VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
   
   attr_accessor :context, :strategy
   
@@ -67,6 +76,14 @@ class Amazon
         run_step('create account') if account.new_account
         run_step('unlog')
         run_step('login')
+      end
+      
+      step('remove credit card') do
+        open_url PAYMENTS_PAGE
+        sleep(2)
+        click_on_if_exists REMOVE_CB
+        click_on_if_exists VALIDATE_REMOVE_CB
+        message Strategy::CB_REMOVED, :next_step => 'empty cart'
       end
       
       step('create account') do
@@ -89,7 +106,7 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Strategy::LOGGED_MESSAGE, :next_step => 'empty cart'
+        message Strategy::LOGGED_MESSAGE, :next_step => 'remove credit card'
       end
       
       step('size option') do
@@ -168,9 +185,7 @@ class Amazon
       
       step('empty cart') do
         click_on ACCESS_CART
-        click_on_links_with_text(DELETE_LINK_NAME) do
-          sleep(1)
-        end
+        click_on_links_with_text(DELETE_LINK_NAME) { sleep(2)}
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
@@ -200,25 +215,36 @@ class Amazon
         click_on ORDER_LOGIN_SUBMIT
         wait_for [NEW_ADDRESS_TITLE]
         sleep(2)
-        if exists? SHIPMENT_SEND_TO_THIS_ADDRESS
-          click_on SHIPMENT_SEND_TO_THIS_ADDRESS
-        else
+        unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
         end
+        sleep(2)
         click_on SHIPMENT_CONTINUE
-        message({products:products}, next_step:'payment')
+        questions.merge!({'3' => ""})
+        message = {:questions => [{ :text => "Valider le paiement ?", :id => "3", :options => ["yes", "no"] }],
+                   :products => products}
+        ask message, next_step:'payment'
       end
       
       step('payment') do
-        #Check card exists? => remove
-        click_on ADD_NEW_CREDIT_CARD
-        fill CREDIT_CARD_NUMBER, with:order.credentials.number
-        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
-        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
-        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
-        fill CREDIT_CARD_CVV, with:order.credentials.cvv
-        click_on SUBMIT_NEW_CARD
-        #terminate
+        answer = answers.detect { |answer| answer.question_id == "3"}
+        if answer.answer == "yes"
+          click_on ADD_NEW_CREDIT_CARD
+          fill CREDIT_CARD_NUMBER, with:order.credentials.number
+          fill CREDIT_CARD_HOLDER, with:order.credentials.holder
+          select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
+          select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+          fill CREDIT_CARD_CVV, with:order.credentials.cvv
+          click_on SUBMIT_NEW_CARD
+          sleep(2)
+          click_on CONTINUE_TO_PAYMENT
+          click_on USE_THIS_ADDRESS
+          wait_for([ORDER_SUMMARY])
+          sleep(2)
+          click_on VALIDATE_ORDER
+          terminate
+        end
+        
       end
       
     end

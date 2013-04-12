@@ -64,7 +64,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "finalize order" do
-    strategy.exchanger.expects(:publish).times(6)
+    strategy.exchanger.expects(:publish).times(8)
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
@@ -110,27 +110,27 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "something interesting" do
-    @context = {'account' => {'login' => '', 'password' => ''},
+    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
                  'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                 'order' => {'products_urls' => [],
+                 'order' => {'products_urls' => ['http://www.amazon.fr/La-Belle-Clochard-Peggy-Lee/dp/B0065HDMNO'],
                              'credentials' => {
-                               'holder' => '', 
-                               'number' => '', 
-                               'exp_month' => 1,
-                               'exp_year' => 2014,
-                               'cvv' => 123}},
+                               'holder' => 'M ERICE LARCHEVEQUE', 
+                               'number' => '4561003435926735', 
+                               'exp_month' => 5,
+                               'exp_year' => 2013,
+                               'cvv' => 400}},
                  'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                            'mobile_phone' => '',
-                            'land_phone' => '',
-                            'first_name' => '',
+                            'mobile_phone' => '0959497434',
+                            'land_phone' => '0959497434',
+                            'first_name' => 'Eric',
                             'gender' => 1,
-                            'last_name' => '',
-                            'address' => { 'address_1' => '',
+                            'last_name' => 'Larcheveque',
+                            'address' => { 'address_1' => '14 boulevard du Chateau',
                                            'address_2' => '',
                                            'additionnal_address' => '',
-                                           'zip' => '',
-                                           'city' => '',
-                                           'country' => ''}
+                                           'zip' => '92200',
+                                           'city' => ' Neuilly sur Seine',
+                                           'country' => 'France'}
                            }
                  }
 
@@ -138,9 +138,10 @@ class AmazonTest < ActiveSupport::TestCase
      @strategy.exchanger = stub()
      @strategy.self_exchanger = @strategy.exchanger
      
-     strategy.exchanger.expects(:publish).times(8)
+     strategy.exchanger.expects(:publish).times(10)
      strategy.run_step('unlog')
      strategy.run_step('login')
+     strategy.run_step('remove credit card')
      strategy.run_step('empty cart')
      strategy.run_step('add to cart')
      strategy.run_step('finalize order')
