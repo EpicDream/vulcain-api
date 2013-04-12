@@ -4,14 +4,15 @@ require 'ostruct'
 class Strategy
   LOGGED_MESSAGE = 'logged'
   EMPTIED_CART_MESSAGE = 'cart emptied'
+  CART_FILLED = 'cart filled'
   PRICE_KEY = 'price'
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
-  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success'}
+  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
-  attr_accessor :account, :order, :user, :questions, :answers, :steps_options
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products
   
   def initialize context, &block
     @driver = Driver.new
@@ -52,9 +53,14 @@ class Strategy
     exchanger.publish(message, @session)
   end
   
-  def message message
+  def message message, state={}
+    @next_step = state[:next_step]
     message = {'verb' => MESSAGES_VERBS[:message], 'content' => message}
     exchanger.publish(message, @session)
+    if @next_step
+      message = {'verb' => MESSAGES_VERBS[:next_step]}
+      self_exchanger.publish(message, @session)
+    end
   end
   
   def terminate
@@ -65,10 +71,6 @@ class Strategy
   
   def next_product_url
     order.products_urls[(@product_url_index += 1) - 1]
-  end
-  
-  def stack_product product
-    @products << product
   end
   
   def get_text xpath

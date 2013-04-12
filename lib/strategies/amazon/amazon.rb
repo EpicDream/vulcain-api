@@ -59,8 +59,6 @@ class Amazon
         run_step('create account') if account.new_account
         run_step('unlog')
         run_step('login')
-        run_step('empty cart')
-        run_step('add to cart')
       end
       
       step('create account') do
@@ -83,7 +81,7 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Strategy::LOGGED_MESSAGE
+        message Strategy::LOGGED_MESSAGE, :next_step => 'empty cart'
       end
       
       step('size option') do
@@ -130,15 +128,14 @@ class Amazon
       end
       
       step('build product') do
-        product = OpenStruct.new
-        product.shipping_text = get_text(PRICE_PLUS_SHIPPING) if exists? PRICE_PLUS_SHIPPING
-        product.price_text = get_text(PRICE).gsub(/Détails/i, '')
-        product.title = get_text TITLE
-        product.image_url = image_url(IMAGE)
-        product.shipping = (product.shipping_text =~ /\+\s+EUR\s+([\d,]+)/i) and $1.gsub(/,/,'.').to_f
-        product.price = (product.price_text =~ /([\d,]+)/i) and $1.gsub(/,/,'.').to_f
-        puts product.inspect
-        stack_product(product)
+        product = Hash.new
+        product['shipping_text'] = get_text(PRICE_PLUS_SHIPPING) if exists? PRICE_PLUS_SHIPPING
+        product['price_text'] = get_text(PRICE).gsub(/Détails/i, '')
+        product['title'] = get_text TITLE
+        product['image_url'] = image_url(IMAGE)
+        product['shipping'] = (product['shipping_text'] =~ /\+\s+EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f) || 0
+        product['price'] = (product['price_text'] =~ /([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+        products << product
       end
       
       step('add to cart') do
@@ -157,7 +154,7 @@ class Amazon
             run_step('select options')
           end
         else
-          run_step('finalize order')
+          message Strategy::CART_FILLED, :next_step => 'finalize order'
         end
       end
       
@@ -169,7 +166,7 @@ class Amazon
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Strategy::EMPTIED_CART_MESSAGE
+        message Strategy::EMPTIED_CART_MESSAGE, :next_step => 'add to cart'
       end
       
       step('fill shipping form') do
@@ -204,9 +201,8 @@ class Amazon
       end
       
       step('payment') do
-        #message : prices
-        #confirm ?
-        #terminate
+        message({products:products})
+        terminate
       end
       
     end
