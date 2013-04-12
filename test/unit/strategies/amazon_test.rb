@@ -10,7 +10,7 @@ class AmazonTest < ActiveSupport::TestCase
   attr_accessor :strategy
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_09@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'marie_rose_10@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1, PRODUCT_URL_2],
                             'credentials' => {
@@ -19,11 +19,11 @@ class AmazonTest < ActiveSupport::TestCase
                               'exp_month' => '',
                               'exp_year' => '',
                               'cvv' => ''}},
-                'user' => {'birthdate' => {'day' => '1', 'month' => '4', 'year' => '1985'},
+                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
                            'mobile_phone' => '0134562345',
                            'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
-                           'gender' => '1',
+                           'gender' => 1,
                            'last_name' => 'Legrand',
                            'address' => { 'address_1' => '12 rue des lilas',
                                           'address_2' => '',
@@ -36,10 +36,14 @@ class AmazonTest < ActiveSupport::TestCase
                 
     @strategy = Amazon.new(@context).strategy
     @strategy.exchanger = stub()
+    @strategy.self_exchanger = @strategy.exchanger
   end
   
   teardown do
-    #@strategy.driver.quit
+    begin
+      strategy.driver.quit
+    rescue
+    end
   end
   
   test "account creation" do
@@ -48,33 +52,34 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "login" do
-    strategy.exchanger.expects(:publish).times(1)
+    strategy.exchanger.expects(:publish).times(2)
     strategy.run_step('login')
   end
   
   test "empty basket" do
-    strategy.exchanger.expects(:publish).times(2)
+    strategy.exchanger.expects(:publish).times(6)
     strategy.run_step('login')
     strategy.run_step('add to cart')
     strategy.run_step('empty cart')
   end
   
   test "finalize order" do
-    strategy.exchanger.expects(:publish).times(2)
+    strategy.exchanger.expects(:publish).times(6)
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
+    strategy.run_step('finalize order')
   end
   
   test "log and unlog" do
-    strategy.exchanger.expects(:publish).times(1)
+    strategy.exchanger.expects(:publish).times(2)
     strategy.run_step('login')
     strategy.run_step('unlog')
     assert strategy.exists? Amazon::OPEN_SESSION_TITLE
   end
   
   test "choices on 'taille' and 'couleur'" do
-    strategy.exchanger.expects(:publish).times(1)
+    strategy.exchanger.expects(:publish).times(4)
     @context['order']['products_urls'] = [PRODUCT_URL_3]
     strategy.context = @context
     strategy.run_step('login')
@@ -92,14 +97,21 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "get product object with price, shipping price, title and image url" do
-    strategy.exchanger.expects(:publish).times(2)
+    strategy.exchanger.expects(:publish).times(4)
+    message = {'verb' => 'message', 'content' => products}
+    strategy.exchanger.expects(:publish).with(message, @context['session'])
     @context['order']['products_urls'] = [PRODUCT_URL_4, PRODUCT_URL_3]
     strategy.context = @context
     strategy.run_step('login')
     strategy.run_step('add to cart')
+    strategy.run_step('finalize order')
   end
   
   private
+  
+  def products
+    {:products => [{"shipping_text"=>"EUR 25,95 + EUR 6,61 (livraison)", "price_text"=>"Prix : EUR 25,95", "title"=>"Lampe frontale TIKKA² Gris", "image_url"=>"http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg", "shipping"=>6.61, "price"=>25.95}, {"shipping_text"=>"", "price_text"=>"Prix : EUR 40,00 & livraison et retour gratuits ", "title"=>"Oakley Represent Short homme", "image_url"=>"http://ecx.images-amazon.com/images/I/41Ba3%2BKXceL._AA300_.jpg", "shipping"=>0, "price"=>40.0}]}
+  end
   
   def size_question
     {:text => 'Choix de la taille', :id => '1', :options => {'0' => '28', '1' => '30', '2' => '32', '3' => '34', '4' => '36', '5' => 'FR : 28 (Taille Fabricant : 1)', '6' => 'FR : 30 (Taille Fabricant : 2)', '7' => 'FR : 32 (Taille Fabricant : 2)', '8' => 'FR : 34 (Taille Fabricant : 2)', '9' => 'FR : 36 (Taille Fabricant : 1)'}}
