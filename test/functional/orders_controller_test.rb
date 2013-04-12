@@ -3,6 +3,8 @@ require 'test_helper'
 class OrdersControllerTest < ActionController::TestCase
   
   setup do
+    @request_body = request_body
+    @dispatcher_message = dispatcher_message
   end
   
   test "create should have correct parameters" do
@@ -15,12 +17,23 @@ class OrdersControllerTest < ActionController::TestCase
   end
   
   test "create with correct parameters should call dispatcher with correct message" do
-    Dispatcher::AMQPController.expects(:request).with(dispatcher_message)
+    Dispatcher::AMQPController.expects(:request).with(dispatcher_message.to_json)
 
     post :create, request_body
     
     assert_response 200
   end
+  
+  test "create with new_account key" do
+    @request_body['context']['account'].merge!({'new_account' => true})
+    @dispatcher_message[:context] = @request_body['context']
+    Dispatcher::AMQPController.expects(:request).with(@dispatcher_message.to_json)
+
+    post :create, @request_body
+    
+    assert_response 200
+  end
+  
   
   private
   
@@ -36,7 +49,7 @@ class OrdersControllerTest < ActionController::TestCase
     { :verb => :run, 
       :vendor => "RueDuCommerce",
       :context => request_body['context']
-    }.to_json
+    }
   end
   
 end
