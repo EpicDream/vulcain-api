@@ -48,7 +48,7 @@ class Driver
   end
   
   def click_on element
-    waiting { element.click }
+    element.click
   end
   
   def find_element xpath, options={}
