@@ -91,7 +91,11 @@ class Strategy
   def next_product_url
     order.products_urls[(@product_url_index += 1) - 1]
   end
-  
+ 
+  def current_product_url
+    order.products_urls[@product_url_index - 1]
+  end
+ 
   def get_text xpath
     @driver.find_element(xpath).text
   end
