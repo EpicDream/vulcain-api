@@ -154,12 +154,13 @@ class Amazon
       
       step('build product') do
         product = Hash.new
-        product['shipping_text'] = get_text(PRICE_PLUS_SHIPPING) if exists? PRICE_PLUS_SHIPPING
+        product['delivery_text'] = get_text(PRICE_PLUS_SHIPPING) if exists? PRICE_PLUS_SHIPPING
         product['price_text'] = get_text(PRICE).gsub(/Détails/i, '')
-        product['title'] = get_text TITLE
-        product['image_url'] = image_url(IMAGE)
-        product['shipping'] = (product['shipping_text'] =~ /\+\s+EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f) || 0
-        product['price'] = (product['price_text'] =~ /([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+        product['product_title'] = get_text TITLE
+        product['product_image_url'] = image_url(IMAGE)
+        product['price_delivery'] = (product['shipping_text'] =~ /\+\s+EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f) || 0
+        product['price_product'] = (product['price_text'] =~ /([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+        product['url'] = current_product_url
         products << product
       end
       
@@ -221,7 +222,7 @@ class Amazon
         sleep(2)
         click_on SHIPMENT_CONTINUE
         questions.merge!({'3' => ""})
-        message = {:questions => [{ :text => "Valider le paiement ?", :id => "3", :options => ["yes", "no"] }],
+        message = {:questions => [{ :text => "Valider le paiement ?", :id => "3", :options => [{ "yes" => "Oui" },{ "no" => "Non" }] }],
                    :products => products}
         ask message, next_step:'payment'
       end
