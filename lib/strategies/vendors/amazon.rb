@@ -141,8 +141,12 @@ class Amazon
         else
           message = {:questions => []}
           question = run_step(steps_options.shift)
-          message[:questions] << question 
-          ask message, next_step:'select option'
+          message[:questions] << question
+          if question[:options].empty?
+            run_step('select options')
+          else
+            ask message, next_step:'select option'
+          end
         end
       end
       
