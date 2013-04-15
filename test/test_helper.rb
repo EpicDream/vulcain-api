@@ -1,9 +1,10 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'strategies/core_extensions'
 
 def require_strategy strategy
-  require "#{Rails.root}/lib/strategies/#{strategy}/#{strategy}"
+  require "#{Rails.root}/lib/strategies/vendors/#{strategy}"
 end
 
 class ActiveSupport::TestCase

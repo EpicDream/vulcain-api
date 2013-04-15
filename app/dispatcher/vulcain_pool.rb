@@ -31,17 +31,8 @@ module Dispatcher
     end
     
     def reload_vulcain exchange, vulcain_id
-      undef_klasses = strategy_file('undef_klasses.rb')
-      driver = strategy_file('driver.rb')
-      strategy = strategy_file('strategy.rb')
-      rdc = strategy_file('amazon/amazon.rb')
-      
-      message = {'verb' => 'reload', 'context' => undef_klasses + "\n" + driver + "\n" + strategy + "\n" + rdc}
+      message = {'verb' => 'reload', 'context' => Strategies::Loader.new("Amazon").code}
       exchange.publish message.to_json, :headers => { :vulcain => vulcain_id}
-    end
-    
-    def strategy_file name
-      File.read("#{Rails.root}/lib/strategies/#{name}")
     end
   
   end
