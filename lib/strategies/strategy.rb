@@ -31,7 +31,7 @@ class Strategy
   MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
-  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :invoice
   
   def initialize context, &block
     @driver = Driver.new
@@ -43,7 +43,16 @@ class Strategy
     @questions = {}
     @product_url_index = 0
     @products = []
+    @invoice = nil
     self.instance_eval(&@block)
+  end
+  
+  def invoice_from_products
+    invoice = products.inject({price:0, shipping:0}) do |invoice, product|
+      invoice[:price] += product['price']
+      invoice[:shipping] += product['shipping']
+      invoice
+    end
   end
   
   def start
@@ -140,6 +149,10 @@ class Strategy
   def click_on_button_with_name name
     button = @driver.find_input_with_value(name)
     @driver.click_on button
+  end
+  
+  def wait_for_button_with_name name
+    @driver.find_input_with_value(name)
   end
   
   def find_any_element xpaths

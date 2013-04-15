@@ -21,7 +21,6 @@ class Amazon
   ORDER_BUTTON_NAME = 'Passer la commande'
   ORDER_PASSWORD = '//*[@id="ap_password"]'
   ORDER_LOGIN_SUBMIT = '//*[@id="signInSubmit"]'
-  NEW_ADDRESS_TITLE = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div'
   SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
   SHIPMENT_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
   SHIPMENT_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
@@ -34,7 +33,8 @@ class Amazon
   SHIPMENT_CONTINUE = '//*[@id="continue"] | //*[@id="shippingOptionFormId"]/div[1]/div[2]/div/span/span/input'
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
-  SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a'
+  SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a | //*[@id="existingaddresses"]/div[1]/form/input[4]'
+  
   SELECT_SIZE = '//*[@id="dropdown_size_name"]'
   SELECT_COLOR = '//*[@id="selected_color_name"]'
   COLORS = '//div[@key="color_name"]'
@@ -61,6 +61,10 @@ class Amazon
   PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
   REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
   VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
+  
+  TAXES_AND_SHIPPING_LINK = '//*[@id="gutterCartViewForm"]/div[3]/div/div[2]/div/div/a'
+  LINK_PRICE_ITEMS =    '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[1]'
+  LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
   
   attr_accessor :context, :strategy
   
@@ -208,12 +212,26 @@ class Amazon
         end
       end
       
+      step('checkout invoice') do
+        wait_for_button_with_name ORDER_BUTTON_NAME
+        if exists? TAXES_AND_SHIPPING_LINK
+          click_on TAXES_AND_SHIPPING_LINK
+          wait_for [LINK_PRICE_ITEMS]
+          price = get_text LINK_PRICE_ITEMS
+          shipping = get_text LINK_SHIPPING_PRICE
+          invoice ||= {}
+          invoice[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          invoice[:shipping] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+        end
+      end
+      
       step('finalize order') do
         click_on ACCESS_CART
+        run_step('checkout invoice')
         click_on_button_with_name ORDER_BUTTON_NAME
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
-        wait_for [NEW_ADDRESS_TITLE]
+        wait_for [SHIPMENT_FORM_NAME]
         sleep(2)
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
@@ -222,7 +240,7 @@ class Amazon
         click_on SHIPMENT_CONTINUE
         questions.merge!({'3' => ""})
         message = {:questions => [{ :text => "Valider le paiement ?", :id => "3", :options => ["yes", "no"] }],
-                   :products => products}
+                   :products => products, :invoice => invoice || invoice_from_products}
         ask message, next_step:'payment'
       end
       
@@ -241,8 +259,8 @@ class Amazon
           click_on USE_THIS_ADDRESS
           wait_for([ORDER_SUMMARY])
           sleep(2)
-          click_on VALIDATE_ORDER
-          terminate
+        #  click_on VALIDATE_ORDER
+        #  terminate
         end
         
       end

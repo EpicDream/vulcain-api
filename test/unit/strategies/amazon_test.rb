@@ -97,15 +97,20 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "get product object with price, shipping price, title and image url" do
-    strategy.exchanger.expects(:publish).times(7)
+    strategy.exchanger.expects(:publish).times(6)
     @context['order']['products_urls'] = [PRODUCT_URL_4]
     strategy.context = @context
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
-    message = {'verb' => 'message', 'content' => products}
+    message = {'verb' => 'ask', 'content' => {
+      :questions => [{ :text => "Valider le paiement ?", :id => "3", :options => ["yes", "no"] }],
+      :products => products, 
+      :invoice => {:price => 25.95, :shipping => 6.61}}}
+    
     strategy.exchanger.expects(:publish).with(message, @context['session'])
     strategy.run_step('finalize order')
+    strategy.answers = [OpenStruct.new(question_id:"3", answer:"0")]
     strategy.run_step('payment')
   end
   
@@ -145,13 +150,13 @@ class AmazonTest < ActiveSupport::TestCase
      strategy.run_step('empty cart')
      strategy.run_step('add to cart')
      strategy.run_step('finalize order')
-     strategy.run_step('payment')
+     # strategy.run_step('payment')
   end
   
   private
   
   def products
-    {:products => [{'shipping_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'title' => 'Lampe frontale TIKKA² Gris', 'image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'shipping' => 6.61, 'price' => 25.95}]}
+    [{'shipping_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'title' => 'Lampe frontale TIKKA² Gris', 'image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'shipping' => 6.61, 'price' => 25.95}]
   end
   
   def size_question
