@@ -11,7 +11,7 @@ module Strategies
     end
     
     def code
-      binding = "# encoding: utf-8\nSTRATEGIES_VENDORS = ['#{@vendor}']\n"
+      binding = "# encoding: utf-8\n@strategies_vendors = ['#{@vendor}']\n"
       code = [REQUIRES, @vendor_require].flatten.map { |klass| strategy_file(klass) }.join("\n")
       binding + code
     end
