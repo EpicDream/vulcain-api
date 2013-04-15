@@ -49,8 +49,8 @@ class Strategy
   
   def invoice_from_products
     invoice = products.inject({price:0, shipping:0}) do |invoice, product|
-      invoice[:price] += product['price']
-      invoice[:shipping] += product['shipping']
+      invoice[:price] += product['price_product']
+      invoice[:shipping] += product['price_delivery']
       invoice
     end
   end
@@ -100,7 +100,11 @@ class Strategy
   def next_product_url
     order.products_urls[(@product_url_index += 1) - 1]
   end
-  
+ 
+  def current_product_url
+    order.products_urls[@product_url_index - 1]
+  end
+ 
   def get_text xpath
     @driver.find_element(xpath).text
   end

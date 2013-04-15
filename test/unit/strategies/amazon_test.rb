@@ -41,7 +41,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #strategy.driver.quit
+      strategy.driver.quit
     rescue
     end
   end
@@ -64,7 +64,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "finalize order" do
-    strategy.exchanger.expects(:publish).times(8)
+    strategy.exchanger.expects(:publish).times(7)
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
@@ -104,7 +104,7 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
     message = {'verb' => 'ask', 'content' => {
-      :questions => [{ :text => "Valider le paiement ?", :id => "3", :options => ["yes", "no"] }],
+      :questions => [{ :text => "Valider le paiement ?", :id => "3", :options => [{ "yes" => "Oui" },{ "no" => "Non" }] }],
       :products => products, 
       :invoice => {:price => 25.95, :shipping => 6.61}}}
     
@@ -114,49 +114,10 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('payment')
   end
   
-  test "something interesting" do
-    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
-                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                 'order' => {'products_urls' => ['http://www.amazon.fr/La-Belle-Clochard-Peggy-Lee/dp/B0065HDMNO'],
-                             'credentials' => {
-                               'holder' => 'M ERICE LARCHEVEQUE', 
-                               'number' => '4561003435926735', 
-                               'exp_month' => 5,
-                               'exp_year' => 2013,
-                               'cvv' => 400}},
-                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                            'mobile_phone' => '0959497434',
-                            'land_phone' => '0959497434',
-                            'first_name' => 'Eric',
-                            'gender' => 1,
-                            'last_name' => 'Larcheveque',
-                            'address' => { 'address_1' => '14 boulevard du Chateau',
-                                           'address_2' => '',
-                                           'additionnal_address' => '',
-                                           'zip' => '92200',
-                                           'city' => ' Neuilly sur Seine',
-                                           'country' => 'France'}
-                           }
-                 }
-
-     @strategy = Amazon.new(@context).strategy
-     @strategy.exchanger = stub()
-     @strategy.self_exchanger = @strategy.exchanger
-     
-     strategy.exchanger.expects(:publish).times(10)
-     strategy.run_step('unlog')
-     strategy.run_step('login')
-     strategy.run_step('remove credit card')
-     strategy.run_step('empty cart')
-     strategy.run_step('add to cart')
-     strategy.run_step('finalize order')
-     # strategy.run_step('payment')
-  end
-  
   private
   
   def products
-    [{'shipping_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'title' => 'Lampe frontale TIKKA² Gris', 'image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'shipping' => 6.61, 'price' => 25.95}]
+    [{'delivery_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'product_title' => 'Lampe frontale TIKKA² Gris', 'product_image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'price_delivery' => 6.61, 'price_product' => 25.95, 'url' => 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'}]
   end
   
   def size_question

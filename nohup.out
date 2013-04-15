@@ -1,0 +1,9 @@
+rake aborted!
+bad URI(absolute but no path): http://
+/home/vulcain/vulcain-api/app/dispatcher/shopelia_callback.rb:4:in `request'
+/home/vulcain/vulcain-api/app/dispatcher/worker.rb:24:in `block (2 levels) in start'
+/home/vulcain/vulcain-api/app/dispatcher/amqp_runner.rb:6:in `start'
+/home/vulcain/vulcain-api/app/dispatcher/worker.rb:9:in `start'
+/home/vulcain/vulcain-api/lib/tasks/dispatcher.rake:7:in `block (3 levels) in <top (required)>'
+Tasks: TOP => vulcain:dispatcher:start
+(See full trace by running task with --trace)
