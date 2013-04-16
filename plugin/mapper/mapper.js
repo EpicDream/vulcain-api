@@ -5,6 +5,7 @@
 function buildForms() {
   var map = shopelia.mapOptions;
   var tabs = $('#tabs');
+  tabs.find("ul > li:lt(-1), div.ui-tabs-panel").remove();
 
   for (var cat in map) {
     var tab = newStrategy(cat, map[cat]['shopelia-cat-descr']);
@@ -16,13 +17,14 @@ function buildForms() {
     tab.find('.strat').text(shopelia.strategies[cat]);
     tab.accordion("refresh");
   }
-
-  $("body > div").tabs();
+  console.log(shopelia.currentTab, parseInt(shopelia.currentTab), parseInt(shopelia.currentTab || '0'));
+  tabs.tabs({active: (parseInt(shopelia.currentTab || '0'))});
 };
 
 //
 function buildSelectKinds() {
-  var select = $(".addFieldKind");
+  var select = pattern.find(".addFieldKind");
+  select.find("option:gt(0)").remove()
   for (var k in shopelia.kinds)
     select.append($("<option value='"+k+"'>"+shopelia.kinds[k]+"</option>"));
 };
@@ -95,7 +97,7 @@ function onNewStrategy(event) {
 function onShowClicked(event) {
   var e = $(this).parent().parent().children().first();
   var xpath = getMapping(e);
-  chrome.extension.sendMessage(Object({'action': 'show', 'xpath': xpath}));
+  chrome.extension.sendMessage(Object({'dest':'contentscript','action': 'show', 'xpath': xpath}));
 };
 
 // When a 'Reset' button is clicked in Shopelia
@@ -105,11 +107,13 @@ function onResetClicked(event) {
   delete shopelia.mapping[e.attr("id")];
   e.next().removeAttr('title');
   e.removeClass("good");
-  chrome.extension.sendMessage(Object({'action':'reset', 'xpath':xpath}));
+  chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
 };
 
 //
 function onDelClicked(event) {
+  if (! confirm("Êtes vous sûr de vouloir supprimer ce champs ?")) 
+    return;
   var tr = $(this).parent().parent();
   var e = tr.children().first();
   onResetClicked(event);
@@ -190,17 +194,16 @@ function addActionToStrategy(e) {
 
 //
 function load() {
-  console.log("try to load at", shopelia.host);
-  if (shopelia.host) {
-    console.log(localStorage[shopelia.host]);
-    shopelia = $.parseJSON(localStorage[shopelia.host] || '{mapOptions:{},kinds:{},mapping:{},strategies:{}}');
+  var host = shopelia.host;
+  console.log("try to load at", host);
+  if (host) {
+    shopelia = $.parseJSON(localStorage[host] || '{mapOptions:{},kinds:{},mapping:{},strategies:{}}');
+    shopelia.host = host;
     buildSelectKinds();
     buildForms();
   } else {
-    chrome.extension.sendMessage({'action':'getUrl'}, function(resp) {
-      shopelia.host = resp;
-      load();
-    });
+    var msg = {'dest':'contentscript','action':'getUrl','reload': true};
+    chrome.extension.sendMessage(msg);
   }
   // get("https://dev.prixing.fr:3014");
 };
@@ -210,8 +213,59 @@ function save() {
   // post("https://dev.prixing.fr:3014");
   console.log("try to save at", shopelia.host);
   if (shopelia.host) {
+    console.log($("#tabs"));
+    console.log($("#tabs").tabs("option", "active"));
+    shopelia.currentTab = $("#tabs").tabs("option", "active");
     localStorage[shopelia.host] = JSON.stringify(shopelia);
+  } else {
+    var msg = {'dest':'contentscript','action':'getUrl','resave': true};
+    chrome.extension.sendMessage(msg);
   }
+}
+
+function hardinit() {
+  shopelia.mapOptions = {};
+  shopelia.mapOptions.account = {};
+  shopelia.mapOptions.connexion = {};
+  shopelia.mapOptions.product = {};
+  shopelia.mapOptions.cart = {};
+  shopelia.mapOptions.order = {};
+  shopelia.mapOptions.account['shopelia-cat-descr'] = "Inscription";
+  shopelia.mapOptions.connexion['shopelia-cat-descr'] = "Connexion";
+  shopelia.mapOptions.product['shopelia-cat-descr'] = "Produit";
+  shopelia.mapOptions.cart['shopelia-cat-descr'] = "Panier";
+  shopelia.mapOptions.order['shopelia-cat-descr'] = "Commande";
+  shopelia.mapOptions.account['new'] = {descr:'Lien/Bouton nouveau compte', options:'mandatory', action:'click_on'};
+  shopelia.mapOptions.account['login'] = {'descr':'Login/Nom/Email', options:'mandatory', action:'fill_text'};
+  shopelia.mapOptions.account['password'] = {'descr':'Mot de passe', options:'mandatory', action:'fill_text'};
+  shopelia.mapOptions.account['name'] = {'descr':'Nom de famille si différent du login', action:'fill_text'};
+  shopelia.mapOptions.account['firstName'] = {'descr':'Prénom', action:'fill_text'};
+  shopelia.mapOptions.account['email'] = {'descr':'Email si différent du login', action:'fill_text'};
+  shopelia.mapOptions.account['city'] = {'descr':'Ville', action:'fill_text'};
+  shopelia.mapOptions.account['address'] = {'descr':'Adresse', action:'fill_text'};
+  shopelia.mapOptions.account['postalCode'] = {'descr':'Code postal', action:'fill_text'};
+  shopelia.mapOptions.product['price'] = {'descr':'Prix', action:'show_text'};
+  shopelia.mapOptions.cart['total'] = {'descr':'Prix total', action:'show_text'};
+  shopelia.mapOptions.cart['port'] = {'descr':'Frais de port', action:'show_text'};
+
+  shopelia.kinds = {};
+  shopelia.kinds['fill_text'] = "Zone de texte à remplir";
+  shopelia.kinds['valide_check'] = "Checkbox à cocher";
+  shopelia.kinds['select_radio'] = "Radio bouton à sélectionner";
+  shopelia.kinds['select'] = "Valeur à sélectionner";
+  shopelia.kinds['click_on'] = "Lien ou bouton à cliquer";
+  shopelia.kinds['show_text'] = "Texte à présenter";
+  shopelia.kinds['ask_text'] = "Texte à demander";
+  shopelia.kinds['ask_confirm'] = "Demande de confirmation";
+  shopelia.kinds['ask_select'] = "Demande parmis plusieurs valeurs (select)";
+  shopelia.kinds['ask_radio'] = "Demande parmis plusieurs valeurs (options)";
+  shopelia.kinds['ask_checkbox'] = "Option à activer";
+
+  shopelia.strategies = {};
+  shopelia.mapping = {};
+  
+  buildSelectKinds();
+  buildForms();
 }
 
 // ###################################  FIN DEFINITIONS  ###################################
@@ -219,6 +273,7 @@ function save() {
 // ################################  DEBUT INITIALISATION  #################################
 
 var shopelia = {};
+var plugin = {};
 var currentMapOption = null;
 
 $('#save').click(save);
@@ -229,71 +284,31 @@ $('#newCat').click(newStrategy);
 
 var pattern = $("#tabs div.pattern").detach();
 
-chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.extension.onMessage.addListener(function(msg, sender) {
+  if (msg.dest != 'shopelia')
+    return;
+
   if (msg.newMap) {
+    console.log(msg.newMap2);
     var e = currentMapOption;
     if (e) {
       setXPath(e, msg.newMap);
-      chrome.extension.sendMessage(Object({'action':'show', 'xpath':msg.newMap}));
+      chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.newMap}));
     }
-    sendResponse();
   } else if (msg.addStrat) {
     addActionToStrategy(e, msg.addStrat);
   } else if (msg.url) {
     shopelia.host = msg.url;
-    console.log(localStorage[shopelia.host]);
-    console.log($.parseJSON(localStorage[shopelia.host]));
+    if (msg.resave)
+      save();
+    if (msg.reload)
+      load();
   }
 });
 
-
-chrome.extension.sendMessage({'action':'getUrl'}, function(msg) {console.log("resp received !")});
+chrome.extension.sendMessage(Object({'dest':'contentscript', 'action':'getUrl', 'reload': true}));
+// hardinit();
 
 window.addEventListener("beforeunload", onUnload);
 
-load();
-
 // ##################################  FIN INITIALISATION  ##################################
-
-// shopelia.mapOptions = {};
-// shopelia.mapOptions.account = {};
-// shopelia.mapOptions.connexion = {};
-// shopelia.mapOptions.product = {};
-// shopelia.mapOptions.cart = {};
-// shopelia.mapOptions.order = {};
-// shopelia.mapOptions.account['shopelia-cat-descr'] = "Inscription";
-// shopelia.mapOptions.connexion['shopelia-cat-descr'] = "Connexion";
-// shopelia.mapOptions.product['shopelia-cat-descr'] = "Produit";
-// shopelia.mapOptions.cart['shopelia-cat-descr'] = "Panier";
-// shopelia.mapOptions.order['shopelia-cat-descr'] = "Commande";
-// shopelia.mapOptions.account['new'] = {descr:'Lien/Bouton nouveau compte', options:'mandatory', action:'click_on'};
-// shopelia.mapOptions.account['login'] = {'descr':'Login/Nom/Email', options:'mandatory', action:'fill_text'};
-// shopelia.mapOptions.account['password'] = {'descr':'Mot de passe', options:'mandatory', action:'fill_text'};
-// shopelia.mapOptions.account['name'] = {'descr':'Nom de famille si différent du login', action:'fill_text'};
-// shopelia.mapOptions.account['firstName'] = {'descr':'Prénom', action:'fill_text'};
-// shopelia.mapOptions.account['email'] = {'descr':'Email si différent du login', action:'fill_text'};
-// shopelia.mapOptions.account['city'] = {'descr':'Ville', action:'fill_text'};
-// shopelia.mapOptions.account['address'] = {'descr':'Adresse', action:'fill_text'};
-// shopelia.mapOptions.account['postalCode'] = {'descr':'Code postal', action:'fill_text'};
-// shopelia.mapOptions.product['price'] = {'descr':'Prix', action:'show_text'};
-// shopelia.mapOptions.cart['total'] = {'descr':'Prix total', action:'show_text'};
-// shopelia.mapOptions.cart['port'] = {'descr':'Frais de port', action:'show_text'};
-
-// shopelia.kinds = {};
-// shopelia.kinds['fill_text'] = "Zone de texte à remplir";
-// shopelia.kinds['valide_check'] = "Checkbox à cocher";
-// shopelia.kinds['select_radio'] = "Radio bouton à sélectionner";
-// shopelia.kinds['select'] = "Valeur à sélectionner";
-// shopelia.kinds['click_on'] = "Lien ou bouton à cliquer";
-// shopelia.kinds['show_text'] = "Texte à présenter";
-// shopelia.kinds['ask_text'] = "Texte à demander";
-// shopelia.kinds['ask_confirm'] = "Demande de confirmation";
-// shopelia.kinds['ask_select'] = "Demande parmis plusieurs valeurs (select)";
-// shopelia.kinds['ask_radio'] = "Demande parmis plusieurs valeurs (options)";
-// shopelia.kinds['ask_checkbox'] = "Option à activer";
-
-// shopelia.strategies = {};
-// shopelia.mapping = {};
-
-// buildForms();
-// buildSelectKinds();
