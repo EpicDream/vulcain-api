@@ -17,7 +17,7 @@ function getElementXPath(element) {
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var id = $(element).attr("id");
     if (id) {
-      xpath = '//*[@id="'+id+'"]'+xpath;
+      xpath = '//'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
       break;
     } else {
       var broAndSis = $(element.parentNode).children(element.tagName);
@@ -30,55 +30,70 @@ function getElementXPath(element) {
   return xpath;
 };
 
-function buildExtension() {// Load iFrame
+// When an element is clicked, wind to the most general element for it.
+function getGoodElement(e, stopIfId) {
+  var txt = e.innerText.replace(/\W/g,"").toLowerCase();
+  var parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
+  while (parentTxt == txt) {
+    if (stopIfId && e.attributes["id"])
+      break;
+    e = e.parentElement;
+    parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
+  }
+  return e;
+};
+
+function onBodyClick(event) {
+  var msg = {dest: 'shopelia'};
+  if (event.ctrlKey) {
+    var e = getGoodElement(event.target, true);
+    msg.newMap = getElementXPath(e);
+    msg.newMap2 = e.tagName;
+    chrome.extension.sendMessage(msg);
+    event.preventDefault();
+  } else if (event.shiftKey) {
+    msg.addStrat = getElementXPath(event.target);
+    chrome.extension.sendMessage(msg);
+    event.preventDefault();
+  }
+};
+
+// Load iFrame
+function buildExtension() {
   var body = document.getElementsByTagName("body")[0];
-  var iframe = document.createElement('iframe');
+  iframe = document.createElement('iframe');
   iframe.id = "shopeliaFrame";
   iframe.src = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/shopelia_mapper.html";
   body.appendChild(iframe);
 
-  var link = document.createElement('link');
+  link = document.createElement('link');
   link.rel = "stylesheet";
   link.href = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/add_shopelia.css";
   document.getElementsByTagName("head")[0].appendChild(link);
 
-  // var jquery = document.createElement('script');
-  // jquery.type = "text/javascript";
-  // jquery.src = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/jquery-1.9.1.min.js";
-  // document.getElementsByTagName("head")[0].appendChild(jquery);
+  body.addEventListener("click", this.onBodyClick);
+};
 
-  // var jqueryui = document.createElement('script');
-  // jqueryui.type = "text/javascript";
-  // jqueryui.src = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/jquery-ui-1.10.2.min.js";
-  // document.getElementsByTagName("head")[0].appendChild(jqueryui);
+function removeExtension() {
+  $(iframe).remove();
+  $(link).remove();
+};
 
-  // body.addEventListener("click", function(event) {
-  body.onclick = function(event) {
-    if (event.ctrlKey) {
-      chrome.extension.sendMessage({newMap: getElementXPath(event.target)});
-      event.preventDefault();
-    } else if (event.shiftKey) {
-      chrome.extension.sendMessage({addStrat: getElementXPath(event.target)});
-      event.preventDefault();
-    }
-  };
-  // });
-}
+chrome.extension.onMessage.addListener(function(msg, sender) {
+  if (msg.dest != 'contentscript')
+    return;
 
-// body.addEventListener('load', function(event){console.log("page loaded");}, false);
-
-chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
   if (msg.action == "show") {
     highElements(msg.xpath, "#00dd00");
-    sendResponse();
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
-    sendResponse();
   } else if (msg.action == "getUrl") {
-    sendResponse({url: location.host});
-    chrome.extension.sendMessage({url: location.host});
+    msg.url = location.host;
+    msg.dest = 'shopelia';
+    chrome.extension.sendMessage(msg);
   } else if (msg.action == "start") {
     buildExtension();
-    sendResponse();
+  } else if (msg.action == "stop") {
+    removeExtension();
   }
 });
