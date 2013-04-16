@@ -17,7 +17,6 @@ function buildForms() {
     tab.find('.strat').text(shopelia.strategies[cat]);
     tab.accordion("refresh");
   }
-  console.log(shopelia.currentTab, parseInt(shopelia.currentTab), parseInt(shopelia.currentTab || '0'));
   tabs.tabs({active: (parseInt(shopelia.currentTab || '0'))});
 };
 
@@ -288,12 +287,11 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   if (msg.dest != 'shopelia')
     return;
 
-  if (msg.newMap) {
-    console.log(msg.newMap2);
+  if (msg.action == 'newMap') {
     var e = currentMapOption;
     if (e) {
-      setXPath(e, msg.newMap);
-      chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.newMap}));
+      setXPath(e, msg.xpath);
+      chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.xpath}));
     }
   } else if (msg.addStrat) {
     addActionToStrategy(e, msg.addStrat);

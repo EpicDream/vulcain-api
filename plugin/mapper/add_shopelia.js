@@ -43,12 +43,32 @@ function getGoodElement(e, stopIfId) {
   return e;
 };
 
+function getElementAttrs(e) {
+  var attrs = e.attributes;
+  var data = {tagName: e.tagName, id: attrs['id'], class: attrs['class']};
+  for (var i = 0 ; i < attrs.length ; i++)
+    data[attrs[i].name] = attrs[i].value;
+  return data;
+};
+
+function getElementData(e) {
+  var data = {};
+  data.parent = getElementAttrs(e.parentElement);
+  data.siblings = [];
+  var children = e.parentElement.children;
+  for (var i = 0 ; i < children.length ; i++)
+    data.siblings.push(getElementAttrs(children[i]));
+  data.html = e.outerHTML;
+  return data;
+}
+
 function onBodyClick(event) {
   var msg = {dest: 'shopelia'};
   if (event.ctrlKey) {
     var e = getGoodElement(event.target, true);
-    msg.newMap = getElementXPath(e);
-    msg.newMap2 = e.tagName;
+    msg.action = 'newMap';
+    msg.xpath = getElementXPath(e);
+    msg.data = getElementData(e);
     chrome.extension.sendMessage(msg);
     event.preventDefault();
   } else if (event.shiftKey) {
