@@ -87,6 +87,12 @@ class Strategy
     exchanger.publish(message, @session)
   end
   
+  def new_question question, args
+    id = (questions.count + 1).to_s
+    questions.merge!({id => args[:action]})
+    { :text => question, :id => id, :options => args[:options] }
+  end
+  
   def next_product_url
     order.products_urls[(@product_url_index += 1) - 1]
   end

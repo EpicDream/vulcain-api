@@ -122,10 +122,9 @@ class Amazon
       end
       
       step('size option') do
-        options = options_of_select(SELECT_SIZE)
-        options.delete_if { |value, text| value == "-1"}
-        questions.merge!({'1' => "select_option('#{SELECT_SIZE}', answer)"})
-        { :text => "Choix de la taille", :id => "1", :options => options }
+        sizes = options_of_select(SELECT_SIZE)
+        sizes.delete_if { |value, text| value == "-1"}
+        new_question("Choix de la taille", options:sizes, action:"select_option('#{SELECT_SIZE}', answer)" )
       end
       
       step('color option') do
@@ -137,8 +136,7 @@ class Amazon
           element.attribute('id').gsub(/color_name_/, '')
         end
         colors.delete_if { |id, title|  unavailable.include?(id)}
-        questions.merge!({'2' => "click_on(COLOR_SELECTOR.(answer))"})
-        { :text => "Choix de la couleur", :id => "2", :options => colors }
+        new_question("Choix de la couleur", options:colors, action:"click_on(COLOR_SELECTOR.(answer))" )
       end
       
       step('select options') do
@@ -147,13 +145,11 @@ class Amazon
           click_on ADD_TO_CART
           run_step 'add to cart'
         else
-          message = {:questions => []}
           question = run_step(steps_options.shift)
-          message[:questions] << question
           if question[:options].empty?
             run_step('select options')
           else
-            ask message, next_step:'select option'
+            ask({:questions => [question]}, next_step:'select option')
           end
         end
       end
