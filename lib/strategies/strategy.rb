@@ -9,7 +9,10 @@ class Strategy
     cart_filled:"Cart filled"
   }
   YES_ANSWER = "yes"
-  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step', :assess => 'assess'}
+  MESSAGES_VERBS = {
+    :ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step',
+    :assess => 'assess', :failure => 'failure'
+  }
   
   attr_accessor :context, :exchanger, :self_exchanger, :logging_exchanger, :driver
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
@@ -83,7 +86,9 @@ class Strategy
   
   def terminate_on_error error_message
     logging_exchanger.publish({error_message:error_message})
-    raise
+    message = {'verb' => MESSAGES_VERBS[:failure], 'content' => error_message}
+    exchanger.publish(message, @session)
+    @driver.quit
   end
   
   def new_question question, args
