@@ -200,7 +200,8 @@ class Strategy
   end
   
   def exists? xpath
-    !!@driver.find_element(xpath, nowait:true)
+    element = @driver.find_element(xpath, nowait:true)
+    !!element && element.displayed?
   end
   
   def wait_for xpaths

@@ -42,7 +42,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      strategy.driver.quit
+      #strategy.driver.quit
     rescue
     end
   end
@@ -105,8 +105,8 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
     message = {'verb' => 'assess', 'content' => {
-      :questions => [{:id => "3"}],
-      :products => products, 
+      :questions => [{:text => nil, :id => '1', :options => nil}], 
+      :products => [{'delivery_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'product_title' => 'Lampe frontale TIKKA² Gris', 'product_image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'price_delivery' => 6.61, 'price_product' => 25.95, 'url' => 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'}],
       :billing => {:price => 25.95, :shipping => 6.61}}}
     
     strategy.exchanger.expects(:publish).with(message, @context['session'])

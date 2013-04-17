@@ -28,7 +28,9 @@ class Amazon
   SHIPMENT_ZIP = '//*[@id="enterAddressPostalCode"]'
   SHIPMENT_PHONE = '//*[@id="enterAddressPhoneNumber"]'
   SHIPMENT_SUBMIT = '//*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[6]/span/span/input |
-                     //*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[5]/span/span/input'
+                     //*[@id="newShippingAddressFormFromIdentity"]/div[1]/div/form/div[5]/span/span/input |
+                     //*[@id="newshippingactions"]/input[3]'
+                     
   SHIPMENT_CONTINUE = '//*[@id="continue"] | //*[@id="shippingOptionFormId"]/div[1]/div[2]/div/span/span/input'
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
