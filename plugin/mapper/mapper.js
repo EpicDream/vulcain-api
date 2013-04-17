@@ -146,14 +146,12 @@ function onOptionChanged(event){
 
 //
 function onKindChanged(event) {
-  console.log("kind change !");
   var e = $(this);
   var kind = e.find("option:selected").val();
   if (kinds[kind] && kinds[kind].arg)
     e.parent().find("#addFieldArg").prop("disabled", false);
   else
     e.parent().find("#addFieldArg").prop("disabled", true).get(0).selectedIndex = 0;
-  console.log("arg changed !");
 };
 
 //
@@ -186,6 +184,8 @@ function onAddField(event){
   td.click();
 
   shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind};
+  if (kinds[kind].arg)
+    shopelia.mapOptions[cat][ident].arg = arg
 };
 
 //
