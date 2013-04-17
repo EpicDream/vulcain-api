@@ -73,11 +73,13 @@ function createOption(cat, ident, descr, options) {
   var tr = $("<tr>");
 
   ident = cat+'-'+ident;
-  var showBtn = $("<button name='show'>Show</button>");
-  var resetBtn = $("<button name='reset'>Reset</button>");
-  var delBtn = $("<button name='del'>Del</button>");
+  var showBtn = $("<button class='show'>Show</button>");
+  var setBtn = $("<button class='set'>Set</button>");
+  var resetBtn = $("<button class='reset'>Reset</button>");
+  var delBtn = $("<button class='del'>Del</button>");
 
-  showBtn.click(onShowClicked);
+  showBtn.click(onShowClicked).hide();
+  setBtn.click(onSetClicked);
   resetBtn.click(onResetClicked);
   delBtn.click(onDelClicked);
 
@@ -85,7 +87,7 @@ function createOption(cat, ident, descr, options) {
   td.click(onOptionChanged);
 
   tr.append(td);
-  tr.append($("<td>").append(showBtn));
+  tr.append($("<td>").append(showBtn).append(setBtn));
   tr.append($("<td>").append(resetBtn));
   tr.append($("<td>").append(delBtn));
   table.append(tr);
@@ -115,6 +117,15 @@ function onShowClicked(event) {
   chrome.extension.sendMessage(Object({'dest':'contentscript','action': 'show', 'xpath': xpath}));
 };
 
+//
+function onSetClicked(event) {
+  console.log("set clicked");
+  var e = $(this).parent().parent().children().first();
+  var xpath = prompt("Entrez le xpath : ");
+  if (xpath)
+    setXPath(e, xpath);
+};
+
 // When a 'Reset' button is clicked in Shopelia
 function onResetClicked(event) {
   var e = $(this).parent().parent().children().first();
@@ -122,6 +133,8 @@ function onResetClicked(event) {
   delete shopelia.mapping[e.attr("id")];
   e.next().removeAttr('title');
   e.removeClass("good");
+  e.next().find(".set").show();
+  e.next().find(".show").hide();
   chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
 };
 
@@ -213,6 +226,8 @@ function onClear(event) { if (confirm("Êtes vous sûr de vouloir effacer le cac
 function setXPath(e, xpath) {
   shopelia.mapping[e.attr('id')] = xpath;
   e.next().attr("title",e.attr('id')+"="+xpath).tooltip();
+  e.next().find(".set").hide();
+  e.next().find(".show").show();
   e.addClass("good");
   addActionToStrategy(e);
 };
