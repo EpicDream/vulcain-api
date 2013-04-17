@@ -58,7 +58,7 @@ function newStrategy(id, descr) {
   strat.accordion();
   strat.find(".mapper tbody").sortable();
   strat.find(".mapper .addFieldBtn").click(onAddField);
-  strat.find('.mapper select#addFieldKind').change(onKindChanged);
+  strat.find('.mapper .addFieldKind').change(onKindChanged);
 
   shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
   shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
@@ -149,32 +149,37 @@ function onKindChanged(event) {
   var e = $(this);
   var kind = e.find("option:selected").val();
   if (kinds[kind] && kinds[kind].arg)
-    e.parent().find("#addFieldArg").prop("disabled", false);
-  else
-    e.parent().find("#addFieldArg").prop("disabled", true).get(0).selectedIndex = 0;
+    $(".addFieldArg:visible").prop("disabled", false);
+  else {
+    $(".addFieldArg:visible")[0].selectedIndex = 0;
+    $(".addFieldArg:visible").prop("disabled", true);
+  }
 };
 
 //
 function onAddField(event){
   var e = $(this);
-  var parent = e.parent(); 
-  var ident = parent.find("input#addFieldIdent").val();
-  var descr = parent.find("input#addFieldDescr").val();
-  var kind = parent.find("select#addFieldKind option:selected").val();
-  var arg = parent.find("select#addFieldArg option:selected").val();
-  var options = parent.find("input[name='addFieldOpt']:checked").val() || '';
+  var parent = e.parent();
+  var ident = parent.find(".addFieldIdent").val();
+  var descr = parent.find(".addFieldDescr").val();
+  var kind = parent.find(".addFieldKind option:selected").val();
+  var arg = parent.find(".addFieldArg option:selected").val();
+  var options = parent.find(".addFieldOpt input:checked").val() || '';
+  var present = parent.find(".addFieldPresent")[0].checked;
+  console.log(present);
 
   if (ident == "" || descr == "" || kind == "" || (kinds[kind].arg && arg == "")) {
     alert("Some fields are missing.");
     return;
   }
 
-  e.parent().find("input#addFieldIdent").val("");
-  e.parent().find("input#addFieldDescr").val("");
-  e.parent().find("input#addFieldKind option:selected").removeAttr('selected');
-  e.parent().find("#addFieldKind").get(0).selectedIndex = 0;
-  e.parent().find("#addFieldArg").prop("disabled", true).get(0).selectedIndex = 0;
-  e.parent().find("input[name='addFieldOpt']:checked").attr('checked',false);
+  parent.find(".addFieldIdent").val("");
+  parent.find(".addFieldDescr").val("");
+  parent.find(".addFieldKind option:selected").removeAttr('selected');
+  parent.find(".addFieldKind")[0].selectedIndex = 0;
+  parent.find(".addFieldArg").prop("disabled", true)[0].selectedIndex = 0;
+  parent.find(".addFieldOpt input:checked").attr('checked',false);
+  parent.find(".addFieldPresent").prop('checked', false);
 
   var cat = e.parent().parent().parent().attr('id');
   var td = createOption(cat, ident, descr, options);
@@ -183,7 +188,8 @@ function onAddField(event){
   $("#tabs").tabs("refresh");
   td.click();
 
-  shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind};
+  shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind, 'present': present};
+  console.log(shopelia.mapOptions[cat][ident]);
   if (kinds[kind].arg)
     shopelia.mapOptions[cat][ident].arg = arg
 };
