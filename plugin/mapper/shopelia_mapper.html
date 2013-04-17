@@ -59,15 +59,16 @@
         <table><tbody></tbody></table>
         <fieldset class="addFieldSet">
           <legend>Ajouter un nouveau champs</legend>
-          <label for="addFieldIdent">Identifiant : </label><input type="text" id="addFieldIdent" placeholder="login" /><br />
-          <label for="addFieldDescr">Description : </label><input type="text" id="addFieldDescr" placeholder="Nom/Login" /><br />
-          <label for="addFieldKind">Action : </label>
-          <select class="addFieldKind" id="addFieldKind"><option value=""></option></select><br />
-          <label for="addFieldArg">Argument : </label>
-          <select class="addFieldArg" id="addFieldArg" disabled><option value=""></option></select><br />
-          <span id="addFieldOpt">Choix : 
-          <input type="radio" name="addFieldOpt" value="mandatory" id="addFieldOptMand" /><label for="addFieldOptMand" title="Doit absolument être demandé (couleur, taille, etc)">obligatoire ?</label>
-          <input type="radio" name="addFieldOpt" value="optionnal" id="addFieldOptOpt" /><label for="addFieldOptOpt" title="Peut être choisis par l'utilisateur (quantité, moyen de livraison, etc).">optionnel ?</label></span><br />
+          <label>Identifiant : <input type="text" class="addFieldIdent" placeholder="login" /></label><br />
+          <label>Description : <input type="text" class="addFieldDescr" placeholder="Nom/Login" /></label><br />
+          <label><input type="checkbox" class="addFieldPresent" />Seulement si présent</label><br />
+          <label>Action : <select class="addFieldKind" class="addFieldKind"><option value=""></option></select></label><br />
+          <label>Argument : <select class="addFieldArg" class="addFieldArg" disabled><option value=""></option></select></label><br />
+          <span class="addFieldOpt">
+            Choix : 
+            <label title="Doit absolument être demandé (couleur, taille, etc)"><input type="radio" name="addFieldOpt" value="mandatory" />obligatoire ?</label>
+            <label title="Peut être choisis par l'utilisateur (quantité, moyen de livraison, etc)."><input type="radio" name="addFieldOpt" value="optionnal" />optionnel ?</label>
+          </span><br />
           <button class="addFieldBtn">Ajouter</button>
         </fieldset>
       </div>
