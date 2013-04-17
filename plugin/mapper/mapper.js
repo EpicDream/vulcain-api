@@ -24,6 +24,9 @@ function buildSelectKinds() {
   var select = pattern.find(".addFieldKind");
   for (var k in kinds)
     select.append($("<option value='"+k+"'>"+kinds[k].descr+"</option>"));
+  var select = pattern.find(".addFieldArg");
+  for (var a in fieldArgs)
+    select.append($("<option value='"+a+"'>"+fieldArgs[a]+"</option>"));
 };
 
 //
@@ -55,6 +58,7 @@ function newStrategy(id, descr) {
   strat.accordion();
   strat.find(".mapper tbody").sortable();
   strat.find(".mapper .addFieldBtn").click(onAddField);
+  strat.find('.mapper select#addFieldKind').change(onKindChanged);
 
   shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
   shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
@@ -141,17 +145,37 @@ function onOptionChanged(event){
 };
 
 //
+function onKindChanged(event) {
+  console.log("kind change !");
+  var e = $(this);
+  var kind = e.find("option:selected").val();
+  if (kinds[kind] && kinds[kind].arg)
+    e.parent().find("#addFieldArg").prop("disabled", false);
+  else
+    e.parent().find("#addFieldArg").prop("disabled", true).get(0).selectedIndex = 0;
+  console.log("arg changed !");
+};
+
+//
 function onAddField(event){
   var e = $(this);
-  var ident = e.parent().find("input#addFieldIdent").val();
-  var descr = e.parent().find("input#addFieldDescr").val();
-  var kind = e.parent().find("#addFieldKind option:selected").val();
-  var options = e.parent().find("input[name='addFieldOpt']:checked").val() || '';
+  var parent = e.parent(); 
+  var ident = parent.find("input#addFieldIdent").val();
+  var descr = parent.find("input#addFieldDescr").val();
+  var kind = parent.find("select#addFieldKind option:selected").val();
+  var arg = parent.find("select#addFieldArg option:selected").val();
+  var options = parent.find("input[name='addFieldOpt']:checked").val() || '';
+
+  if (ident == "" || descr == "" || kind == "" || (kinds[kind].arg && arg == "")) {
+    alert("Some fields are missing.");
+    return;
+  }
 
   e.parent().find("input#addFieldIdent").val("");
   e.parent().find("input#addFieldDescr").val("");
   e.parent().find("input#addFieldKind option:selected").removeAttr('selected');
   e.parent().find("#addFieldKind").get(0).selectedIndex = 0;
+  e.parent().find("#addFieldArg").prop("disabled", true).get(0).selectedIndex = 0;
   e.parent().find("input[name='addFieldOpt']:checked").attr('checked',false);
 
   var cat = e.parent().parent().parent().attr('id');
@@ -285,20 +309,40 @@ function hardinit() {
 // ################################
 
 var shopelia = {};
-var kinds = {};
-kinds['fill_text'] = {descr: "Zone de texte à remplir"};
-kinds['valide_check'] = {descr: "Checkbox à cocher"};
-kinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
-kinds['select'] = {descr: "Valeur à sélectionner"};
-kinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
-kinds['show_text'] = {descr: "Texte à présenter"};
-kinds['ask_text'] = {descr: "Texte à demander"};
-kinds['ask_confirm'] = {descr: "Demande de confirmation"};
-kinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
-kinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
-kinds['ask_checkbox'] = {descr: "Option à activer"};
-localStorage.kinds = JSON.stringify(kinds);
+
+// var kinds = {};
+// kinds['fill_text'] = {descr: "Zone de texte à remplir", arg: true};
+// kinds['valide_check'] = {descr: "Checkbox à cocher"};
+// kinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
+// kinds['select'] = {descr: "Valeur à sélectionner", arg: true};
+// kinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
+// kinds['show_text'] = {descr: "Texte à présenter", arg: true};
+// kinds['ask_text'] = {descr: "Texte à demander", arg: true};
+// kinds['ask_confirm'] = {descr: "Demande de confirmation"};
+// kinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
+// kinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
+// kinds['ask_checkbox'] = {descr: "Option à activer"};
+// localStorage.kinds = JSON.stringify(kinds);
+
+// var fieldArgs = {};
+// fieldArgs.name = "Nom";
+// fieldArgs.firstname = "Prénom";
+// fieldArgs.email = "Email";
+// fieldArgs.password = "Password";
+// fieldArgs.birthday_txt = "Date de naissance texte";
+// fieldArgs.day_birthday = "Jour de naissance";
+// fieldArgs.month_birthday = "Mois de naissance";
+// fieldArgs.year_birthday = "Année de naissance";
+// fieldArgs.address = "Adresse";
+// fieldArgs.civilite = "Civilité";
+// fieldArgs.city = "Ville";
+// fieldArgs.postal_code = "Code Postal";
+// fieldArgs.phone = "Téléphone fixe";
+// fieldArgs.mobile = "Téléphone portable";
+// localStorage.fieldArgs = JSON.stringify(fieldArgs);
+
 var kinds = JSON.parse(localStorage.kinds || '{}');
+var fieldArgs = JSON.parse(localStorage.fieldArgs || '{}');
 var currentMapOption = null;
 
 $('#save').click(save);
