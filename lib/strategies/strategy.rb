@@ -46,7 +46,7 @@ class Strategy
   end
   
   def screenshot
-    logging_exchanger.publish({screenshot:@driver.driver.screenshot_as(:base64)})
+    logging_exchanger.publish({screenshot:@driver.screenshot})
   end
   
   def ask message, state={}

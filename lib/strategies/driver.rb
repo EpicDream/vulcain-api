@@ -74,6 +74,14 @@ class Driver
     waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
   end
   
+  def screenshot
+    driver.screenshot_as(:base64)
+  end
+  
+  def page_source
+    driver.page_source
+  end
+  
   private
   
   def waiting

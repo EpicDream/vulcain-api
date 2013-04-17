@@ -245,7 +245,7 @@ class Amazon
       end
       
       step('payment') do
-        answer = answers.detect { |answer| answer.question_id == "3"}
+        answer = answers.detect { |answer| answer.question_id == "3"}#TODO
         if answer.answer == Strategy::YES_ANSWER
           wait_ajax
           click_on ADD_NEW_CREDIT_CARD

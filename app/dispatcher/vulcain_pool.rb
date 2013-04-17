@@ -32,7 +32,7 @@ module Dispatcher
     
     def reload_vulcain exchange, vulcain_id
       message = {'verb' => 'reload', 'context' => Strategies::Loader.new("Amazon").code}
-      exchange.publish message.to_json, :headers => { :vulcain => vulcain_id}
+      exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain_id)}
     end
   
   end
