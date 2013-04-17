@@ -5,7 +5,6 @@
 function buildForms() {
   var map = shopelia.mapOptions;
   var tabs = $('#tabs');
-  tabs.find("ul > li:lt(-1), div.ui-tabs-panel").remove();
 
   for (var cat in map) {
     var tab = newStrategy(cat, map[cat]['shopelia-cat-descr']);
@@ -14,7 +13,7 @@ function buildForms() {
         createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident]['options'] || false);
     }
 
-    tab.find('.strat').text(shopelia.strategies[cat]);
+    tab.find('.strat').html(shopelia.strategies[cat]);
     tab.accordion("refresh");
   }
   tabs.tabs({active: (parseInt(shopelia.currentTab || '0'))});
@@ -23,9 +22,19 @@ function buildForms() {
 //
 function buildSelectKinds() {
   var select = pattern.find(".addFieldKind");
-  select.find("option:gt(0)").remove()
-  for (var k in shopelia.kinds)
-    select.append($("<option value='"+k+"'>"+shopelia.kinds[k]+"</option>"));
+  for (var k in kinds)
+    select.append($("<option value='"+k+"'>"+kinds[k].descr+"</option>"));
+};
+
+//
+function resetPage() {
+  $("#tabs").find("ul > li:lt(-1), div.ui-tabs-panel").remove();
+};
+
+//
+function clearCache() {
+  if (shopelia.host)
+    delete localStorage[shopelia.host];
 };
 
 //
@@ -46,6 +55,9 @@ function newStrategy(id, descr) {
   strat.accordion();
   strat.find(".mapper tbody").sortable();
   strat.find(".mapper .addFieldBtn").click(onAddField);
+
+  shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
+  shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
 
   return strat;
 };
@@ -88,7 +100,7 @@ function createOption(cat, ident, descr, options) {
 //
 function onNewStrategy(event) {
   var descr = prompt("Saisissez le nom de la nouvelle startégie :", "ex : Connexion")
-  var id = name.replace(/[^\w]/g,"").toLowerCase();
+  var id = descr.replace(/[\W]/g,"").toLowerCase();
   newStrategy(id, descr);
 };
 
@@ -116,9 +128,9 @@ function onDelClicked(event) {
   var tr = $(this).parent().parent();
   var e = tr.children().first();
   onResetClicked(event);
-  tr.remove();
-  $("#tabs div:visible").accordion("refresh");
   delete shopelia.mapOptions[getCat(e)][getField(e)];
+  tr.remove();
+  $("#tabs > div:visible").accordion("refresh");
 }
 
 //
@@ -142,10 +154,10 @@ function onAddField(event){
   e.parent().find("#addFieldKind").get(0).selectedIndex = 0;
   e.parent().find("input[name='addFieldOpt']:checked").attr('checked',false);
 
-  var cat = e.parent().parent().find("div:visible").attr('id').split('-')[1];
+  var cat = e.parent().parent().parent().attr('id');
   var td = createOption(cat, ident, descr, options);
   $("#tabs").tabs("refresh");
-  $("#tabs div:visible").accordion("refresh");
+  $("#tabs > div:visible").accordion("refresh");
   $("#tabs").tabs("refresh");
   td.click();
 
@@ -153,7 +165,18 @@ function onAddField(event){
 };
 
 //
-function onUnload(event) { save(); }
+function onUnload(event) { if (shopelia.mapping) save(); };
+
+//
+function onReset(event) { 
+  if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
+    resetPage();
+    shopelia = {};
+  }
+};
+
+//
+function onClear(event) { if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) clearCache(); };
 
 // #############################  FIN DEFINITIONS FONCTIONS ON_EVENT ##############################
 //
@@ -167,14 +190,14 @@ function setXPath(e, xpath) {
 //
 function strategies() {
   var strats = {};
-  var textareas = $('.strat');
+  var textareas = $('div.strat');
   for (var i = 0 ; i < textareas.length ; i += 1) {
     var txt = textareas.eq(i);
     var cat = txt.parent().attr('id');
-    strats[cat] = txt.val();
+    strats[cat] = txt.html();
   }
   return strats;
-}
+};
 
 //
 function getCat(e) { return e.attr('id').split('-')[0]; };
@@ -187,18 +210,20 @@ function getMapping(e) { return shopelia.mapping[e.attr('id')]; };
 
 //
 function addActionToStrategy(e) {
-  var txt = getMapOptions(e).action+' '+e.attr("id")+"\n";
-  $("#tabs div:visible .strat")[0].innerText += txt;
+    // $("#tabs > div:visible .strat")[0].innerText += "// at "+(path)+"\n";
+  var txt = getMapOptions(e).action+' '+e.attr("id")+" # at "+shopelia.path+"\n";
+  $("#tabs > div:visible .strat")[0].innerText += txt;
 }
 
 //
 function load() {
   var host = shopelia.host;
-  console.log("try to load at", host);
+  var path = shopelia.path;
   if (host) {
-    shopelia = $.parseJSON(localStorage[host] || '{mapOptions:{},kinds:{},mapping:{},strategies:{}}');
+    shopelia = $.parseJSON(localStorage[host] || '{"mapOptions":{},"mapping":{},"strategies":{}}');
     shopelia.host = host;
-    buildSelectKinds();
+    shopelia.path = path;
+    resetPage();
     buildForms();
   } else {
     var msg = {'dest':'contentscript','action':'getUrl','reload': true};
@@ -209,17 +234,15 @@ function load() {
 
 //
 function save() {
-  // post("https://dev.prixing.fr:3014");
-  console.log("try to save at", shopelia.host);
   if (shopelia.host) {
-    console.log($("#tabs"));
-    console.log($("#tabs").tabs("option", "active"));
     shopelia.currentTab = $("#tabs").tabs("option", "active");
+    shopelia.strategies = strategies();
     localStorage[shopelia.host] = JSON.stringify(shopelia);
   } else {
     var msg = {'dest':'contentscript','action':'getUrl','resave': true};
     chrome.extension.sendMessage(msg);
   }
+  // post("https://dev.prixing.fr:3014");
 }
 
 function hardinit() {
@@ -247,23 +270,9 @@ function hardinit() {
   shopelia.mapOptions.cart['total'] = {'descr':'Prix total', action:'show_text'};
   shopelia.mapOptions.cart['port'] = {'descr':'Frais de port', action:'show_text'};
 
-  shopelia.kinds = {};
-  shopelia.kinds['fill_text'] = "Zone de texte à remplir";
-  shopelia.kinds['valide_check'] = "Checkbox à cocher";
-  shopelia.kinds['select_radio'] = "Radio bouton à sélectionner";
-  shopelia.kinds['select'] = "Valeur à sélectionner";
-  shopelia.kinds['click_on'] = "Lien ou bouton à cliquer";
-  shopelia.kinds['show_text'] = "Texte à présenter";
-  shopelia.kinds['ask_text'] = "Texte à demander";
-  shopelia.kinds['ask_confirm'] = "Demande de confirmation";
-  shopelia.kinds['ask_select'] = "Demande parmis plusieurs valeurs (select)";
-  shopelia.kinds['ask_radio'] = "Demande parmis plusieurs valeurs (options)";
-  shopelia.kinds['ask_checkbox'] = "Option à activer";
-
   shopelia.strategies = {};
   shopelia.mapping = {};
   
-  buildSelectKinds();
   buildForms();
 }
 
@@ -271,17 +280,37 @@ function hardinit() {
 
 // ################################  DEBUT INITIALISATION  #################################
 
+// ################################
+// L'enregistrement des stratégies ne marche pas
+// ################################
+
 var shopelia = {};
-var plugin = {};
+var kinds = {};
+kinds['fill_text'] = {descr: "Zone de texte à remplir"};
+kinds['valide_check'] = {descr: "Checkbox à cocher"};
+kinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
+kinds['select'] = {descr: "Valeur à sélectionner"};
+kinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
+kinds['show_text'] = {descr: "Texte à présenter"};
+kinds['ask_text'] = {descr: "Texte à demander"};
+kinds['ask_confirm'] = {descr: "Demande de confirmation"};
+kinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
+kinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
+kinds['ask_checkbox'] = {descr: "Option à activer"};
+localStorage.kinds = JSON.stringify(kinds);
+var kinds = JSON.parse(localStorage.kinds || '{}');
 var currentMapOption = null;
 
 $('#save').click(save);
 $('#import').click(load);
+$('#reset').click(onReset);
+$('#clear').click(onClear);
+$('#newCat').click(onNewStrategy);
 $('#tabs').tabs();
 $('#pattern').accordion();
-$('#newCat').click(newStrategy);
 
 var pattern = $("#tabs div.pattern").detach();
+buildSelectKinds();
 
 chrome.extension.onMessage.addListener(function(msg, sender) {
   if (msg.dest != 'shopelia')
@@ -295,8 +324,9 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     }
   } else if (msg.addStrat) {
     addActionToStrategy(e, msg.addStrat);
-  } else if (msg.url) {
-    shopelia.host = msg.url;
+  } else if (msg.action = "getUrl") {
+    shopelia.host = msg.host;
+    shopelia.path = msg.path;
     if (msg.resave)
       save();
     if (msg.reload)

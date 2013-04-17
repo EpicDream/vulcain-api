@@ -45,7 +45,7 @@ function getGoodElement(e, stopIfId) {
 
 function getElementAttrs(e) {
   var attrs = e.attributes;
-  var data = {tagName: e.tagName, id: attrs['id'], class: attrs['class']};
+  var data = {tagName: e.tagName, id: attrs['id'], class: attrs['class'], text: e.innerText};
   for (var i = 0 ; i < attrs.length ; i++)
     data[attrs[i].name] = attrs[i].value;
   return data;
@@ -65,9 +65,9 @@ function getElementData(e) {
 function onBodyClick(event) {
   var msg = {dest: 'shopelia'};
   if (event.ctrlKey) {
-    var e = getGoodElement(event.target, true);
     msg.action = 'newMap';
-    msg.xpath = getElementXPath(e);
+    msg.xpath = getElementXPath(event.target);
+    var e = getGoodElement(event.target, true);
     msg.data = getElementData(e);
     chrome.extension.sendMessage(msg);
     event.preventDefault();
@@ -108,7 +108,9 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
   } else if (msg.action == "getUrl") {
-    msg.url = location.host;
+    msg.action = "getUrl"
+    msg.host = location.host;
+    msg.path = location.pathname;
     msg.dest = 'shopelia';
     chrome.extension.sendMessage(msg);
   } else if (msg.action == "start") {
