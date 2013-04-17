@@ -238,11 +238,7 @@ class Amazon
         end
         wait_ajax
         click_on SHIPMENT_CONTINUE
-        questions.merge!({'3' => ""})
-        message = {:questions => [{:id => "3"}],
-                   :products => products, 
-                   :billing => billing || billing_from_products}
-        assess message, next_step:'payment'
+        assess
       end
       
       step('payment') do

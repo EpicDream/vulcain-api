@@ -65,8 +65,11 @@ class Strategy
     exchanger.publish(message, @session)
   end
   
-  def assess message, state={}
-    @next_step = state[:next_step]
+  def assess state={}
+    @next_step = state[:next_step] || 'payment'
+    message = {:questions => [new_question(nil, {})],
+               :products => products, 
+               :billing => billing || billing_from_products}
     message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
     exchanger.publish(message, @session)
   end
