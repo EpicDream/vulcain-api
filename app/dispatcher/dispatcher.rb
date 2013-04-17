@@ -12,6 +12,7 @@ module Dispatcher
   Vulcain = Struct.new(:exchange, :id)
   
   VULCAINS_QUEUE = "vulcains-queue" #DO NOT CHANGE WITHOUT CHANGE ON VULCAIN
+  LOGGING_QUEUE = "logging-queue" #DO NOT CHANGE WITHOUT CHANGE ON VULCAIN
   API_QUEUE = "api-queue"
 end
 

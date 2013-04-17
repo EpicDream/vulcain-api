@@ -8,9 +8,10 @@ class Strategy
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled"
   }
+  YES_ANSWER = "yes"
   MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step', :assess => 'assess'}
   
-  attr_accessor :context, :exchanger, :self_exchanger, :driver
+  attr_accessor :context, :exchanger, :self_exchanger, :logging_exchanger, :driver
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
@@ -27,32 +28,21 @@ class Strategy
     self.instance_eval(&@block)
   end
   
-  def billing_from_products
-    billing = products.inject({price:0, shipping:0}) do |billing, product|
-      billing[:price] += product['price_product']
-      billing[:shipping] += product['price_delivery']
-      billing
-    end
-  end
-  
-  def start
-    @steps['run'].call
-  end
-  
   def next_step args=nil
-    @steps[@next_step].call(args)
+    run_step(@next_step, args)
+  end
+
+  def run
+    run_step('run')
   end
   
-  def run_step name
-    @steps[name].call
+  def run_step name, args=nil
+    logging_exchanger.publish({log_message:"step #{name}"})
+    @steps[name].call(args)
   end
   
   def step name, &block
     @steps[name] = block
-  end
-  
-  def run
-    run_step('run')
   end
   
   def screenshot
@@ -89,6 +79,11 @@ class Strategy
     message = {'verb' => MESSAGES_VERBS[:terminate]}
     @driver.quit
     exchanger.publish(message, @session)
+  end
+  
+  def terminate_on_error error_message
+    logging_exchanger.publish({log_message:error_message})
+    raise
   end
   
   def new_question question, args
@@ -146,7 +141,7 @@ class Strategy
       end
       @driver.click_on(element) if element
       continue = yield element
-      raise if continue && Time.now - start > 30
+      terminate_on_error("Click on all timeout") if continue && Time.now - start > 30
     end while continue
   end
   
@@ -214,6 +209,14 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
+  end
+  
+  def billing_from_products
+    billing = products.inject({price:0, shipping:0}) do |billing, product|
+      billing[:price] += product['price_product']
+      billing[:shipping] += product['price_delivery']
+      billing
+    end
   end
   
   def context=context
