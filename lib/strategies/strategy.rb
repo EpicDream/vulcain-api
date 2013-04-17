@@ -37,7 +37,7 @@ class Strategy
   end
   
   def run_step name, args=nil
-    logging_exchanger.publish({log_message:"step #{name}"})
+    logging_exchanger.publish({text:"step #{name}"})
     @steps[name].call(args)
   end
   
@@ -46,7 +46,7 @@ class Strategy
   end
   
   def screenshot
-    @driver.driver.screenshot_as(:base64)
+    logging_exchanger.publish({screenshot:@driver.driver.screenshot_as(:base64)})
   end
   
   def ask message, state={}
@@ -82,7 +82,7 @@ class Strategy
   end
   
   def terminate_on_error error_message
-    logging_exchanger.publish({log_message:error_message})
+    logging_exchanger.publish({error_message:error_message})
     raise
   end
   
@@ -98,6 +98,24 @@ class Strategy
  
   def current_product_url
     order.products_urls[@product_url_index - 1]
+  end
+  
+  def billing_from_products
+    billing = products.inject({price:0, shipping:0}) do |billing, product|
+      billing[:price] += product['price_product']
+      billing[:shipping] += product['price_delivery']
+      billing
+    end
+  end
+  
+  def context=context
+    @context ||= {}
+    @context = @context.merge!(context)
+    ['account', 'order', 'answers', 'user'].each do |ivar|
+      next unless context[ivar]
+      instance_variable_set "@#{ivar}", context[ivar].to_openstruct
+    end
+    @session = context['session']
   end
  
   def get_text xpath
@@ -209,24 +227,6 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
-  end
-  
-  def billing_from_products
-    billing = products.inject({price:0, shipping:0}) do |billing, product|
-      billing[:price] += product['price_product']
-      billing[:shipping] += product['price_delivery']
-      billing
-    end
-  end
-  
-  def context=context
-    @context ||= {}
-    @context = @context.merge!(context)
-    ['account', 'order', 'answers', 'user'].each do |ivar|
-      next unless context[ivar]
-      instance_variable_set "@#{ivar}", context[ivar].to_openstruct
-    end
-    @session = context['session']
   end
   
 end
