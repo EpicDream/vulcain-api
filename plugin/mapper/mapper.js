@@ -22,8 +22,8 @@ function buildForms() {
 //
 function buildSelectKinds() {
   var select = pattern.find(".addFieldKind");
-  for (var k in kinds)
-    select.append($("<option value='"+k+"'>"+kinds[k].descr+"</option>"));
+  for (var k in fieldKinds)
+    select.append($("<option value='"+k+"'>"+fieldKinds[k].descr+"</option>"));
   var select = pattern.find(".addFieldArg");
   for (var a in fieldArgs)
     select.append($("<option value='"+a+"'>"+fieldArgs[a]+"</option>"));
@@ -161,7 +161,7 @@ function onOptionChanged(event){
 function onKindChanged(event) {
   var e = $(this);
   var kind = e.find("option:selected").val();
-  if (kinds[kind] && kinds[kind].arg)
+  if (fieldKinds[kind] && fieldKinds[kind].arg)
     $(".addFieldArg:visible").prop("disabled", false);
   else {
     $(".addFieldArg:visible")[0].selectedIndex = 0;
@@ -179,9 +179,8 @@ function onAddField(event){
   var arg = parent.find(".addFieldArg option:selected").val();
   var options = parent.find(".addFieldOpt input:checked").val() || '';
   var present = parent.find(".addFieldPresent")[0].checked;
-  console.log(present);
 
-  if (ident == "" || descr == "" || kind == "" || (kinds[kind].arg && arg == "")) {
+  if (ident == "" || descr == "" || kind == "" || (fieldKinds[kind].arg && arg == "")) {
     alert("Some fields are missing.");
     return;
   }
@@ -202,8 +201,7 @@ function onAddField(event){
   td.click();
 
   shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind, 'present': present};
-  console.log(shopelia.mapOptions[cat][ident]);
-  if (kinds[kind].arg)
+  if (fieldKinds[kind].arg)
     shopelia.mapOptions[cat][ident].arg = arg
 };
 
@@ -265,7 +263,10 @@ function load() {
   var host = shopelia.host;
   var path = shopelia.path;
   if (host) {
-    shopelia = $.parseJSON(localStorage[host] || '{"mapOptions":{},"mapping":{},"strategies":{}}');
+    if (localStorage[host])
+      shopelia = $.parseJSON(localStorage[host]);
+    else
+      defaultShopelia();
     shopelia.host = host;
     shopelia.path = path;
     resetPage();
@@ -290,36 +291,102 @@ function save() {
   // post("https://dev.prixing.fr:3014");
 }
 
-function hardinit() {
-  shopelia.mapOptions = {};
-  shopelia.mapOptions.account = {};
-  shopelia.mapOptions.connexion = {};
-  shopelia.mapOptions.product = {};
-  shopelia.mapOptions.cart = {};
-  shopelia.mapOptions.order = {};
-  shopelia.mapOptions.account['shopelia-cat-descr'] = "Inscription";
-  shopelia.mapOptions.connexion['shopelia-cat-descr'] = "Connexion";
-  shopelia.mapOptions.product['shopelia-cat-descr'] = "Produit";
-  shopelia.mapOptions.cart['shopelia-cat-descr'] = "Panier";
-  shopelia.mapOptions.order['shopelia-cat-descr'] = "Commande";
-  shopelia.mapOptions.account['new'] = {descr:'Lien/Bouton nouveau compte', options:'mandatory', action:'click_on'};
-  shopelia.mapOptions.account['login'] = {'descr':'Login/Nom/Email', options:'mandatory', action:'fill_text'};
-  shopelia.mapOptions.account['password'] = {'descr':'Mot de passe', options:'mandatory', action:'fill_text'};
-  shopelia.mapOptions.account['name'] = {'descr':'Nom de famille si différent du login', action:'fill_text'};
-  shopelia.mapOptions.account['firstName'] = {'descr':'Prénom', action:'fill_text'};
-  shopelia.mapOptions.account['email'] = {'descr':'Email si différent du login', action:'fill_text'};
-  shopelia.mapOptions.account['city'] = {'descr':'Ville', action:'fill_text'};
-  shopelia.mapOptions.account['address'] = {'descr':'Adresse', action:'fill_text'};
-  shopelia.mapOptions.account['postalCode'] = {'descr':'Code postal', action:'fill_text'};
-  shopelia.mapOptions.product['price'] = {'descr':'Prix', action:'show_text'};
-  shopelia.mapOptions.cart['total'] = {'descr':'Prix total', action:'show_text'};
-  shopelia.mapOptions.cart['port'] = {'descr':'Frais de port', action:'show_text'};
+function defaultShopelia() {
+  shopelia = {
+    "mapOptions":{
+      "accountCreation":{
+        "shopelia-cat-descr":"Inscription",
+        "account":{"descr":"Mon Compte","options":"","action":"click_on"},
+        "email":{"descr":"E-mail","options":"","action":"fill_text"},
+        "continuerBtn":{"descr":"Bouton Continuer","options":"","action":"click_on"},
+        "confirmEmail":{"descr":"Confimer E-mail","options":"","action":"fill_text"},
+        "pseudo":{"descr":"Pseudo","options":"","action":"fill_text"},
+        "password":{"descr":"Mot de passe","options":"","action":"fill_text"},
+        "confirmPasword":{"descr":"Confirmer le mot de passe","options":"","action":"fill_text"},
+        "civilite":{"descr":"Civilité","options":"","action":"select"},
+        "name":{"descr":"Nom","options":"","action":"fill_text"},
+        "prenom":{"descr":"Prénom","options":"","action":"fill_text"},
+        "jourbirth":{"descr":"Jour de Naissance","options":"","action":"select"},
+        "moisbirth":{"descr":"Mois de naissance","options":"","action":"select"},
+        "anneeBirth":{"descr":"Année de naissance","options":"","action":"select"},
+        "cadomail":{"descr":"Recevoir des promos par mail","options":"","action":"select_radio"},
+        "cadosms":{"descr":"Recevoir des promos par sms","options":"","action":"select_radio"},
+        "cadotel":{"descr":"Recevoir des promos par tel","options":"","action":"select_radio"},
+        "promoavions":{"descr":"Promo et billets d'avion","options":"","action":"select_radio"},
+        "createBtn":{"descr":"Bouton créer le compte","options":"","action":"click_on"}},
+      "connexion":{
+        "shopelia-cat-descr":"Se Connecter",
+        "account":{"descr":"Mon Compte","options":"","action":"click_on"},
+        "email":{"descr":"E-mail","options":"","action":"fill_text"},
+        "password":{"descr":"Mot de passe","options":"","action":"fill_text"},
+        "continuerBtn":{"descr":"Bouton continuer","options":"","action":"click_on"}},
+      "product":{
+        "shopelia-cat-descr":"Ajouter Produit",
+        "ajouterBtn":{"descr":"Bouton ajouter au panier","options":"","action":"click_on"},
+        "addCartBtn":{"descr":"Bouton ajouter au panier","options":"","action":"click_on"},
+        "prixlivraison":{"descr":"Prix de la livraison","options":"","action":"show_text"},
+        "prix":{"descr":"Prix","options":"","action":"show_text"}},
+      "cart":{
+        "shopelia-cat-descr":"Mon panier",
+        "monpanierBtn":{"descr":"Bouton mon panier","options":"","action":"click_on"},
+        "expedition":{"descr":"Mode d'expédition","options":"","action":"select"},
+        "terminerBtn":{"descr":"Bouton terminer la commande","options":"","action":"click_on"}},
+      "delivery":{
+        "shopelia-cat-descr":"Livraison",
+        "civilite":{"descr":"Civilité","options":"","action":"select"},
+        "name":{"descr":"Nom","options":"","action":"fill_text"},
+        "prenom":{"descr":"Prénom","options":"","action":"fill_text"},
+        "adresse":{"descr":"Adresse","options":"","action":"fill_text"},
+        "codepostal":{"descr":"Code Postal","options":"","action":"fill_text"},
+        "ville":{"descr":"Ville","options":"","action":"fill_text"},
+        "telephoneFixe":{"descr":"Télephone fixe","options":"","action":"fill_text"},
+        "telephoneMobile":{"descr":"Téléphone mobile","options":"","action":"fill_text"},
+        "coninuerBtn":{"descr":"Bouton continuer","options":"","action":"click_on"},
+        "contratbrisvol":{"descr":"Contrat bris et vol","options":"","action":"valide_check"},
+        "continuerbtn":{"descr":"Bouton continuer","options":"","action":"click_on"}},
+      "payment":{
+        "shopelia-cat-descr":"Payement",
+        "continuerBtn":{"descr":"Bouton Continuer","options":"","action":"click_on"}}},
+    "mapping":{},
+    "strategies":{},
+    "currentTab":0};
+};
 
-  shopelia.strategies = {};
-  shopelia.mapping = {};
-  
-  buildForms();
-}
+//
+function initFieldKindsAndArgs() {
+  fieldKinds['fill_text'] = {descr: "Zone de texte à remplir", arg: true};
+  fieldKinds['valide_check'] = {descr: "Checkbox à cocher"};
+  fieldKinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
+  fieldKinds['select'] = {descr: "Valeur à sélectionner", arg: true};
+  fieldKinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
+  fieldKinds['show_text'] = {descr: "Texte à présenter", arg: true};
+  fieldKinds['ask_text'] = {descr: "Texte à demander", arg: true};
+  fieldKinds['ask_confirm'] = {descr: "Demande de confirmation"};
+  fieldKinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
+  fieldKinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
+  fieldKinds['ask_checkbox'] = {descr: "Option à activer"};
+  // localStorage.fieldKinds = JSON.stringify(fieldKinds);
+
+  fieldArgs.name = "Nom";
+  fieldArgs.firstname = "Prénom";
+  fieldArgs.email = "Email";
+  fieldArgs.password = "Password";
+  fieldArgs.birthday_txt = "Date de naissance texte";
+  fieldArgs.day_birthday = "Jour de naissance";
+  fieldArgs.month_birthday = "Mois de naissance";
+  fieldArgs.year_birthday = "Année de naissance";
+  fieldArgs.address = "Adresse";
+  fieldArgs.civilite = "Civilité";
+  fieldArgs.city = "Ville";
+  fieldArgs.postal_code = "Code Postal";
+  fieldArgs.phone = "Téléphone fixe";
+  fieldArgs.mobile = "Téléphone portable";
+  // localStorage.fieldArgs = JSON.stringify(fieldArgs);
+
+  // var fieldKinds = JSON.parse(localStorage.fieldKinds || '{}');
+  // var fieldArgs = JSON.parse(localStorage.fieldArgs || '{}');
+  buildSelectKinds();
+};
 
 // ###################################  FIN DEFINITIONS  ###################################
 
@@ -329,42 +396,9 @@ function hardinit() {
 // L'enregistrement des stratégies ne marche pas
 // ################################
 
-var shopelia = {};
-
-// var kinds = {};
-// kinds['fill_text'] = {descr: "Zone de texte à remplir", arg: true};
-// kinds['valide_check'] = {descr: "Checkbox à cocher"};
-// kinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
-// kinds['select'] = {descr: "Valeur à sélectionner", arg: true};
-// kinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
-// kinds['show_text'] = {descr: "Texte à présenter", arg: true};
-// kinds['ask_text'] = {descr: "Texte à demander", arg: true};
-// kinds['ask_confirm'] = {descr: "Demande de confirmation"};
-// kinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
-// kinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
-// kinds['ask_checkbox'] = {descr: "Option à activer"};
-// localStorage.kinds = JSON.stringify(kinds);
-
-// var fieldArgs = {};
-// fieldArgs.name = "Nom";
-// fieldArgs.firstname = "Prénom";
-// fieldArgs.email = "Email";
-// fieldArgs.password = "Password";
-// fieldArgs.birthday_txt = "Date de naissance texte";
-// fieldArgs.day_birthday = "Jour de naissance";
-// fieldArgs.month_birthday = "Mois de naissance";
-// fieldArgs.year_birthday = "Année de naissance";
-// fieldArgs.address = "Adresse";
-// fieldArgs.civilite = "Civilité";
-// fieldArgs.city = "Ville";
-// fieldArgs.postal_code = "Code Postal";
-// fieldArgs.phone = "Téléphone fixe";
-// fieldArgs.mobile = "Téléphone portable";
-// localStorage.fieldArgs = JSON.stringify(fieldArgs);
-
-var kinds = JSON.parse(localStorage.kinds || '{}');
-var fieldArgs = JSON.parse(localStorage.fieldArgs || '{}');
+var shopelia = {}, fieldKinds = {}, fieldArgs = {};
 var currentMapOption = null;
+var pattern = $("#tabs div.pattern").detach();
 
 $('#save').click(save);
 $('#import').click(load);
@@ -372,10 +406,9 @@ $('#reset').click(onReset);
 $('#clear').click(onClear);
 $('#newCat').click(onNewStrategy);
 $('#tabs').tabs();
-$('#pattern').accordion();
-
-var pattern = $("#tabs div.pattern").detach();
-buildSelectKinds();
+pattern.accordion();
+initFieldKindsAndArgs();
+window.addEventListener("beforeunload", onUnload);
 
 chrome.extension.onMessage.addListener(function(msg, sender) {
   if (msg.dest != 'shopelia')
@@ -400,8 +433,6 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
 });
 
 chrome.extension.sendMessage(Object({'dest':'contentscript', 'action':'getUrl', 'reload': true}));
-// hardinit();
 
-window.addEventListener("beforeunload", onUnload);
 
 // ##################################  FIN INITIALISATION  ##################################
