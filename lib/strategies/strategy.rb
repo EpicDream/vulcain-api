@@ -2,14 +2,12 @@
 require "ostruct"
 
 class Strategy
-  LOGGED_MESSAGE = 'logged'
-  EMPTIED_CART_MESSAGE = 'cart emptied'
-  CB_REMOVED = 'credit card removed'
-  CART_FILLED = 'cart filled'
-  PRICE_KEY = 'price'
-  SHIPPING_PRICE_KEY = 'shipping_price'
-  TOTAL_TTC_KEY = 'total_ttc'
-  RESPONSE_OK = 'ok'
+  MESSAGES = {
+    logged:"Logged",
+    cart_emptied:"Cart emptied",
+    cb_removed:"Credit Card removed",
+    cart_filled:"Cart filled"
+  }
   MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step', :assess => 'assess'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver

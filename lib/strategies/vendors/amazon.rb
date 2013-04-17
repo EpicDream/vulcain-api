@@ -86,7 +86,7 @@ class Amazon
         wait_ajax
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
-        message Strategy::CB_REMOVED, :next_step => 'empty cart'
+        message Strategy::MESSAGES[:cb_removed], :next_step => 'empty cart'
       end
       
       step('create account') do
@@ -109,7 +109,16 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Strategy::LOGGED_MESSAGE, :next_step => 'remove credit card'
+        message Strategy::MESSAGES[:logged], :next_step => 'remove credit card'
+      end
+      
+      step('empty cart') do
+        click_on ACCESS_CART
+        click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
+        click_on ACCESS_CART
+        wait_for([EMPTIED_CART_MESSAGE])
+        raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
+        message Strategy::MESSAGES[:cart_emptied], :next_step => 'add to cart'
       end
       
       step('size option') do
@@ -187,17 +196,8 @@ class Amazon
             run_step('select options')
           end
         else
-          message Strategy::CART_FILLED, :next_step => 'finalize order'
+          message Strategy::MESSAGES[:cart_filled], :next_step => 'finalize order'
         end
-      end
-      
-      step('empty cart') do
-        click_on ACCESS_CART
-        click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
-        click_on ACCESS_CART
-        wait_for([EMPTIED_CART_MESSAGE])
-        raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Strategy::EMPTIED_CART_MESSAGE, :next_step => 'add to cart'
       end
       
       step('fill shipping form') do
@@ -223,9 +223,9 @@ class Amazon
           wait_for [LINK_PRICE_ITEMS]
           price = get_text LINK_PRICE_ITEMS
           shipping = get_text LINK_SHIPPING_PRICE
-          invoice ||= {}
-          invoice[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
-          invoice[:shipping] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          billing ||= {}
+          billing[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          billing[:shipping] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
         end
       end
       
