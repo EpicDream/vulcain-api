@@ -145,12 +145,15 @@ class AmazonTest < ActiveSupport::TestCase
       @strategy.exchanger = stub()
       @strategy.self_exchanger = @strategy.exchanger
 
-      strategy.exchanger.expects(:publish).times(10)
+      strategy.exchanger.expects(:publish).times(8)
       strategy.run_step('unlog')
       strategy.run_step('login')
       strategy.run_step('remove credit card')
       strategy.run_step('empty cart')
       strategy.run_step('add to cart')
+      message = {"verb"=>"assess", "content"=>{:questions=>[{:text=>nil, :id=>"1", :options=>nil}], :products=>[{"delivery_text"=>"", "price_text"=>"Prix : EUR 9,29 Livraison gratuite dès 15 euros d'achats. ", "product_title"=>"La Belle et le Clochard", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51F%2BNmce-VL._SL500_AA300_.jpg", "price_delivery"=>0, "price_product"=>9.29, "url"=>"http://www.amazon.fr/La-Belle-Clochard-Peggy-Lee/dp/B0065HDMNO"}], :billing=>{:price=>9.29, :shipping=>0}}}
+      strategy.exchanger.expects(:publish).with(message, @context['session'])
+      
       strategy.run_step('finalize order')
       strategy.answers = [OpenStruct.new(:question_id => '3', :answer => "yes")]
       strategy.run_step('payment')

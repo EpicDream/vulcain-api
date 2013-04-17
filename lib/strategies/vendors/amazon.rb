@@ -64,6 +64,7 @@ class Amazon
   TAXES_AND_SHIPPING_LINK = '//*[@id="gutterCartViewForm"]/div[3]/div/div[2]/div/div/a'
   LINK_PRICE_ITEMS =    '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[1]'
   LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
+  PREMIUM_POPUP = '//*[@id="ap_container"]/div[2]/div[5]/a/span[2]'
   
   attr_accessor :context, :strategy
   
@@ -244,6 +245,7 @@ class Amazon
       step('payment') do
         answer = answers.detect { |answer| answer.question_id == "3"}
         if answer.answer == "yes"
+          wait_ajax
           click_on ADD_NEW_CREDIT_CARD
           fill CREDIT_CARD_NUMBER, with:order.credentials.number
           fill CREDIT_CARD_HOLDER, with:order.credentials.holder
@@ -257,6 +259,7 @@ class Amazon
           wait_for([ORDER_SUMMARY])
           screenshot
           wait_ajax
+          click_on_if_exists PREMIUM_POPUP
         #  click_on VALIDATE_ORDER unless Rails.env == 'test'
         #  terminate
         end

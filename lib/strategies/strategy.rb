@@ -70,6 +70,7 @@ class Strategy
     message = {:questions => [new_question(nil, {})],
                :products => products, 
                :billing => billing || billing_from_products}
+               
     message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
     exchanger.publish(message, @session)
   end
