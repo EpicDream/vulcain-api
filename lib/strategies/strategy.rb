@@ -10,10 +10,10 @@ class Strategy
   SHIPPING_PRICE_KEY = 'shipping_price'
   TOTAL_TTC_KEY = 'total_ttc'
   RESPONSE_OK = 'ok'
-  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step'}
+  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step', :assess => 'assess'}
   
   attr_accessor :context, :exchanger, :self_exchanger, :driver
-  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :invoice
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
     @driver = Driver.new
@@ -25,15 +25,15 @@ class Strategy
     @questions = {}
     @product_url_index = 0
     @products = []
-    @invoice = nil
+    @billing = nil
     self.instance_eval(&@block)
   end
   
-  def invoice_from_products
-    invoice = products.inject({price:0, shipping:0}) do |invoice, product|
-      invoice[:price] += product['price_product']
-      invoice[:shipping] += product['price_delivery']
-      invoice
+  def billing_from_products
+    billing = products.inject({price:0, shipping:0}) do |billing, product|
+      billing[:price] += product['price_product']
+      billing[:shipping] += product['price_delivery']
+      billing
     end
   end
   
@@ -57,9 +57,19 @@ class Strategy
     run_step('run')
   end
   
+  def screenshot
+    @driver.driver.screenshot_as(:base64)
+  end
+  
   def ask message, state={}
     @next_step = state[:next_step]
     message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
+    exchanger.publish(message, @session)
+  end
+  
+  def assess message, state={}
+    @next_step = state[:next_step]
+    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
     exchanger.publish(message, @session)
   end
   
@@ -139,6 +149,10 @@ class Strategy
   
   def wait_for_button_with_name name
     @driver.find_input_with_value(name)
+  end
+  
+  def wait_ajax
+    sleep(2)
   end
   
   def find_any_element xpaths

@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 class Amazon
   URL = 'http://www.amazon.fr/'
   REGISTER_URL = 'https://www.amazon.fr/ap/register?_encoding=UTF8&openid.assoc_handle=frflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.fr%2Fgp%2Fyourstore%2Fhome%3Fie%3DUTF8%26ref_%3Dgno_newcust'
@@ -84,7 +83,7 @@ class Amazon
       
       step('remove credit card') do
         open_url PAYMENTS_PAGE
-        sleep(2)
+        wait_ajax
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
         message Strategy::CB_REMOVED, :next_step => 'empty cart'
@@ -135,7 +134,7 @@ class Amazon
       
       step('select options') do
         if steps_options.none?
-          sleep(1)
+          wait_ajax
           click_on ADD_TO_CART
           run_step 'add to cart'
         else
@@ -194,7 +193,7 @@ class Amazon
       
       step('empty cart') do
         click_on ACCESS_CART
-        click_on_links_with_text(DELETE_LINK_NAME) { sleep(2)}
+        click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
@@ -237,16 +236,17 @@ class Amazon
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
         wait_for [SHIPMENT_FORM_NAME]
-        sleep(2)
+        wait_ajax
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
         end
-        sleep(2)
+        wait_ajax
         click_on SHIPMENT_CONTINUE
         questions.merge!({'3' => ""})
-        message = {:questions => [{ :text => "Valider le paiement ?", :id => "3", :options => [{ "yes" => "Oui" },{ "no" => "Non" }]}],
-                   :products => products, :invoice => invoice || invoice_from_products}
-        ask message, next_step:'payment'
+        message = {:questions => [{:id => "3"}],
+                   :products => products, 
+                   :billing => billing || billing_from_products}
+        assess message, next_step:'payment'
       end
       
       step('payment') do
@@ -259,12 +259,13 @@ class Amazon
           select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
           fill CREDIT_CARD_CVV, with:order.credentials.cvv
           click_on SUBMIT_NEW_CARD
-          sleep(2)
+          wait_ajax
           click_on CONTINUE_TO_PAYMENT
           click_on USE_THIS_ADDRESS
           wait_for([ORDER_SUMMARY])
-          sleep(2)
-        #  click_on VALIDATE_ORDER
+          screenshot
+          wait_ajax
+        #  click_on VALIDATE_ORDER unless Rails.env == 'test'
         #  terminate
         end
         
