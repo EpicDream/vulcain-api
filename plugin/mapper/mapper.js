@@ -79,10 +79,10 @@ function createOption(cat, ident, descr, option) {
   var resetBtn = $("<button class='reset'>Reset</button>");
   var delBtn = $("<button class='del'>Del</button>");
 
-  showBtn.click(onShowClicked).hide();
+  showBtn.click(onShowClicked);
   setBtn.click(onSetClicked);
   editBtn.click(onEditClicked);
-  resetBtn.click(onResetClicked).hide();
+  resetBtn.click(onResetClicked);
   delBtn.click(onDelClicked);
   tr.click(onOptionChanged);
 
@@ -150,10 +150,7 @@ function onResetClicked(event) {
   var xpath = getMapping(e);
   delete shopelia.mapping[getStratId(e)][getFieldId(e)];
   e.removeClass("good");
-  e.find(".set").show();
-  e.find(".show").removeAttr('title').hide();
-  e.find(".edit").show();
-  e.find(".reset").hide();
+  e.find(".show").removeAttr('title');
   chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
 };
 
@@ -254,10 +251,7 @@ function onClear(event) { if (confirm("Êtes vous sûr de vouloir effacer le cac
 //
 function setXPath(e, xpath) {
   shopelia.mapping[getStratId(e)][getFieldId(e)] = xpath;
-  e.find(".set").hide();
-  e.find(".show").show().attr("title",e.attr('id')+"="+xpath).tooltip();
-  e.find(".edit").hide();
-  e.find(".reset").show();
+  e.find(".show").attr("title",e.attr('id')+"="+xpath).tooltip();
   e.addClass("good");
   addActionToStrategy(e);
 };
