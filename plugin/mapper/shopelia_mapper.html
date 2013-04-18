@@ -57,21 +57,22 @@
       <h3>Mapper</h3>
       <div class="mapper">
         <table><tbody></tbody></table>
-        <fieldset class="addFieldSet">
+        <form><fieldset class="addFieldSet">
           <legend>Ajouter un nouveau champs</legend>
-          <label>Identifiant : <input type="text" class="addFieldIdent" placeholder="login" /></label><br />
-          <label>Description : <input type="text" class="addFieldDescr" placeholder="Nom/Login" /></label><br />
-          <label><input type="checkbox" class="addFieldPresent" />Seulement si présent</label><br />
-          <label>Action : <select class="addFieldKind" class="addFieldKind"><option value=""></option></select></label><br />
-          <label>Argument : <select class="addFieldArg" class="addFieldArg" disabled><option value=""></option></select></label><br />
+          <label>Identifiant : <input type="text" class="addFieldIdent" placeholder="login" /></label><br>
+          <label>Description : <input type="text" class="addFieldDescr" placeholder="Nom/Login" /></label><br>
+          <label><input type="checkbox" class="addFieldPresent" />Seulement si présent</label><br>
+          <label>Action : <select class="addFieldKind" class="addFieldKind"><option value=""></option></select></label><br>
+          <label>Argument : <select class="addFieldArg" class="addFieldArg" disabled><option value=""></option></select></label><br>
           <span class="addFieldOpt">
-            Choix : 
-            <label title="Doit absolument être demandé (couleur, taille, etc)"><input type="radio" name="addFieldOpt" value="mandatory" />obligatoire ?</label>
-            <label title="Peut être choisis par l'utilisateur (quantité, moyen de livraison, etc)."><input type="radio" name="addFieldOpt" value="optionnal" />optionnel ?</label>
-          </span><br />
+            Option : 
+            <label><input type="radio" name="addFieldOpt" checked>aucune</label>
+            <label title="Doit absolument être demandé (couleur, taille, etc)"><input type="radio" name="addFieldOpt" value="mandatory">obligatoire</label>
+            <label title="Peut être choisis par l'utilisateur (quantité, moyen de livraison, etc)."><input type="radio" name="addFieldOpt" value="optionnal">optionnel</label>
+          </span><br>
           <button class="addFieldBtn">Ajouter</button>
           <button class="clearFieldsBtn">Effacer</button>
-        </fieldset>
+        </fieldset></form>
       </div>
       <h3>Stratégie</h3>
       <div class="strat" contenteditable></div>
