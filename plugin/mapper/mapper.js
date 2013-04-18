@@ -59,6 +59,7 @@ function newStrategy(id, descr) {
   strat.find(".mapper tbody").sortable();
   strat.find(".mapper .addFieldBtn").click(onAddField);
   strat.find('.mapper .addFieldKind').change(onKindChanged);
+  strat.find(".mapper .clearFieldsBtn").click(onClearFieldset);
 
   shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
   shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
@@ -75,12 +76,14 @@ function createOption(cat, ident, descr, options) {
   ident = cat+'-'+ident;
   var showBtn = $("<button class='show'>Show</button>");
   var setBtn = $("<button class='set'>Set</button>");
+  var editBtn = $("<button class='edit'>Edit</button>");
   var resetBtn = $("<button class='reset'>Reset</button>");
   var delBtn = $("<button class='del'>Del</button>");
 
   showBtn.click(onShowClicked).hide();
   setBtn.click(onSetClicked);
-  resetBtn.click(onResetClicked);
+  editBtn.click(onEditClicked);
+  resetBtn.click(onResetClicked).hide();
   delBtn.click(onDelClicked);
 
   var td = $("<td id='"+ident+"'>"+descr+"</td>").css("width","100%");
@@ -88,7 +91,7 @@ function createOption(cat, ident, descr, options) {
 
   tr.append(td);
   tr.append($("<td>").append(showBtn).append(setBtn));
-  tr.append($("<td>").append(resetBtn));
+  tr.append($("<td>").append(editBtn).append(resetBtn));
   tr.append($("<td>").append(delBtn));
   table.append(tr);
 
@@ -126,6 +129,25 @@ function onSetClicked(event) {
     setXPath(e, xpath);
 };
 
+//
+function onEditClicked(event) {
+  var e = $(this).parent().parent().children().first();
+  var fieldset = $("#tabs fieldset:visible");
+  var ident = getField(e);
+  var cat = getCat(e);
+  var mapOptions = getMapOptions(e);
+  fieldset.find(".addFieldIdent").val(ident).prop('disabled', true);
+  fieldset.find(".addFieldDescr").val(e.text());
+  fieldset.find(".addFieldKind option[value='"+mapOptions.action+"']").prop('selected',true);
+  if (fieldKinds[mapOptions.action].arg) {
+    var select = fieldset.find(".addFieldArg");
+    select.find("option[value='"+mapOptions.arg+"']").prop("selected", true);
+    select.prop("disabled", false);
+  }
+  fieldset.find(".addFieldOpt input[value='"+mapOptions.options+"']").prop('checked',true);
+  fieldset.find(".addFieldPresent").prop('checked', mapOptions.present);
+};
+
 // When a 'Reset' button is clicked in Shopelia
 function onResetClicked(event) {
   var e = $(this).parent().parent().children().first();
@@ -133,8 +155,10 @@ function onResetClicked(event) {
   delete shopelia.mapping[e.attr("id")];
   e.next().removeAttr('title');
   e.removeClass("good");
-  e.next().find(".set").show();
-  e.next().find(".show").hide();
+  e.parent().find(".set").show();
+  e.parent().find(".show").hide();
+  e.parent().find(".edit").show();
+  e.parent().find(".reset").hide();
   chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
 };
 
@@ -170,6 +194,18 @@ function onKindChanged(event) {
 };
 
 //
+function onClearFieldset(event) {
+  var parent = $(event.target).parent();
+  parent.find(".addFieldIdent").val("").prop('disabled', false);
+  parent.find(".addFieldDescr").val("");
+  parent.find(".addFieldKind option:selected").removeAttr('selected');
+  parent.find(".addFieldKind")[0].selectedIndex = 0;
+  parent.find(".addFieldArg").prop("disabled", true)[0].selectedIndex = 0;
+  parent.find(".addFieldOpt input:checked").attr('checked',false);
+  parent.find(".addFieldPresent").prop('checked', false);
+};
+
+//
 function onAddField(event){
   var e = $(this);
   var parent = e.parent();
@@ -185,16 +221,15 @@ function onAddField(event){
     return;
   }
 
-  parent.find(".addFieldIdent").val("");
-  parent.find(".addFieldDescr").val("");
-  parent.find(".addFieldKind option:selected").removeAttr('selected');
-  parent.find(".addFieldKind")[0].selectedIndex = 0;
-  parent.find(".addFieldArg").prop("disabled", true)[0].selectedIndex = 0;
-  parent.find(".addFieldOpt input:checked").attr('checked',false);
-  parent.find(".addFieldPresent").prop('checked', false);
+  onClearFieldset(event);
 
   var cat = e.parent().parent().parent().attr('id');
   var td = createOption(cat, ident, descr, options);
+  if (shopelia.mapOptions[cat][ident]) {
+    var tr = $("#tabs > div:visible td[id='"+cat+"-"+ident+"']").first().parent();
+    tr.after(td.parent().detach()).remove();
+  }
+
   $("#tabs").tabs("refresh");
   $("#tabs > div:visible").accordion("refresh");
   $("#tabs").tabs("refresh");
@@ -224,8 +259,10 @@ function onClear(event) { if (confirm("Êtes vous sûr de vouloir effacer le cac
 function setXPath(e, xpath) {
   shopelia.mapping[e.attr('id')] = xpath;
   e.next().attr("title",e.attr('id')+"="+xpath).tooltip();
-  e.next().find(".set").hide();
-  e.next().find(".show").show();
+  e.parent().find(".set").hide();
+  e.parent().find(".show").show();
+  e.parent().find(".edit").hide();
+  e.parent().find(".reset").show();
   e.addClass("good");
   addActionToStrategy(e);
 };
