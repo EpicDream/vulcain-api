@@ -88,7 +88,7 @@ function buildExtension() {
 
   link = document.createElement('link');
   link.rel = "stylesheet";
-  link.href = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/add_shopelia.css";
+  link.href = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/content_script.css";
   document.getElementsByTagName("head")[0].appendChild(link);
 
   body.addEventListener("click", this.onBodyClick);
