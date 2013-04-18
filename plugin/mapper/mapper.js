@@ -10,7 +10,7 @@ function buildForms() {
     var tab = newStrategy(cat, map[cat]['shopelia-cat-descr']);
     for (var ident in map[cat]) {
       if (ident != 'shopelia-cat-descr')
-        createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident]['options'] || false);
+        createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident].option);
     }
 
     tab.find('.strat').html(shopelia.strategies[cat]);
@@ -48,8 +48,6 @@ function newStrategy(id, descr) {
   strat.removeClass("pattern");
   strat.addClass("stratTab");
   strat.attr("id",id);
-  strat.find(".mapper");
-  strat.find(".strat");
   tabs.append(strat);
 
   var a = $("<a>").attr("href","#"+id).text(descr);
@@ -70,7 +68,7 @@ function newStrategy(id, descr) {
 };
 
 //
-function createOption(cat, ident, descr, options) {
+function createOption(cat, ident, descr, option) {
   var catElem = $("#"+cat);
   var table = catElem.find(".mapper table");
   var tr = $("<tr>").addClass("fieldLine").attr("id", ident);
@@ -142,7 +140,7 @@ function onEditClicked(event) {
     select.find("option[value='"+mapOptions.arg+"']").prop("selected", true);
     select.prop("disabled", false);
   }
-  fieldset.find(".addFieldOpt input[value='"+mapOptions.options+"']").prop('checked',true);
+  fieldset.find(".addFieldOpt input[value='"+mapOptions.option+"']").prop('checked',true);
   fieldset.find(".addFieldPresent").prop('checked', mapOptions.present);
 };
 
@@ -209,7 +207,7 @@ function onAddField(event){
   var descr = fieldset.find(".addFieldDescr").val();
   var kind = fieldset.find(".addFieldKind option:selected").val();
   var arg = fieldset.find(".addFieldArg option:selected").val();
-  var options = fieldset.find(".addFieldOpt input:checked").val() || '';
+  var option = fieldset.find(".addFieldOpt input:checked").val() || '';
   var present = fieldset.find(".addFieldPresent")[0].checked;
 
   if (ident == "" || descr == "" || kind == "" || (fieldKinds[kind].arg && arg == "")) {
@@ -222,7 +220,7 @@ function onAddField(event){
 
   onClearFieldset(event);
 
-  var tr = createOption(cat, ident, descr, options);
+  var tr = createOption(cat, ident, descr, option);
   if (shopelia.mapOptions[cat][ident]) {
     var old = $("#tabs > div:visible tr[id='"+ident+"']").first();
     old.after(tr.detach()).remove();
@@ -233,7 +231,7 @@ function onAddField(event){
   $("#tabs").tabs("refresh");
   tr.click(); // select it.
 
-  shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind, 'present': present};
+  shopelia.mapOptions[cat][ident] = {'descr':descr, 'option':option, 'action':kind, 'present': present};
   if (fieldKinds[kind].arg)
     shopelia.mapOptions[cat][ident].arg = arg
 };
@@ -335,57 +333,57 @@ function defaultShopelia() {
     "mapOptions":{
       "accountCreation":{
         "shopelia-cat-descr":"Inscription",
-        "account":{"descr":"Mon Compte","options":"","action":"click_on"},
-        "email":{"descr":"E-mail","options":"","action":"fill_text"},
-        "continuerBtn":{"descr":"Bouton Continuer","options":"","action":"click_on"},
-        "confirmEmail":{"descr":"Confimer E-mail","options":"","action":"fill_text"},
-        "pseudo":{"descr":"Pseudo","options":"","action":"fill_text"},
-        "password":{"descr":"Mot de passe","options":"","action":"fill_text"},
-        "confirmPasword":{"descr":"Confirmer le mot de passe","options":"","action":"fill_text"},
-        "civilite":{"descr":"Civilité","options":"","action":"select"},
-        "name":{"descr":"Nom","options":"","action":"fill_text"},
-        "prenom":{"descr":"Prénom","options":"","action":"fill_text"},
-        "jourbirth":{"descr":"Jour de Naissance","options":"","action":"select"},
-        "moisbirth":{"descr":"Mois de naissance","options":"","action":"select"},
-        "anneeBirth":{"descr":"Année de naissance","options":"","action":"select"},
-        "cadomail":{"descr":"Recevoir des promos par mail","options":"","action":"select_radio"},
-        "cadosms":{"descr":"Recevoir des promos par sms","options":"","action":"select_radio"},
-        "cadotel":{"descr":"Recevoir des promos par tel","options":"","action":"select_radio"},
-        "promoavions":{"descr":"Promo et billets d'avion","options":"","action":"select_radio"},
-        "createBtn":{"descr":"Bouton créer le compte","options":"","action":"click_on"}},
+        "account":{"descr":"Mon Compte","option":"","action":"click_on"},
+        "email":{"descr":"E-mail","option":"","action":"fill_text"},
+        "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"},
+        "confirmEmail":{"descr":"Confimer E-mail","option":"","action":"fill_text"},
+        "pseudo":{"descr":"Pseudo","option":"","action":"fill_text"},
+        "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
+        "confirmPasword":{"descr":"Confirmer le mot de passe","option":"","action":"fill_text"},
+        "civilite":{"descr":"Civilité","option":"","action":"select"},
+        "name":{"descr":"Nom","option":"","action":"fill_text"},
+        "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
+        "jourbirth":{"descr":"Jour de Naissance","option":"","action":"select"},
+        "moisbirth":{"descr":"Mois de naissance","option":"","action":"select"},
+        "anneeBirth":{"descr":"Année de naissance","option":"","action":"select"},
+        "cadomail":{"descr":"Recevoir des promos par mail","option":"","action":"select_radio"},
+        "cadosms":{"descr":"Recevoir des promos par sms","option":"","action":"select_radio"},
+        "cadotel":{"descr":"Recevoir des promos par tel","option":"","action":"select_radio"},
+        "promoavions":{"descr":"Promo et billets d'avion","option":"","action":"select_radio"},
+        "createBtn":{"descr":"Bouton créer le compte","option":"","action":"click_on"}},
       "connexion":{
         "shopelia-cat-descr":"Se Connecter",
-        "account":{"descr":"Mon Compte","options":"","action":"click_on"},
-        "email":{"descr":"E-mail","options":"","action":"fill_text"},
-        "password":{"descr":"Mot de passe","options":"","action":"fill_text"},
-        "continuerBtn":{"descr":"Bouton continuer","options":"","action":"click_on"}},
+        "account":{"descr":"Mon Compte","option":"","action":"click_on"},
+        "email":{"descr":"E-mail","option":"","action":"fill_text"},
+        "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
+        "continuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
       "product":{
         "shopelia-cat-descr":"Ajouter Produit",
-        "ajouterBtn":{"descr":"Bouton ajouter au panier","options":"","action":"click_on"},
-        "addCartBtn":{"descr":"Bouton ajouter au panier","options":"","action":"click_on"},
-        "prixlivraison":{"descr":"Prix de la livraison","options":"","action":"show_text"},
-        "prix":{"descr":"Prix","options":"","action":"show_text"}},
+        "ajouterBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
+        "addCartBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
+        "prixlivraison":{"descr":"Prix de la livraison","option":"","action":"show_text"},
+        "prix":{"descr":"Prix","option":"","action":"show_text"}},
       "cart":{
         "shopelia-cat-descr":"Mon panier",
-        "monpanierBtn":{"descr":"Bouton mon panier","options":"","action":"click_on"},
-        "expedition":{"descr":"Mode d'expédition","options":"","action":"select"},
-        "terminerBtn":{"descr":"Bouton terminer la commande","options":"","action":"click_on"}},
+        "monpanierBtn":{"descr":"Bouton mon panier","option":"","action":"click_on"},
+        "expedition":{"descr":"Mode d'expédition","option":"","action":"select"},
+        "terminerBtn":{"descr":"Bouton terminer la commande","option":"","action":"click_on"}},
       "delivery":{
         "shopelia-cat-descr":"Livraison",
-        "civilite":{"descr":"Civilité","options":"","action":"select"},
-        "name":{"descr":"Nom","options":"","action":"fill_text"},
-        "prenom":{"descr":"Prénom","options":"","action":"fill_text"},
-        "adresse":{"descr":"Adresse","options":"","action":"fill_text"},
-        "codepostal":{"descr":"Code Postal","options":"","action":"fill_text"},
-        "ville":{"descr":"Ville","options":"","action":"fill_text"},
-        "telephoneFixe":{"descr":"Télephone fixe","options":"","action":"fill_text"},
-        "telephoneMobile":{"descr":"Téléphone mobile","options":"","action":"fill_text"},
-        "coninuerBtn":{"descr":"Bouton continuer","options":"","action":"click_on"},
-        "contratbrisvol":{"descr":"Contrat bris et vol","options":"","action":"valide_check"},
-        "continuerbtn":{"descr":"Bouton continuer","options":"","action":"click_on"}},
+        "civilite":{"descr":"Civilité","option":"","action":"select"},
+        "name":{"descr":"Nom","option":"","action":"fill_text"},
+        "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
+        "adresse":{"descr":"Adresse","option":"","action":"fill_text"},
+        "codepostal":{"descr":"Code Postal","option":"","action":"fill_text"},
+        "ville":{"descr":"Ville","option":"","action":"fill_text"},
+        "telephoneFixe":{"descr":"Télephone fixe","option":"","action":"fill_text"},
+        "telephoneMobile":{"descr":"Téléphone mobile","option":"","action":"fill_text"},
+        "coninuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"},
+        "contratbrisvol":{"descr":"Contrat bris et vol","option":"","action":"valide_check"},
+        "continuerbtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
       "payment":{
         "shopelia-cat-descr":"Payement",
-        "continuerBtn":{"descr":"Bouton Continuer","options":"","action":"click_on"}}},
+        "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"}}},
     "mapping":{},
     "strategies":{},
     "currentTab":0};
@@ -402,7 +400,7 @@ function initFieldKindsAndArgs() {
   fieldKinds['ask_text'] = {descr: "Texte à demander", arg: true};
   fieldKinds['ask_confirm'] = {descr: "Demande de confirmation"};
   fieldKinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
-  fieldKinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (options)"};
+  fieldKinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (radio)"};
   fieldKinds['ask_checkbox'] = {descr: "Option à activer"};
   // localStorage.fieldKinds = JSON.stringify(fieldKinds);
 
