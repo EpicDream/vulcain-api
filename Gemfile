@@ -6,8 +6,8 @@ gem 'unicorn'
 gem "amqp", "~> 0.9.0"
 gem "httparty"
 gem "selenium-webdriver"
-gem 'pg'
 gem "redis"
+gem 'sqlite3'
 
 group :test do
   gem 'vcr'
