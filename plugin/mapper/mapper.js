@@ -46,9 +46,10 @@ function newStrategy(id, descr) {
 
   var strat = pattern.clone();
   strat.removeClass("pattern");
+  strat.addClass("stratTab");
   strat.attr("id",id);
-  strat.find(".mapper").attr("id",id+"-mapper");
-  strat.find(".strat").attr("id",id+"-strat");
+  strat.find(".mapper");
+  strat.find(".strat");
   tabs.append(strat);
 
   var a = $("<a>").attr("href","#"+id).text(descr);
@@ -63,6 +64,7 @@ function newStrategy(id, descr) {
 
   shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
   shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
+  shopelia.mapping[id] = shopelia.mapping[id] || {};
 
   return strat;
 };
@@ -71,9 +73,8 @@ function newStrategy(id, descr) {
 function createOption(cat, ident, descr, options) {
   var catElem = $("#"+cat);
   var table = catElem.find(".mapper table");
-  var tr = $("<tr>");
+  var tr = $("<tr>").addClass("fieldLine").attr("id", ident);
 
-  ident = cat+'-'+ident;
   var showBtn = $("<button class='show'>Show</button>");
   var setBtn = $("<button class='set'>Set</button>");
   var editBtn = $("<button class='edit'>Edit</button>");
@@ -85,21 +86,19 @@ function createOption(cat, ident, descr, options) {
   editBtn.click(onEditClicked);
   resetBtn.click(onResetClicked).hide();
   delBtn.click(onDelClicked);
+  tr.click(onOptionChanged);
 
-  var td = $("<td id='"+ident+"'>"+descr+"</td>").css("width","100%");
-  td.click(onOptionChanged);
-
-  tr.append(td);
+  tr.append($("<td>").css("width","100%").text(descr).addClass("label"));
   tr.append($("<td>").append(showBtn).append(setBtn));
   tr.append($("<td>").append(editBtn).append(resetBtn));
   tr.append($("<td>").append(delBtn));
   table.append(tr);
 
-  var xpath = getMapping(td);
+  var xpath = getMapping(tr);
   if (xpath)
-    setXPath(td, xpath);
+    setXPath(tr, xpath);
 
-  return td;
+  return tr;
 };
 
 // ###########################  FIN DEFINITIONS FONCTIONS CONSTRUCTION ############################
@@ -115,15 +114,14 @@ function onNewStrategy(event) {
 
 // When a 'Show' button is clicked in Shopelia
 function onShowClicked(event) {
-  var e = $(this).parent().parent().children().first();
+  var e = getFieldElem($(event.target));
   var xpath = getMapping(e);
   chrome.extension.sendMessage(Object({'dest':'contentscript','action': 'show', 'xpath': xpath}));
 };
 
 //
 function onSetClicked(event) {
-  console.log("set clicked");
-  var e = $(this).parent().parent().children().first();
+  var e = $(event.target).parent().parent();
   var xpath = prompt("Entrez le xpath : ");
   if (xpath)
     setXPath(e, xpath);
@@ -131,13 +129,13 @@ function onSetClicked(event) {
 
 //
 function onEditClicked(event) {
-  var e = $(this).parent().parent().children().first();
+  var e = getFieldElem($(event.target));
   var fieldset = $("#tabs fieldset:visible");
-  var ident = getField(e);
-  var cat = getCat(e);
+  var ident = getFieldId(e);
+  var cat = getStratId(e);
   var mapOptions = getMapOptions(e);
   fieldset.find(".addFieldIdent").val(ident).prop('disabled', true);
-  fieldset.find(".addFieldDescr").val(e.text());
+  fieldset.find(".addFieldDescr").val(e.find(".label").text());
   fieldset.find(".addFieldKind option[value='"+mapOptions.action+"']").prop('selected',true);
   if (fieldKinds[mapOptions.action].arg) {
     var select = fieldset.find(".addFieldArg");
@@ -150,15 +148,14 @@ function onEditClicked(event) {
 
 // When a 'Reset' button is clicked in Shopelia
 function onResetClicked(event) {
-  var e = $(this).parent().parent().children().first();
+  var e = getFieldElem($(event.target));
   var xpath = getMapping(e);
-  delete shopelia.mapping[e.attr("id")];
-  e.next().removeAttr('title');
+  delete shopelia.mapping[getStratId(e)][getFieldId(e)];
   e.removeClass("good");
-  e.parent().find(".set").show();
-  e.parent().find(".show").hide();
-  e.parent().find(".edit").show();
-  e.parent().find(".reset").hide();
+  e.find(".set").show();
+  e.find(".show").removeAttr('title').hide();
+  e.find(".edit").show();
+  e.find(".reset").hide();
   chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
 };
 
@@ -166,24 +163,22 @@ function onResetClicked(event) {
 function onDelClicked(event) {
   if (! confirm("Êtes vous sûr de vouloir supprimer ce champs ?")) 
     return;
-  var tr = $(this).parent().parent();
-  var e = tr.children().first();
+  var e = getFieldElem($(event.target));
   onResetClicked(event);
-  delete shopelia.mapOptions[getCat(e)][getField(e)];
-  tr.remove();
+  delete shopelia.mapOptions[getStratId(e)][getFieldId(e)];
+  e.remove();
   $("#tabs > div:visible").accordion("refresh");
 }
 
 //
 function onOptionChanged(event){
-  var e = $(this);
-  e.parent().addClass("selected").siblings().removeClass("selected");
-  currentMapOption = e;
+  var e = getFieldElem($(event.target));
+  e.addClass("selected").siblings().removeClass("selected");
 };
 
 //
 function onKindChanged(event) {
-  var e = $(this);
+  var e = $(event.target);
   var kind = e.find("option:selected").val();
   if (fieldKinds[kind] && fieldKinds[kind].arg)
     $(".addFieldArg:visible").prop("disabled", false);
@@ -207,33 +202,36 @@ function onClearFieldset(event) {
 
 //
 function onAddField(event){
-  var e = $(this);
-  var parent = e.parent();
-  var ident = parent.find(".addFieldIdent").val();
-  var descr = parent.find(".addFieldDescr").val();
-  var kind = parent.find(".addFieldKind option:selected").val();
-  var arg = parent.find(".addFieldArg option:selected").val();
-  var options = parent.find(".addFieldOpt input:checked").val() || '';
-  var present = parent.find(".addFieldPresent")[0].checked;
+  var e = $(event.target);
+  var fieldset = e.parents('.mapper fieldset');
+  var cat = getStratId();
+  var ident = fieldset.find(".addFieldIdent").val();
+  var descr = fieldset.find(".addFieldDescr").val();
+  var kind = fieldset.find(".addFieldKind option:selected").val();
+  var arg = fieldset.find(".addFieldArg option:selected").val();
+  var options = fieldset.find(".addFieldOpt input:checked").val() || '';
+  var present = fieldset.find(".addFieldPresent")[0].checked;
 
   if (ident == "" || descr == "" || kind == "" || (fieldKinds[kind].arg && arg == "")) {
     alert("Some fields are missing.");
     return;
+  } else if (shopelia.mapOptions[cat][ident] && ! fieldset.find(".addFieldIdent").prop('disabled') ) {
+    if (! confirm("Un champs avec l'identifiant "+ident+" existe déjà ('"+shopelia.mapOptions[cat][ident].descr+"').\nVoulez le remplacer ?"))
+      return;
   }
 
   onClearFieldset(event);
 
-  var cat = e.parent().parent().parent().attr('id');
-  var td = createOption(cat, ident, descr, options);
+  var tr = createOption(cat, ident, descr, options);
   if (shopelia.mapOptions[cat][ident]) {
-    var tr = $("#tabs > div:visible td[id='"+cat+"-"+ident+"']").first().parent();
-    tr.after(td.parent().detach()).remove();
+    var old = $("#tabs > div:visible tr[id='"+ident+"']").first();
+    old.after(tr.detach()).remove();
   }
 
   $("#tabs").tabs("refresh");
   $("#tabs > div:visible").accordion("refresh");
   $("#tabs").tabs("refresh");
-  td.click();
+  tr.click(); // select it.
 
   shopelia.mapOptions[cat][ident] = {'descr':descr, 'options':options, 'action':kind, 'present': present};
   if (fieldKinds[kind].arg)
@@ -257,12 +255,11 @@ function onClear(event) { if (confirm("Êtes vous sûr de vouloir effacer le cac
 // #############################  FIN DEFINITIONS FONCTIONS ON_EVENT ##############################
 //
 function setXPath(e, xpath) {
-  shopelia.mapping[e.attr('id')] = xpath;
-  e.next().attr("title",e.attr('id')+"="+xpath).tooltip();
-  e.parent().find(".set").hide();
-  e.parent().find(".show").show();
-  e.parent().find(".edit").hide();
-  e.parent().find(".reset").show();
+  shopelia.mapping[getStratId(e)][getFieldId(e)] = xpath;
+  e.find(".set").hide();
+  e.find(".show").show().attr("title",e.attr('id')+"="+xpath).tooltip();
+  e.find(".edit").hide();
+  e.find(".reset").show();
   e.addClass("good");
   addActionToStrategy(e);
 };
@@ -280,13 +277,18 @@ function strategies() {
 };
 
 //
-function getCat(e) { return e.attr('id').split('-')[0]; };
+function getStratElem(e) { if (e) return e.parents("div.stratTab"); else return $("#tabs > div:visible"); };
 //
-function getField(e) { return e.attr('id').split('-')[1]; };
+function getStratId(e) { return getStratElem(e).attr("id") };
 //
-function getMapOptions(e) { return shopelia.mapOptions[getCat(e)][getField(e)]; };
+function getFieldElem(e) { return e.parents("tr.fieldLine").addBack("tr.fieldLine"); };
 //
-function getMapping(e) { return shopelia.mapping[e.attr('id')]; };
+function getFieldId(e) { return getFieldElem(e).attr("id") };
+
+//
+function getMapOptions(e) { return shopelia.mapOptions[getStratId(e)][getFieldId(e)]; };
+//
+function getMapping(e) { return shopelia.mapping[getStratId(e)][getFieldId(e)]; };
 
 //
 function addActionToStrategy(e) {
@@ -434,7 +436,6 @@ function initFieldKindsAndArgs() {
 // ################################
 
 var shopelia = {}, fieldKinds = {}, fieldArgs = {};
-var currentMapOption = null;
 var pattern = $("#tabs div.pattern").detach();
 
 $('#save').click(save);
@@ -452,8 +453,8 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     return;
 
   if (msg.action == 'newMap') {
-    var e = currentMapOption;
-    if (e) {
+    var e = $("#tabs .stratTab:visible .mapper .fieldLine.selected");
+    if (e.length == 1) {
       setXPath(e, msg.xpath);
       chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.xpath}));
     }
