@@ -14,7 +14,7 @@
 ActiveRecord::Schema.define(:version => 20130418140804) do
 
   create_table "logs", :force => true do |t|
-    t.text     "json"
+    t.text     "payload"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
