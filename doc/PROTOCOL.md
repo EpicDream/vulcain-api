@@ -34,7 +34,7 @@ clés optionelles:
 Exemple (au format Ruby):
 -------------------------
 
-	{'vendor’ => 'Amazon’,
+	{'vendor' => 'Amazon',
 	'context' => {
           	'account' => {'login' => 'marie_rose_07@yopmail.com', 'password' => 'shopelia2013', 'new_account' => true},
             'session' => {'uuid' => '0129801H', 'callback_url' => 'http://shopelia.com/'},
@@ -57,7 +57,7 @@ Exemple (au format Ruby):
                                       'additionnal_address' => '',
                                       'zip' => '75019',
                                       'city' => 'Paris',
-                                      'country' => 'FR’}
+                                      'country' => 'FR'}
                       }
             }}
 
