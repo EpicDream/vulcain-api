@@ -2,9 +2,6 @@
 module Dispatcher
   class Worker
     
-    def initialize
-    end
-    
     def start
       Dispatcher::AmqpRunner.start do |channel, exchange|
         @pool = VulcainPool.new
@@ -16,7 +13,7 @@ module Dispatcher
           message = JSON.parse(message)
           callback_url = message['context']['session']['callback_url']
           message['context']['session']['vulcain_id'] = vulcain.id
-          vulcain.exchange.publish message.to_json, :headers => { :queue => "vulcain-#{vulcain.id}"}
+          vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
         end
         
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:LOGGING_QUEUE}).subscribe do |metadata, message|
