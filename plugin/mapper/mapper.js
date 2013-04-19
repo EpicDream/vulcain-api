@@ -26,7 +26,7 @@ function buildSelectKinds() {
     select.append($("<option value='"+k+"'>"+fieldKinds[k].descr+"</option>"));
   var select = pattern.find(".addFieldArg");
   for (var a in fieldArgs)
-    select.append($("<option value='"+a+"'>"+fieldArgs[a]+"</option>"));
+    select.append($("<option value='"+fieldArgs[a].value+"'>"+fieldArgs[a].descr+"</option>"));
 };
 
 //
@@ -401,20 +401,20 @@ function initFieldKindsAndArgs() {
   fieldKinds['ask_checkbox'] = {descr: "Option à activer"};
   // localStorage.fieldKinds = JSON.stringify(fieldKinds);
 
-  fieldArgs.name = "Nom";
-  fieldArgs.firstname = "Prénom";
-  fieldArgs.email = "Email";
-  fieldArgs.password = "Password";
-  fieldArgs.birthday_txt = "Date de naissance texte";
-  fieldArgs.day_birthday = "Jour de naissance";
-  fieldArgs.month_birthday = "Mois de naissance";
-  fieldArgs.year_birthday = "Année de naissance";
-  fieldArgs.address = "Adresse";
-  fieldArgs.civilite = "Civilité";
-  fieldArgs.city = "Ville";
-  fieldArgs.postal_code = "Code Postal";
-  fieldArgs.phone = "Téléphone fixe";
-  fieldArgs.mobile = "Téléphone portable";
+  fieldArgs.name = {descr:"Nom", value:"user.last_name"};
+  fieldArgs.firstname = {descr:"Prénom", value:"user.first_name"};
+  fieldArgs.email = {descr:"Email", value:"user.email"};
+  fieldArgs.password = {descr:"Password", value:"user.password"};
+  fieldArgs.birthday_txt = {descr:"Date de naissance texte", value:"user.birthday.to_s"};
+  fieldArgs.day_birthday = {descr:"Jour de naissance", value:"user.birthday.day"};
+  fieldArgs.month_birthday = {descr:"Mois de naissance", value:"user.birthday.month"};
+  fieldArgs.year_birthday = {descr:"Année de naissance", value:"user.birthday.year"};
+  fieldArgs.address = {descr:"Adresse", value:"user.address"};
+  fieldArgs.civilite = {descr:"Civilité", value:"user.email"};
+  fieldArgs.city = {descr:"Ville", value:"user.city"};
+  fieldArgs.postal_code = {descr:"Code Postal", value:"user.postalcode"};
+  fieldArgs.phone = {descr:"Téléphone fixe", value:"user.phone"};
+  fieldArgs.mobile = {descr:"Téléphone portable", value:"user.mobile"};
   // localStorage.fieldArgs = JSON.stringify(fieldArgs);
 
   // var fieldKinds = JSON.parse(localStorage.fieldKinds || '{}');
