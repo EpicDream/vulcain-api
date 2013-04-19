@@ -1,6 +1,7 @@
 # encoding: utf-8
 module Dispatcher
   class VulcainPool
+    Vulcain = Struct.new(:exchange, :id)
   
     def initialize
       @config = CONFIG['vulcains']
