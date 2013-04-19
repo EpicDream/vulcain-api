@@ -40,7 +40,7 @@ class Strategy
   end
   
   def run_step name, args=nil
-    logging_exchanger.publish({step:"step #{name}"})
+    logging_exchanger.publish({step:"#{name}"})
     @steps[name].call(args)
   end
   

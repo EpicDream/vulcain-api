@@ -55,14 +55,14 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "login" do
     strategy.exchanger.expects(:publish).times(2)
-    strategy.logging_exchanger.expects(:publish).with(:step => 'step login')
+    strategy.logging_exchanger.expects(:publish).with(:step => 'login')
     
     strategy.run_step('login')
   end
   
   test "empty basket" do
     strategy.exchanger.expects(:publish).times(6)
-    expected_logs = [['step login', 1], ['step empty cart', 1], ['step add to cart', 3], ['step build product', 2]]
+    expected_logs = [['login', 1], ['empty cart', 1], ['add to cart', 3], ['build product', 2]]
     expected_logs.each {|step, times| strategy.logging_exchanger.expects(:publish).with(:step => step).times(times)}
 
     strategy.run_step('login')

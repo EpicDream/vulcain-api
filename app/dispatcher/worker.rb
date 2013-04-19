@@ -20,18 +20,12 @@ module Dispatcher
         end
         
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:LOGGING_QUEUE}).subscribe do |metadata, message|
-          message = JSON.parse(message)
-          if message['screenshot']
-            File.open("/tmp/screenshot.base64", "w") { |f| f.write(message['screenshot']) }
-          else
-            puts message.inspect
-          end
+          Log.create(JSON.parse(message))
         end
 
         channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:VULCAINS_QUEUE}).subscribe do |metadata, message|
           message = JSON.parse(message)
-          puts message.inspect
-          #log
+          Log.create(message)
           shopelia.request(callback_url, message)
         end
 
