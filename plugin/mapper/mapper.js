@@ -284,8 +284,11 @@ function getMapping(e) { return shopelia.mapping[getStratId(e)][getFieldId(e)]; 
 
 //
 function addActionToStrategy(e) {
-    // $("#tabs > div:visible .strat")[0].innerText += "// at "+(path)+"\n";
-  var txt = getMapOptions(e).action+' '+e.attr("id")+" # at "+shopelia.path+"\n";
+  var mo = getMapOptions(e);
+  var txt = mo.action+' '+e.attr("id");
+  if (mo.arg)
+    txt += " with:"+mo.arg;
+  txt += " # at "+shopelia.path+"\n";
   $("#tabs > div:visible .strat")[0].innerText += txt;
 }
 
