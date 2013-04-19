@@ -74,6 +74,14 @@ class Driver
     waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
   end
   
+  def screenshot
+    driver.screenshot_as(:base64)
+  end
+  
+  def page_source
+    driver.page_source
+  end
+  
   private
   
   def waiting
@@ -84,8 +92,6 @@ class Driver
         if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
           sleep(1) and retry
         else
-          puts e.inspect
-          @attempts = 0
           raise
         end
       end  
