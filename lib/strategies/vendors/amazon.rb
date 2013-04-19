@@ -240,6 +240,7 @@ class Amazon
           run_step 'fill shipping form'
           wait_ajax
         end
+        wait_ajax
         click_on SHIPMENT_CONTINUE
         assess
       end

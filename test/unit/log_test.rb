@@ -1,6 +1,6 @@
 require 'test_helper'
+
 class LogTest <  ActiveSupport::TestCase
-  
    
   test "something interesting" do
     puts Log.count
