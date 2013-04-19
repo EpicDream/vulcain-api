@@ -19,6 +19,18 @@ class ActiveSupport::TestCase
     }
     c.allow_http_connections_when_no_cassette = true
   end
+  
+  def teardown
+    MongoMapper.database.collections.each do |coll|
+     coll.remove unless coll.name =~ /system/
+    end
+  end
+
+  def inherited(base)
+    base.define_method :teardown do
+      super
+    end
+  end
 end
 
 require 'mocha/setup'

@@ -1,5 +1,5 @@
 class AnswersController < ApplicationController
-  SESSION_KEYS = ['uuid', 'callback_url', 'state']
+  SESSION_KEYS = ['uuid', 'callback_url']
   ANSWERS_KEYS = ['question_id', 'answer']
   
   before_filter :set_context

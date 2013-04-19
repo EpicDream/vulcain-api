@@ -8,9 +8,13 @@ class Strategy
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled"
   }
-  MESSAGES_VERBS = {:ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step', :assess => 'assess'}
+  YES_ANSWER = "yes"
+  MESSAGES_VERBS = {
+    :ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step',
+    :assess => 'assess', :failure => 'failure'
+  }
   
-  attr_accessor :context, :exchanger, :self_exchanger, :driver
+  attr_accessor :context, :exchanger, :self_exchanger, :logging_exchanger, :driver
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
@@ -27,36 +31,25 @@ class Strategy
     self.instance_eval(&@block)
   end
   
-  def billing_from_products
-    billing = products.inject({price:0, shipping:0}) do |billing, product|
-      billing[:price] += product['price_product']
-      billing[:shipping] += product['price_delivery']
-      billing
-    end
-  end
-  
-  def start
-    @steps['run'].call
-  end
-  
   def next_step args=nil
-    @steps[@next_step].call(args)
+    run_step(@next_step, args)
+  end
+
+  def run
+    run_step('run')
   end
   
-  def run_step name
-    @steps[name].call
+  def run_step name, args=nil
+    logging_exchanger.publish({step:"#{name}"})
+    @steps[name].call(args)
   end
   
   def step name, &block
     @steps[name] = block
   end
   
-  def run
-    run_step('run')
-  end
-  
   def screenshot
-    @driver.driver.screenshot_as(:base64)
+    logging_exchanger.publish({screenshot:@driver.screenshot})
   end
   
   def ask message, state={}
@@ -91,6 +84,13 @@ class Strategy
     exchanger.publish(message, @session)
   end
   
+  def terminate_on_error error_message
+    logging_exchanger.publish({error_message:error_message})
+    message = {'verb' => MESSAGES_VERBS[:failure], 'content' => error_message}
+    exchanger.publish(message, @session)
+    @driver.quit
+  end
+  
   def new_question question, args
     id = (questions.count + 1).to_s
     questions.merge!({id => args[:action]})
@@ -103,6 +103,24 @@ class Strategy
  
   def current_product_url
     order.products_urls[@product_url_index - 1]
+  end
+  
+  def billing_from_products
+    billing = products.inject({price:0, shipping:0}) do |billing, product|
+      billing[:price] += product['price_product']
+      billing[:shipping] += product['price_delivery']
+      billing
+    end
+  end
+  
+  def context=context
+    @context ||= {}
+    @context = @context.merge!(context)
+    ['account', 'order', 'answers', 'user'].each do |ivar|
+      next unless context[ivar]
+      instance_variable_set "@#{ivar}", context[ivar].to_openstruct
+    end
+    @session = context['session']
   end
  
   def get_text xpath
@@ -146,7 +164,7 @@ class Strategy
       end
       @driver.click_on(element) if element
       continue = yield element
-      raise if continue && Time.now - start > 30
+      terminate_on_error("Click on all timeout") if continue && Time.now - start > 30
     end while continue
   end
   
@@ -214,16 +232,6 @@ class Strategy
   
   def accept_alert
     @driver.accept_alert
-  end
-  
-  def context=context
-    @context ||= {}
-    @context = @context.merge!(context)
-    ['account', 'order', 'answers', 'user'].each do |ivar|
-      next unless context[ivar]
-      instance_variable_set "@#{ivar}", context[ivar].to_openstruct
-    end
-    @session = context['session']
   end
   
 end

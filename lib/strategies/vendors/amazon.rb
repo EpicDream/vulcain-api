@@ -120,7 +120,7 @@ class Amazon
         click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
-        raise unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
+        terminate_on_error("Empty cart not emptied") unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
         message Strategy::MESSAGES[:cart_emptied], :next_step => 'add to cart'
       end
       
@@ -158,7 +158,7 @@ class Amazon
       end
       
       step('select option') do
-        raise unless answers || answers.any?
+        terminate_on_error("No answer found in message") unless answers || answers.any?
         answers.each do |_answer|
           answer = _answer.answer
           action = questions[_answer.question_id]
@@ -238,6 +238,7 @@ class Amazon
         wait_ajax
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
+          wait_ajax
         end
         wait_ajax
         click_on SHIPMENT_CONTINUE
@@ -245,8 +246,8 @@ class Amazon
       end
       
       step('payment') do
-        answer = answers.detect { |answer| answer.question_id == "3"}
-        if answer.answer == "yes"
+        answer = answers.detect { |answer| answer.question_id == "3"}#TODO
+        if answer.answer == Strategy::YES_ANSWER
           wait_ajax
           click_on ADD_NEW_CREDIT_CARD
           fill CREDIT_CARD_NUMBER, with:order.credentials.number

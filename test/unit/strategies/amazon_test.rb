@@ -38,11 +38,12 @@ class AmazonTest < ActiveSupport::TestCase
     @strategy = Amazon.new(@context).strategy
     @strategy.exchanger = stub()
     @strategy.self_exchanger = @strategy.exchanger
+    @strategy.logging_exchanger = stub()
   end
   
   teardown do
     begin
-      #strategy.driver.quit
+      strategy.driver.quit
     rescue
     end
   end
@@ -54,11 +55,16 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "login" do
     strategy.exchanger.expects(:publish).times(2)
+    strategy.logging_exchanger.expects(:publish).with(:step => 'login')
+    
     strategy.run_step('login')
   end
   
   test "empty basket" do
     strategy.exchanger.expects(:publish).times(6)
+    expected_logs = [['login', 1], ['empty cart', 1], ['add to cart', 3], ['build product', 2]]
+    expected_logs.each {|step, times| strategy.logging_exchanger.expects(:publish).with(:step => step).times(times)}
+
     strategy.run_step('login')
     strategy.run_step('add to cart')
     strategy.run_step('empty cart')
@@ -66,6 +72,8 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "finalize order" do
     strategy.exchanger.expects(:publish).times(7)
+    strategy.logging_exchanger.expects(:publish).times(9)
+    
     strategy.run_step('login')
     strategy.run_step('empty cart')
     strategy.run_step('add to cart')
@@ -74,13 +82,18 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "log and unlog" do
     strategy.exchanger.expects(:publish).times(2)
+    strategy.logging_exchanger.expects(:publish).times(2)
+    
     strategy.run_step('login')
     strategy.run_step('unlog')
+    
     assert strategy.exists? Amazon::OPEN_SESSION_TITLE
   end
   
   test "choices on 'taille' and 'couleur'" do
     strategy.exchanger.expects(:publish).times(4)
+    strategy.logging_exchanger.expects(:publish).times(11)
+    
     @context['order']['products_urls'] = [PRODUCT_URL_3]
     strategy.context = @context
     strategy.run_step('login')
@@ -99,6 +112,8 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "get product object with price, shipping price, title and image url" do
     strategy.exchanger.expects(:publish).times(6)
+    strategy.logging_exchanger.expects(:publish).times(8)
+    
     @context['order']['products_urls'] = [PRODUCT_URL_4]
     strategy.context = @context
     strategy.run_step('login')
