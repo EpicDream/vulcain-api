@@ -3,7 +3,7 @@ module Dispatcher
   class VulcainPool
   
     def initialize
-      @config = CONFIG[Rails.env]['vulcains']
+      @config = CONFIG['vulcains']
       @vulcains = [[@config['hosts'].first, "1"]]
       @pool = pool
     end

@@ -5,7 +5,7 @@ require "json"
 module Dispatcher
   Vulcain = Struct.new(:exchange, :id)
   
-  CONFIG = YAML.load_file "#{Rails.root}/config/dispatcher.yml"
+  CONFIG = YAML.load_file("#{Rails.root}/config/dispatcher.yml")[Rails.env]
   VULCAINS_QUEUE = "vulcains-queue" #/!\DO NOT CHANGE WITHOUT CHANGE ON VULCAIN
   LOGGING_QUEUE = "logging-queue" #/!\DO NOT CHANGE WITHOUT CHANGE ON VULCAIN
   API_QUEUE = "api-queue"

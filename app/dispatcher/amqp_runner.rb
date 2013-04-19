@@ -3,8 +3,7 @@ module Dispatcher
   class AmqpRunner
   
     def self.start
-      config = CONFIG[Rails.env]
-      AMQP.start(host:config['host'], username:config['user'], password:config['password']) do |connection|
+      AMQP.start(host:CONFIG['host'], username:CONFIG['user'], password:CONFIG['password']) do |connection|
         channel = AMQP::Channel.new(connection)
         
         channel.on_error do |channel, channel_close|
