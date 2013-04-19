@@ -9,7 +9,7 @@ end
 
 class ActiveSupport::TestCase
   VCR.configure do |c|
-    c.cassette_library_dir = 'test/fixtures/cassettes'
+    c.cassette_library_dir = "#{Rails.root}/test/fixtures/cassettes"
     c.hook_into :webmock
     c.ignore_localhost = true
     c.default_cassette_options = {

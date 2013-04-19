@@ -15,6 +15,7 @@ class StrategyTest < ActiveSupport::TestCase
     strategy = Strategy.new(@context) do
       step('test') do
         open_url "http://www.rueducommerce.fr/home/index.htm"
+        click_on '//*[@id="ox-is-skip"]/img'
         click_on '//*[@id="linkJsAccount"]/div/div[2]/span[1]'
         fill '//*[@id="loginNewAccEmail"]', with:'madmax_031@yopmail.com'
         click_on '//*[@id="loginNewAccSubmit"]'
@@ -23,6 +24,11 @@ class StrategyTest < ActiveSupport::TestCase
         text = get_text '//*[@id="content"]/form/div/div[3]/div/p[2]'
       end
     end
+    strategy.exchanger = stub()
+    strategy.self_exchanger = strategy.exchanger
+    strategy.logging_exchanger = strategy.exchanger
+    strategy.exchanger.expects(:publish).times(1)
+    
     assert strategy.run_step('test')
     assert_equal "Adresse de facturation", text
     strategy.driver.quit
