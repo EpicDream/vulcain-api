@@ -2,8 +2,9 @@
 module Dispatcher
   class VulcainPool
   
-    def initialize pool_size=1
-      @vulcains = [[VULCAIN_HOST, "1"]]
+    def initialize
+      @config = CONFIG[Rails.env]['vulcains']
+      @vulcains = [[@config['hosts'].first, "1"]]
       @pool = pool
     end
   
@@ -18,12 +19,15 @@ module Dispatcher
     private 
   
     def pool
-      @vulcains.map do |ip, vulcain_id|
-        connection = AMQP::Session.connect(:host => ip, :username => VULCAINS_USER, :password => VULCAINS_PASSWORD)
+      @vulcains.map do |host, vulcain_id|
+        connection = AMQP::Session.connect(:host => host, :username => @config['user'], :password => @config['password'])
         channel = AMQP::Channel.new(connection)
         channel.on_error do |channel, channel_close|
-          raise "Can't start open channel to Vulcains MQ on #{ip}"
+          message = "Can't open channel to Vulcains MQ on #{host}"
+          Log.create({error_message:message})
+          raise message
         end
+        
         exchange = channel.headers("amq.match", :durable => true)
         reload_vulcain(exchange, vulcain_id)
         Vulcain.new(exchange, vulcain_id)

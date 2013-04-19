@@ -4,7 +4,8 @@ require "amqp"
 module Dispatcher
   class AMQPController
     def self.request message
-      AMQP.start(:host => HOST, :username => USER, :password => PASSWORD) do |connection|
+      config = CONFIG[Rails.env]
+      AMQP.start(host:config['host'], username:config['user'], password:config['password']) do |connection|
         channel = AMQP::Channel.new(connection)
         exchange = channel.headers("amq.match", :durable => true)
         exchange.publish message, :headers => {:queue => "api-queue"}

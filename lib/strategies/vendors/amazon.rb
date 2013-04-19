@@ -263,8 +263,8 @@ class Amazon
           screenshot
           wait_ajax
           click_on_if_exists PREMIUM_POPUP
-        #  click_on VALIDATE_ORDER unless Rails.env == 'test'
-        #  terminate
+          click_on VALIDATE_ORDER unless Rails.env == 'test'
+          terminate
         end
         
       end
