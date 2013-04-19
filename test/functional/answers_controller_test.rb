@@ -25,7 +25,7 @@ class AnswersControllerTest < ActionController::TestCase
   private
   
   def request_body
-    {'context' => {'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+    {'context' => {'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                    'answers' => [{'question_id' => '1', 'answer' => '0'}]}
     }
   end
