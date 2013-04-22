@@ -8,7 +8,7 @@ class Strategy
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled"
   }
-  YES_ANSWER = "yes"
+  YES_ANSWER = true
   MESSAGES_VERBS = {
     :ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step',
     :assess => 'assess', :failure => 'failure'

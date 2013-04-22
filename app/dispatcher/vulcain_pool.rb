@@ -43,7 +43,7 @@ module Dispatcher
     private
     
     def load_strategies_on_vulcain vulcain
-      message = {'verb' => 'reload', 'code' => Strategies::Loader.new("Amazon").code}
+      message = {verb:'reload', code:Strategies::Loader.new("Amazon").code}
       vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
     end
     
