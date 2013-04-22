@@ -1,17 +1,29 @@
 # encoding: utf-8
 module Dispatcher
   class VulcainPool
-    Vulcain = Struct.new(:exchange, :id, :idle, :host)
+    Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid)
     
     attr_accessor :pool
     
     def initialize
+      @mutex = Mutex.new
       @config = CONFIG['vulcains']
       @pool = []
     end
   
-    def pop
-      @pool.pop
+    def pop session
+      vulcain = nil
+      @mutex.synchronize { 
+        if vulcain = @pool.detect { |vulcain| vulcain.idle }
+          vulcain.idle = false if vulcain
+          vulcain.uuid = session['uuid']
+        end
+      }
+      vulcain
+    end
+    
+    def fetch session
+      @pool.detect { |vulcain| vulcain.uuid == session['uuid']  }
     end
     
     def push vulcain_id
@@ -25,6 +37,7 @@ module Dispatcher
     def idle vulcain_id
       vulcain = @pool.detect { |vulcain| vulcain.id == vulcain_id  }
       vulcain.idle = true
+      vulcain.uuid = nil
     end
   
     private

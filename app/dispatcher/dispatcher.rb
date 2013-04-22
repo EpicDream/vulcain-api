@@ -9,11 +9,15 @@ module Dispatcher
   VULCAINS_QUEUE = "vulcains-queue" 
   LOGGING_QUEUE = "logging-queue"
   ADMIN_QUEUE = "admin-queue"
-  API_QUEUE = "api-queue"
+  RUN_API_QUEUE = "run-api-queue"
+  ANSWER_API_QUEUE = "answer-api-queue"
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
-  MESSAGES_VERBS = {:start => 'start'}
+  MESSAGES_VERBS = {
+    :ask => 'ask', :message => 'message', :terminate => 'success',
+    :assess => 'assess', :failure => 'failure', :start => 'start'
+  }
   MESSAGES_STATUSES = {:started => 'started', :reloaded => 'reloaded'}
-  
+  STATUSES_CODE = {:no_idle => 'no_idle'}
 end
 
 require_relative 'amqp_runner'

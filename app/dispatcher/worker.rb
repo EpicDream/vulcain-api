@@ -7,14 +7,24 @@ module Dispatcher
         @channel = channel
         @exchange = exchange
         @pool = VulcainPool.new
-        vulcain = @pool.pop
         
-        with_queue(API_QUEUE) do |message|
-          message['context']['session']['vulcain_id'] = vulcain.id
-          vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
+        with_queue(RUN_API_QUEUE) do |message|
+          session = message['context']['session']
+          vulcain = @pool.pop(session)
+          unless vulcain
+            message = { verb:'failure', status:STATUSES_CODE[:no_idle], session:session}
+            Log.create(message)
+            ShopeliaCallback.new.request(session['callback_url'], message)
+          else
+            message['context']['session']['vulcain_id'] = vulcain.id
+            vulcain.exchange.publish(message.to_json, headers: { queue:VULCAIN_QUEUE.(vulcain.id) })
+          end
         end
         
-        with_queue(LOGGING_QUEUE)
+        with_queue(ANSWER_API_QUEUE) do |message|
+          vulcain = @pool.fetch(message['context']['session'])
+          vulcain.exchange.publish(message.to_json, headers:{ queue:VULCAIN_QUEUE.(vulcain.id) })
+        end
         
         with_queue(ADMIN_QUEUE) do |message|
           case message['status']
@@ -24,10 +34,14 @@ module Dispatcher
         end
         
         with_queue(VULCAINS_QUEUE) do |message|
-          callback_url = message['context']['session']['callback_url']
-          ShopeliaCallback.new.request(callback_url, message)
+          case message['verb']
+          when MESSAGES_VERBS[:terminate] then @pool.idle message['session']['vulcain_id']
+          end
+          ShopeliaCallback.new.request(message['session']['callback_url'], message)
         end
 
+        with_queue(LOGGING_QUEUE)
+        
       end
     end
     
