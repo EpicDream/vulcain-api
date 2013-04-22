@@ -3,7 +3,6 @@ production:
   password: "guest"
   host: "127.0.0.1"
   vulcains:
-    hosts: ["127.0.0.1"]
     user: "guest"
     password: "guest"
     
@@ -12,7 +11,6 @@ development:
   password: "guest"
   host: "127.0.0.1"
   vulcains:
-    hosts: ["127.0.0.1"]
     user: "guest"
     password: "guest"
 
@@ -21,6 +19,5 @@ test:
   password: "guest"
   host: "127.0.0.1"
   vulcains:
-    hosts: ["127.0.0.1"]
     user: "guest"
     password: "guest"
