@@ -23,6 +23,7 @@ module Dispatcher
         
         with_queue(ANSWER_API_QUEUE) do |message|
           vulcain = @pool.fetch(message['context']['session'])
+          message['context']['session']['vulcain_id'] = vulcain.id
           vulcain.exchange.publish(message.to_json, headers:{ queue:VULCAIN_QUEUE.(vulcain.id) })
         end
         
