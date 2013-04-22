@@ -3,13 +3,13 @@
 
 //
 function buildForms() {
-  var map = shopelia.mapOptions;
+  var map = shopelia.fields;
   var tabs = $('#tabs');
 
   for (var cat in map) {
-    var tab = newStrategy(cat, map[cat]['shopelia-cat-descr']);
+    var tab = newStrategy(cat, map[cat]['shopelia_cat_descr']);
     for (var ident in map[cat]) {
-      if (ident != 'shopelia-cat-descr')
+      if (ident != 'shopelia_cat_descr')
         createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident].option);
     }
 
@@ -60,8 +60,8 @@ function newStrategy(id, descr) {
   strat.find('.mapper .addFieldKind').change(onKindChanged);
   strat.find(".mapper .clearFieldsBtn").click(onClearFieldset);
 
-  shopelia.mapOptions[id] = shopelia.mapOptions[id] || {};
-  shopelia.mapOptions[id]['shopelia-cat-descr'] = descr;
+  shopelia.fields[id] = shopelia.fields[id] || {};
+  shopelia.fields[id]['shopelia_cat_descr'] = descr;
   shopelia.mapping[id] = shopelia.mapping[id] || {};
 
   return strat;
@@ -131,17 +131,17 @@ function onEditClicked(event) {
   var fieldset = $("#tabs fieldset:visible");
   var ident = getFieldId(e);
   var cat = getStratId(e);
-  var mapOptions = getMapOptions(e);
+  var fields = getfields(e);
   fieldset.find(".addFieldIdent").val(ident).prop('disabled', true);
   fieldset.find(".addFieldDescr").val(e.find(".label").text());
-  fieldset.find(".addFieldKind option[value='"+mapOptions.action+"']").prop('selected',true);
-  if (fieldKinds[mapOptions.action].arg) {
+  fieldset.find(".addFieldKind option[value='"+fields.action+"']").prop('selected',true);
+  if (fieldKinds[fields.action].arg) {
     var select = fieldset.find(".addFieldArg");
-    select.find("option[value='"+mapOptions.arg+"']").prop("selected", true);
+    select.find("option[value='"+fields.arg+"']").prop("selected", true);
     select.prop("disabled", false);
   }
-  fieldset.find(".addFieldOpt input[value='"+mapOptions.option+"']").prop('checked',true);
-  fieldset.find(".addFieldPresent").prop('checked', mapOptions.present);
+  fieldset.find(".addFieldOpt input[value='"+fields.option+"']").prop('checked',true);
+  fieldset.find(".addFieldPresent").prop('checked', fields.present);
 };
 
 // When a 'Reset' button is clicked in Shopelia
@@ -160,7 +160,7 @@ function onDelClicked(event) {
     return;
   var e = getFieldElem($(event.target));
   onResetClicked(event);
-  delete shopelia.mapOptions[getStratId(e)][getFieldId(e)];
+  delete shopelia.fields[getStratId(e)][getFieldId(e)];
   e.remove();
   $("#tabs > div:visible").accordion("refresh");
 }
@@ -210,15 +210,15 @@ function onAddField(event){
   if (ident == "" || descr == "" || kind == "" || (fieldKinds[kind].arg && arg == "")) {
     alert("Some fields are missing.");
     return;
-  } else if (shopelia.mapOptions[cat][ident] && ! fieldset.find(".addFieldIdent").prop('disabled') ) {
-    if (! confirm("Un champs avec l'identifiant "+ident+" existe déjà ('"+shopelia.mapOptions[cat][ident].descr+"').\nVoulez le remplacer ?"))
+  } else if (shopelia.fields[cat][ident] && ! fieldset.find(".addFieldIdent").prop('disabled') ) {
+    if (! confirm("Un champs avec l'identifiant "+ident+" existe déjà ('"+shopelia.fields[cat][ident].descr+"').\nVoulez le remplacer ?"))
       return;
   }
 
   onClearFieldset(event);
 
   var tr = createOption(cat, ident, descr, option);
-  if (shopelia.mapOptions[cat][ident]) {
+  if (shopelia.fields[cat][ident]) {
     var old = $("#tabs > div:visible tr[id='"+ident+"']").first();
     old.after(tr.detach()).remove();
   }
@@ -228,9 +228,9 @@ function onAddField(event){
   $("#tabs").tabs("refresh");
   tr.click(); // select it.
 
-  shopelia.mapOptions[cat][ident] = {'descr':descr, 'option':option, 'action':kind, 'present': present};
+  shopelia.fields[cat][ident] = {'descr':descr, 'option':option, 'action':kind, 'present': present};
   if (fieldKinds[kind].arg)
-    shopelia.mapOptions[cat][ident].arg = arg
+    shopelia.fields[cat][ident].arg = arg
 };
 
 //
@@ -278,13 +278,13 @@ function getFieldElem(e) { return e.parents("tr.fieldLine").addBack("tr.fieldLin
 function getFieldId(e) { return getFieldElem(e).attr("id") };
 
 //
-function getMapOptions(e) { return shopelia.mapOptions[getStratId(e)][getFieldId(e)]; };
+function getfields(e) { return shopelia.fields[getStratId(e)][getFieldId(e)]; };
 //
 function getMapping(e) { return shopelia.mapping[getStratId(e)][getFieldId(e)]; };
 
 //
 function addActionToStrategy(e) {
-  var mo = getMapOptions(e);
+  var mo = getfields(e);
   var txt = mo.action+' '+e.attr("id");
   if (mo.arg)
     txt += " with:"+mo.arg;
@@ -296,40 +296,58 @@ function addActionToStrategy(e) {
 function load() {
   var host = shopelia.host;
   var path = shopelia.path;
+
   if (host) {
-    if (localStorage[host])
-      shopelia = $.parseJSON(localStorage[host]);
-    else
+    $.ajax({
+      type : "GET",
+      url: pluginUrl+"/strategies/show",
+      data: {"host": host}
+    }).done(function(hash) {
+      shopelia = hash;
+      if (localStorage[host])
+        shopelia.currentTab = $.parseJSON(localStorage[host]);
+      shopelia.host = host;
+      shopelia.path = path;
+      resetPage();
+      buildForms();
+    }).fail(function(hash) {
       defaultShopelia();
-    shopelia.host = host;
-    shopelia.path = path;
-    resetPage();
-    buildForms();
+      resetPage();
+      buildForms();
+    });
   } else {
     var msg = {'dest':'contentscript','action':'getUrl','reload': true};
     chrome.extension.sendMessage(msg);
   }
-  // get("https://dev.prixing.fr:3014");
 };
 
 //
 function save() {
-  if (shopelia.host) {
-    shopelia.currentTab = $("#tabs").tabs("option", "active");
+  var host = shopelia.host;
+  var path = shopelia.path;
+
+  if (host) {
     shopelia.strategies = strategies();
-    localStorage[shopelia.host] = JSON.stringify(shopelia);
+    $.ajax({
+      type : "POST",
+      url: pluginUrl+"/strategies/create",
+      data: {
+        "host": host,
+        "data": shopelia
+      }
+    });
+    localStorage[shopelia.host] = JSON.stringify($("#tabs").tabs("option", "active"));
   } else {
     var msg = {'dest':'contentscript','action':'getUrl','resave': true};
     chrome.extension.sendMessage(msg);
   }
-  // post("https://dev.prixing.fr:3014");
-}
+};
 
 function defaultShopelia() {
   shopelia = {
-    "mapOptions":{
+    "fields":{
       "accountCreation":{
-        "shopelia-cat-descr":"Inscription",
+        "shopelia_cat_descr":"Inscription",
         "account":{"descr":"Mon Compte","option":"","action":"click_on"},
         "email":{"descr":"E-mail","option":"","action":"fill_text"},
         "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"},
@@ -349,24 +367,24 @@ function defaultShopelia() {
         "promoavions":{"descr":"Promo et billets d'avion","option":"","action":"select_radio"},
         "createBtn":{"descr":"Bouton créer le compte","option":"","action":"click_on"}},
       "connexion":{
-        "shopelia-cat-descr":"Se Connecter",
+        "shopelia_cat_descr":"Se Connecter",
         "account":{"descr":"Mon Compte","option":"","action":"click_on"},
         "email":{"descr":"E-mail","option":"","action":"fill_text"},
         "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
         "continuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
       "product":{
-        "shopelia-cat-descr":"Ajouter Produit",
+        "shopelia_cat_descr":"Ajouter Produit",
         "ajouterBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
         "addCartBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
         "prixlivraison":{"descr":"Prix de la livraison","option":"","action":"show_text"},
         "prix":{"descr":"Prix","option":"","action":"show_text"}},
       "cart":{
-        "shopelia-cat-descr":"Mon panier",
+        "shopelia_cat_descr":"Mon panier",
         "monpanierBtn":{"descr":"Bouton mon panier","option":"","action":"click_on"},
         "expedition":{"descr":"Mode d'expédition","option":"","action":"select"},
         "terminerBtn":{"descr":"Bouton terminer la commande","option":"","action":"click_on"}},
       "delivery":{
-        "shopelia-cat-descr":"Livraison",
+        "shopelia_cat_descr":"Livraison",
         "civilite":{"descr":"Civilité","option":"","action":"select"},
         "name":{"descr":"Nom","option":"","action":"fill_text"},
         "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
@@ -379,7 +397,7 @@ function defaultShopelia() {
         "contratbrisvol":{"descr":"Contrat bris et vol","option":"","action":"valide_check"},
         "continuerbtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
       "payment":{
-        "shopelia-cat-descr":"Payement",
+        "shopelia_cat_descr":"Payement",
         "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"}}},
     "mapping":{},
     "strategies":{},
@@ -388,38 +406,16 @@ function defaultShopelia() {
 
 //
 function initFieldKindsAndArgs() {
-  fieldKinds['fill_text'] = {descr: "Zone de texte à remplir", arg: true};
-  fieldKinds['valide_check'] = {descr: "Checkbox à cocher"};
-  fieldKinds['select_radio'] = {descr: "Radio bouton à sélectionner"};
-  fieldKinds['select'] = {descr: "Valeur à sélectionner", arg: true};
-  fieldKinds['click_on'] = {descr: "Lien ou bouton à cliquer"};
-  fieldKinds['show_text'] = {descr: "Texte à présenter", arg: true};
-  fieldKinds['ask_text'] = {descr: "Texte à demander", arg: true};
-  fieldKinds['ask_confirm'] = {descr: "Demande de confirmation"};
-  fieldKinds['ask_select'] = {descr: "Demande parmis plusieurs valeurs (select)"};
-  fieldKinds['ask_radio'] = {descr: "Demande parmis plusieurs valeurs (radio)"};
-  fieldKinds['ask_checkbox'] = {descr: "Option à activer"};
-  // localStorage.fieldKinds = JSON.stringify(fieldKinds);
+  $.ajax({
+    type : "GET",
+    url: pluginUrl+"/strategies/actions",
+    dataType: "json"
+  }).done(function(hash) {
+    fieldKinds = hash.actions;
+    fieldArgs = hash.args;
 
-  fieldArgs.name = {descr:"Nom", value:"user.last_name"};
-  fieldArgs.firstname = {descr:"Prénom", value:"user.first_name"};
-  fieldArgs.email = {descr:"Email", value:"user.email"};
-  fieldArgs.password = {descr:"Password", value:"user.password"};
-  fieldArgs.birthday_txt = {descr:"Date de naissance texte", value:"user.birthday.to_s"};
-  fieldArgs.day_birthday = {descr:"Jour de naissance", value:"user.birthday.day"};
-  fieldArgs.month_birthday = {descr:"Mois de naissance", value:"user.birthday.month"};
-  fieldArgs.year_birthday = {descr:"Année de naissance", value:"user.birthday.year"};
-  fieldArgs.address = {descr:"Adresse", value:"user.address"};
-  fieldArgs.civilite = {descr:"Civilité", value:"user.email"};
-  fieldArgs.city = {descr:"Ville", value:"user.city"};
-  fieldArgs.postal_code = {descr:"Code Postal", value:"user.postalcode"};
-  fieldArgs.phone = {descr:"Téléphone fixe", value:"user.phone"};
-  fieldArgs.mobile = {descr:"Téléphone portable", value:"user.mobile"};
-  // localStorage.fieldArgs = JSON.stringify(fieldArgs);
-
-  // var fieldKinds = JSON.parse(localStorage.fieldKinds || '{}');
-  // var fieldArgs = JSON.parse(localStorage.fieldArgs || '{}');
-  buildSelectKinds();
+    buildSelectKinds();
+  });
 };
 
 // ###################################  FIN DEFINITIONS  ###################################
@@ -432,6 +428,7 @@ function initFieldKindsAndArgs() {
 
 var shopelia = {}, fieldKinds = {}, fieldArgs = {};
 var pattern = $("#tabs div.pattern").detach();
+var pluginUrl = "http://localhost:3000/plugin";
 
 $('#save').click(save);
 $('#import').click(load);

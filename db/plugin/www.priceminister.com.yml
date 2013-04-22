@@ -1,0 +1,254 @@
+--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+fields: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  inscription: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Inscription
+    account: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mon Compte
+      options: ''
+      action: click_on
+    email: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: E-mail
+      options: ''
+      action: fill_text
+    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton Continuer
+      options: ''
+      action: click_on
+    confirmEmail: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Confimer E-mail
+      options: ''
+      action: fill_text
+    pseudo: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Pseudo
+      options: ''
+      action: fill_text
+    password: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mot de passe
+      options: ''
+      action: fill_text
+    confirmPasword: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Confirmer le mot de passe
+      options: ''
+      action: fill_text
+    civilite: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Civilité
+      options: ''
+      action: select
+    name: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Nom
+      options: ''
+      action: fill_text
+    prenom: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Prénom
+      options: ''
+      action: fill_text
+    jourbirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Jour de Naissance
+      options: ''
+      action: select
+    moisbirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mois de naissance
+      options: ''
+      action: select
+    anneeBirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Année de naissance
+      options: ''
+      action: select
+    cadomail: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Recevoir des promos par mail
+      options: ''
+      action: select_radio
+    cadosms: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Recevoir des promos par sms
+      options: ''
+      action: select_radio
+    cadotel: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Recevoir des promos par tel
+      options: ''
+      action: select_radio
+    promoavions: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Promo et billets d'avion
+      options: ''
+      action: select_radio
+    createBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton créer le compte
+      options: ''
+      action: click_on
+  seconnecter: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Se Connecter
+    account: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mon Compte
+      options: ''
+      action: click_on
+    email: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: E-mail
+      options: ''
+      action: fill_text
+    password: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mot de passe
+      options: ''
+      action: fill_text
+    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton continuer
+      options: ''
+      action: click_on
+  ajouterproduit: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Ajouter Produit
+    ajouterBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton ajouter au panier
+      options: ''
+      action: click_on
+    addCartBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton ajouter au panier
+      options: ''
+      action: click_on
+    prixlivraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Prix de la livraison
+      options: ''
+      action: show_text
+    prix: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Prix
+      options: ''
+      action: show_text
+  monpanier: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Mon panier
+    monpanierBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton mon panier
+      options: ''
+      action: click_on
+    expedition: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Mode d'expédition
+      options: ''
+      action: select
+    terminerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton terminer la commande
+      options: ''
+      action: click_on
+  livraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Livraison
+    civilite: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Civilité
+      options: ''
+      action: select
+    name: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Nom
+      options: ''
+      action: fill_text
+    prenom: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Prénom
+      options: ''
+      action: fill_text
+    adresse: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Adresse
+      options: ''
+      action: fill_text
+    codepostal: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Code Postal
+      options: ''
+      action: fill_text
+    ville: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Ville
+      options: ''
+      action: fill_text
+    telephoneFixe: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Télephone fixe
+      options: ''
+      action: fill_text
+    telephoneMobile: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Téléphone mobile
+      options: ''
+      action: fill_text
+    coninuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton continuer
+      options: ''
+      action: click_on
+    continuerbtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton continuer
+      options: ''
+      action: click_on
+  payment: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Payment
+    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton Continuer
+      options: ''
+      action: click_on
+mapping: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  inscription: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account: //li[@id="account_access_container"]/a
+    email: //input[@id="usr_email"]
+    continuerBtn: //button[@id="submit_register"]/span/span
+    confirmEmail: //input[@id="e_mail2"]
+    pseudo: //input[@id="login"]
+    password: //input[@id="password"]
+    confirmPasword: //input[@id="password2"]
+    civilite: //select[@id="usr_title"]
+    name: //input[@id="last_name"]
+    prenom: //input[@id="first_name"]
+    jourbirth: //select[@id="birth_day"]
+    moisbirth: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[2]/select
+    anneeBirth: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[3]/select
+    cadomail: //input[@id="110_false"]
+    cadosms: //input[@id="120_false"]
+    cadotel: //input[@id="125_false"]
+    promoavions: //input[@id="190_false"]
+    createBtn: //button[@id="submitbtn"]/span/span
+  seconnecter: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account: //li[@id="account_access_container"]/a
+    email: //input[@id="login"]
+    password: //input[@id="userpassword"]
+    continuerBtn: //form[@id="frm_login"]/div[3]/div/button/span/span
+  ajouterproduit: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    ajouterBtn: //form[@id="advert623619768bb"]/fieldset/button/span
+    addCartBtn: //form[@id="advert623619768bb"]/fieldset/button/span
+    prixlivraison: //div[@id="buybox"]/ul/li[4]/span
+    prix: //div[@id="buybox"]/ul/li[1]
+  monpanier: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    monpanierBtn: //div[@id="dashboard"]/ul[2]/li[3]/a
+    expedition: //div[@id="modes_lvrsn"]/fieldset/div/div
+    terminerBtn: //a[@id="terminerMilieu"]/span
+  livraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    civilite: //select[@id="usr_title"]
+    name: //input[@id="last_name"]
+    prenom: //input[@id="first_name"]
+    adresse: //input[@id="address1"]
+    codepostal: //input[@id="zip"]
+    ville: //input[@id="city"]
+    telephoneFixe: //input[@id="phone_1"]
+    telephoneMobile: //input[@id="phone_2"]
+    coninuerBtn: //form[@id="chck_addr_reg_frm"]/div[2]/button/span/span
+    continuerbtn: //div[@id="check_coupon"]/div/table/tbody/tr/td/a
+  payment: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    continuerBtn: //input[@id="submit_continue"]
+strategies: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  inscription: ! 'click_on inscription-account # at /<br>fill_text inscription-email
+    # at /connect<br>click_on inscription-continuerBtn # at /connect<br>fill_text
+    inscription-confirmEmail # at /connect<br>fill_text inscription-pseudo # at /connect<br>fill_text
+    inscription-password # at /connect<br>fill_text inscription-confirmPasword # at
+    /connect<br>select inscription-civilite # at /connect<br>fill_text inscription-name
+    # at /connect<br>fill_text inscription-prenom # at /connect<br>select inscription-jourbirth
+    # at /connect<br>select inscription-moisbirth # at /connect<br>select inscription-anneeBirth
+    # at /connect<br>select_radio inscription-cadomail # at /connect<br>select_radio
+    inscription-cadosms # at /connect<br>select_radio inscription-cadotel # at /connect<br>select_radio
+    inscription-promoavions # at /connect<br>click_on inscription-createBtn # at /connect<br>'
+  seconnecter: ! 'click_on seconnecter-account # at /<br>fill_text seconnecter-email
+    # at /connect<br>fill_text seconnecter-password # at /connect<br>click_on seconnecter-continuerBtn
+    # at /connect<br>'
+  ajouterproduit: ! 'click_on ajouterproduit-ajouterBtn # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>click_on
+    ajouterproduit-addCartBtn # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>show_text
+    ajouterproduit-prixlivraison # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>show_text
+    ajouterproduit-prix # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>'
+  monpanier: ! 'click_on monpanier-monpanierBtn # at /<br>select monpanier-expedition
+    # at /cart<br>select monpanier-expedition # at /cart<br>click_on monpanier-terminerBtn
+    # at /cart<br>'
+  livraison: ! 'select livraison-civilite # at /checkoutfill_text livraison-name #
+    at /checkout<br>fill_text livraison-prenom # at /checkout<br>fill_text livraison-adresse
+    # at /checkout<br>fill_text livraison-codepostal # at /checkout<br>fill_text livraison-ville
+    # at /checkout<br>fill_text livraison-telephoneFixe # at /checkout<br>fill_text
+    livraison-telephoneMobile # at /checkout<br>click_on livraison-coninuerBtn # at
+    /checkout<br>valide_check livraison-contratbrisvol # at /checkout<br>click_on
+    livraison-continuerbtn # at /checkout<br>valide_check livraison-contratbrisvol
+    # at /<br>fill_text test with:name # at /<br>fill_text test with:name # at /<br>'
+  payment: ! 'click_on payment-continuerBtn # at /checkout<br>'
+host: www.priceminister.com
+path: /
+currentTab: '4'

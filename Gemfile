@@ -12,6 +12,7 @@ gem "selenium-webdriver"
 gem "redis"
 gem "mongo_mapper"
 gem "sqlite3"
+gem "bson_ext"
 
 group :test do
   gem 'vcr'
