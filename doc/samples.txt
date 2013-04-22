@@ -5,16 +5,10 @@ Curls Samples
 
 Order
 -----
-curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"account":{"login":"marie_rose_09@yopmail.com","password":"shopelia2013"},"session":{"uuid":"0129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"order":{"products_urls":["http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW"]}},"vendor":"Amazon"}' localhost:3000/orders
-
-Answer to question 1
----------------------
-curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"0129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"1", "answer":"0"}]}}' localhost:3000/answers
-
-Answer to question 2
----------------------
-curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"0129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"2", "answer":"0"}]}}' localhost:3000/answers
-
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"account":{"login":"marie_rose_09@yopmail.com","password":"shopelia2013"},"session":{"uuid":"2129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"order":{"products_urls":["http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW"]}},"vendor":"Amazon"}' localhost:3000/orders
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"2129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"1", "answer":"0"}]}}' localhost:3000/answers
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"2129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"2", "answer":"0"}]}}' localhost:3000/answers
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"2129801H","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"3", "answer":false}]}}' localhost:3000/answers
 
 
 JSONs Samples
