@@ -252,6 +252,8 @@ class Amazon
         if eval(action)
           run_step('submit credit card')
         else
+          open_url URL
+          run_step('empty cart')
           terminate
         end
       end
