@@ -12,7 +12,7 @@ module Dispatcher
           session = message['context']['session']
           vulcain = @pool.pull(session)
           unless vulcain
-            message = { verb:'failure', status:STATUSES_CODE[:no_idle], session:session}
+            message = { verb:'failure', content:{status:STATUSES_CODE[:no_idle]}, session:session}
             Log.create(message)
             ShopeliaCallback.new.request(session['callback_url'], message)
           else
