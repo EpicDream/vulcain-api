@@ -11,7 +11,7 @@ module Dispatcher
       @pool = []
     end
   
-    def pop session
+    def pull session
       vulcain = nil
       @mutex.synchronize { 
         if vulcain = @pool.detect { |vulcain| vulcain.idle }
@@ -20,6 +20,10 @@ module Dispatcher
         end
       }
       vulcain
+    end
+    
+    def pop vulcain_id
+      @pool.delete_if { |vulcain| vulcain.id == vulcain_id  }
     end
     
     def fetch session

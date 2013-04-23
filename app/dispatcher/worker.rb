@@ -10,7 +10,7 @@ module Dispatcher
         
         with_queue(RUN_API_QUEUE) do |message|
           session = message['context']['session']
-          vulcain = @pool.pop(session)
+          vulcain = @pool.pull(session)
           unless vulcain
             message = { verb:'failure', status:STATUSES_CODE[:no_idle], session:session}
             Log.create(message)
@@ -28,16 +28,17 @@ module Dispatcher
         end
         
         with_queue(ADMIN_QUEUE) do |message|
+          vulcain_id = message['session']['vulcain_id']
           case message['status']
-          when MESSAGES_STATUSES[:started] then @pool.push message['session']['vulcain_id']
-          when MESSAGES_STATUSES[:reloaded] then @pool.idle message['session']['vulcain_id']
+          when ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
+          when ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
+          when ADMIN_MESSAGES_STATUSES[:abort] then @pool.pop vulcain_id
+          when ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
+          when ADMIN_MESSAGES_STATUSES[:terminate] then @pool.idle vulcain_id
           end
         end
         
         with_queue(VULCAINS_QUEUE) do |message|
-          case message['verb']
-          when MESSAGES_VERBS[:terminate] then @pool.idle message['session']['vulcain_id']
-          end
           ShopeliaCallback.new.request(message['session']['callback_url'], message)
         end
 

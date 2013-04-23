@@ -16,7 +16,10 @@ module Dispatcher
     :ask => 'ask', :message => 'message', :terminate => 'success',
     :assess => 'assess', :failure => 'failure', :start => 'start'
   }
-  MESSAGES_STATUSES = {:started => 'started', :reloaded => 'reloaded'}
+  ADMIN_MESSAGES_STATUSES = {
+    started:'started', reloaded:'reloaded', abort:'abort', failure:'failure', terminate:'terminate'
+  }
+  
   STATUSES_CODE = {:no_idle => 'no_idle'}
 end
 
