@@ -273,6 +273,7 @@ class Amazon
         click_on USE_THIS_ADDRESS
         wait_for([ORDER_SUMMARY])
         screenshot
+        page_source
         wait_ajax
         click_on_if_exists PREMIUM_POPUP
         click_on VALIDATE_ORDER

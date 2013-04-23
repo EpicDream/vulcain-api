@@ -52,6 +52,10 @@ class Strategy
     logging_exchanger.publish({screenshot:@driver.screenshot})
   end
   
+  def page_source
+    logging_exchanger.publish({page_source:@driver.page_source})
+  end
+  
   def ask message, state={}
     @next_step = state[:next_step]
     message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
