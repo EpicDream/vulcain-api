@@ -42,7 +42,7 @@ class Amazon
   COLOR_SELECTOR = lambda { |id| "//*[@id='color_name_#{id}']"}
   UNAVAILABLE_COLORS = '//div[@class="swatchUnavailable"]'
   OPEN_SESSION_TITLE = '//*[@id="ap_signin1a_pagelet"]'
-  PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"] | //*[@id="gutterCartViewForm"]/div[3]/div/div[2]/div/div/a'
+  PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"]'
   
   PRICE = '//*[@id="priceBlock"]'
   TITLE = '//*[@id="btAsinTitle"]'
@@ -223,9 +223,9 @@ class Amazon
           wait_for [LINK_PRICE_ITEMS]
           price = get_text LINK_PRICE_ITEMS
           shipping = get_text LINK_SHIPPING_PRICE
-          billing ||= {}
-          billing[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
-          billing[:shipping] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          self.billing ||= {}
+          self.billing[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          self.billing[:shipping] = (shipping =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
         end
       end
       

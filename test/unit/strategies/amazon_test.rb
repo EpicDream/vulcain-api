@@ -157,6 +157,29 @@ class AmazonTest < ActiveSupport::TestCase
     steps['payment'].call
   end
   
+  test "something interesting" do
+    url = "http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"
+    strategy.exchanger.expects(:publish).times(6)
+    strategy.logging_exchanger.expects(:publish).times(7)
+    
+    @context['order']['products_urls'] = [url]
+    strategy.context = @context
+    strategy.run_step('login')
+    strategy.run_step('empty cart')
+    strategy.run_step('add to cart')
+    message = {'verb' => 'assess', 'content' => {
+      :questions => [{:text => nil, :id => '1', :options => nil}], 
+      :products => [{'delivery_text' => '', 'price_text' => "Prix : EUR 10,50 Livraison gratuite dès 15 euros d'achats. ",
+         'product_title' => 'Les Aristochats', 
+         'product_image_url' => 'http://ecx.images-amazon.com/images/I/51QikAQ9Y6L._SL500_AA300_.jpg', 
+         'price_delivery' => 0, 
+         'price_product' => 10.5, 
+         'url' => 'http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S'}], 
+         :billing => {:price => 10.5, :shipping => 2.79}}}
+    strategy.exchanger.expects(:publish).with(message, @context['session'])
+    strategy.run_step('finalize order')
+  end
+  
   private
   
   def products
