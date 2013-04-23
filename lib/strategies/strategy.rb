@@ -58,7 +58,7 @@ class Strategy
   
   def ask message, state={}
     @next_step = state[:next_step]
-    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => {message:message}}
+    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
     exchanger.publish(message, @session)
   end
   
@@ -68,7 +68,7 @@ class Strategy
                :products => products, 
                :billing => billing || billing_from_products}
                
-    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => {message:message}}
+    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
     exchanger.publish(message, @session)
   end
   
