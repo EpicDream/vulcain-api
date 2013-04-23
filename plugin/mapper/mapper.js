@@ -13,7 +13,8 @@ function buildForms() {
         createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident].option);
     }
 
-    tab.find('.strat').html(shopelia.strategies[cat].replace(/\n/g,"<br>"));
+    if (shopelia.strategies[cat])
+      tab.find('.strat').html(shopelia.strategies[cat].replace(/\n/g,"<br>"));
     tab.accordion("refresh");
   }
 };
@@ -49,7 +50,7 @@ function newStrategy(id, descr) {
   strat.attr("id",id);
   tabs.append(strat);
 
-  var a = $("<a>").attr("href","#"+id).text(descr);
+  var a = $("<a>").attr("href","#"+id).text(descr).dblclick(onEditStrategy);
   $("<li>").append(a).insertBefore($("#newCat"));
   tabs.tabs("refresh");
   a.click();
@@ -64,6 +65,36 @@ function newStrategy(id, descr) {
   shopelia.mapping[id] = shopelia.mapping[id] || {};
 
   return strat;
+};
+
+function delStrategy(id) {
+  $("#tabs div#"+id).remove();
+  $("#tabs > ul > li > a[href='#"+id+"']").parent().remove();
+  delete shopelia.mapping[id];
+  delete shopelia.fields[id];
+  if (shopelia.strategies[id])
+    delete shopelia.strategies[id];
+  $("#tabs").tabs("refresh");
+};
+
+function renameStrategy(id, newName) {
+  var newId = newName.replace(/[\W]/g,"").toLowerCase();
+
+  var a = $("#tabs > ul > li > a[href='#"+id+"']");
+  a.attr("href",'#'+newId);
+  a.text(newName);
+  $("#tabs > div#"+id).attr("id", newId);
+  
+  shopelia.mapping[newId] = shopelia.mapping[id];
+  delete shopelia.mapping[id];
+  shopelia.fields[newId] = shopelia.fields[id];
+  delete shopelia.fields[id];
+  if (shopelia.strategies[id]) {
+    shopelia.strategies[newId] = shopelia.strategies[id];
+    delete shopelia.strategies[id];
+  }
+
+  $("#tabs").tabs("refresh");
 };
 
 //
@@ -112,8 +143,22 @@ function createOption(cat, ident, descr, option) {
 //
 function onNewStrategy(event) {
   var descr = prompt("Saisissez le nom de la nouvelle startégie :", "ex : Connexion")
+  if (descr == null) return;
   var id = descr.replace(/[\W]/g,"").toLowerCase();
   newStrategy(id, descr);
+};
+
+function onEditStrategy(event) {
+  var e = $(event.target);
+  var id = e.attr("href").slice(1);
+  var descr = prompt("Saisissez le nouveau nom de la nouvelle startégie ou laissez vide pour la supprimer :", e.text());
+  if (descr == null) {
+    return;
+  } else if (descr == "") {
+    delStrategy(id);
+  } else {
+    renameStrategy(id, descr);
+  }
 };
 
 // When a 'Show' button is clicked in Shopelia
