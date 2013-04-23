@@ -60,7 +60,7 @@ class Strategy
   
   def assess state={}
     @next_step = state[:next_step] || 'payment'
-    message = {:questions => [new_question(nil, {})],
+    message = {:questions => [new_question(nil, {action:"answer.answer == Strategy::YES_ANSWER"})],
                :products => products, 
                :billing => billing || billing_from_products}
                

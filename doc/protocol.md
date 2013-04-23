@@ -93,15 +93,12 @@ La valeur de la clé "session.uuid" de la réponse *DOIT* être égale à celle 
 
 **clés**:
 
-*"verb":"answer"*
-
 *"context":{"answers":[{},{}..], "session":{…}*
 
 
-	{"verb"=>"answer", 
-	"context"=>{
-		"answers"=>[{"question_id"=>"2", "answer"=>"0"}],
-		"session"=>{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}
+	{ "context"=>{
+			"answers"=>[{"question_id"=>"2", "answer"=>"0"}],
+			"session"=>{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}
 		}
 	}
 
@@ -183,13 +180,11 @@ La valeur de la clé "session.uuid" de la réponse *DOIT* être égale à celle 
 
 **clés**:
 
-*"verb":"answer"*
 
 *"context":{"answers":[{}], "session":{…}*
 
 
-	{"verb"=>"answer", 
-	"context"=>{
+	{ "context"=>{
 		"answers"=>[{"question_id"=>"3", "answer"=>true}],
 		"session"=>{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}
 		}

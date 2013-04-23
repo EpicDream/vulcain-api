@@ -246,27 +246,37 @@ class Amazon
       end
       
       step('payment') do
-        answer = answers.detect { |answer| answer.question_id == "3"}#TODO
-        if answer.answer == Strategy::YES_ANSWER
-          wait_ajax
-          click_on ADD_NEW_CREDIT_CARD
-          fill CREDIT_CARD_NUMBER, with:order.credentials.number
-          fill CREDIT_CARD_HOLDER, with:order.credentials.holder
-          select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
-          select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
-          fill CREDIT_CARD_CVV, with:order.credentials.cvv
-          click_on SUBMIT_NEW_CARD
-          wait_ajax
-          click_on CONTINUE_TO_PAYMENT
-          click_on USE_THIS_ADDRESS
-          wait_for([ORDER_SUMMARY])
-          screenshot
-          wait_ajax
-          click_on_if_exists PREMIUM_POPUP
-          click_on VALIDATE_ORDER unless Rails.env == 'test'
+        answer = answers.last
+        action = questions[answers.last.question_id]
+        if eval(action)
+          run_step('submit credit card')
+        else
           terminate
         end
-        
+      end
+      
+      step('submit credit card') do
+        wait_ajax
+        click_on ADD_NEW_CREDIT_CARD
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on SUBMIT_NEW_CARD
+        run_step('validate order')
+      end
+      
+      step('validate order') do
+        wait_ajax
+        click_on CONTINUE_TO_PAYMENT
+        click_on USE_THIS_ADDRESS
+        wait_for([ORDER_SUMMARY])
+        screenshot
+        wait_ajax
+        click_on_if_exists PREMIUM_POPUP
+        click_on VALIDATE_ORDER
+        terminate
       end
       
     end
