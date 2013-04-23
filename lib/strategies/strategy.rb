@@ -58,7 +58,7 @@ class Strategy
   
   def ask message, state={}
     @next_step = state[:next_step]
-    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
+    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => {message:message}}
     exchanger.publish(message, @session)
   end
   
@@ -68,13 +68,13 @@ class Strategy
                :products => products, 
                :billing => billing || billing_from_products}
                
-    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
+    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => {message:message}}
     exchanger.publish(message, @session)
   end
   
   def message message, state={}
     @next_step = state[:next_step]
-    message = {'verb' => MESSAGES_VERBS[:message], 'content' => message}
+    message = {'verb' => MESSAGES_VERBS[:message], 'content' => {message:message}}
     exchanger.publish(message, @session)
     if @next_step
       message = {'verb' => MESSAGES_VERBS[:next_step]}
@@ -90,7 +90,7 @@ class Strategy
   
   def terminate_on_error error_message
     logging_exchanger.publish({error_message:error_message})
-    message = {'verb' => MESSAGES_VERBS[:failure], 'content' => error_message}
+    message = {'verb' => MESSAGES_VERBS[:failure], 'content' => {message:error_message}}
     exchanger.publish(message, @session)
     @driver.quit
   end
@@ -181,8 +181,8 @@ class Strategy
     @driver.find_input_with_value(name)
   end
   
-  def wait_ajax
-    sleep(2)
+  def wait_ajax n=2
+    sleep(n)
   end
   
   def find_any_element xpaths
