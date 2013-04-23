@@ -85,11 +85,18 @@ function createOption(cat, ident, descr, option) {
   delBtn.click(onDelClicked);
   tr.click(onOptionChanged);
 
-  tr.append($("<td>").css("width","100%").text(descr).addClass("label"));
+  var td = $("<td>").css("width","100%").text(descr).addClass("label");
+  tr.append(td);
   tr.append($("<td>").append(showBtn).append(setBtn));
   tr.append($("<td>").append(editBtn).append(resetBtn));
   tr.append($("<td>").append(delBtn));
   table.append(tr);
+
+  var field = getFields(tr);
+  var title = "ident='"+ident+"'|action='"+field.action+"'";
+  if (field.arg)
+    title += "|arg='"+field.arg+"'";
+  td.attr("title",title).tooltip();
 
   var xpath = getMapping(tr);
   if (xpath)
@@ -113,7 +120,7 @@ function onNewStrategy(event) {
 function onShowClicked(event) {
   var e = getFieldElem($(event.target));
   var xpath = getMapping(e);
-  chrome.extension.sendMessage(Object({'dest':'contentscript','action': 'show', 'xpath': xpath}));
+  chrome.extension.sendMessage({'dest':'contentscript','action': 'show', 'xpath': xpath});
 };
 
 //
@@ -150,7 +157,7 @@ function onResetClicked(event) {
   delete shopelia.mapping[getStratId(e)][getFieldId(e)];
   e.removeClass("good");
   e.find(".show").removeAttr('title');
-  chrome.extension.sendMessage(Object({'dest':'contentscript','action':'reset', 'xpath':xpath}));
+  chrome.extension.sendMessage({'dest':'contentscript','action':'reset', 'xpath':xpath});
 };
 
 //
@@ -318,8 +325,7 @@ function load() {
       $('#tabs').tabs({active: (parseInt(localStorage[host] || '0'))});
     });
   } else {
-    var msg = {'dest':'contentscript','action':'getUrl','reload': true};
-    chrome.extension.sendMessage(msg);
+    chrome.extension.sendMessage({'dest':'contentscript','action':'getUrl','reload': true});
   }
 };
 
@@ -341,8 +347,7 @@ function save() {
     });
     localStorage[shopelia.host] = JSON.stringify($("#tabs").tabs("option", "active"));
   } else {
-    var msg = {'dest':'contentscript','action':'getUrl','resave': true};
-    chrome.extension.sendMessage(msg);
+    chrome.extension.sendMessage({'dest':'contentscript','action':'getUrl','resave': true});
   }
 };
 
@@ -454,7 +459,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     var e = $("#tabs .stratTab:visible .mapper .fieldLine.selected");
     if (e.length == 1) {
       setXPath(e, msg.xpath);
-      chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.xpath}));
+      chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
     }
   } else if (msg.action = "getUrl") {
     shopelia.host = msg.host;
@@ -466,7 +471,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   }
 });
 
-chrome.extension.sendMessage(Object({'dest':'contentscript', 'action':'getUrl', 'reload': true}));
+chrome.extension.sendMessage({'dest':'contentscript', 'action':'getUrl', 'reload': true});
 
 
 // ##################################  FIN INITIALISATION  ##################################
