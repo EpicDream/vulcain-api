@@ -42,7 +42,8 @@ class Amazon
   COLOR_SELECTOR = lambda { |id| "//*[@id='color_name_#{id}']"}
   UNAVAILABLE_COLORS = '//div[@class="swatchUnavailable"]'
   OPEN_SESSION_TITLE = '//*[@id="ap_signin1a_pagelet"]'
-  PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"]'
+  PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"] | //*[@id="gutterCartViewForm"]/div[3]/div/div[2]/div/div/a'
+  
   PRICE = '//*[@id="priceBlock"]'
   TITLE = '//*[@id="btAsinTitle"]'
   IMAGE = '//*[@id="original-main-image"]'
