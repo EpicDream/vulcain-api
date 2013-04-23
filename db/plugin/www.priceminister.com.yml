@@ -1,254 +1,333 @@
 --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
 fields: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-  inscription: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  account_creation: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
     shopelia_cat_descr: Inscription
-    account: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Mon Compte
-      options: ''
+      option: ''
       action: click_on
-    email: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    email_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: E-mail
-      options: ''
-      action: fill_text
-    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: email
+    continuerBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton Continuer
-      options: ''
+      option: ''
       action: click_on
-    confirmEmail: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    confirmEmail_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Confimer E-mail
-      options: ''
-      action: fill_text
-    pseudo: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: email
+    pseudo_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Pseudo
-      options: ''
-      action: fill_text
-    password: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: login
+    password_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Mot de passe
-      options: ''
-      action: fill_text
-    confirmPasword: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: password
+    confirmPasword_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Confirmer le mot de passe
-      options: ''
-      action: fill_text
-    civilite: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: password
+    civilite_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Civilité
-      options: ''
-      action: select
-    name: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: select_option
+      arg: gender
+    name_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Nom
-      options: ''
-      action: fill_text
-    prenom: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: last_name
+    prenom_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Prénom
-      options: ''
-      action: fill_text
-    jourbirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: first_name
+    jourbirth_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Jour de Naissance
-      options: ''
-      action: select
-    moisbirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: select_option
+      arg: birthdate_day
+    moisbirth_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Mois de naissance
-      options: ''
-      action: select
-    anneeBirth: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: select_option
+      arg: birthdate_month
+    anneeBirth_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Année de naissance
-      options: ''
-      action: select
-    cadomail: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: select_option
+      arg: birthdate_year
+    cadomail_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Recevoir des promos par mail
-      options: ''
-      action: select_radio
-    cadosms: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: click_on
+    cadosms_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Recevoir des promos par sms
-      options: ''
-      action: select_radio
-    cadotel: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: click_on
+    cadotel_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Recevoir des promos par tel
-      options: ''
-      action: select_radio
-    promoavions: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: click_on
+    promoavions_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Promo et billets d'avion
-      options: ''
-      action: select_radio
-    createBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: click_on
+    createBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton créer le compte
-      options: ''
+      option: ''
       action: click_on
-  seconnecter: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  login: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
     shopelia_cat_descr: Se Connecter
-    account: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Mon Compte
-      options: ''
+      option: ''
       action: click_on
-    email: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    email_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: E-mail
-      options: ''
-      action: fill_text
-    password: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: email
+    password_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Mot de passe
-      options: ''
-      action: fill_text
-    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: login
+    continuerBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton continuer
-      options: ''
+      option: ''
       action: click_on
-  ajouterproduit: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  unlog: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Déconnexion
+    deconnect_link_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Lien de déconnexion
+      option: 'on'
+      action: click_on
+      present: false
+  add_to_cart: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
     shopelia_cat_descr: Ajouter Produit
-    ajouterBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    ajouterBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton ajouter au panier
-      options: ''
+      option: ''
       action: click_on
-    addCartBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-      descr: Bouton ajouter au panier
-      options: ''
-      action: click_on
-    prixlivraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-      descr: Prix de la livraison
-      options: ''
-      action: show_text
-    prix: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-      descr: Prix
-      options: ''
-      action: show_text
-  monpanier: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    shopelia_cat_descr: Mon panier
-    monpanierBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  empty_cart: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Vider panier
+    monpanierBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton mon panier
-      options: ''
+      option: ''
       action: click_on
-    expedition: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-      descr: Mode d'expédition
-      options: ''
-      action: select
-    terminerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-      descr: Bouton terminer la commande
-      options: ''
+    emptyBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton vider le panier
+      option: ''
       action: click_on
-  livraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    shopelia_cat_descr: Livraison
-    civilite: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  finalize_order: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Finalisation
+    civilite_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Civilité
-      options: ''
-      action: select
-    name: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: select_option
+      arg: gender
+    name_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Nom
-      options: ''
-      action: fill_text
-    prenom: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: last_name
+    prenom_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Prénom
-      options: ''
-      action: fill_text
-    adresse: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: first_name
+    adresse_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Adresse
-      options: ''
-      action: fill_text
-    codepostal: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: address_1
+    codepostal_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Code Postal
-      options: ''
-      action: fill_text
-    ville: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: zip
+    ville_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Ville
-      options: ''
-      action: fill_text
-    telephoneFixe: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: city
+    telephoneFixe_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Télephone fixe
-      options: ''
-      action: fill_text
-    telephoneMobile: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: land_phone
+    telephoneMobile_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Téléphone mobile
-      options: ''
-      action: fill_text
-    coninuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      option: ''
+      action: fill
+      arg: mobile_phone
+    coninuerBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton continuer
-      options: ''
+      option: ''
       action: click_on
-    continuerbtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    contratbrisvol_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Contrat bris et vol
+      option: ''
+      action: click_on
+    continuerbtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton continuer
-      options: ''
+      option: ''
       action: click_on
+    my_cart_btn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton Mon Panier
+      option: 'on'
+      action: click_on
+      present: false
+    montant_total_txt_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Montant total
+      option: 'on'
+      action: click_on
+      present: false
+    terminer_btn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Bouton terminer commande
+      option: 'on'
+      action: click_on
+      present: false
+    continuer_payment_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Continuer payement
+      option: 'on'
+      action: click_on
+      present: false
   payment: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    shopelia_cat_descr: Payment
-    continuerBtn: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    shopelia_cat_descr: Payement
+    continuerBtn_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       descr: Bouton Continuer
-      options: ''
+      option: ''
       action: click_on
+    type_carte_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Type de carte
+      option: 'on'
+      action: select_option
+      present: false
+      arg: last_name
+    num_carte_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Numéro de la carte
+      option: 'on'
+      action: fill
+      present: false
+      arg: login
+    expir_mois_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Expiration mois
+      option: 'on'
+      action: select_option
+      present: false
+      arg: login
+    expir_year_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Année d'expiration
+      option: 'on'
+      action: select_option
+      present: false
+      arg: login
+    cvv_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: CVV
+      option: 'on'
+      action: fill
+      present: false
+      arg: login
+    check_save_card_xpath: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      descr: Sauvegarder la carte
+      option: ''
+      action: click_on
+      present: false
 mapping: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-  inscription: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    account: //li[@id="account_access_container"]/a
-    email: //input[@id="usr_email"]
-    continuerBtn: //button[@id="submit_register"]/span/span
-    confirmEmail: //input[@id="e_mail2"]
-    pseudo: //input[@id="login"]
-    password: //input[@id="password"]
-    confirmPasword: //input[@id="password2"]
-    civilite: //select[@id="usr_title"]
-    name: //input[@id="last_name"]
-    prenom: //input[@id="first_name"]
-    jourbirth: //select[@id="birth_day"]
-    moisbirth: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[2]/select
-    anneeBirth: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[3]/select
-    cadomail: //input[@id="110_false"]
-    cadosms: //input[@id="120_false"]
-    cadotel: //input[@id="125_false"]
-    promoavions: //input[@id="190_false"]
-    createBtn: //button[@id="submitbtn"]/span/span
-  seconnecter: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    account: //li[@id="account_access_container"]/a
-    email: //input[@id="login"]
-    password: //input[@id="userpassword"]
-    continuerBtn: //form[@id="frm_login"]/div[3]/div/button/span/span
-  ajouterproduit: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    ajouterBtn: //form[@id="advert623619768bb"]/fieldset/button/span
-    addCartBtn: //form[@id="advert623619768bb"]/fieldset/button/span
-    prixlivraison: //div[@id="buybox"]/ul/li[4]/span
-    prix: //div[@id="buybox"]/ul/li[1]
-  monpanier: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    monpanierBtn: //div[@id="dashboard"]/ul[2]/li[3]/a
-    expedition: //div[@id="modes_lvrsn"]/fieldset/div/div
-    terminerBtn: //a[@id="terminerMilieu"]/span
-  livraison: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    civilite: //select[@id="usr_title"]
-    name: //input[@id="last_name"]
-    prenom: //input[@id="first_name"]
-    adresse: //input[@id="address1"]
-    codepostal: //input[@id="zip"]
-    ville: //input[@id="city"]
-    telephoneFixe: //input[@id="phone_1"]
-    telephoneMobile: //input[@id="phone_2"]
-    coninuerBtn: //form[@id="chck_addr_reg_frm"]/div[2]/button/span/span
-    continuerbtn: //div[@id="check_coupon"]/div/table/tbody/tr/td/a
+  account_creation: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account_xpath: //li[@id="account_access_container"]/a
+    pseudo_xpath: //input[@id="login"]
+    email_xpath: //input[@id="usr_email"]
+    continuerBtn_xpath: //button[@id="submit_register"]/span/span
+    confirmEmail_xpath: //input[@id="e_mail2"]
+    password_xpath: //input[@id="password"]
+    confirmPasword_xpath: //input[@id="password2"]
+    civilite_xpath: //select[@id="usr_title"]
+    name_xpath: //input[@id="last_name"]
+    prenom_xpath: //input[@id="first_name"]
+    jourbirth_xpath: //select[@id="birth_day"]
+    moisbirth_xpath: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[2]/select
+    anneeBirth_xpath: //div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[3]/select
+    cadomail_xpath: //input[@id="110_false"]
+    cadosms_xpath: //input[@id="120_false"]
+    cadotel_xpath: //input[@id="125_false"]
+    promoavions_xpath: //input[@id="190_false"]
+    createBtn_xpath: //button[@id="submitbtn"]/span/span
+  login: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    account_xpath: //li[@id="account_access_container"]/a
+    email_xpath: //input[@id="login"]
+    password_xpath: //input[@id="userpassword"]
+    continuerBtn_xpath: //form[@id="frm_login"]/div[3]/div/button/span/span
+  unlog: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    deconnect_link_xpath: //div[@id="dashboard"]/ul[1]/li[1]/a
+  add_to_cart: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    ajouterBtn_xpath: //form[@class="frmAddToCart"]/fieldset/button
+  empty_cart: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    monpanierBtn_xpath: //div[@id="dashboard"]/ul[2]/li[3]/a
+    emptyBtn_xpath: //div[@class="details"]//li[@class="action"]//a
+  finalize_order: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    my_cart_btn_xpath: //div[@id="dashboard"]/ul[2]/li[3]/a[1]
+    montant_total_txt_xpath: //div[@id="purchase_summary_item_include"]/div/ul/li[1]/span[2]/strong
+    terminer_btn_xpath: //a[@id="terminerHaut"]/span
+    adresse_xpath: //input[@id="address1"]
+    codepostal_xpath: //input[@id="zip"]
+    ville_xpath: //input[@id="city"]
+    telephoneFixe_xpath: //input[@id="phone_1"]
+    telephoneMobile_xpath: //input[@id="phone_2"]
+    coninuerBtn_xpath: //form[@id="chck_addr_reg_frm"]/div[2]/button/span/span
+    continuerbtn_xpath: //div[@id="check_coupon"]/div/table/tbody/tr/td/a
+    continuer_payment_xpath: //input[@id="submit_continue"]
   payment: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    continuerBtn: //input[@id="submit_continue"]
+    type_carte_xpath: //select[@id="IDCardTypeCode"]
+    num_carte_xpath: //div[@id="checkout_pay_card"]/div[2]/form/table/tbody/tr[5]/td[2]/input
+    expir_mois_xpath: //div[@id="checkout_pay_card"]/div[2]/form/table/tbody/tr[6]/td[2]/select[1]
+    expir_year_xpath: //div[@id="checkout_pay_card"]/div[2]/form/table/tbody/tr[6]/td[2]/select[2]
+    cvv_xpath: //input[@id="cvv_key"]
+    check_save_card_xpath: //input[@id="IDSaveCardInput"]
 strategies: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-  inscription: ! 'click_on inscription-account # at /<br>fill_text inscription-email
-    # at /connect<br>click_on inscription-continuerBtn # at /connect<br>fill_text
-    inscription-confirmEmail # at /connect<br>fill_text inscription-pseudo # at /connect<br>fill_text
-    inscription-password # at /connect<br>fill_text inscription-confirmPasword # at
-    /connect<br>select inscription-civilite # at /connect<br>fill_text inscription-name
-    # at /connect<br>fill_text inscription-prenom # at /connect<br>select inscription-jourbirth
-    # at /connect<br>select inscription-moisbirth # at /connect<br>select inscription-anneeBirth
-    # at /connect<br>select_radio inscription-cadomail # at /connect<br>select_radio
-    inscription-cadosms # at /connect<br>select_radio inscription-cadotel # at /connect<br>select_radio
-    inscription-promoavions # at /connect<br>click_on inscription-createBtn # at /connect<br>'
-  seconnecter: ! 'click_on seconnecter-account # at /<br>fill_text seconnecter-email
-    # at /connect<br>fill_text seconnecter-password # at /connect<br>click_on seconnecter-continuerBtn
-    # at /connect<br>'
-  ajouterproduit: ! 'click_on ajouterproduit-ajouterBtn # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>click_on
-    ajouterproduit-addCartBtn # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>show_text
-    ajouterproduit-prixlivraison # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>show_text
-    ajouterproduit-prix # at /offer/buy/190386594/the-big-bang-theory-saisons-1-4-de-james-burrows.html<br>'
-  monpanier: ! 'click_on monpanier-monpanierBtn # at /<br>select monpanier-expedition
-    # at /cart<br>select monpanier-expedition # at /cart<br>click_on monpanier-terminerBtn
-    # at /cart<br>'
-  livraison: ! 'select livraison-civilite # at /checkoutfill_text livraison-name #
-    at /checkout<br>fill_text livraison-prenom # at /checkout<br>fill_text livraison-adresse
-    # at /checkout<br>fill_text livraison-codepostal # at /checkout<br>fill_text livraison-ville
-    # at /checkout<br>fill_text livraison-telephoneFixe # at /checkout<br>fill_text
-    livraison-telephoneMobile # at /checkout<br>click_on livraison-coninuerBtn # at
-    /checkout<br>valide_check livraison-contratbrisvol # at /checkout<br>click_on
-    livraison-continuerbtn # at /checkout<br>valide_check livraison-contratbrisvol
-    # at /<br>fill_text test with:name # at /<br>fill_text test with:name # at /<br>'
-  payment: ! 'click_on payment-continuerBtn # at /checkout<br>'
+  account_creation: ! 'click_on account_xpath # at /<\n>fill email_xpath, with: account.email
+    # at /connect<\n>click_on continuerBtn_xpath # at /connect<\n>fill confirmEmail_xpath,
+    with: account.email # at /connect<\n>fill pseudo_xpath, with: account.login #
+    at /connect<\n>fill password_xpath, with: account.password # at /connect<\n>fill
+    confirmPasword_xpath, with: account.password # at /connect<\n>select_option civilite_xpath,
+    with: ({0=>"30",1=>"10",2=>"20"}[user.gender]) # at /connect<\n>fill name_xpath,
+    with: user.last_name # at /connect<\n>fill prenom_xpath, with: user.first_name
+    # at /connect<\n>select_option jourbirth_xpath, with: ("%02d" % user.birthdate.day)
+    # at /connect<\n>select_option moisbirth_xpath, with: ("%02d" % user.birthdate.month)
+    # at /connect<\n>select_option anneeBirth_xpath, with: user.birthdate.year # at
+    /connect<\n>click_on cadomail_xpath # at /connect<\n>click_on cadosms_xpath #
+    at /connect<\n>click_on cadotel_xpath # at /connect<\n>click_on promoavions_xpath
+    # at /connect<\n>click_on createBtn_xpath # at /connect<\n>'
+  login: ! 'click_on account_xpath # at /<\n>fill email_xpath, with: account.login
+    # at /connect<\n>fill password_xpath, with: account.password # at /connect<\n>click_on
+    continuerBtn_xpath # at /connect<\n>'
+  unlog: ! 'click_on deconnect_link_xpath # at /<\n>'
+  add_to_cart: ! 'click_on ajouterBtn_xpath # at /offer/buy/846008/Pulp-Fiction-Pulp-Fiction-CD-Album.html<\n>'
+  empty_cart: ! 'click_on monpanierBtn_xpath # at /<\n>for link in find_elements(emptyBtn_xpath)<\n>click_on
+    link # at /cart<\n>end<\n>'
+  finalize_order: ! 'click_on my_cart_btn_xpath # at /<\n>totalAmount = get_text
+    montant_total_txt_xpath # at /cart<\n>click_on terminer_btn_xpath # at /cart<\n>fill
+    adresse_xpath, with: user.address.address_1 # at /checkout<\n>fill codepostal_xpath,
+    with: user.address.zip # at /checkout<\n>fill ville_xpath, with: user.address.city
+    # at /checkout<\n>fill telephoneFixe_xpath, with: user.land_phone # at /checkout<\n>fill
+    telephoneMobile_xpath, with: user.mobile_phone # at /checkout<\n>click_on
+    coninuerBtn_xpath # at /checkout<\n>click_on continuerbtn_xpath # at /checkout<\n>click_on
+    continuer_payment_xpath # at /checkout<\n>'
+  payment: ! 'select_option type_carte_xpath,
+    with: "20" # at /checkout<\n>fill num_carte_xpath, with: order.credentials.number
+    # at /checkout<\n>select_option expir_mois_xpath, with: order.credentials.exp_month
+    # at /checkout<\n>select_option expir_year_xpath, with: order.credentials.exp_year
+    # at /checkout<\n>fill cvv_xpath, with: order.credentials.cvv # at /checkout<\n>click_on
+    check_save_card_xpath # at /checkout<\n>'
 host: www.priceminister.com
 path: /
-currentTab: '4'

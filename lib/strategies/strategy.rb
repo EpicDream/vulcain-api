@@ -2,6 +2,43 @@
 require "ostruct"
 
 class Strategy
+  ACTION_METHODS = {
+    click_on: {descr: "Cliquer sur un lien ou un bouton"},
+    fill: {descr: "Remplir le champ", arg: true},
+    select_option: {descr: "Sélectionner l'option", arg: true},
+    click_on_radio: {descr: "Sélectioner le radio bouton"},
+    screenshot: {descr: "Prendre une capture d'écran"},
+    click_on_links_with_text: {descr: "Cliquer sur le texte"},
+    click_on_button_with_name: {descr: "Cliquer sur le bouton (name)"},
+    click_on_if_exists: {descr: "Cliquer seulement si présent"},
+    open_url: {descr: "Ouvrir la page"},
+    wait_for_button_with_name: {descr: "Attendre le bouton"},
+    wait_ajax: {descr: "Attendre"},
+    ask: {descr: "Demander à l'utilisateur", arg: true},
+    assess: {descr: "Demander la confirmation", arg: true},
+    message: {descr: "Envoyer un message", arg: true}
+  }
+
+  USER_INFO = {
+    login: {descr:"Login", value:"account.login"},
+    password: {descr:"Mot de passe", value:"account.password"},
+    email: {descr:"Email", value:"account.email"},
+    last_name: {descr:"Nom", value:"user.last_name"},
+    first_name: {descr:"Prénom", value:"user.first_name"},
+    birthdate_day: {descr:"Jour de naissance", value:"user.birthdate.day"},
+    birthdate_month: {descr:"Mois de naissance", value:"user.birthdate.month"},
+    birthdate_year:{descr:"Année de naissance", value:"user.birthdate.year"},
+    mobile_phone: {descr:"Téléphone portable", value:"user.mobile_phone"},
+    land_phone: {descr:"Téléphone fixe", value:"user.land_phone"},
+    gender: {descr:"Genre", value:"user.gender"},
+    address_1: {descr:"Adresse 1", value:"user.address.address_1"},
+    address_2: {descr:"Adresse 2", value:"user.address.address_2"},
+    additionnal_address: {descr:"Adresse compléments", value:"user.address.additionnal_address"},
+    zip: {descr:"Code Postal", value:"user.address.zip"},
+    city: {descr:"Ville", value:"user.address.city"},
+    country: {descr:"Pays", value:"user.address.country"}
+  }
+
   MESSAGES = {
     logged:"Logged",
     cart_emptied:"Cart emptied",
@@ -31,6 +68,10 @@ class Strategy
     self.instance_eval(&@block)
   end
   
+  def next_step?
+    return ! @steps[@next_step].nil?
+  end
+
   def next_step args=nil
     run_step(@next_step, args)
   end
@@ -206,7 +247,8 @@ class Strategy
   
   def select_option xpath, value
     select = @driver.find_element(xpath)
-    @driver.select_option(select, value)
+    value = value[:with] if value.kind_of?(Hash)
+    @driver.select_option(select, value.to_s)
   end
   
   def options_of_select xpath

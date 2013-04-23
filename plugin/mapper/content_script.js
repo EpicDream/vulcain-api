@@ -71,10 +71,6 @@ function onBodyClick(event) {
     msg.data = getElementData(e);
     chrome.extension.sendMessage(msg);
     event.preventDefault();
-  } else if (event.shiftKey) {
-    msg.addStrat = getElementXPath(event.target);
-    chrome.extension.sendMessage(msg);
-    event.preventDefault();
   }
 };
 

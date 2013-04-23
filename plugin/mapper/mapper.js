@@ -13,10 +13,9 @@ function buildForms() {
         createOption(cat, ident, map[cat][ident]['descr'], map[cat][ident].option);
     }
 
-    tab.find('.strat').html(shopelia.strategies[cat]);
+    tab.find('.strat').html(shopelia.strategies[cat].replace(/\n/g,"<br>"));
     tab.accordion("refresh");
   }
-  tabs.tabs({active: (parseInt(shopelia.currentTab || '0'))});
 };
 
 //
@@ -26,7 +25,7 @@ function buildSelectKinds() {
     select.append($("<option value='"+k+"'>"+fieldKinds[k].descr+"</option>"));
   var select = pattern.find(".addFieldArg");
   for (var a in fieldArgs)
-    select.append($("<option value='"+fieldArgs[a].value+"'>"+fieldArgs[a].descr+"</option>"));
+    select.append($("<option value='"+a+"'>"+fieldArgs[a].descr+"</option>"));
 };
 
 //
@@ -131,7 +130,7 @@ function onEditClicked(event) {
   var fieldset = $("#tabs fieldset:visible");
   var ident = getFieldId(e);
   var cat = getStratId(e);
-  var fields = getfields(e);
+  var fields = getFields(e);
   fieldset.find(".addFieldIdent").val(ident).prop('disabled', true);
   fieldset.find(".addFieldDescr").val(e.find(".label").text());
   fieldset.find(".addFieldKind option[value='"+fields.action+"']").prop('selected',true);
@@ -185,6 +184,7 @@ function onKindChanged(event) {
 
 //
 function onClearFieldset(event) {
+  event.preventDefault();
   var parent = $(event.target).parent();
   parent.find(".addFieldIdent").val("").prop('disabled', false);
   parent.find(".addFieldDescr").val("");
@@ -197,10 +197,11 @@ function onClearFieldset(event) {
 
 //
 function onAddField(event){
+  event.preventDefault();
   var e = $(event.target);
   var fieldset = e.parents('.mapper fieldset');
   var cat = getStratId();
-  var ident = fieldset.find(".addFieldIdent").val();
+  var ident = fieldset.find(".addFieldIdent").val().toLowerCase().trim().replace(/[^\w_\s]/g,"").replace(/\s+/,"_")+'_xpath';
   var descr = fieldset.find(".addFieldDescr").val();
   var kind = fieldset.find(".addFieldKind option:selected").val();
   var arg = fieldset.find(".addFieldArg option:selected").val();
@@ -234,7 +235,7 @@ function onAddField(event){
 };
 
 //
-function onUnload(event) { if (shopelia.mapping) save(); };
+function onUnload(event) { save(); wait(200);/*send ajax*/ };
 
 //
 function onReset(event) { 
@@ -263,7 +264,7 @@ function strategies() {
   for (var i = 0 ; i < textareas.length ; i += 1) {
     var txt = textareas.eq(i);
     var cat = txt.parent().attr('id');
-    strats[cat] = txt.html();
+    strats[cat] = txt[0].innerText;
   }
   return strats;
 };
@@ -276,18 +277,19 @@ function getStratId(e) { return getStratElem(e).attr("id") };
 function getFieldElem(e) { return e.parents("tr.fieldLine").addBack("tr.fieldLine"); };
 //
 function getFieldId(e) { return getFieldElem(e).attr("id") };
-
-//
-function getfields(e) { return shopelia.fields[getStratId(e)][getFieldId(e)]; };
 //
 function getMapping(e) { return shopelia.mapping[getStratId(e)][getFieldId(e)]; };
+//
+function getFields(e) { return shopelia.fields[getStratId(e)][getFieldId(e)]; };
+//
+function wait(ms) { ms += new Date().getTime(); while (new Date() < ms){} };
 
 //
 function addActionToStrategy(e) {
-  var mo = getfields(e);
+  var mo = getFields(e);
   var txt = mo.action+' '+e.attr("id");
   if (mo.arg)
-    txt += " with:"+mo.arg;
+    txt += ", with: "+fieldArgs[mo.arg].value;
   txt += " # at "+shopelia.path+"\n";
   $("#tabs > div:visible .strat")[0].innerText += txt;
 }
@@ -304,16 +306,16 @@ function load() {
       data: {"host": host}
     }).done(function(hash) {
       shopelia = hash;
-      if (localStorage[host])
-        shopelia.currentTab = $.parseJSON(localStorage[host]);
       shopelia.host = host;
       shopelia.path = path;
       resetPage();
       buildForms();
+      $('#tabs').tabs({active: (parseInt(localStorage[host] || '0'))});
     }).fail(function(hash) {
       defaultShopelia();
       resetPage();
       buildForms();
+      $('#tabs').tabs({active: (parseInt(localStorage[host] || '0'))});
     });
   } else {
     var msg = {'dest':'contentscript','action':'getUrl','reload': true};
@@ -329,12 +331,13 @@ function save() {
   if (host) {
     shopelia.strategies = strategies();
     $.ajax({
-      type : "POST",
+      type: 'POST',
       url: pluginUrl+"/strategies/create",
-      data: {
+      contentType: 'application/json; charset=utf-8', 
+      data: JSON.stringify({
         "host": host,
         "data": shopelia
-      }
+      })
     });
     localStorage[shopelia.host] = JSON.stringify($("#tabs").tabs("option", "active"));
   } else {
@@ -347,58 +350,65 @@ function defaultShopelia() {
   shopelia = {
     "fields":{
       "accountCreation":{
-        "shopelia_cat_descr":"Inscription",
-        "account":{"descr":"Mon Compte","option":"","action":"click_on"},
-        "email":{"descr":"E-mail","option":"","action":"fill_text"},
-        "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"},
-        "confirmEmail":{"descr":"Confimer E-mail","option":"","action":"fill_text"},
-        "pseudo":{"descr":"Pseudo","option":"","action":"fill_text"},
-        "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
-        "confirmPasword":{"descr":"Confirmer le mot de passe","option":"","action":"fill_text"},
-        "civilite":{"descr":"Civilité","option":"","action":"select"},
-        "name":{"descr":"Nom","option":"","action":"fill_text"},
-        "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
-        "jourbirth":{"descr":"Jour de Naissance","option":"","action":"select"},
-        "moisbirth":{"descr":"Mois de naissance","option":"","action":"select"},
-        "anneeBirth":{"descr":"Année de naissance","option":"","action":"select"},
-        "cadomail":{"descr":"Recevoir des promos par mail","option":"","action":"select_radio"},
-        "cadosms":{"descr":"Recevoir des promos par sms","option":"","action":"select_radio"},
-        "cadotel":{"descr":"Recevoir des promos par tel","option":"","action":"select_radio"},
-        "promoavions":{"descr":"Promo et billets d'avion","option":"","action":"select_radio"},
-        "createBtn":{"descr":"Bouton créer le compte","option":"","action":"click_on"}},
+        // "shopelia_cat_descr":"Inscription",
+        // "account":{"descr":"Mon Compte","option":"","action":"click_on"},
+        // "email":{"descr":"E-mail","option":"","action":"fill"},
+        // "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"},
+        // "confirmEmail":{"descr":"Confimer E-mail","option":"","action":"fill_text"},
+        // "pseudo":{"descr":"Pseudo","option":"","action":"fill_text"},
+        // "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
+        // "confirmPasword":{"descr":"Confirmer le mot de passe","option":"","action":"fill_text"},
+        // "civilite":{"descr":"Civilité","option":"","action":"select"},
+        // "name":{"descr":"Nom","option":"","action":"fill_text"},
+        // "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
+        // "jourbirth":{"descr":"Jour de Naissance","option":"","action":"select"},
+        // "moisbirth":{"descr":"Mois de naissance","option":"","action":"select"},
+        // "anneeBirth":{"descr":"Année de naissance","option":"","action":"select"},
+        // "cadomail":{"descr":"Recevoir des promos par mail","option":"","action":"select_radio"},
+        // "cadosms":{"descr":"Recevoir des promos par sms","option":"","action":"select_radio"},
+        // "cadotel":{"descr":"Recevoir des promos par tel","option":"","action":"select_radio"},
+        // "promoavions":{"descr":"Promo et billets d'avion","option":"","action":"select_radio"},
+        // "createBtn":{"descr":"Bouton créer le compte","option":"","action":"click_on"}
+      },
       "connexion":{
-        "shopelia_cat_descr":"Se Connecter",
-        "account":{"descr":"Mon Compte","option":"","action":"click_on"},
-        "email":{"descr":"E-mail","option":"","action":"fill_text"},
-        "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
-        "continuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
+        // "shopelia_cat_descr":"Se Connecter",
+        // "account":{"descr":"Mon Compte","option":"","action":"click_on"},
+        // "email":{"descr":"E-mail","option":"","action":"fill_text"},
+        // "password":{"descr":"Mot de passe","option":"","action":"fill_text"},
+        // "continuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"}
+      },
       "product":{
-        "shopelia_cat_descr":"Ajouter Produit",
-        "ajouterBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
-        "addCartBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
-        "prixlivraison":{"descr":"Prix de la livraison","option":"","action":"show_text"},
-        "prix":{"descr":"Prix","option":"","action":"show_text"}},
+        // "shopelia_cat_descr":"Ajouter Produit",
+        // "ajouterBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
+        // "addCartBtn":{"descr":"Bouton ajouter au panier","option":"","action":"click_on"},
+        // "prixlivraison":{"descr":"Prix de la livraison","option":"","action":"show_text"},
+        // "prix":{"descr":"Prix","option":"","action":"show_text"}
+      },
       "cart":{
-        "shopelia_cat_descr":"Mon panier",
-        "monpanierBtn":{"descr":"Bouton mon panier","option":"","action":"click_on"},
-        "expedition":{"descr":"Mode d'expédition","option":"","action":"select"},
-        "terminerBtn":{"descr":"Bouton terminer la commande","option":"","action":"click_on"}},
+        // "shopelia_cat_descr":"Mon panier",
+        // "monpanierBtn":{"descr":"Bouton mon panier","option":"","action":"click_on"},
+        // "expedition":{"descr":"Mode d'expédition","option":"","action":"select"},
+        // "terminerBtn":{"descr":"Bouton terminer la commande","option":"","action":"click_on"}
+      },
       "delivery":{
-        "shopelia_cat_descr":"Livraison",
-        "civilite":{"descr":"Civilité","option":"","action":"select"},
-        "name":{"descr":"Nom","option":"","action":"fill_text"},
-        "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
-        "adresse":{"descr":"Adresse","option":"","action":"fill_text"},
-        "codepostal":{"descr":"Code Postal","option":"","action":"fill_text"},
-        "ville":{"descr":"Ville","option":"","action":"fill_text"},
-        "telephoneFixe":{"descr":"Télephone fixe","option":"","action":"fill_text"},
-        "telephoneMobile":{"descr":"Téléphone mobile","option":"","action":"fill_text"},
-        "coninuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"},
-        "contratbrisvol":{"descr":"Contrat bris et vol","option":"","action":"valide_check"},
-        "continuerbtn":{"descr":"Bouton continuer","option":"","action":"click_on"}},
+        // "shopelia_cat_descr":"Livraison",
+        // "civilite":{"descr":"Civilité","option":"","action":"select"},
+        // "name":{"descr":"Nom","option":"","action":"fill_text"},
+        // "prenom":{"descr":"Prénom","option":"","action":"fill_text"},
+        // "adresse":{"descr":"Adresse","option":"","action":"fill_text"},
+        // "codepostal":{"descr":"Code Postal","option":"","action":"fill_text"},
+        // "ville":{"descr":"Ville","option":"","action":"fill_text"},
+        // "telephoneFixe":{"descr":"Télephone fixe","option":"","action":"fill_text"},
+        // "telephoneMobile":{"descr":"Téléphone mobile","option":"","action":"fill_text"},
+        // "coninuerBtn":{"descr":"Bouton continuer","option":"","action":"click_on"},
+        // "contratbrisvol":{"descr":"Contrat bris et vol","option":"","action":"valide_check"},
+        // "continuerbtn":{"descr":"Bouton continuer","option":"","action":"click_on"}
+      },
       "payment":{
-        "shopelia_cat_descr":"Payement",
-        "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"}}},
+        // "shopelia_cat_descr":"Payement",
+        // "continuerBtn":{"descr":"Bouton Continuer","option":"","action":"click_on"}
+      }
+    },
     "mapping":{},
     "strategies":{},
     "currentTab":0};
@@ -421,10 +431,6 @@ function initFieldKindsAndArgs() {
 // ###################################  FIN DEFINITIONS  ###################################
 
 // ################################  DEBUT INITIALISATION  #################################
-
-// ################################
-// L'enregistrement des stratégies ne marche pas
-// ################################
 
 var shopelia = {}, fieldKinds = {}, fieldArgs = {};
 var pattern = $("#tabs div.pattern").detach();
@@ -450,8 +456,6 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
       setXPath(e, msg.xpath);
       chrome.extension.sendMessage(Object({'dest':'contentscript','action':'show', 'xpath':msg.xpath}));
     }
-  } else if (msg.addStrat) {
-    addActionToStrategy(e, msg.addStrat);
   } else if (msg.action = "getUrl") {
     shopelia.host = msg.host;
     shopelia.path = msg.path;

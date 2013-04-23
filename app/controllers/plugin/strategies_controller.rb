@@ -2,34 +2,17 @@
 
 class Plugin::StrategiesController < ApplicationController
   def actions
-    actions = {fill_text: {descr: "Zone de texte à remplir", arg: true},
-      valide_check: {descr: "Checkbox à cocher"},
-      select_radio: {descr: "Radio bouton à sélectionner"},
-      select: {descr: "Valeur à sélectionner", arg: true},
-      click_on: {descr: "Lien ou bouton à cliquer"},
-      show_text: {descr: "Texte à présenter", arg: true},
-      ask_text: {descr: "Texte à demander", arg: true},
-      ask_confirm: {descr: "Demande de confirmation"},
-      ask_select: {descr: "Demande parmis plusieurs valeurs (select)"},
-      ask_radio: {descr: "Demande parmis plusieurs valeurs (radio)"},
-      ask_checkbox: {descr: "Option à activer"}}
+    actions = Strategy::ACTION_METHODS
+    #   click_on_all: {descr: "Clic sur chaque instance"},
+    #   valide_check: {descr: "Checkbox à cocher"},
+    #   valide_check: {descr: "Checkbox à décocher"},
+    #   click_on_radio: {descr: "Radio bouton à sélectionner"},
+    #   value_to_save: {descr: "Valeur à enregistrer"},
+    #   ask_multiple_choices: {descr: "Quel choix choisir ? (radios ou select)"},
+    #   ask_checkbox: {descr: "Activer l'option ?" (check)}}
+    #   ask_text: {descr: "Quel est la valeur ? (text)"}}
 
-    args = {
-      name: {descr:"Nom", value:"user.last_name"},
-      firstname: {descr:"Prénom", value:"user.first_name"},
-      email: {descr:"Email", value:"user.email"},
-      password: {descr:"Password", value:"user.password"},
-      birthday_txt: {descr:"Date de naissance texte", value:"user.birthday.to_s"},
-      day_birthday: {descr:"Jour de naissance", value:"user.birthday.day"},
-      month_birthday: {descr:"Mois de naissance", value:"user.birthday.month"},
-      year_birthday: {descr:"Année de naissance", value:"user.birthday.year"},
-      address: {descr:"Adresse", value:"user.address"},
-      civilite: {descr:"Civilité", value:"user.email"},
-      city: {descr:"Ville", value:"user.city"},
-      postal_code: {descr:"Code Postal", value:"user.postalcode"},
-      phone: {descr:"Téléphone fixe", value:"user.phone"},
-      mobile: {descr:"Téléphone portable", value:"user.mobile"}}
-    
+    args = Strategy::USER_INFO
     render :json => {actions: actions, args: args}.to_json
   end
 
@@ -38,6 +21,9 @@ class Plugin::StrategiesController < ApplicationController
       filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
       FileUtils.mkdir_p(File.dirname(filename))
       File.open(filename, "w") do |f|
+        for s in params["data"]["strategies"].keys
+          params["data"]["strategies"][s] = params["data"]["strategies"][s].gsub("\n","<\\n>")
+        end
         f.puts params["data"].to_yaml
       end
     else
@@ -49,6 +35,9 @@ class Plugin::StrategiesController < ApplicationController
     filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
     if File.file?(filename)
       data = YAML.load_file(filename)
+      for s in data["strategies"].keys
+        data["strategies"][s] = data["strategies"][s].gsub("<\\n>","\n")
+      end
       render :json => data.to_json
     else
       render :json => default.to_json
@@ -59,61 +48,57 @@ class Plugin::StrategiesController < ApplicationController
     def default
       return {
         "fields"=>{
-          "accountCreation"=>{
+          "account_creation"=>{
             "shopelia_cat_descr"=>"Inscription",
             "account"=>{"descr"=>"Mon Compte","option"=>"","action"=>"click_on"},
-            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill_text"},
-            "continuerBtn"=>{"descr"=>"Bouton Continuer","option"=>"","action"=>"click_on"},
-            "confirmEmail"=>{"descr"=>"Confimer E-mail","option"=>"","action"=>"fill_text"},
-            "pseudo"=>{"descr"=>"Pseudo","option"=>"","action"=>"fill_text"},
-            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill_text"},
-            "confirmPasword"=>{"descr"=>"Confirmer le mot de passe","option"=>"","action"=>"fill_text"},
-            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select"},
-            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill_text"},
-            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill_text"},
-            "jourbirth"=>{"descr"=>"Jour de Naissance","option"=>"","action"=>"select"},
-            "moisbirth"=>{"descr"=>"Mois de naissance","option"=>"","action"=>"select"},
-            "anneeBirth"=>{"descr"=>"Année de naissance","option"=>"","action"=>"select"},
-            "cadomail"=>{"descr"=>"Recevoir des promos par mail","option"=>"","action"=>"select_radio"},
-            "cadosms"=>{"descr"=>"Recevoir des promos par sms","option"=>"","action"=>"select_radio"},
-            "cadotel"=>{"descr"=>"Recevoir des promos par tel","option"=>"","action"=>"select_radio"},
-            "promoavions"=>{"descr"=>"Promo et billets d'avion","option"=>"","action"=>"select_radio"},
+            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill","arg"=>"email"},
+            "pseudo"=>{"descr"=>"Pseudo","option"=>"","action"=>"fill","arg"=>"login"},
+            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill","arg"=>"password"},
+            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select_option","arg"=>"gender"},
+            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill","arg"=>"last_name"},
+            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill","arg"=>"first_name"},
+            "jourbirth"=>{"descr"=>"Jour de Naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_day"},
+            "moisbirth"=>{"descr"=>"Mois de naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_month"},
+            "anneeBirth"=>{"descr"=>"Année de naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_year"},
             "createBtn"=>{"descr"=>"Bouton créer le compte","option"=>"","action"=>"click_on"}},
-          "connexion"=>{
+          "login"=>{
             "shopelia_cat_descr"=>"Se Connecter",
             "account"=>{"descr"=>"Mon Compte","option"=>"","action"=>"click_on"},
-            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill_text"},
-            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill_text"},
+            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill","arg"=>"email"},
+            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill","arg"=>"login"},
             "continuerBtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"}},
-          "product"=>{
+          "unlog"=>{
+            "shopelia_cat_descr"=>"Déconnexion",
+            "unconnect_btn"=>{"descr"=>"Bouton déconnexion","option"=>"","action"=>"click_on"}},
+          "empty_cart"=>{
+            "shopelia_cat_descr"=>"Mon panier",
+            "mon_panier_btn"=>{"descr"=>"Bouton mon panier","option"=>"","action"=>"click_on"},
+            "empty_btn"=>{"descr"=>"Bouton vider le panier","option"=>"","action"=>"click_on"},
+            "remove_btn"=>{"descr"=>"Bouton supprimer du panier","option"=>"","action"=>"click_on_all"}},
+          "add_to_cart"=>{
             "shopelia_cat_descr"=>"Ajouter Produit",
-            "ajouterBtn"=>{"descr"=>"Bouton ajouter au panier","option"=>"","action"=>"click_on"},
-            "addCartBtn"=>{"descr"=>"Bouton ajouter au panier","option"=>"","action"=>"click_on"},
+            "add_to_cart_btn"=>{"descr"=>"Bouton ajouter au panier","option"=>"","action"=>"click_on"},
             "prixlivraison"=>{"descr"=>"Prix de la livraison","option"=>"","action"=>"show_text"},
             "prix"=>{"descr"=>"Prix","option"=>"","action"=>"show_text"}},
-          "cart"=>{
-            "shopelia_cat_descr"=>"Mon panier",
-            "monpanierBtn"=>{"descr"=>"Bouton mon panier","option"=>"","action"=>"click_on"},
-            "expedition"=>{"descr"=>"Mode d'expédition","option"=>"","action"=>"select"},
-            "terminerBtn"=>{"descr"=>"Bouton terminer la commande","option"=>"","action"=>"click_on"}},
-          "delivery"=>{
-            "shopelia_cat_descr"=>"Livraison",
-            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select"},
-            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill_text"},
-            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill_text"},
-            "adresse"=>{"descr"=>"Adresse","option"=>"","action"=>"fill_text"},
-            "codepostal"=>{"descr"=>"Code Postal","option"=>"","action"=>"fill_text"},
-            "ville"=>{"descr"=>"Ville","option"=>"","action"=>"fill_text"},
-            "telephoneFixe"=>{"descr"=>"Télephone fixe","option"=>"","action"=>"fill_text"},
-            "telephoneMobile"=>{"descr"=>"Téléphone mobile","option"=>"","action"=>"fill_text"},
+          "finalize_order"=>{
+            "shopelia_cat_descr"=>"Finalisation",
+            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select_option","arg"=>"gender"},
+            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill","arg"=>"last_name"},
+            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill","arg"=>"first_name"},
+            "adresse"=>{"descr"=>"Adresse","option"=>"","action"=>"fill","arg"=>"address_1"},
+            "codepostal"=>{"descr"=>"Code Postal","option"=>"","action"=>"fill","arg"=>"zip"},
+            "ville"=>{"descr"=>"Ville","option"=>"","action"=>"fill","arg"=>"city"},
+            "telephoneFixe"=>{"descr"=>"Télephone fixe","option"=>"","action"=>"fill","arg"=>"land_phone"},
+            "telephoneMobile"=>{"descr"=>"Téléphone mobile","option"=>"","action"=>"fill","arg"=>"mobile_phone"},
             "coninuerBtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"},
-            "contratbrisvol"=>{"descr"=>"Contrat bris et vol","option"=>"","action"=>"valide_check"},
+            "contratbrisvol"=>{"descr"=>"Contrat bris et vol","option"=>"","action"=>"click_on_radio"},
             "continuerbtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"}},
           "payment"=>{
             "shopelia_cat_descr"=>"Payement",
             "continuerBtn"=>{"descr"=>"Bouton Continuer","option"=>"","action"=>"click_on"}}},
         "mapping"=>{},
-        "strategies"=>{}}
+        "strategies"=>{}
+      }
     end
 
 end

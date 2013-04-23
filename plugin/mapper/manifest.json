@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Shopelia Mapper",
-  "version": "0.16.2",
+  "version": "0.16.5",
   "description": "Permet de récupérer le XPath d'éléments d'un site.",
   "background": {
     "scripts": ["background.js"],
@@ -17,5 +17,5 @@
   }],
   "background": {"scripts": ["background.js"]},
   "web_accessible_resources": ["shopelia_mapper.html", "content_script.css"],
-  "permissions": ["tabs", "https://dev.prixing.fr:3014/*", "http://*/", "https://*/"]
+  "permissions": ["tabs", "http://localhost:3000/*"]
 }
