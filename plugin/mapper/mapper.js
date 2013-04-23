@@ -243,7 +243,7 @@ function onClearFieldset(event) {
   parent.find(".addFieldKind option:selected").removeAttr('selected');
   parent.find(".addFieldKind")[0].selectedIndex = 0;
   parent.find(".addFieldArg").prop("disabled", true)[0].selectedIndex = 0;
-  parent.find(".addFieldOpt input:checked").attr('checked',false);
+  parent.find(".addFieldOpt input")[0].checked = true;
   parent.find(".addFieldPresent").prop('checked', false);
 };
 
