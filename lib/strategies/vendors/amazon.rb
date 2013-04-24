@@ -61,6 +61,7 @@ class Amazon
   ORDER_SUMMARY = '//*[@id="SPCSubtotals-marketplace-table"]'
   
   PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
+  PAYMENTS_PAGE_HOME_LINK = '/html/body/table[1]/tbody/tr/td/b/nobr[1]/a | /html/body/table/tbody/tr/td/b/nobr[1]/a'
   REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
   VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
   
@@ -84,13 +85,13 @@ class Amazon
 
       step('run') do
         run_step('create account') if account.new_account
-        run_step('unlog')
+        run_step('logout')
         run_step('login')
       end
       
       step('remove credit card') do
         open_url PAYMENTS_PAGE
-        wait_ajax
+        wait_for([PAYMENTS_PAGE_HOME_LINK])
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
         message Strategy::MESSAGES[:cb_removed], :next_step => 'empty cart'
@@ -106,7 +107,7 @@ class Amazon
         click_on REGISTER_SUBMIT
       end
       
-      step('unlog') do
+      step('logout') do
         open_url UNLOG_URL
       end
       
@@ -148,7 +149,7 @@ class Amazon
       
       step('select options') do
         if steps_options.none?
-          wait_ajax
+          #wait_ajax
           click_on ADD_TO_CART
           run_step 'add to cart'
         else
@@ -239,12 +240,12 @@ class Amazon
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
         wait_for [SHIPMENT_FORM_NAME]
-        wait_ajax
+        #wait_ajax
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
-          wait_ajax
+          #wait_ajax
         end
-        wait_ajax
+        #wait_ajax
         click_on SHIPMENT_CONTINUE
         assess
       end
@@ -262,7 +263,7 @@ class Amazon
       end
       
       step('submit credit card') do
-        wait_ajax
+        #wait_ajax
         click_on ADD_NEW_CREDIT_CARD
         fill CREDIT_CARD_NUMBER, with:order.credentials.number
         fill CREDIT_CARD_HOLDER, with:order.credentials.holder
@@ -274,13 +275,13 @@ class Amazon
       end
       
       step('validate order') do
-        wait_ajax
+        #wait_ajax
         click_on CONTINUE_TO_PAYMENT
         click_on USE_THIS_ADDRESS
         wait_for([ORDER_SUMMARY])
         screenshot
         page_source
-        wait_ajax
+        #wait_ajax
         click_on_if_exists PREMIUM_POPUP
         click_on VALIDATE_ORDER
         wait_for([THANK_YOU_MESSAGE])

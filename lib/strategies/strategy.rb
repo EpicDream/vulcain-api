@@ -137,6 +137,9 @@ class Strategy
   
   def click_on xpath
     @driver.click_on @driver.find_element(xpath)
+    rescue
+      sleep(0.5)
+      retry #wait element clickable
   end
   
   def click_on_links_with_text text, &block

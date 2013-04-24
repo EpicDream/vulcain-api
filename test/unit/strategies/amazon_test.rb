@@ -43,10 +43,11 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-     #strategy.driver.quit
+      strategy.driver.quit
     rescue
     end
   end
+  
   
   test "account creation" do
     skip "Can' create account each time!"
@@ -58,6 +59,14 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.logging_exchanger.expects(:publish).with(:step => 'login')
     
     strategy.run_step('login')
+  end
+  
+  test "remove cb" do
+    strategy.exchanger.expects(:publish).times(4)
+    strategy.logging_exchanger.expects(:publish).times(2)
+    
+    strategy.run_step('login')
+    strategy.run_step('remove credit card')
   end
   
   test "empty basket" do
@@ -80,12 +89,12 @@ class AmazonTest < ActiveSupport::TestCase
     strategy.run_step('finalize order')
   end
   
-  test "log and unlog" do
+  test "log and logout" do
     strategy.exchanger.expects(:publish).times(2)
     strategy.logging_exchanger.expects(:publish).times(2)
     
     strategy.run_step('login')
-    strategy.run_step('unlog')
+    strategy.run_step('logout')
     
     assert strategy.exists? Amazon::OPEN_SESSION_TITLE
   end
@@ -153,11 +162,12 @@ class AmazonTest < ActiveSupport::TestCase
     assert_equal 'payment', strategy.instance_variable_get(:@next_step)
     strategy.expects(:run_step).with('submit credit card').never
     strategy.expects(:terminate)
+    strategy.expects(:run_step).with('empty cart')
     steps = strategy.instance_variable_get(:@steps)
     steps['payment'].call
   end
   
-  test "something interesting" do
+  test "use price and shipment from taxes and shipment link when present" do
     url = "http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"
     strategy.exchanger.expects(:publish).times(6)
     strategy.logging_exchanger.expects(:publish).times(7)
