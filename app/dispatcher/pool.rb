@@ -11,7 +11,6 @@ module Dispatcher
     
     def initialize
       @mutex = Mutex.new
-      @config = CONFIG['vulcains']
       @pool = []
     end
   
@@ -37,7 +36,8 @@ module Dispatcher
     def push id
       id =~ /^(.*?)\|\d+$/
       host = $1
-      vulcain = Vulcain.new(vulcain_exchanger_for(host), id, false, host, nil, true)
+      exchange = Dispatcher::VulcainExchanger.new(host).exchange
+      vulcain = Vulcain.new(exchange, id, false, host, nil, true)
       @pool << vulcain
       load_strategies_on_vulcain(vulcain)
     end
@@ -60,7 +60,7 @@ module Dispatcher
       @pool = File.open(DUMP_FILE_PATH) do |f| 
         Marshal.load(f).map do |obj|
           vulcain = Vulcain.new(nil, *obj, false)
-          vulcain.exchange = vulcain_exchanger_for(vulcain.host)
+          vulcain.exchange = Dispatcher::VulcainExchanger.new(vulcain.host).exchange
           vulcain
         end
       end
@@ -103,24 +103,6 @@ module Dispatcher
       message = {verb:ADMIN_MESSAGES_STATUSES[:reload], code:Strategies::Loader.new("Amazon").code}
       vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
     end
-    
-    def vulcain_exchanger_for host
-      connection = AMQP::Session.connect configuration(host)
-      channel = AMQP::Channel.new(connection)
-      channel.on_error(&channel_error_handler(host))
-      channel.headers("amq.match", :durable => true)
-    end
-    
-    def channel_error_handler host
-      Proc.new do |channel, channel_close|
-        message = "Can't open channel to Vulcains MQ on #{host}"
-        Log.create({error_message:message})
-      end
-    end
-    
-    def configuration host
-      { :host => host, :username => @config['user'], :password => @config['password'] }
-    end
-  
+
   end
 end
