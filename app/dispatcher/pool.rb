@@ -19,7 +19,7 @@ module Dispatcher
       vulcain = nil
       @mutex.synchronize { 
         if vulcain = @pool.detect { |vulcain| vulcain.idle }
-          vulcain.idle = false if vulcain
+          vulcain.idle = false
           vulcain.uuid = session['uuid']
         end
       }
@@ -37,7 +37,7 @@ module Dispatcher
     def push vulcain_id
       vulcain_id =~ /^(.*?)\|\d+$/
       host = $1
-      vulcain = Vulcain.new(vulcain_exchanger_for(host), vulcain_id, false, host, true)
+      vulcain = Vulcain.new(vulcain_exchanger_for(host), vulcain_id, false, host, nil, true)
       @pool << vulcain
       load_strategies_on_vulcain(vulcain)
     end
