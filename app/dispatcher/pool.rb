@@ -26,24 +26,24 @@ module Dispatcher
       vulcain
     end
     
-    def pop vulcain_id
-      @pool.delete_if { |vulcain| vulcain.id == vulcain_id  }
+    def pop id
+      @pool.delete vulcain_with_id(id)
     end
     
     def fetch session
-      @pool.detect { |vulcain| vulcain.uuid == session['uuid']  }
+      vulcain_with_uuid session['uuid']
     end
     
-    def push vulcain_id
-      vulcain_id =~ /^(.*?)\|\d+$/
+    def push id
+      id =~ /^(.*?)\|\d+$/
       host = $1
-      vulcain = Vulcain.new(vulcain_exchanger_for(host), vulcain_id, false, host, nil, true)
+      vulcain = Vulcain.new(vulcain_exchanger_for(host), id, false, host, nil, true)
       @pool << vulcain
       load_strategies_on_vulcain(vulcain)
     end
     
-    def idle vulcain_id
-      vulcain = @pool.detect { |vulcain| vulcain.id == vulcain_id  }
+    def idle id
+      vulcain = vulcain_with_id(id)
       vulcain.idle = true
       vulcain.uuid = nil
     end
@@ -73,9 +73,8 @@ module Dispatcher
       vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
     end
     
-    def ack_ping vulcain_id
-      vulcain = @pool.detect { |vulcain| vulcain.id == vulcain_id  }
-      vulcain.ack_ping = true
+    def ack_ping id
+      vulcain_with_id(id).ack_ping = true
     end
     
     def ping_vulcains
@@ -91,6 +90,14 @@ module Dispatcher
     end
   
     private
+    
+    def vulcain_with_id vulcain_id
+      @pool.detect { |vulcain| vulcain.id == vulcain_id  }
+    end
+    
+    def vulcain_with_uuid uuid
+      @pool.detect { |vulcain| vulcain.uuid == uuid  }
+    end
     
     def load_strategies_on_vulcain vulcain
       message = {verb:ADMIN_MESSAGES_STATUSES[:reload], code:Strategies::Loader.new("Amazon").code}
