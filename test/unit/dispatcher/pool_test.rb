@@ -6,7 +6,7 @@ class PoolTest <  ActiveSupport::TestCase
   
   setup do
     @io_stub = stub
-    Dispatcher::Pool.any_instance.stubs(:vulcain_exchanger_for).returns(@io_stub)
+    Dispatcher::VulcainExchanger.any_instance.stubs(:exchange).returns(@io_stub)
     @pool = Dispatcher::Pool.new
   end
   
