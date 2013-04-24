@@ -69,6 +69,9 @@ class Amazon
   LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
   PREMIUM_POPUP = '//*[@id="ap_container"]/div[2]/div[5]/a/span[2]'
   
+  THANK_YOU_MESSAGE = '//*[@id="thank-you-header"]'
+  THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/span'
+  
   attr_accessor :context, :strategy
   
   def initialize context
@@ -280,7 +283,12 @@ class Amazon
         wait_ajax
         click_on_if_exists PREMIUM_POPUP
         click_on VALIDATE_ORDER
-        terminate
+        wait_for([THANK_YOU_MESSAGE])
+        if exists?(THANK_YOU_MESSAGE) && exists?(THANK_YOU_SHIPMENT)
+          terminate
+        else
+          terminate_on_error("Order number not found after order validation")
+        end
       end
       
     end
