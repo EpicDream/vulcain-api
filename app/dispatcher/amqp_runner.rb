@@ -1,16 +1,25 @@
 # encoding: utf-8
 module Dispatcher
   class AmqpRunner
-    RUNNING_MESSAGE = "Dispatcher running on #{CONFIG['host']}"
     
     def self.start
       AMQP.start(configuration) do |connection|
-        channel = AMQP::Channel.new(connection)
-        channel.on_error(&channel_error_handler)
-        exchange = channel.headers("amq.match", :durable => true)
-        Signal.trap("INT") { connection.close { EventMachine.stop { exit }} }
-        $stdout << RUNNING_MESSAGE
-        yield channel, exchange
+        begin
+          channel = AMQP::Channel.new(connection)
+          channel.on_error(&channel_error_handler)
+          exchange = channel.headers("amq.match", :durable => true)
+          pool = Pool.new
+          
+          Signal.trap("INT") do
+            pool.dump
+            connection.close { EventMachine.stop { exit }}
+          end
+          
+          yield channel, exchange, pool
+          
+        rescue => e
+          pool.dump
+        end
       end
     end
     

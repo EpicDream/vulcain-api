@@ -48,7 +48,6 @@ class AmazonTest < ActiveSupport::TestCase
     end
   end
   
-  
   test "account creation" do
     skip "Can' create account each time!"
     strategy.run_step('create account')

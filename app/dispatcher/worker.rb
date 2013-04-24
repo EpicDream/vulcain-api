@@ -3,10 +3,10 @@ module Dispatcher
   class Worker
     
     def start
-      Dispatcher::AmqpRunner.start do |channel, exchange|
+      Dispatcher::AmqpRunner.start do |channel, exchange, pool|
         @channel = channel
         @exchange = exchange
-        @pool = VulcainPool.new
+        @pool = pool
         
         with_queue(RUN_API_QUEUE) do |message|
           session = message['context']['session']
@@ -30,6 +30,7 @@ module Dispatcher
         with_queue(ADMIN_QUEUE) do |message|
           vulcain_id = message['session']['vulcain_id']
           case message['status']
+          when ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
           when ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
           when ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
           when ADMIN_MESSAGES_STATUSES[:abort] then @pool.pop vulcain_id
@@ -47,6 +48,7 @@ module Dispatcher
 
         with_queue(LOGGING_QUEUE)
         
+        @pool.restore
       end
     end
     
