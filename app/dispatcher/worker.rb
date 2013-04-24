@@ -39,6 +39,9 @@ module Dispatcher
         end
         
         with_queue(VULCAINS_QUEUE) do |message|
+          case message['verb']
+          when MESSAGES_VERBS['failure'] then @pool.idle message['session']['vulcain_id']
+          end
           ShopeliaCallback.new.request(message['session']['callback_url'], message)
         end
 
