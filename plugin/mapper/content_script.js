@@ -77,14 +77,15 @@ function onBodyClick(event) {
 // Load iFrame
 function buildExtension() {
   var body = document.getElementsByTagName("body")[0];
+  var extension_id = chrome.i18n.getMessage("@@extension_id");
   iframe = document.createElement('iframe');
   iframe.id = "shopeliaFrame";
-  iframe.src = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/shopelia_mapper.html";
+  iframe.src = "chrome-extension://" + extension_id + "/shopelia_mapper.html";
   body.appendChild(iframe);
 
   link = document.createElement('link');
   link.rel = "stylesheet";
-  link.href = "chrome-extension://flabhakaciihbkoojoejlnobeichkolb/content_script.css";
+  link.href = "chrome-extension://" + extension_id + "/content_script.css";
   document.getElementsByTagName("head")[0].appendChild(link);
 
   body.addEventListener("click", this.onBodyClick);
