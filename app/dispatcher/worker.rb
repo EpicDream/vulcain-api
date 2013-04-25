@@ -34,9 +34,9 @@ module Dispatcher
           end
         end
         
-        with_queue(VULCAINS_QUEUE) do |message|
+        with_queue(VULCAINS_QUEUE) do |message, session|
           case message['verb']
-          when Message::MESSAGES_VERBS['failure'] then @pool.idle session['vulcain_id']
+          when Message::MESSAGES_VERBS[:failure] then @pool.idle session['vulcain_id']
           end
           Message.new.forward(message).to(:shopelia)
         end
