@@ -12,6 +12,7 @@ module Dispatcher
   RUN_API_QUEUE = "run-api-queue"
   ANSWER_API_QUEUE = "answer-api-queue"
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
+  
   MESSAGES_VERBS = {
     :ask => 'ask', :message => 'message', :terminate => 'success',
     :assess => 'assess', :failure => 'failure', :start => 'start', ping:'ping'

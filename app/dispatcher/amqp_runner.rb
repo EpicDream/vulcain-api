@@ -7,7 +7,7 @@ module Dispatcher
         begin
           channel = AMQP::Channel.new(connection)
           channel.on_error(&channel_error_handler)
-          exchange = channel.headers("amq.match", :durable => true)
+          exchange = channel.headers("amq.headers", :durable => true)
           pool = Pool.new
           
           Signal.trap("INT") do
@@ -29,7 +29,7 @@ module Dispatcher
     
     def self.channel_error_handler
       Proc.new do |channel, channel_close|
-        message = "Can't start open channel to dispatcher MQ on #{CONFIG['host']}"
+        message = "Can't start open channel to dispatcher MQ on #{CONFIG['host']} #{channel_close.inspect}"
         Log.create({error_message:message})
         raise message
       end

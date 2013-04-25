@@ -10,7 +10,7 @@ module Dispatcher
       connection = AMQP::Session.connect configuration
       channel = AMQP::Channel.new(connection)
       channel.on_error(&channel_error_handler)
-      channel.headers("amq.match", :durable => true)
+      channel.headers("amq.headers", :durable => true)
     end
     
     private

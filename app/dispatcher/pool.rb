@@ -26,7 +26,8 @@ module Dispatcher
     end
     
     def pop id
-      @pool.delete vulcain_with_id(id)
+      vulcain = vulcain_with_id(id)
+      @pool.delete vulcain
     end
     
     def fetch session
@@ -91,8 +92,8 @@ module Dispatcher
   
     private
     
-    def vulcain_with_id vulcain_id
-      @pool.detect { |vulcain| vulcain.id == vulcain_id  }
+    def vulcain_with_id id
+      @pool.detect { |vulcain| vulcain.id == id  }
     end
     
     def vulcain_with_uuid uuid

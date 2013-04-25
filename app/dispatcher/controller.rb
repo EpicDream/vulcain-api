@@ -6,7 +6,7 @@ module Dispatcher
     
     def self.request message
       AMQP.start(configuration) do |connection|
-        exchange = AMQP::Channel.new(connection).headers("amq.match", :durable => true)
+        exchange = AMQP::Channel.new(connection).headers("amq.headers", :durable => true)
         msg = JSON.parse(message)
         queue = "Dispatcher::#{msg['verb'].upcase}_API_QUEUE".constantize
         exchange.publish message, :headers => {:queue => queue}
