@@ -1,8 +1,9 @@
 # encoding: utf-8
 module Dispatcher
   class Pool
-    RUNNING_MESSAGE = "Dispatcher running on #{CONFIG['host']}"
     Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid, :ack_ping)
+    
+    RUNNING_MESSAGE = "Dispatcher running on #{CONFIG['host']}"
     DUMP_FILE_PATH = "#{Rails.root}/tmp/vulcain_pool.obj"
     PING_TIMEOUT = 5
     PING_LAP_TIME = 2

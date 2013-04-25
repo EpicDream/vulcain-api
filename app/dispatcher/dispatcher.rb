@@ -28,7 +28,6 @@ end
 require_relative 'amqp_runner'
 require_relative 'pool'
 require_relative 'worker'
-require_relative 'controller'
 require_relative 'shopelia_callback'
 require_relative 'loader'
 require_relative 'exchangers'
