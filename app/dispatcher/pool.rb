@@ -41,7 +41,7 @@ module Dispatcher
       exchange = Dispatcher::VulcainExchanger.new(host).exchange
       vulcain = Vulcain.new(exchange, id, false, host, nil, true)
       @pool << vulcain
-      load_strategies_on_vulcain(vulcain)
+      load_robots_on_vulcain(vulcain)
     end
     
     def idle id
@@ -100,7 +100,7 @@ module Dispatcher
       @pool.detect { |vulcain| vulcain.uuid == uuid  }
     end
     
-    def load_strategies_on_vulcain vulcain
+    def load_robots_on_vulcain vulcain
       Message.new(:reload).to(vulcain)
     end
 

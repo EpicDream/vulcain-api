@@ -49,15 +49,15 @@ class Fnac
   CREDIT_CARD_EXPIRE_YEAR = '//*[@id="Ecom_Payment_Card_ExpDate_Year"]'
   VALIDATE_PAYMENT = '//*[@id="submit3"]'
 
-  attr_accessor :context, :strategy
+  attr_accessor :context, :robot
   
   def initialize context
     @context = context
-    @strategy = instanciate_strategy
+    @robot = instanciate_robot
   end
   
-  def instanciate_strategy
-    Strategy.new(@context) do
+  def instanciate_robot
+    Robot.new(@context) do
 
       step('run') do
         run_step('create account') if account.new_account
@@ -90,7 +90,7 @@ class Fnac
         fill EMAIL_LOGIN, with:account.login
         fill PASSWORD_LOGIN, with:account.password
         click_on LOGIN_BUTTON
-        message Strategy::LOGGED_MESSAGE
+        message Robot::LOGGED_MESSAGE
       end
       
       step('empty cart') do
@@ -100,7 +100,7 @@ class Fnac
           element || exists?(ARTICLE_LIST)
         end
         raise if exists?(Fnac::ARTICLE_LIST)
-        message Strategy::EMPTIED_CART_MESSAGE
+        message Robot::EMPTIED_CART_MESSAGE
       end
       
       step('add to cart') do

@@ -73,15 +73,15 @@ class Amazon
   THANK_YOU_MESSAGE = '//*[@id="thank-you-header"]'
   THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/span'
   
-  attr_accessor :context, :strategy
+  attr_accessor :context, :robot
   
   def initialize context
     @context = context
-    @strategy = instanciate_strategy
+    @robot = instanciate_robot
   end
   
-  def instanciate_strategy
-    Strategy.new(@context) do
+  def instanciate_robot
+    Robot.new(@context) do
 
       step('run') do
         run_step('create account') if account.new_account
@@ -94,7 +94,7 @@ class Amazon
         wait_for([PAYMENTS_PAGE_HOME_LINK])
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
-        message Strategy::MESSAGES[:cb_removed], :next_step => 'empty cart'
+        message Robot::MESSAGES[:cb_removed], :next_step => 'empty cart'
       end
       
       step('create account') do
@@ -117,7 +117,7 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Strategy::MESSAGES[:logged], :next_step => 'remove credit card'
+        message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
       end
       
       step('empty cart') do
@@ -126,7 +126,7 @@ class Amazon
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         terminate_on_error("Empty cart not emptied") unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Strategy::MESSAGES[:cart_emptied], :next_step => 'add to cart'
+        message Robot::MESSAGES[:cart_emptied], :next_step => 'add to cart'
       end
       
       step('size option') do
@@ -200,7 +200,7 @@ class Amazon
             run_step('select options')
           end
         else
-          message Strategy::MESSAGES[:cart_filled], :next_step => 'finalize order'
+          message Robot::MESSAGES[:cart_filled], :next_step => 'finalize order'
         end
       end
       

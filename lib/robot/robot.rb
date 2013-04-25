@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "ostruct"
 
-class Strategy
+class Robot
   MESSAGES = {
     logged:"Logged",
     cart_emptied:"Cart emptied",
@@ -64,7 +64,7 @@ class Strategy
   
   def assess state={}
     @next_step = state[:next_step] || 'payment'
-    message = {:questions => [new_question(nil, {action:"answer.answer == Strategy::YES_ANSWER"})],
+    message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
                :products => products, 
                :billing => billing || billing_from_products}
                

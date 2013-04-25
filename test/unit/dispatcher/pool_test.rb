@@ -40,7 +40,7 @@ class PoolTest <  ActiveSupport::TestCase
   test "push vulcain with a given id in pool" do
     expected_vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", nil, true)
     
-    pool.expects(:load_strategies_on_vulcain).with(expected_vulcain)
+    pool.expects(:load_robots_on_vulcain).with(expected_vulcain)
     pool.push("127.0.0.1|210123")
     
     assert_equal [expected_vulcain], pool.pool

@@ -46,15 +46,15 @@ class RueDuCommerce
   TOTAL_TTC = '//*[@id="dsprecap"]/div[4]/div[2]/div[6]/span'
   UNLOG_BUTTON = '//*[@id="content"]/div[2]/div[2]/div/a/img'
   
-  attr_accessor :context, :strategy
+  attr_accessor :context, :robot
   
   def initialize context
     @context = context
-    @strategy = instanciate_strategy
+    @robot = instanciate_robot
   end
   
-  def instanciate_strategy
-    Strategy.new(@context) do
+  def instanciate_robot
+    Robot.new(@context) do
       
       step('run') do
         run_step('create account') if account.new_account
@@ -97,14 +97,14 @@ class RueDuCommerce
         fill EMAIL_LOGIN, with:account.login
         fill PASSWORD_LOGIN, with:account.password
         click_on LOGIN_BUTTON
-        message Strategy::LOGGED_MESSAGE
+        message Robot::LOGGED_MESSAGE
       end
       
       step('empty cart') do
         click_on MY_CART
         click_on_all([REMOVE_PRODUCT]) { |element| element || exists?(REMOVE_PRODUCT)}
         raise unless exists? EMPTY_CART_MESSAGE
-        message Strategy::EMPTIED_CART_MESSAGE
+        message Robot::EMPTIED_CART_MESSAGE
       end
       
       step('add to cart') do
@@ -121,15 +121,15 @@ class RueDuCommerce
         click_on VALIDATE_SHIP_ADDRESS
         click_on VALIDATE_SHIPPING
         message = {
-          Strategy::PRICE_KEY => get_text(TOTAL_ARTICLE), 
-          Strategy::SHIPPING_PRICE_KEY => get_text(TOTAL_SHIPPING), 
-          Strategy::TOTAL_TTC_KEY => get_text(TOTAL_TTC)
+          Robot::PRICE_KEY => get_text(TOTAL_ARTICLE), 
+          Robot::SHIPPING_PRICE_KEY => get_text(TOTAL_SHIPPING), 
+          Robot::TOTAL_TTC_KEY => get_text(TOTAL_TTC)
         }
         ask message, next_step:'payment'
       end
       
       step('payment') do
-        if response.content == Strategy::RESPONSE_OK
+        if response.content == Robot::RESPONSE_OK
           click_on VALIDATE_CARD_PAYMENT
           click_on VALIDATE_VISA_CARD
           fill CREDIT_CARD_NUMBER, with:order.credentials.number

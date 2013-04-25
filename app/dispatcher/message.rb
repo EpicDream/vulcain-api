@@ -22,7 +22,7 @@ module Dispatcher
       when :ping
         @message = { verb:MESSAGES_VERBS[:ping] }
       when :reload
-        @message = { verb:MESSAGES_VERBS[:reload], code:Strategies::Loader.new("Amazon").code}
+        @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new("Amazon").code}
       end
     end
     
@@ -48,6 +48,8 @@ module Dispatcher
       @message[:session] = session
       self
     end
+    
+    private
     
     def request url, data
       uri = URI.parse(url)
