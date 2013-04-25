@@ -38,7 +38,6 @@ class MessageTest <  ActiveSupport::TestCase
     _message = {'verb' =>'ask', 'context' => {'session' => {'uuid' => '9090', 'callback_url' => 'http://...'}}}
     message = Dispatcher::Message.new
 
-    Log.expects(:create).with(_message)
     message.expects(:request).with('http://...', _message)
 
     message.forward(_message).to(:shopelia)

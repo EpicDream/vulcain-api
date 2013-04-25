@@ -2,18 +2,14 @@
 require "ostruct"
 
 class Robot
+  YES_ANSWER = true
   MESSAGES = {
     logged:"Logged",
     cart_emptied:"Cart emptied",
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled"
   }
-  YES_ANSWER = true
-  MESSAGES_VERBS = {
-    :ask => 'ask', :message => 'message', :terminate => 'success', :next_step => 'next_step',
-    :assess => 'assess', :failure => 'failure'
-  }
-  
+
   attr_accessor :context, :exchanger, :self_exchanger, :logging_exchanger, :driver
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
@@ -40,7 +36,7 @@ class Robot
   end
   
   def run_step name, args=nil
-    logging_exchanger.publish({step:"#{name}"})
+    RobotMessage.new(:logging).using(logging_exchanger).message({ step:"#{name}" })
     @steps[name].call(args)
   end
   
@@ -49,17 +45,16 @@ class Robot
   end
   
   def screenshot
-    logging_exchanger.publish({screenshot:@driver.screenshot})
+    RobotMessage.new(:logging).using(logging_exchanger).message({screenshot:@driver.screenshot})
   end
   
   def page_source
-    logging_exchanger.publish({page_source:@driver.page_source})
+    RobotMessage.new(:logging).using(logging_exchanger).message({page_source:@driver.page_source})
   end
   
   def ask message, state={}
     @next_step = state[:next_step]
-    message = {'verb' => MESSAGES_VERBS[:ask], 'content' => message}
-    exchanger.publish(message, @session)
+    RobotMessage.new(:ask).using(exchanger).in_session(@session).message(message)
   end
   
   def assess state={}
@@ -67,31 +62,25 @@ class Robot
     message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
                :products => products, 
                :billing => billing || billing_from_products}
-               
-    message = {'verb' => MESSAGES_VERBS[:assess], 'content' => message}
-    exchanger.publish(message, @session)
+    RobotMessage.new(:assess).using(exchanger).in_session(@session).message(message)
   end
   
   def message message, state={}
     @next_step = state[:next_step]
-    message = {'verb' => MESSAGES_VERBS[:message], 'content' => {message:message}}
-    exchanger.publish(message, @session)
+    RobotMessage.new(:message).using(exchanger).in_session(@session).message({message:message})
     if @next_step
-      message = {'verb' => MESSAGES_VERBS[:next_step]}
-      self_exchanger.publish(message, @session)
+      RobotMessage.new(:next_step).using(self_exchanger).in_session(@session).message
     end
   end
   
   def terminate
-    message = {'verb' => MESSAGES_VERBS[:terminate]}
     @driver.quit
-    exchanger.publish(message, @session)
+    RobotMessage.new(:terminate).using(exchanger).in_session(@session).message
   end
   
   def terminate_on_error error_message
-    logging_exchanger.publish({error_message:error_message})
-    message = {'verb' => MESSAGES_VERBS[:failure], 'content' => {message:error_message}}
-    exchanger.publish(message, @session)
+    RobotMessage.new(:failure).using(exchanger).in_session(@session).message({message:error_message})
+    RobotMessage.new(:failure).using(logging_exchanger).message({error_message:error_message})
     @driver.quit
   end
   

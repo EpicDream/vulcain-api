@@ -120,13 +120,13 @@ class Amazon
         message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
       end
       
-      step('empty cart') do
+      step('empty cart') do |args|
         click_on ACCESS_CART
         click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         terminate_on_error("Empty cart not emptied") unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Robot::MESSAGES[:cart_emptied], :next_step => 'add to cart'
+        message Robot::MESSAGES[:cart_emptied], :next_step => (args && args[:next_step]) || 'add to cart'
       end
       
       step('size option') do
@@ -149,7 +149,7 @@ class Amazon
       
       step('select options') do
         if steps_options.none?
-          #wait_ajax
+          
           click_on ADD_TO_CART
           run_step 'add to cart'
         else
@@ -240,14 +240,18 @@ class Amazon
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
         wait_for [SHIPMENT_FORM_NAME]
-        #wait_ajax
+        
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
-          #wait_ajax
+          
         end
-        #wait_ajax
+        
         click_on SHIPMENT_CONTINUE
         assess
+      end
+      
+      step('terminate') do
+        terminate
       end
       
       step('payment') do
@@ -257,13 +261,11 @@ class Amazon
           run_step('submit credit card')
         else
           open_url URL
-          run_step('empty cart')
-          terminate
+          run_step('empty cart', next_step:'terminate')
         end
       end
       
       step('submit credit card') do
-        #wait_ajax
         click_on ADD_NEW_CREDIT_CARD
         fill CREDIT_CARD_NUMBER, with:order.credentials.number
         fill CREDIT_CARD_HOLDER, with:order.credentials.holder
@@ -275,13 +277,11 @@ class Amazon
       end
       
       step('validate order') do
-        #wait_ajax
         click_on CONTINUE_TO_PAYMENT
         click_on USE_THIS_ADDRESS
         wait_for([ORDER_SUMMARY])
         screenshot
         page_source
-        #wait_ajax
         click_on_if_exists PREMIUM_POPUP
         click_on VALIDATE_ORDER
         wait_for([THANK_YOU_MESSAGE])
