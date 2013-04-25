@@ -59,7 +59,7 @@ class PoolTest <  ActiveSupport::TestCase
   
   test "ping vulcain should publish ping message on its queue" do
     vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", "99", true)
-    message = { verb:Dispatcher::MESSAGES_VERBS[:ping] }.to_json
+    message = { verb:Dispatcher::Message::MESSAGES_VERBS[:ping] }.to_json
     headers = { :queue => Dispatcher::VULCAIN_QUEUE.(vulcain.id)}
     
     vulcain.exchange.expects(:publish).with(message, headers:headers)

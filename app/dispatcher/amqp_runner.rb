@@ -30,7 +30,7 @@ module Dispatcher
     def self.channel_error_handler
       Proc.new do |channel, channel_close|
         message = "Can't start open channel to dispatcher MQ on #{CONFIG['host']} #{channel_close.inspect}"
-        Log.create({error_message:message})
+        Log.create({ error_message:message })
         raise message
       end
     end

@@ -4,46 +4,41 @@ module Dispatcher
     
     def start
       Dispatcher::AmqpRunner.start do |channel, exchange, pool|
-        @channel = channel
+        @channel  = channel
         @exchange = exchange
-        @pool = pool
+        @pool     = pool
         
-        with_queue(RUN_API_QUEUE) do |message|
-          session = message['context']['session']
+        with_queue(RUN_API_QUEUE) do |message, session|
           vulcain = @pool.pull(session)
           unless vulcain
-            message = { verb:'failure', content:{status:STATUSES_CODE[:no_idle]}, session:session}
-            Log.create(message)
-            ShopeliaCallback.new.request(session['callback_url'], message)
+            Message.new(:no_idle).for(session).to(:shopelia)
           else
-            message['context']['session']['vulcain_id'] = vulcain.id
-            vulcain.exchange.publish(message.to_json, headers: { queue:VULCAIN_QUEUE.(vulcain.id) })
+            Message.new.forward(message).to(vulcain)
           end
         end
         
-        with_queue(ANSWER_API_QUEUE) do |message|
-          vulcain = @pool.fetch(message['context']['session'])
-          message['context']['session']['vulcain_id'] = vulcain.id
-          vulcain.exchange.publish(message.to_json, headers:{ queue:VULCAIN_QUEUE.(vulcain.id) })
+        with_queue(ANSWER_API_QUEUE) do |message, session|
+          vulcain = @pool.fetch(session)
+          Message.new.forward(message).to(vulcain)
         end
         
-        with_queue(ADMIN_QUEUE) do |message|
-          vulcain_id = message['session']['vulcain_id']
+        with_queue(ADMIN_QUEUE) do |message, session|
+          vulcain_id = session['vulcain_id']
           case message['status']
-          when ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
-          when ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
-          when ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
-          when ADMIN_MESSAGES_STATUSES[:abort] then @pool.pop vulcain_id
-          when ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
-          when ADMIN_MESSAGES_STATUSES[:terminate] then @pool.idle vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:abort] then @pool.pop vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:terminate] then @pool.idle vulcain_id
           end
         end
         
         with_queue(VULCAINS_QUEUE) do |message|
           case message['verb']
-          when MESSAGES_VERBS['failure'] then @pool.idle message['session']['vulcain_id']
+          when Message::MESSAGES_VERBS['failure'] then @pool.idle session['vulcain_id']
           end
-          ShopeliaCallback.new.request(message['session']['callback_url'], message)
+          Message.new.forward(message).to(:shopelia)
         end
 
         with_queue(LOGGING_QUEUE)
@@ -57,8 +52,9 @@ module Dispatcher
     def with_queue queue
       @channel.queue.bind(@exchange, arguments:{'x-match' => 'all', queue:queue}).subscribe do |metadata, message|
         message = JSON.parse(message)
+        session = (message['context']['session'] if message['context']) || message['session']
         Log.create(message)
-        yield message if block_given?
+        yield message, session if block_given?
       end
     end
     

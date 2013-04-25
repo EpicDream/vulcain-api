@@ -71,8 +71,7 @@ module Dispatcher
     end
 
     def ping vulcain
-      message = {verb:MESSAGES_VERBS[:ping]}
-      vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
+      Message.new(:ping).to(vulcain)
     end
     
     def ack_ping id
@@ -102,8 +101,7 @@ module Dispatcher
     end
     
     def load_strategies_on_vulcain vulcain
-      message = {verb:ADMIN_MESSAGES_STATUSES[:reload], code:Strategies::Loader.new("Amazon").code}
-      vulcain.exchange.publish message.to_json, :headers => { :queue => VULCAIN_QUEUE.(vulcain.id)}
+      Message.new(:reload).to(vulcain)
     end
 
   end
