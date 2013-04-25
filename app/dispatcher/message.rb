@@ -1,16 +1,11 @@
 module Dispatcher
   class Message
-    MESSAGES_VERBS = {
-      :ask => 'ask', :message => 'message', :terminate => 'success',
-      :assess => 'assess', :failure => 'failure', :start => 'start', ping:'ping', reload:'reload'
-    }
-    
+    MESSAGES = {:no_idle => 'no_idle'}
+    MESSAGES_VERBS = { :failure => 'failure', ping:'ping', reload:'reload'}
     ADMIN_MESSAGES_STATUSES = {
       started:'started', reloaded:'reloaded', aborted:'aborted', failure:'failure', terminated:'terminated',
       ack_ping:'ack_ping'
     }
-
-    MESSAGES = {:no_idle => 'no_idle'}
     
     attr_accessor :message
     attr_reader :session
@@ -35,7 +30,6 @@ module Dispatcher
     def to consumer
       case consumer
       when :shopelia
-        Log.create(@message)
         request(@session['callback_url'], @message)
       else
         @message['context']['session']['vulcain_id'] = consumer.id if @message['context']
