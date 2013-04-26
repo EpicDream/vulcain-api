@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 class Plugin::StrategiesController < ApplicationController
-  def actions
-    actions = Strategy::ACTION_METHODS
+  def types
+    types = Strategy::ACTION_METHODS
     #   click_on_all: {descr: "Clic sur chaque instance"},
     #   valide_check: {descr: "Checkbox à cocher"},
     #   valide_check: {descr: "Checkbox à décocher"},
@@ -13,7 +13,7 @@ class Plugin::StrategiesController < ApplicationController
     #   ask_text: {descr: "Quel est la valeur ? (text)"}}
 
     args = Strategy::USER_INFO
-    render :json => {actions: actions, args: args}.to_json
+    render :json => {types: types, typesArgs: args}.to_json
   end
 
   def create
@@ -21,9 +21,7 @@ class Plugin::StrategiesController < ApplicationController
       filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
       FileUtils.mkdir_p(File.dirname(filename))
       File.open(filename, "w") do |f|
-        for s in params["data"]["strategies"].keys
-          params["data"]["strategies"][s] = params["data"]["strategies"][s].gsub("\n","<\\n>")
-        end
+        params["data"].each { |s| s[:value].gsub!("\n","<\\n>") }
         f.puts params["data"].to_yaml
       end
     else
@@ -35,9 +33,7 @@ class Plugin::StrategiesController < ApplicationController
     filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
     if File.file?(filename)
       data = YAML.load_file(filename)
-      for s in data["strategies"].keys
-        data["strategies"][s] = data["strategies"][s].gsub("<\\n>","\n")
-      end
+      data.each { |s| s[:value].gsub!("<\\n>","\n") }
       render :json => data.to_json
     else
       render :json => default.to_json

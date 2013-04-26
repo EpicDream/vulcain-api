@@ -98,14 +98,12 @@ class Priceminister
 				fill password_xpath, with: account.password # at /connect
 				click_on continuerBtn_xpath # at /connect
 				
-				
 			end
 
 			step('unlog') do
 				deconnect_link_xpath = '//div[@id="dashboard"]/ul[1]/li[1]/a'
 
 				click_on deconnect_link_xpath # at /
-				
 				
 			end
 
@@ -114,7 +112,6 @@ class Priceminister
 
 				click_on ajouterBtn_xpath # at /offer/buy/846008/Pulp-Fiction-Pulp-Fiction-CD-Album.html
 				
-				
 			end
 
 			step('empty_cart') do
@@ -122,13 +119,9 @@ class Priceminister
 				emptyBtn_xpath = '//div[@class="details"]//li[@class="action"]//a'
 
 				click_on monpanierBtn_xpath # at /
-				
 				for link in find_elements(emptyBtn_xpath)
-				
 				click_on link # at /cart
-				
 				end
-				
 				
 			end
 
@@ -144,6 +137,22 @@ class Priceminister
 				coninuerBtn_xpath = '//form[@id="chck_addr_reg_frm"]/div[2]/button/span/span'
 				continuerbtn_xpath = '//div[@id="check_coupon"]/div/table/tbody/tr/td/a'
 				continuer_payment_xpath = '//input[@id="submit_continue"]'
+
+				click_on my_cart_btn_xpath # at /
+				totalAmount = get_text montant_total_txt_xpath # at /cart
+				click_on terminer_btn_xpath # at /cart
+				fill adresse_xpath, with: user.address.address_1 # at /checkout
+				fill codepostal_xpath, with: user.address.zip # at /checkout
+				fill ville_xpath, with: user.address.city # at /checkout
+				fill telephoneFixe_xpath, with: user.land_phone # at /checkout
+				fill telephoneMobile_xpath, with: user.mobile_phone # at /checkout
+				click_on coninuerBtn_xpath # at /checkout
+				click_on continuerbtn_xpath # at /checkout
+				click_on_if_exists continuer_payment_xpath # at /checkout
+				
+			end
+
+			step('payment') do
 				type_carte_xpath = '//select[@id="IDCardTypeCode"]'
 				num_carte_xpath = '//div[@id="checkout_pay_card"]/div[2]/form/table/tbody/tr[5]/td[2]/input'
 				expir_mois_xpath = '//div[@id="checkout_pay_card"]/div[2]/form/table/tbody/tr[6]/td[2]/select[1]'
@@ -151,45 +160,12 @@ class Priceminister
 				cvv_xpath = '//input[@id="cvv_key"]'
 				check_save_card_xpath = '//input[@id="IDSaveCardInput"]'
 
-				click_on my_cart_btn_xpath # at /
-				
-				totalAmount = get_text montant_total_txt_xpath # at /cart
-				
-				click_on terminer_btn_xpath # at /cart
-				
-				fill adresse_xpath, with: user.address.address_1 # at /checkout
-				
-				fill codepostal_xpath, with: user.address.zip # at /checkout
-				
-				fill ville_xpath, with: user.address.city # at /checkout
-				
-				fill telephoneFixe_xpath, with: user.land_phone # at /checkout
-				
-				fill telephoneMobile_xpath, with: user.mobile_phone # at /checkout
-				
-				click_on coninuerBtn_xpath # at /checkout
-				
-				click_on continuerbtn_xpath # at /checkout
-				
-				click_on continuer_payment_xpath # at /checkout
-				
 				select_option type_carte_xpath, with: "20" # at /checkout
-				
 				fill num_carte_xpath, with: order.credentials.number # at /checkout
-				
 				select_option expir_mois_xpath, with: order.credentials.exp_month # at /checkout
-				
 				select_option expir_year_xpath, with: order.credentials.exp_year # at /checkout
-				
 				fill cvv_xpath, with: order.credentials.cvv # at /checkout
-				
 				click_on check_save_card_xpath # at /checkout
-				
-				
-			end
-
-			step('payment') do
-
 				
 			end
 

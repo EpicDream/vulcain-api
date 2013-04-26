@@ -2,42 +2,42 @@
 require "ostruct"
 
 class Strategy
-  ACTION_METHODS = {
-    click_on: {descr: "Cliquer sur un lien ou un bouton"},
-    fill: {descr: "Remplir le champ", arg: true},
-    select_option: {descr: "Sélectionner l'option", arg: true},
-    click_on_radio: {descr: "Sélectioner le radio bouton"},
-    screenshot: {descr: "Prendre une capture d'écran"},
-    click_on_links_with_text: {descr: "Cliquer sur le texte"},
-    click_on_button_with_name: {descr: "Cliquer sur le bouton (name)"},
-    click_on_if_exists: {descr: "Cliquer seulement si présent"},
-    open_url: {descr: "Ouvrir la page"},
-    wait_for_button_with_name: {descr: "Attendre le bouton"},
-    wait_ajax: {descr: "Attendre"},
-    ask: {descr: "Demander à l'utilisateur", arg: true},
-    assess: {descr: "Demander la confirmation", arg: true},
-    message: {descr: "Envoyer un message", arg: true}
-  }
+  ACTION_METHODS = [
+    {id: 'click_on', desc: "Cliquer sur un lien ou un bouton"},
+    {id: 'fill', desc: "Remplir le champ", has_arg: true},
+    {id: 'select_option', desc: "Sélectionner l'option", has_arg: true},
+    {id: 'click_on_radio', desc: "Sélectioner le radio bouton"},
+    {id: 'screenshot', desc: "Prendre une capture d'écran"},
+    {id: 'click_on_links_with_text', desc: "Cliquer sur le texte"},
+    {id: 'click_on_button_with_name', desc: "Cliquer sur le bouton (name)"},
+    {id: 'click_on_if_exists', desc: "Cliquer seulement si présent"},
+    {id: 'open_url', desc: "Ouvrir la page"},
+    {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
+    {id: 'wait_ajax', desc: "Attendre"},
+    {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
+    {id: 'assess', desc: "Demander la confirmation", has_arg: true},
+    {id: 'message', desc: "Envoyer un message", has_arg: true}
+  ]
 
-  USER_INFO = {
-    login: {descr:"Login", value:"account.login"},
-    password: {descr:"Mot de passe", value:"account.password"},
-    email: {descr:"Email", value:"account.email"},
-    last_name: {descr:"Nom", value:"user.last_name"},
-    first_name: {descr:"Prénom", value:"user.first_name"},
-    birthdate_day: {descr:"Jour de naissance", value:"user.birthdate.day"},
-    birthdate_month: {descr:"Mois de naissance", value:"user.birthdate.month"},
-    birthdate_year:{descr:"Année de naissance", value:"user.birthdate.year"},
-    mobile_phone: {descr:"Téléphone portable", value:"user.mobile_phone"},
-    land_phone: {descr:"Téléphone fixe", value:"user.land_phone"},
-    gender: {descr:"Genre", value:"user.gender"},
-    address_1: {descr:"Adresse 1", value:"user.address.address_1"},
-    address_2: {descr:"Adresse 2", value:"user.address.address_2"},
-    additionnal_address: {descr:"Adresse compléments", value:"user.address.additionnal_address"},
-    zip: {descr:"Code Postal", value:"user.address.zip"},
-    city: {descr:"Ville", value:"user.address.city"},
-    country: {descr:"Pays", value:"user.address.country"}
-  }
+  USER_INFO = [
+    {id: 'login', desc:"Login", value:"account.login"},
+    {id: 'password', desc:"Mot de passe", value:"account.password"},
+    {id: 'email', desc:"Email", value:"account.email"},
+    {id: 'last_name', desc:"Nom", value:"user.last_name"},
+    {id: 'first_name', desc:"Prénom", value:"user.first_name"},
+    {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
+    {id: 'birthdate_month', desc:"Mois de naissance", value:"user.birthdate.month"},
+    {id: 'birthdate_year', desc:"Année de naissance", value:"user.birthdate.year"},
+    {id: 'mobile_phone', desc:"Téléphone portable", value:"user.mobile_phone"},
+    {id: 'land_phone', desc:"Téléphone fixe", value:"user.land_phone"},
+    {id: 'gender', desc:"Genre", value:"user.gender"},
+    {id: 'address_1', desc:"Adresse 1", value:"user.address.address_1"},
+    {id: 'address_2', desc:"Adresse 2", value:"user.address.address_2"},
+    {id: 'additionnal_address', desc:"Adresse compléments", value:"user.address.additionnal_address"},
+    {id: 'zip', desc:"Code Postal", value:"user.address.zip"},
+    {id: 'city', desc:"Ville", value:"user.address.city"},
+    {id: 'country', desc:"Pays", value:"user.address.country"}
+  ]
 
   MESSAGES = {
     logged:"Logged",
