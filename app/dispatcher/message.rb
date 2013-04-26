@@ -1,9 +1,17 @@
 module Dispatcher
   class Message
     MESSAGES = {:no_idle => 'no_idle'}
-    MESSAGES_VERBS = { :failure => 'failure', ping:'ping', reload:'reload'}
+    MESSAGES_VERBS = { 
+      :failure => 'failure',
+       ping:'ping', 
+       reload:'reload'
+    }
     ADMIN_MESSAGES_STATUSES = {
-      started:'started', reloaded:'reloaded', aborted:'aborted', failure:'failure', terminated:'terminated',
+      started:'started', 
+      reloaded:'reloaded', 
+      aborted:'aborted', 
+      failure:'failure',
+      terminated:'terminated',
       ack_ping:'ack_ping'
     }
     

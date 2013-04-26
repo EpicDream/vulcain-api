@@ -10,7 +10,7 @@ class Robot
     cart_filled:"Cart filled"
   }
 
-  attr_accessor :context, :exchanger, :self_exchanger, :logging_exchanger, :driver
+  attr_accessor :context, :driver, :messager
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
@@ -36,7 +36,7 @@ class Robot
   end
   
   def run_step name, args=nil
-    RobotMessage.new(:logging).using(logging_exchanger).message({ step:"#{name}" })
+    messager.logging.message(:step, "#{name}")
     @steps[name].call(args)
   end
   
@@ -45,16 +45,16 @@ class Robot
   end
   
   def screenshot
-    RobotMessage.new(:logging).using(logging_exchanger).message({screenshot:@driver.screenshot})
+    messager.logging.message(:screenshot, @driver.screenshot)
   end
   
   def page_source
-    RobotMessage.new(:logging).using(logging_exchanger).message({page_source:@driver.page_source})
+    messager.logging.message(:page_source, @driver.page_source)
   end
   
   def ask message, state={}
     @next_step = state[:next_step]
-    RobotMessage.new(:ask).using(exchanger).in_session(@session).message(message)
+    messager.dispatcher.message(:ask, message)
   end
   
   def assess state={}
@@ -62,25 +62,25 @@ class Robot
     message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
                :products => products, 
                :billing => billing || billing_from_products}
-    RobotMessage.new(:assess).using(exchanger).in_session(@session).message(message)
+    messager.dispatcher.message(:assess, message)
   end
   
   def message message, state={}
     @next_step = state[:next_step]
-    RobotMessage.new(:message).using(exchanger).in_session(@session).message({message:message})
+    messager.dispatcher.message(:message, {message:message})
     if @next_step
-      RobotMessage.new(:next_step).using(self_exchanger).in_session(@session).message
+      messager.vulcain.message(:next_step)
     end
   end
   
   def terminate
+    messager.dispatcher.message(:terminate)
     @driver.quit
-    RobotMessage.new(:terminate).using(exchanger).in_session(@session).message
   end
   
   def terminate_on_error error_message
-    RobotMessage.new(:failure).using(exchanger).in_session(@session).message({message:error_message})
-    RobotMessage.new(:failure).using(logging_exchanger).message({error_message:error_message})
+    messager.dispatcher.message(:failure, { message:error_message })
+    messager.logging.message(:failure, {error_message:error_message})
     @driver.quit
   end
   

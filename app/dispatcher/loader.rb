@@ -3,7 +3,7 @@ module Robots
   VENDORS = Dir.glob("#{ROBOT_PATH}/vendors/*.rb")
   
   class Loader
-    REQUIRES = ['undef_klasses', 'core_extensions', 'driver', 'robot_message', 'robot']
+    REQUIRES = ['undef_klasses', 'core_extensions', 'driver', 'robot']
     
     def initialize vendor
       @vendor = vendor
