@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class StrategyTest < ActiveSupport::TestCase
+class RobotTest < ActiveSupport::TestCase
   
   setup do
     @context = {'account' => {'email' => 'madmax_1181@yopmail.com', 'password' => 'shopelia'},
@@ -12,7 +12,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   test "it should respond to open_url, fill input, select option, click_on : radio_button, links with label" do
     text = nil
-    strategy = Strategy.new(@context) do
+    robot = Robot.new(@context) do
       step('test') do
         open_url "http://www.rueducommerce.fr/home/index.htm"
         click_on '//*[@id="ox-is-skip"]/img'
@@ -24,14 +24,14 @@ class StrategyTest < ActiveSupport::TestCase
         text = get_text '//*[@id="content"]/form/div/div[3]/div/p[2]'
       end
     end
-    strategy.exchanger = stub()
-    strategy.self_exchanger = strategy.exchanger
-    strategy.logging_exchanger = strategy.exchanger
-    strategy.exchanger.expects(:publish).times(1)
+    robot.exchanger = stub()
+    robot.self_exchanger = robot.exchanger
+    robot.logging_exchanger = robot.exchanger
+    robot.exchanger.expects(:publish).times(1)
     
-    assert strategy.run_step('test')
+    assert robot.run_step('test')
     assert_equal "Adresse de facturation", text
-    strategy.driver.quit
+    robot.driver.quit
   end
   
 end

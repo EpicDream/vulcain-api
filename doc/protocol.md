@@ -118,12 +118,12 @@ l'état où en est le processus de commande, comme par exemple "Panier vidé", "
 
 *"verb":"message"*
 
-*"content":"…",*
+*"content":{"message":"..."},*
 
 *"session":{…}*
 
 	{ "verb"=>"message", 
-	  "content"=>"Cart filled", 
+	  "content"=>{"message":"Cart filled"}, 
 		"session"=>{"uuid"=>"0129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}}
 
 
@@ -206,13 +206,11 @@ Les messages d'échecs ont pour verbe 'failure' et ne demandent pas de réponse 
 
 *"verb":"failure"*
 
-*"status":""*
-
-*"error_message":""*
+*"content":{"status":"…", "message":"..."}*
 
 *"session":{...}*
 
-	{ "verb":"failure", "status":"no_idle", "error_message":"", "session":{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}}
+	{ "verb":"failure", "content":{"status":"no_idle"}, "session":{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}}
 	
 Les différents statuts peuvent être :
 

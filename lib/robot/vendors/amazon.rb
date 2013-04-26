@@ -43,6 +43,7 @@ class Amazon
   UNAVAILABLE_COLORS = '//div[@class="swatchUnavailable"]'
   OPEN_SESSION_TITLE = '//*[@id="ap_signin1a_pagelet"]'
   PRICE_PLUS_SHIPPING = '//*[@id="BBPricePlusShipID"]'
+  
   PRICE = '//*[@id="priceBlock"]'
   TITLE = '//*[@id="btAsinTitle"]'
   IMAGE = '//*[@id="original-main-image"]'
@@ -60,6 +61,7 @@ class Amazon
   ORDER_SUMMARY = '//*[@id="SPCSubtotals-marketplace-table"]'
   
   PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
+  PAYMENTS_PAGE_HOME_LINK = '/html/body/table[1]/tbody/tr/td/b/nobr[1]/a | /html/body/table/tbody/tr/td/b/nobr[1]/a'
   REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
   VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
   
@@ -68,28 +70,31 @@ class Amazon
   LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
   PREMIUM_POPUP = '//*[@id="ap_container"]/div[2]/div[5]/a/span[2]'
   
-  attr_accessor :context, :strategy
+  THANK_YOU_MESSAGE = '//*[@id="thank-you-header"]'
+  THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/span'
+  
+  attr_accessor :context, :robot
   
   def initialize context
     @context = context
-    @strategy = instanciate_strategy
+    @robot = instanciate_robot
   end
   
-  def instanciate_strategy
-    Strategy.new(@context) do
+  def instanciate_robot
+    Robot.new(@context) do
 
       step('run') do
         run_step('create account') if account.new_account
-        run_step('unlog')
+        run_step('logout')
         run_step('login')
       end
       
       step('remove credit card') do
         open_url PAYMENTS_PAGE
-        wait_ajax
+        wait_for([PAYMENTS_PAGE_HOME_LINK])
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
-        message Strategy::MESSAGES[:cb_removed], :next_step => 'empty cart'
+        message Robot::MESSAGES[:cb_removed], :next_step => 'empty cart'
       end
       
       step('create account') do
@@ -102,7 +107,7 @@ class Amazon
         click_on REGISTER_SUBMIT
       end
       
-      step('unlog') do
+      step('logout') do
         open_url UNLOG_URL
       end
       
@@ -112,16 +117,16 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Strategy::MESSAGES[:logged], :next_step => 'remove credit card'
+        message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
       end
       
-      step('empty cart') do
+      step('empty cart') do |args|
         click_on ACCESS_CART
         click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         terminate_on_error("Empty cart not emptied") unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Strategy::MESSAGES[:cart_emptied], :next_step => 'add to cart'
+        message Robot::MESSAGES[:cart_emptied], :next_step => (args && args[:next_step]) || 'add to cart'
       end
       
       step('size option') do
@@ -144,7 +149,7 @@ class Amazon
       
       step('select options') do
         if steps_options.none?
-          wait_ajax
+          
           click_on ADD_TO_CART
           run_step 'add to cart'
         else
@@ -195,7 +200,7 @@ class Amazon
             run_step('select options')
           end
         else
-          message Strategy::MESSAGES[:cart_filled], :next_step => 'finalize order'
+          message Robot::MESSAGES[:cart_filled], :next_step => 'finalize order'
         end
       end
       
@@ -222,9 +227,9 @@ class Amazon
           wait_for [LINK_PRICE_ITEMS]
           price = get_text LINK_PRICE_ITEMS
           shipping = get_text LINK_SHIPPING_PRICE
-          billing ||= {}
-          billing[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
-          billing[:shipping] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          self.billing ||= {}
+          self.billing[:price] = (price =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
+          self.billing[:shipping] = (shipping =~ /EUR\s+([\d,]+)/i and $1.gsub(/,/,'.').to_f)
         end
       end
       
@@ -235,14 +240,18 @@ class Amazon
         fill ORDER_PASSWORD, with:account.password
         click_on ORDER_LOGIN_SUBMIT
         wait_for [SHIPMENT_FORM_NAME]
-        wait_ajax
+        
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
-          wait_ajax
+          
         end
-        wait_ajax
+        
         click_on SHIPMENT_CONTINUE
         assess
+      end
+      
+      step('terminate') do
+        terminate
       end
       
       step('payment') do
@@ -252,13 +261,11 @@ class Amazon
           run_step('submit credit card')
         else
           open_url URL
-          run_step('empty cart')
-          terminate
+          run_step('empty cart', next_step:'terminate')
         end
       end
       
       step('submit credit card') do
-        wait_ajax
         click_on ADD_NEW_CREDIT_CARD
         fill CREDIT_CARD_NUMBER, with:order.credentials.number
         fill CREDIT_CARD_HOLDER, with:order.credentials.holder
@@ -270,16 +277,19 @@ class Amazon
       end
       
       step('validate order') do
-        wait_ajax
         click_on CONTINUE_TO_PAYMENT
         click_on USE_THIS_ADDRESS
         wait_for([ORDER_SUMMARY])
         screenshot
         page_source
-        wait_ajax
         click_on_if_exists PREMIUM_POPUP
         click_on VALIDATE_ORDER
-        terminate
+        wait_for([THANK_YOU_MESSAGE])
+        if exists?(THANK_YOU_MESSAGE) && exists?(THANK_YOU_SHIPMENT)
+          terminate
+        else
+          terminate_on_error("Order number not found after order validation")
+        end
       end
       
     end

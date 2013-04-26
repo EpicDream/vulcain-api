@@ -12,17 +12,11 @@ module Dispatcher
   RUN_API_QUEUE = "run-api-queue"
   ANSWER_API_QUEUE = "answer-api-queue"
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
-  MESSAGES_VERBS = {
-    :ask => 'ask', :message => 'message', :terminate => 'success',
-    :assess => 'assess', :failure => 'failure', :start => 'start'
-  }
-  MESSAGES_STATUSES = {:started => 'started', :reloaded => 'reloaded'}
-  STATUSES_CODE = {:no_idle => 'no_idle'}
 end
 
 require_relative 'amqp_runner'
-require_relative 'vulcain_pool'
+require_relative 'pool'
 require_relative 'worker'
-require_relative 'controller'
-require_relative 'shopelia_callback'
 require_relative 'loader'
+require_relative 'exchangers'
+require_relative 'message'

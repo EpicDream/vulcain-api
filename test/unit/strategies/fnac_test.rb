@@ -1,12 +1,12 @@
 require 'test_helper'
-require_strategy 'fnac'
+require_robot 'fnac'
 
 class FnacTest < ActiveSupport::TestCase
   PRODUCT_1_URL = "http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"
   PRODUCT_2_URL = "http://www.fnac.com/Samsung-Galaxy-Tab-2-10-1-16-Go-Blanc/a4191560/w-4#bl=HGMICBLO1"
   PRODUCT_3_URL = "http://musique.fnac.com/a5267711/Saez-Miami-CD-album"
   
-  attr_accessor :strategy
+  attr_accessor :robot
   
   setup do
     @context = {'account' => {'login' => 'marie_rose_07@yopmail.com', 'password' => 'shopelia2013'},
@@ -31,30 +31,30 @@ class FnacTest < ActiveSupport::TestCase
                           }
                 }
                 
-    @strategy = Fnac.new(@context).strategy
-    @strategy.exchanger = stub()
+    @robot = Fnac.new(@context).robot
+    @robot.exchanger = stub()
   end
   
   teardown do
-    @strategy.driver.quit
+    @robot.driver.quit
   end
   
   test "account creation" do
     skip "Can' create account each time!"
-    strategy.run_step('create account')
+    robot.run_step('create account')
   end
   
   test "login" do
-    strategy.exchanger.expects(:publish).times(1)
-    strategy.run_step('login')
+    robot.exchanger.expects(:publish).times(1)
+    robot.run_step('login')
   end
   
   test "empty basket" do
-    strategy.exchanger.expects(:publish).times(2)
-    strategy.run_step('login')
-    strategy.run_step('add to cart')
-    strategy.run_step('empty cart')
-    assert !strategy.exists?(Fnac::ARTICLE_LIST)
+    robot.exchanger.expects(:publish).times(2)
+    robot.run_step('login')
+    robot.run_step('add to cart')
+    robot.run_step('empty cart')
+    assert !robot.exists?(Fnac::ARTICLE_LIST)
   end
   
 end
