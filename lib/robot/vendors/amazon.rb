@@ -35,7 +35,6 @@ class Amazon
   SHIPMENT_ORIGINAL_ADDRESS_OPTION = '//*[@id="addr_0"]'
   SHIPMENT_FACTURATION_CHOICE_SUBMIT= '//*[@id="AVS"]/div[2]/form/div/div[2]/div/div/div/span/input'
   SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/form/div/div[1]/div[2]/span/a | //*[@id="existingaddresses"]/div[1]/form/input[4]'
-  
   SELECT_SIZE = '//*[@id="dropdown_size_name"]'
   SELECT_COLOR = '//*[@id="selected_color_name"]'
   COLORS = '//div[@key="color_name"]'
@@ -237,13 +236,16 @@ class Amazon
         click_on ACCESS_CART
         run_step('checkout invoice')
         click_on_button_with_name ORDER_BUTTON_NAME
-        fill ORDER_PASSWORD, with:account.password
-        click_on ORDER_LOGIN_SUBMIT
-        wait_for [SHIPMENT_FORM_NAME]
         
+        wait_for(["#{ORDER_PASSWORD} | #{SHIPMENT_FORM_NAME}"])
+        
+        if exists? ORDER_LOGIN_SUBMIT
+          fill ORDER_PASSWORD, with:account.password
+          click_on ORDER_LOGIN_SUBMIT
+        end
+
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
-          
         end
         
         click_on SHIPMENT_CONTINUE
