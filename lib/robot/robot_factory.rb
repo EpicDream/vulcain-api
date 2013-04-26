@@ -49,19 +49,20 @@ class RobotFactory
     return OpenStruct.new context: context, strategy: s
   end
 
-  def self.replaceXpaths(mapping, strategies)
+  def self.replaceXpaths(strategies)
     steps = {}
-    for sname, actions in strategies
-      for fieldname, xpath in mapping[sname]
-        steps[sname] = actions.gsub(/ #{fieldname}/, " #{xpath}")
+    for s in strategies
+      steps[s[:id]] = s.value
+      for field in s.fields
+        next if field.xpath.nil?
+        steps[s[:id]].gsub!(/ #{field[:id]}/, " #{field[:xpath]}")
       end
     end
     return steps
   end
 
   def self.make_rb_file(host)
-    hash = getStrategyHash(host)
-    mapping, strategies = hash["mapping"], hash["strategies"]
+    strategies = getStrategyHash(host)
     vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
     File.open(File.expand_path("../vendors/"+vendor+".rb",__FILE__), "w") do |f|
       f.puts "# encoding: utf-8"
@@ -69,15 +70,15 @@ class RobotFactory
     f.puts "class "+vendor.camelize
       f.puts "\tURL = 'http://#{host}'"
       f.puts
-      f.puts "\tattr_accessor :context, :strategy"
+      f.puts "\tattr_accessor :context, :robot"
       f.puts "", <<-INIT
   def initialize context
     @context = context
-    @strategy = instanciate_strategy
+    @robot = instanciate_robot
   end
 
-  def instanciate_strategy
-    Strategy.new(@context) do
+  def instanciate_robot
+    Robot.new(@context) do
 
       step('run') do
         if account.new_account
@@ -87,12 +88,12 @@ class RobotFactory
         end
         open_url URL
         run_step('login')
-        message Strategy::MESSAGES[:logged], :next_step => 'run2'
+        message Robot::MESSAGES[:logged], :next_step => 'run2'
       end
 
       step('run2') do
         run_step('empty_cart')
-        message Strategy::MESSAGES[:cart_emptied], :next_step => 'run3'
+        message Robot::MESSAGES[:cart_emptied], :next_step => 'run3'
       end
 
       step('run3') do
@@ -106,20 +107,20 @@ class RobotFactory
       end
 
       step('waitAck') do
-        if response.content == Strategy::YES_ANSWER
+        if response.content == Robot::YES_ANSWER
           run_step('payment')
         end
         terminate
       end
 
   INIT
-      for name, actions in strategies
-        f.puts "\t\t\tstep('#{name}') do"
-        for fieldname, xpath in mapping[name]
-          f.puts "\t\t\t\t#{fieldname} = '#{xpath}'"
+      for s in strategies
+        f.puts "\t\t\tstep('#{s[:id]}') do"
+        for field in s[:fields]
+          f.puts "\t\t\t\t#{field[:id]} = '#{field[:xpath]}'"
         end
         f.puts
-        f.puts actions.prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t")
+        f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t")
         f.puts "\t\t\tend"
         f.puts
       end
@@ -156,17 +157,10 @@ class RobotFactory
               }
     }
     load "lib/robot/vendors/priceminister.rb"
-    s = Priceminister.new(context).strategy
+    s = Priceminister.new(context).robot
     s.self_exchanger = s.logging_exchanger = s.exchanger = ""
     s.exchanger.stubs(:publish).returns("")
     s.products << "http://www.priceminister.com/offer/buy/204229912/willpower-will-i-am.html#xtatc=PUB-[PMC]-[H]-[Musique]-[Push]-[2]-[Pdts]-[]"
     return s
   end
 end
-
-
-
-__END__
-
-o = BDD.get(id)
-s = StrategyFactory.make(o)
