@@ -156,7 +156,6 @@ var Model = function(host) {
   function getStratIdx(sId) { for ( var i = 0 ; i < that.strategies.length ; i++ ) if (that.strategies[i].id == sId) return i; };
   function getFieldIdx(s, fId) { for ( var i = 0 ; i < s.fields.length ; i++ ) if (s.fields[i].id == fId) return i; };
   function setStrategiesToHash() {
-    console.log("in setStrategiesToHash", that, that.strategies.length);
     strategiesHash = {};
     for (var i in that.strategies) {
       var s = that.strategies[i];
@@ -167,7 +166,6 @@ var Model = function(host) {
         s.fieldsHash[field.id] = field;
       }
     }
-    console.log(strategiesHash);
   };
 
   // FIELDSET

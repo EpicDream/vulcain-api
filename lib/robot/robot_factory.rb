@@ -2,9 +2,9 @@
 
 require 'core_extensions'
 require 'driver'
-require 'strategy'
+require 'robot'
 
-class StrategyFactory
+class RobotFactory
   def self.getStrategyHash(host)
     filename = Rails.root+"db/plugin/"+(host+".yml")
     if File.file?(filename)
@@ -16,7 +16,7 @@ class StrategyFactory
 
   def self.make(context, mapping, strategies)
     steps = replaceXpaths(mapping, strategies)
-    s = Strategy.new(context) {}
+    s = Robot.new(context) {}
 
     s.step('run') do
       if account.new_account
@@ -35,7 +35,7 @@ class StrategyFactory
       assess next_step:'waitAck'
     end
     s.step('waitAck') do
-      if response.content == Strategy::YES_ANSWER
+      if response.content == Robot::YES_ANSWER
         run_step('payment')
       end
       terminate
@@ -155,7 +155,7 @@ class StrategyFactory
                                           'country' => 'France'}
               }
     }
-    load "lib/strategies/vendors/priceminister.rb"
+    load "lib/robot/vendors/priceminister.rb"
     s = Priceminister.new(context).strategy
     s.self_exchanger = s.logging_exchanger = s.exchanger = ""
     s.exchanger.stubs(:publish).returns("")
