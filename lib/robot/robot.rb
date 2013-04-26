@@ -75,12 +75,14 @@ class Robot
   
   def terminate
     messager.dispatcher.message(:terminate)
+    messager.admin.message(:terminated)
     @driver.quit
   end
   
   def terminate_on_error error_message
     messager.dispatcher.message(:failure, { message:error_message })
-    messager.logging.message(:failure, {error_message:error_message})
+    messager.admin.message(:failure)
+    messager.logging.message(:failure, { error_message:error_message })
     @driver.quit
   end
   
