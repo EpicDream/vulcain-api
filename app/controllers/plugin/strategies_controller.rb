@@ -106,7 +106,7 @@ class Plugin::StrategiesController < ApplicationController
             desc: "Payement",
             value: "",
             fields: [
-            "continuerBtn", "desc"=>"Bouton Continuer","option"=>"","type"=>"click_on"}}
+              {id: "continuerBtn", "desc"=>"Bouton Continuer","option"=>"","type"=>"click_on"}
             ]
           }
       ]
