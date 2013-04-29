@@ -366,7 +366,7 @@ var Model = function(host) {
     this.typesArgs = [
       {id: 'login', desc:"Login", value:"account.login"},
       {id: 'password', desc:"Mot de passe", value:"account.password"},
-      {id: 'mail', desc:"Email", value:"account.email"},
+      {id: 'email', desc:"Email", value:"account.email"},
       {id: 'last_name', desc:"Nom", value:"user.last_name"},
       {id: 'first_name', desc:"Prénom", value:"user.first_name"},
       {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
@@ -383,7 +383,7 @@ var Model = function(host) {
       {id: 'country', desc:"Pays", value:"user.address.country"}
     ];
   };
-  this.clearCache = function() { this.bdd.clearCache(); };
+  this.clearCache = function() { this.bdd.clearCache(host); };
   this.reset = function() { this.strategies = []; strategiesHash = {}; this.types = []; };
 
   for (var f in this) {
@@ -555,7 +555,7 @@ var View = function(controller) {
       var tab = this.addStrategy(strategies[i]);
       if (strategies[i].fields)
         this.initFields(strategies[i], strategies[i].fields)
-      tab.find('.strat').html(strategies[i].value);
+      tab.find('.strat')[0].innerText = strategies[i].value;
       tab.accordion("refresh");
     }
     tabs.tabs("option", "active", 0);
@@ -664,10 +664,13 @@ var View = function(controller) {
     }
     return f;
   };
-  // action is a string (ended by a \n).
+  // action is a single line string.
   this.addAction = function(field, action) {
     var stratDiv = getStratTab(field.sId).find(".strat");
-    stratDiv[0].innerText += action;
+    // Check in case user have modified text without newline ended.
+    if (stratDiv[0].innerText.match(/.[^\n]$/))
+      stratDiv[0].innerText += "\n";
+    stratDiv[0].innerText += action + "\n";
     stratDiv.blur(); // emule change();
   };
   this.resetField = function(field) {
@@ -720,7 +723,6 @@ var Controller = function() {
       var fId = this.view.getCurrentFieldId();
       if (fId) {
         var field = this.model.getField({sId: sId, id:fId});
-        console.log(sId, strategy, fId, field, msg.xpath);
         this.onNewMapping(field, msg.xpath);
         chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
       }
