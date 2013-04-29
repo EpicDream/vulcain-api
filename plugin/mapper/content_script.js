@@ -1,3 +1,4 @@
+var plugin = {};
 
 function highElements(xpath, color) {
     var e = $(getElementsByXPath(xpath));
@@ -76,24 +77,32 @@ function onBodyClick(event) {
 
 // Load iFrame
 function buildExtension() {
+  // Return if already started.
+  if (plugin.iframe)
+    return;
+
   var body = document.getElementsByTagName("body")[0];
   var extension_id = chrome.i18n.getMessage("@@extension_id");
-  iframe = document.createElement('iframe');
-  iframe.id = "shopeliaFrame";
-  iframe.src = "chrome-extension://" + extension_id + "/shopelia_mapper.html";
-  body.appendChild(iframe);
+  plugin.iframe = document.createElement('iframe');
+  plugin.iframe.id = "shopeliaFrame";
+  plugin.iframe.src = "chrome-extension://" + extension_id + "/shopelia_mapper.html";
+  body.appendChild(plugin.iframe);
 
-  link = document.createElement('link');
-  link.rel = "stylesheet";
-  link.href = "chrome-extension://" + extension_id + "/content_script.css";
-  document.getElementsByTagName("head")[0].appendChild(link);
+  plugin.link = document.createElement('link');
+  plugin.link.rel = "stylesheet";
+  plugin.link.href = "chrome-extension://" + extension_id + "/content_script.css";
+  document.getElementsByTagName("head")[0].appendChild(plugin.link);
 
   body.addEventListener("click", this.onBodyClick);
 };
 
 function removeExtension() {
-  $(iframe).remove();
-  $(link).remove();
+  if (plugin.iframe) {
+    $(plugin.iframe).remove();
+    $(plugin.link).remove();
+    delete plugin.iframe;
+    delete plugin.link;
+  }
 };
 
 chrome.extension.onMessage.addListener(function(msg, sender) {

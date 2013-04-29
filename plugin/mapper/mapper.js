@@ -65,12 +65,12 @@ var BDD = function() {
       if (window.localStorage)
         localStorage['types'] = JSON.stringify(hash);
       onDone(hash);
-    }).fail(function() {
+    }.bind(this)).fail(function() {
       if (window.localStorage && localStorage['types'])
         onDone(JSON.parse(localStorage['types']));
       else if (onFail)
         onFail();
-    });
+    }.bind(this));
   };
   this.remoteLoad = function(host, onDone, onFail) {
     if (! host) throw "'host' must be set."
@@ -146,12 +146,19 @@ var BDD = function() {
     else
       this.localSave(host, data, onFail, onDone);
   };
+  // Clear data saved in localStorage.
+  this.clearCache = function(host) {
+    if (window.localStorage) {
+      delete localStorage['types'];
+      delete localStorage[host];
+    }
+  };
 };
 
 var Model = function(host) {
+  var that = this;
   var host = host;
   var strategiesHash = {};
-  var that = this;
 
   function getStratIdx(sId) { for ( var i = 0 ; i < that.strategies.length ; i++ ) if (that.strategies[i].id == sId) return i; };
   function getFieldIdx(s, fId) { for ( var i = 0 ; i < s.fields.length ; i++ ) if (s.fields[i].id == fId) return i; };
@@ -173,6 +180,20 @@ var Model = function(host) {
   this.bdd = new BDD();
   this.types = [];
   this.typesArgs = [];
+  this.initTypes = function(onDone) {
+    if (! onDone) throw "'onDone' must be set."
+    this.bdd.loadTypes(function(hash) {
+      if (hash) {
+        this.types = hash.types;
+        this.typesArgs = hash.typesArgs;
+      } else
+        this.setDefaultTypes();
+      onDone();
+    }.bind(this), function() {
+      this.setDefaultTypes();
+      onDone();
+    }.bind(this));
+  };
   this.getType = function(type) {
     for (var i in this.types)
       if (this.types[i].id == type)
@@ -184,17 +205,6 @@ var Model = function(host) {
       if (this.typesArgs[i].id == arg)
         return this.typesArgs[i];
     return null;
-  };
-  this.initTypes = function(onDone) {
-    if (! onDone) throw "'onDone' must be set."
-    this.bdd.loadTypes(function(hash) {
-      if (hash) {
-        this.types = hash.types;
-        this.typesArgs = hash.typesArgs;
-      } else
-        setDefaultTypes();
-      onDone();
-    }.bind(this));
   };
 
   // STRATEGIES
@@ -332,14 +342,14 @@ var Model = function(host) {
         ]
       })
     ];
-    setStrategiesToHash().bind(this);
+    setStrategiesToHash.bind(this)();
   };
   this.stratHash = function() { return strategiesHash; };
   this.setDefaultTypes = function() {
     this.types = [
       {id: 'click_on', desc: "Cliquer sur un lien ou un bouton"},
-      {id: 'fill', desc: "Remplir le champ", arg: true},
-      {id: 'select_option', desc: "Sélectionner l'option", arg: true},
+      {id: 'fill', desc: "Remplir le champ", has_arg: true},
+      {id: 'select_option', desc: "Sélectionner l'option", has_arg: true},
       {id: 'click_on_radio', desc: "Sélectioner le radio bouton"},
       {id: 'screenshot', desc: "Prendre une capture d'écran"},
       {id: 'click_on_links_with_text', desc: "Cliquer sur le texte"},
@@ -348,9 +358,9 @@ var Model = function(host) {
       {id: 'open_url', desc: "Ouvrir la page"},
       {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
       {id: 'wait_ajax', desc: "Attendre"},
-      {id: 'ask', desc: "Demander à l'utilisateur", arg: true},
-      {id: 'assess', desc: "Demander la confirmation", arg: true},
-      {id: 'message', desc: "Envoyer un message", arg: true}
+      {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
+      {id: 'assess', desc: "Demander la confirmation", has_arg: true},
+      {id: 'message', desc: "Envoyer un message", has_arg: true}
     ];
 
     this.typesArgs = [
@@ -373,8 +383,8 @@ var Model = function(host) {
       {id: 'country', desc:"Pays", value:"user.address.country"}
     ];
   };
-  this.clearCache = function() { bdd.clearCache(); };
-  this.reset = function() { this.strategies = []; strategiesHash = {}; };
+  this.clearCache = function() { this.bdd.clearCache(); };
+  this.reset = function() { this.strategies = []; strategiesHash = {}; this.types = []; };
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
@@ -698,7 +708,11 @@ var Controller = function() {
         this.view.initFieldsets(this.model.types, this.model.typesArgs);
         this.model.load(function() {
           this.view.initStrategies(this.model.strategies);
+        }.bind(this), function() {
+          console.error("fail to load strategies for host", this.host);
         }.bind(this));
+      }.bind(this), function() {
+        console.error("fail to load types for host", this.host);
       }.bind(this));
     } else if (msg.action == 'newMap') {
       var sId = this.view.getCurrentStrategyId();
@@ -725,8 +739,11 @@ var Controller = function() {
       this.view.initStrategies(this.model.strategies);
     }.bind(this));
   };
-  this.onUnload = function(event) { 
-    this.model.save(); wait(200);/*send ajax*/ 
+  this.onUnload = function(event) {
+    if (this.model.strategies.length > 0) {
+      this.model.save();
+      wait(200);/*send ajax*/
+    }
   };
   this.onReset = function(event) { 
     if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
