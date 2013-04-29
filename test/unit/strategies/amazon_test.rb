@@ -42,7 +42,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -66,7 +66,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "empty basket" do
-    @message.expects(:message).times(6)
+    @message.expects(:message).times(13)
 
     robot.run_step('login')
     robot.run_step('add to cart')
@@ -74,7 +74,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "finalize order" do
-    @message.expects(:message).times(7)
+    @message.expects(:message).times(16)
     
     robot.run_step('login')
     robot.run_step('empty cart')
@@ -133,51 +133,40 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "payment with assess not confirmed" do
-    # robot.exchanger.expects(:publish).times(6)
-    # robot.logging_exchanger.expects(:publish).times(7)
-    # 
-    # @context['order']['products_urls'] = [PRODUCT_URL_4]
-    # robot.context = @context
-    # robot.run_step('login')
-    # robot.run_step('empty cart')
-    # robot.run_step('add to cart')
-    # message = {'verb' => 'assess', 'content' => {
-    #   :questions => [{:text => nil, :id => '1', :options => nil}], 
-    #   :products => [{'delivery_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'product_title' => 'Lampe frontale TIKKA² Gris', 'product_image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'price_delivery' => 6.61, 'price_product' => 25.95, 'url' => 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'}],
-    #   :billing => {:price => 25.95, :shipping => 6.61}}}
-    # 
-    # robot.exchanger.expects(:publish).with(message, @context['session'])
-    # robot.run_step('finalize order')
-    # robot.answers = [OpenStruct.new(question_id:'1', answer:false)]
-    # assert_equal 'payment', robot.instance_variable_get(:@next_step)
-    # robot.expects(:run_step).with('submit credit card').never
-    # robot.expects(:terminate)
-    # robot.expects(:run_step).with('empty cart')
-    # steps = robot.instance_variable_get(:@steps)
-    # steps['payment'].call
+    @message.expects(:message).times(13)
+    
+    @context['order']['products_urls'] = [PRODUCT_URL_4]
+    robot.context = @context
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    message = {'verb' => 'assess', 'content' => {
+      :questions => [{:text => nil, :id => '1', :options => nil}], 
+      :products => [{'delivery_text' => 'EUR 25,95 + EUR 6,61 (livraison)', 'price_text' => 'Prix : EUR 25,95', 'product_title' => 'Lampe frontale TIKKA² Gris', 'product_image_url' => 'http://ecx.images-amazon.com/images/I/41g3-N0oxNL._SL500_AA300_.jpg', 'price_delivery' => 6.61, 'price_product' => 25.95, 'url' => 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'}],
+      :billing => {:price => 25.95, :shipping => 6.61}}}
+    
+    @message.expects(:message).with(:assess, message['content'])
+    robot.run_step('finalize order')
+    robot.answers = [OpenStruct.new(question_id:'1', answer:false)]
+    assert_equal 'payment', robot.instance_variable_get(:@next_step)
+    robot.expects(:run_step).with('submit credit card').never
+    robot.expects(:run_step).with('empty cart', {:next_step => 'terminate'})
+    steps = robot.instance_variable_get(:@steps)
+    steps['payment'].call
   end
   
   test "use price and shipment from taxes and shipment link when present" do
-    # url = "http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"
-    # robot.exchanger.expects(:publish).times(6)
-    # robot.logging_exchanger.expects(:publish).times(7)
-    # 
-    # @context['order']['products_urls'] = [url]
-    # robot.context = @context
-    # robot.run_step('login')
-    # robot.run_step('empty cart')
-    # robot.run_step('add to cart')
-    # message = {'verb' => 'assess', 'content' => {
-    #   :questions => [{:text => nil, :id => '1', :options => nil}], 
-    #   :products => [{'delivery_text' => '', 'price_text' => "Prix : EUR 10,50 Livraison gratuite dès 15 euros d'achats. ",
-    #      'product_title' => 'Les Aristochats', 
-    #      'product_image_url' => 'http://ecx.images-amazon.com/images/I/51QikAQ9Y6L._SL500_AA300_.jpg', 
-    #      'price_delivery' => 0, 
-    #      'price_product' => 10.5, 
-    #      'url' => 'http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S'}], 
-    #      :billing => {:price => 10.5, :shipping => 2.79}}}
-    # robot.exchanger.expects(:publish).with(message, @context['session'])
-    # robot.run_step('finalize order')
+    url = "http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"
+    @message.expects(:message).times(13)
+    
+    @context['order']['products_urls'] = [url]
+    robot.context = @context
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    message = {'verb' => 'assess', 'content' => {:questions=>[{:text=>nil, :id=>"1", :options=>nil}], :products=>[{"delivery_text"=>"", "price_text"=>"Prix : EUR 10,20 Livraison gratuite dès 15 euros d'achats. ", "product_title"=>"Les Aristochats", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51QikAQ9Y6L._SL500_AA300_.jpg", "price_delivery"=>0, "price_product"=>10.2, "url"=>"http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"}], :billing=>{:price=>10.2, :shipping=>2.79}}}
+    @message.expects(:message).with(:assess, message['content'])
+    robot.run_step('finalize order')
   end
   
   private
@@ -187,7 +176,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   def size_question
-    {:text => 'Choix de la taille', :id => '1', :options => {'0' => '28', '1' => '30', '2' => '32', '3' => '34', '4' => '36', '5' => '38', '6' => 'FR : 28 (Taille Fabricant : 1)', '7' => 'FR : 30 (Taille Fabricant : 2)', '8' => 'FR : 32 (Taille Fabricant : 2)', '9' => 'FR : 34 (Taille Fabricant : 2)', '10' => 'FR : 36 (Taille Fabricant : 1)'}}
+    {:text=>"Choix de la taille", :id=>"1", :options=>{"0"=>"28", "1"=>"30", "2"=>"32", "3"=>"34", "4"=>"36", "5"=>"38", "6"=>"40", "7"=>"FR : 28 (Taille Fabricant : 1)", "8"=>"FR : 30 (Taille Fabricant : 2)", "9"=>"FR : 32 (Taille Fabricant : 2)", "10"=>"FR : 34 (Taille Fabricant : 2)"}}
   end
   
   def color_question

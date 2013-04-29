@@ -243,7 +243,7 @@ class Amazon
           fill ORDER_PASSWORD, with:account.password
           click_on ORDER_LOGIN_SUBMIT
         end
-
+        wait_ajax
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
         end
