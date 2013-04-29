@@ -2,8 +2,6 @@
 module Dispatcher
   class Pool
     Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid, :ack_ping)
-    
-    RUNNING_MESSAGE = "Dispatcher running on #{CONFIG['host']}"
     DUMP_FILE_PATH = "#{Rails.root}/tmp/vulcain_pool.obj"
     PING_TIMEOUT = 5
     PING_LAP_TIME = 2
@@ -29,6 +27,7 @@ module Dispatcher
     def pop id
       vulcain = vulcain_with_id(id)
       @pool.delete vulcain
+      Dispatcher.output(:removed_vulcain, vulcain:vulcain)
     end
     
     def fetch session
@@ -42,6 +41,7 @@ module Dispatcher
       vulcain = Vulcain.new(exchange, id, false, host, nil, true)
       @pool << vulcain
       load_robots_on_vulcain(vulcain)
+      Dispatcher.output(:new_vulcain, vulcain:vulcain)
     end
     
     def idle id
@@ -75,18 +75,23 @@ module Dispatcher
     end
     
     def ack_ping id
-      vulcain_with_id(id).ack_ping = true
+      vulcain = vulcain_with_id(id)
+      Dispatcher.output(:ack_ping, vulcain:vulcain)
+      vulcain.ack_ping = true
     end
     
     def ping_vulcains
       EM.add_timer(PING_LAP_TIME) {
-        @pool.each { |vulcain| ping(vulcain)}
+        @pool.each do |vulcain| 
+          Dispatcher.output(:ping, vulcain:vulcain)
+          ping(vulcain)
+        end
       }
       EM.add_timer(PING_TIMEOUT + PING_LAP_TIME) {
         Log.create({:pool_before_ping => @pool.map(&:id)})
         @pool.delete_if { |vulcain| !vulcain.ack_ping}
         Log.create({:pool_after_ping => @pool.map(&:id)})
-        $stdout << RUNNING_MESSAGE
+        Dispatcher.output(:running, pool_size:@pool.size)
       }
     end
   
