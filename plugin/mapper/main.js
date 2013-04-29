@@ -610,7 +610,6 @@ var View = function(controller) {
   // ############################
 
   this.initFields = function(strategy, fields) {
-    var tab = getStratTab(strategy.id);
     for (var i in fields) {
       this.addField(fields[i]);
     }
