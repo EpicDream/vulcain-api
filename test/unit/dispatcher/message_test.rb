@@ -8,7 +8,7 @@ class MessageTest <  ActiveSupport::TestCase
   test "no idle message" do
     message = Dispatcher::Message.new(:no_idle)
     
-    assert_equal({:verb=>"failure", :content=>{:message=>"no_idle"}}, message.message)
+    assert_equal({:verb=>"failure", :content=>{:status=>:no_idle, :message=>"no_idle"}}, message.message)
   end
   
   test "ping message" do
