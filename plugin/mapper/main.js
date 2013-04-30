@@ -270,6 +270,11 @@ var Model = function(host) {
     var idx = getFieldIdx(s, field.id);
     return s.fields.splice(idx,1);
   };
+  this.moveField = function(s, fId, idx) {
+    var f = s.fields.splice(getFieldIdx(s, fId), 1)[0];
+    s.fields.splice(idx, 0, f);
+    return s.fields;
+  };
 
   // PLUGIN
 
@@ -575,7 +580,7 @@ var View = function(controller) {
     tabs.tabs("refresh");
     tabs.tabs("option", "active", -1);
     strat.accordion();
-    strat.find(".mapper tbody").sortable({ delay: 20, distance: 10 });
+    strat.find(".mapper tbody").sortable({ delay: 20, distance: 10 }).on("sortupdate", strategy, controller.onFieldsSorted);
     strat.find(".mapper .addFieldBtn").click(strategy, controller.onAddField);
     strat.find('.mapper .addFieldKind').change(strategy, controller.onTypeChanged);
     strat.find(".mapper .clearFieldsBtn").click(strategy, controller.onClearFieldset);
@@ -790,6 +795,12 @@ var Controller = function() {
   this.onStrategyTextChange = function(event) {
     var strategy = event.data;
     this.model.editStrategy(strategy, {value: this.view.getStrategyText(strategy)});
+  };
+  this.onFieldsSorted = function(event, ui) {
+    var s = event.data;
+    var e = ui.item;
+    var fId = e.attr('id');
+    console.log(this.model.moveField(s, fId, e.index()));
   };
 
   // ############################
