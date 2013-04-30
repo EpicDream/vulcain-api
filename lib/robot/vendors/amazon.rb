@@ -14,6 +14,8 @@ class Amazon
   LOGIN_SUBMIT = '//*[@id="signInSubmit"]'
   LOGIN_ERROR = '//*[@id="message_error"]'
   AFTER_LOGIN_ORDERS_BUTTON = '//*[@id="your-orders"]'
+  ERROR_MESSAGE_ON_CREATE_ACCOUNT = '//*[@id="message_error"]'
+  AFTER_CREATE_ACCOUNT_OK = '//*[@id="ys-top"]/div/span'
   
   UNLOG_URL = 'http://www.amazon.fr/gp/flex/sign-out.html/ref=gno_signout?ie=UTF8&action=sign-out&path=%2Fgp%2Fyourstore%2Fhome&signIn=1&useRedirectOnSuccess=1'
   ADD_TO_CART = '//*[@id="bb_atc_button" or @id="addToCartButton"]'
@@ -86,9 +88,12 @@ class Amazon
     Robot.new(@context) do
 
       step('run') do
-        run_step('create account') if account.new_account
-        run_step('logout')
-        run_step('login')
+        if account.new_account
+          run_step('create account') 
+        else
+          run_step('logout')
+          run_step('login')
+        end
       end
       
       step('remove credit card') do
@@ -107,6 +112,13 @@ class Amazon
         fill REGISTER_PASSWORD, with:account.password
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
         click_on REGISTER_SUBMIT
+        wait_for(["#{AFTER_CREATE_ACCOUNT_OK} | #{ERROR_MESSAGE_ON_CREATE_ACCOUNT}"])
+        if exists? ERROR_MESSAGE_ON_CREATE_ACCOUNT
+          terminate_on_error(:account_creation_failed)
+        else
+          run_step('logout')
+          run_step('login')
+        end
       end
       
       step('logout') do

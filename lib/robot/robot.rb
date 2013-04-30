@@ -48,7 +48,8 @@ class Robot
     login_failed:"Login failed",
     cart_not_emptied:"Empty cart not emptied",
     no_answer_found:"No answer found in message",
-    order_validation_failed:"Order validation failed"
+    order_validation_failed:"Order validation failed",
+    account_creation_failed:"Account creation failed"
   }
 
   attr_accessor :context, :driver, :messager

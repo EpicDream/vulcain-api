@@ -11,7 +11,7 @@ class AmazonTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_11@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'marie_rose_12@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1, PRODUCT_URL_2],
                             'credentials' => {
@@ -42,13 +42,15 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+     robot.driver.quit
     rescue
     end
   end
   
   test "account creation" do
     skip "Can' create account each time!"
+    @message.expects(:message).times(4)
+    
     robot.run_step('create account')
   end
   
@@ -169,7 +171,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
   end
   
-  test "it should send failure message if login fail and terminate" do
+  test "it should send failure message if login fails and terminate" do
     @context['account']['password'] = 'toto'
     robot.context = @context
     
@@ -177,6 +179,16 @@ class AmazonTest < ActiveSupport::TestCase
     robot.expects(:terminate_on_error).with(:login_failed)
     
     robot.run_step('login')
+  end
+  
+  test "it should send failure message if create account fails and terminate" do
+    @context['account']['password'] = 'toto'
+    @context['account']['login'] = 'marie_fr09@yopmail.com'
+    robot.context = @context
+    
+    @message.expects(:message).times(1)
+    robot.expects(:terminate_on_error).with(:account_creation_failed)
+    robot.run_step('create account')
   end
   
   private
