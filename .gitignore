@@ -5,4 +5,5 @@
 /tmp
 Gemfile.lock
 config/ovh_cloud.yml
+config/dispatcher.yml
 *.swp

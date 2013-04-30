@@ -2,28 +2,56 @@
 module Dispatcher
   class Worker
     
-    def initialize
+    def start
+      Dispatcher::AmqpRunner.start do |channel, exchange, pool|
+        @channel  = channel
+        @exchange = exchange
+        @pool     = pool
+        
+        with_queue(RUN_API_QUEUE) do |message, session|
+          vulcain = @pool.pull(session)
+          unless vulcain
+            Message.new(:no_idle).for(session).to(:shopelia)
+          else
+            Message.new.forward(message).to(vulcain)
+          end
+        end
+        
+        with_queue(ANSWER_API_QUEUE) do |message, session|
+          vulcain = @pool.fetch(session)
+          Message.new.forward(message).to(vulcain)
+        end
+        
+        with_queue(ADMIN_QUEUE) do |message, session|
+          vulcain_id = session['vulcain_id']
+          case message['status']
+          when Message::ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:aborted] then @pool.pop vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
+          when Message::ADMIN_MESSAGES_STATUSES[:terminated] then @pool.idle vulcain_id
+          end
+        end
+        
+        with_queue(VULCAINS_QUEUE) do |message, session|
+          Message.new.forward(message).to(:shopelia)
+        end
+
+        with_queue(LOGGING_QUEUE)
+        
+        @pool.restore
+      end
     end
     
-    def start
-      Dispatcher::AmqpRunner.start do |channel, exchange|
-        @pool = VulcainPool.new
-        vulcain = @pool.pop
-        shopelia = ShopeliaCallback.new
-        callback_url = nil
-        
-        channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:API_QUEUE}).subscribe do |metadata, message|
-          message = JSON.parse(message)
-          callback_url = message['context']['session']['callback_url']
-          message['context']['session']['vulcain_id'] = vulcain.id
-          vulcain.exchange.publish message.to_json, :headers => { :vulcain => vulcain.id}
-        end
-
-        channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:VULCAINS_QUEUE}).subscribe do |metadata, message|
-          message = JSON.parse(message)
-          shopelia.request(callback_url, message)
-        end
-
+    private
+    
+    def with_queue queue
+      @channel.queue.bind(@exchange, arguments:{'x-match' => 'all', queue:queue}).subscribe do |metadata, message|
+        message = JSON.parse(message)
+        session = (message['context']['session'] if message['context']) || message['session']
+        Log.create(message)
+        yield message, session if block_given?
       end
     end
     

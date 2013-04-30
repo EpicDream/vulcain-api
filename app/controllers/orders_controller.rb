@@ -1,7 +1,9 @@
 class OrdersController < ApplicationController
-  USER_KEYS = ['email']
-  ORDER_KEYS = ['account_password', 'product_url']
-  SESSION_KEYS = ['uuid', 'callback_url', 'state']
+  VENDOR_KEY = 'vendor'
+  ACCOUNT_KEYS = ['login', 'password']
+  SESSION_KEYS = ['uuid', 'callback_url']
+  ORDER_KEYS = ['products_urls']
+  VENDORS = ['Amazon', 'RueDuCommerce', 'Fnac']
   
   before_filter :set_context
   
@@ -16,12 +18,13 @@ class OrdersController < ApplicationController
   private
   
   def set_context
-    @context = JSON.parse(params['context']) if params['context']
+    @context = params['context']
+    @vendor = params['vendor']
   end
   
   def check_parameters
-    @context &&
-    assert_keys(@context['user'].keys, USER_KEYS) && 
+    @context && @vendor && VENDORS.include?(@vendor)
+    assert_keys(@context['account'].keys, ACCOUNT_KEYS) && 
     assert_keys(@context['order'].keys, ORDER_KEYS) &&
     assert_keys(@context['session'].keys, SESSION_KEYS)
   rescue
@@ -29,10 +32,9 @@ class OrdersController < ApplicationController
   end
   
   def message
-    { :verb => :action, 
-      :vendor => 'RueDuCommerce',
-      :strategy => 'order',
-      :context => @context,
+    { :verb => :run, 
+      :vendor => @vendor,
+      :context => @context
     }.to_json
   end
 end
