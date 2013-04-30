@@ -105,6 +105,7 @@ module Dispatcher
           ping(vulcain)
         end
       }
+      
       EM.add_timer(PING_TIMEOUT + PING_LAP_TIME) {
         Log.create({:pool_before_ping => @pool.map(&:id)})
         @pool.delete_if { |vulcain| !vulcain.ack_ping}

@@ -12,6 +12,9 @@ class Amazon
   LOGIN_EMAIL = '//*[@id="ap_email"]'
   LOGIN_PASSWORD = '//*[@id="ap_password"]'
   LOGIN_SUBMIT = '//*[@id="signInSubmit"]'
+  LOGIN_ERROR = '//*[@id="message_error"]'
+  AFTER_LOGIN_ORDERS_BUTTON = '//*[@id="your-orders"]'
+  
   UNLOG_URL = 'http://www.amazon.fr/gp/flex/sign-out.html/ref=gno_signout?ie=UTF8&action=sign-out&path=%2Fgp%2Fyourstore%2Fhome&signIn=1&useRedirectOnSuccess=1'
   ADD_TO_CART = '//*[@id="bb_atc_button" or @id="addToCartButton"]'
   ACCESS_CART = '//*[@id="nav-cart"]/span[1]/span/span[3]'
@@ -116,7 +119,12 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
+        wait_for ["#{AFTER_LOGIN_ORDERS_BUTTON} | #{LOGIN_ERROR}"]
+        if exists? LOGIN_ERROR
+          terminate_on_error Robot::MESSAGES[:login_failed]
+        else
+          message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
+        end
       end
       
       step('empty cart') do |args|
