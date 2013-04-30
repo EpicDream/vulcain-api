@@ -22,13 +22,13 @@ module Dispatcher
     def initialize verb=nil
       case verb
       when :no_idle 
-        @message = { verb:MESSAGES_VERBS[:failure], content:{ message:MESSAGES[:no_idle] } }
+        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :no_idle, message:MESSAGES[:no_idle] } }
       when :ping
         @message = { verb:MESSAGES_VERBS[:ping] }
       when :reload
         @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new("Amazon").code}
       when :order_timeout
-        @message = { verb:MESSAGES_VERBS[:order_timeout], content:{ message:MESSAGES[:order_timeout] }}
+        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :order_timeout, message:MESSAGES[:order_timeout] }}
       end
     end
     

@@ -211,16 +211,29 @@ Les messages d'échecs ont pour verbe 'failure' et ne demandent pas de réponse 
 *"session":{...}*
 
 	{ "verb":"failure", "content":{"status":"no_idle"}, "session":{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}}
+
+ou
+
+	{ "verb":"failure", "content":{"status":"login_failed", "message":"Login failed"}, "session":{"uuid"=>"2129801H", "callback_url"=>"http://127.0.0.1:3000/shopelia"}}
 	
-Les différents statuts peuvent être :
+####Les différents statuts peuvent être :
 
-"no_idle" : aucun vulcain n'est disponible.
+*"no_idle"* : aucun vulcain n'est disponible.
 
-"exception": une exception s'est produite.
+*"exception"*: une exception s'est produite.
 
-"error": Erreur avec un message d'erreur de la stratégie
+*"error"*: Erreur avec un message d'erreur de la stratégie
 
-"order_timeout": Timeout sur le process de commande, l'ordre est passé et non terminé depuis plus de 3mn
+*"order_timeout"*: Timeout sur le process de commande, l'ordre est passé et non terminé depuis plus de 3mn
+
+*"login\_failed"*: Login failed
+
+*"cart\_not\_emptied"*: Le panier n'a pas pu être vidé
+
+*"no\_answer\_found":* Pas de réponse à la question posée
+
+*"order\_validation\_failed":* Après validation du paiement pas de message "Merci" avec un numéro d'ordre de la commmande.
+
 
 VII - Succès
 -------------

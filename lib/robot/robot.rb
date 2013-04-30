@@ -45,7 +45,10 @@ class Robot
     cart_emptied:"Cart emptied",
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled",
-    login_failed:"Login failed"
+    login_failed:"Login failed",
+    cart_not_emptied:"Empty cart not emptied",
+    no_answer_found:"No answer found in message",
+    order_validation_failed:"Order validation failed"
   }
 
   attr_accessor :context, :driver, :messager
@@ -121,10 +124,10 @@ class Robot
     @driver.quit
   end
   
-  def terminate_on_error error_message
-    messager.dispatcher.message(:failure, { message:error_message })
+  def terminate_on_error error_type
+    messager.dispatcher.message(:failure, { status:error_type.to_s, message:MESSAGES[error_type] })
     messager.admin.message(:failure)
-    messager.logging.message(:failure, { error_message:error_message })
+    messager.logging.message(:failure, { error_message:MESSAGES[error_type] })
     @driver.quit
   end
   

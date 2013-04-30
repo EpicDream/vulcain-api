@@ -121,7 +121,7 @@ class Amazon
         click_on LOGIN_SUBMIT
         wait_for ["#{AFTER_LOGIN_ORDERS_BUTTON} | #{LOGIN_ERROR}"]
         if exists? LOGIN_ERROR
-          terminate_on_error Robot::MESSAGES[:login_failed]
+          terminate_on_error :login_failed
         else
           message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
         end
@@ -132,7 +132,7 @@ class Amazon
         click_on_links_with_text(DELETE_LINK_NAME) { wait_ajax }
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
-        terminate_on_error("Empty cart not emptied") unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
+        terminate_on_error(:cart_not_emptied) unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
         message Robot::MESSAGES[:cart_emptied], :next_step => (args && args[:next_step]) || 'add to cart'
       end
       
@@ -170,7 +170,7 @@ class Amazon
       end
       
       step('select option') do
-        terminate_on_error("No answer found in message") unless answers || answers.any?
+        terminate_on_error(:no_answer_found) unless answers || answers.any?
         answers.each do |_answer|
           answer = _answer.answer
           action = questions[_answer.question_id]
@@ -298,7 +298,7 @@ class Amazon
         if exists?(THANK_YOU_MESSAGE) && exists?(THANK_YOU_SHIPMENT)
           terminate
         else
-          terminate_on_error("Order number not found after order validation")
+          terminate_on_error(:order_validation_failed)
         end
       end
       
