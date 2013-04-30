@@ -12,7 +12,8 @@ module Dispatcher
   RUN_API_QUEUE = "run-api-queue"
   ANSWER_API_QUEUE = "answer-api-queue"
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
-  RUNNING_MESSAGE = File.read("#{Rails.root}/app/dispatcher/started.txt")
+  RUNNING_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/started.txt")
+  RESTORING_POOL_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/restore.txt")
   
   def self.output msg, args={}
     output = case msg
@@ -21,6 +22,7 @@ module Dispatcher
     when :ack_ping then "\nVulcain on host #{args[:vulcain].host} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
     when :ping then "\nPing Vulcain on host : #{args[:vulcain].host}"
     when :running then RUNNING_MESSAGE + "\n\nRunning on : #{CONFIG['host']}" + "\nNumbers of vulcains : #{args[:pool_size]}"
+    when :restoring_pool then RESTORING_POOL_MESSAGE
     end
     $stdout << output
   end

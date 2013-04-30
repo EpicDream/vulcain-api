@@ -35,7 +35,7 @@ module Dispatcher
     end
     
     def pop id
-      vulcain = vulcain_with_id(id)
+      return unless vulcain = vulcain_with_id(id)
       @pool.delete vulcain
       Dispatcher.output(:removed_vulcain, vulcain:vulcain)
     end
@@ -69,6 +69,8 @@ module Dispatcher
     end
     
     def restore
+      Dispatcher.output(:restoring_pool)
+      
       unless File.exists?(DUMP_FILE_PATH)
         Dispatcher.output(:running, pool_size:@pool.size)
         return
