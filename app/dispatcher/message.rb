@@ -5,7 +5,6 @@ module Dispatcher
        failure: 'failure',
        ping:'ping', 
        reload:'reload',
-       order_timeout: 'order_timeout'
     }
     ADMIN_MESSAGES_STATUSES = {
       started:'started', 
