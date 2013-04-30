@@ -56,7 +56,8 @@ var BDD = function() {
   // Load Types and TypesArgs, remotely or in local if remote fail.
     // Then call onDone() with a hash.
     // Call onFail if ajax failed and nothing is stored in localStorage.
-  this.loadTypes = function(onDone, onFail) {
+  this.loadTypes = function() {
+    var d = new $.Deferred();
     $.ajax({
       type : "GET",
       url: pluginUrl+"/strategies/types",
@@ -64,13 +65,14 @@ var BDD = function() {
     }).done(function(hash) {
       if (window.localStorage)
         localStorage['types'] = JSON.stringify(hash);
-      onDone(hash);
-    }.bind(this)).fail(function() {
+      d.resolve(hash);
+    }).fail(function() {
       if (window.localStorage && localStorage['types'])
-        onDone(JSON.parse(localStorage['types']));
-      else if (onFail)
-        onFail();
-    }.bind(this));
+        d.resolve(JSON.parse(localStorage['types']));
+      else
+        d.reject();
+    });
+    return d;
   };
   this.remoteLoad = function(host, onDone, onFail) {
     if (! host) throw "'host' must be set."
@@ -180,19 +182,20 @@ var Model = function(host) {
   this.bdd = new BDD();
   this.types = [];
   this.typesArgs = [];
-  this.initTypes = function(onDone) {
-    if (! onDone) throw "'onDone' must be set."
-    this.bdd.loadTypes(function(hash) {
+  this.initTypes = function() {
+    var d = this.bdd.loadTypes();
+    d.done(function(hash) {
       if (hash) {
         this.types = hash.types;
         this.typesArgs = hash.typesArgs;
       } else
         this.setDefaultTypes();
-      onDone();
-    }.bind(this), function() {
-      this.setDefaultTypes();
-      onDone();
     }.bind(this));
+    d.fail(function() {
+      this.setDefaultTypes();
+      d.resolve(this.strategies);
+    }.bind(this));
+    return d;
   };
   this.getType = function(type) {
     for (var i in this.types)
@@ -706,14 +709,14 @@ var Controller = function() {
       this.view = new View(this);
       this.host = msg.host;
       this.path = msg.path;
-      this.model.initTypes(function() {
+      var d = this.model.initTypes().done(function() {
         this.view.initFieldsets(this.model.types, this.model.typesArgs);
         this.model.load(function() {
           this.view.initStrategies(this.model.strategies);
         }.bind(this), function() {
           console.error("fail to load strategies for host", this.host);
         }.bind(this));
-      }.bind(this), function() {
+      }.bind(this)).fail(function() {
         console.error("fail to load types for host", this.host);
       }.bind(this));
     } else if (msg.action == 'newMap') {
