@@ -218,7 +218,7 @@ class Amazon
         fill ADDITIONAL_ADDRESS, with:user.address.additionnal_address
         fill SHIPMENT_CITY, with:user.address.city
         fill SHIPMENT_ZIP, with:user.address.zip
-        fill SHIPMENT_PHONE, with:user.mobile_phone
+        fill SHIPMENT_PHONE, with:(user.mobile_phone || user.land_phone)
         click_on SHIPMENT_SUBMIT
         find_any_element([SHIPMENT_CONTINUE, SHIPMENT_ORIGINAL_ADDRESS_OPTION])
         if exists? SHIPMENT_FACTURATION_CHOICE_SUBMIT
