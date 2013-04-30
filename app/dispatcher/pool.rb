@@ -1,7 +1,7 @@
 # encoding: utf-8
 module Dispatcher
   class Pool
-    Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid, :ack_ping)
+    Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked)
     DUMP_FILE_PATH = "#{Rails.root}/tmp/vulcain_pool.obj"
     PING_TIMEOUT = 5
     PING_LAP_TIME = 2
@@ -16,12 +16,22 @@ module Dispatcher
     def pull session
       vulcain = nil
       @mutex.synchronize { 
-        if vulcain = @pool.detect { |vulcain| vulcain.idle }
+        if vulcain = @pool.detect { |vulcain| vulcain.idle && !vulcain.blocked}
           vulcain.idle = false
           vulcain.uuid = session['uuid']
+          vulcain.callback_url = session['callback_url']
+          vulcain.run_since = Time.now
         end
       }
       vulcain
+    end
+    
+    def block vulcain
+      vulcain.blocked = true
+    end
+    
+    def can_check_timeout_of? vulcain
+      vulcain.run_since && !vulcain.blocked
     end
     
     def pop id
@@ -47,21 +57,27 @@ module Dispatcher
     def idle id
       vulcain = vulcain_with_id(id)
       vulcain.idle = true
+      vulcain.run_since = nil
       vulcain.uuid = nil
     end
     
     def dump
       File.open(DUMP_FILE_PATH, "w+") do |f|
-        object = @pool.map { |vulcain| [vulcain.id, vulcain.idle, vulcain.host, vulcain.uuid] }
+        object = @pool.map { |v| [v.id, v.idle, v.host, v.uuid, v.ack_ping, v.run_since, v.callback_url] }
         Marshal.dump(object, f)
       end
     end
     
     def restore
-      return unless File.exists?(DUMP_FILE_PATH)
+      unless File.exists?(DUMP_FILE_PATH)
+        Dispatcher.output(:running, pool_size:@pool.size)
+        return
+      end
+      
       @pool = File.open(DUMP_FILE_PATH) do |f| 
         Marshal.load(f).map do |obj|
-          vulcain = Vulcain.new(nil, *obj, false)
+          vulcain = Vulcain.new(nil, *obj)
+          vulcain.ack_ping = false
           vulcain.exchange = Dispatcher::VulcainExchanger.new(vulcain.host).exchange
           vulcain
         end

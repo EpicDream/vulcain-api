@@ -11,15 +11,13 @@ namespace :vulcain do
     
     def stubs_callbacks
       Dispatcher::Message.class_eval do
-        private
-
         def request url, data
           return unless data["verb"] == 'assess'
           uuid = data["session"]['uuid']
           question_id = data["content"]["questions"].first["id"]
           `curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'{"context":{"session":{"uuid":"#{uuid}","callback_url":"http://127.0.0.1:3000/shopelia"},"answers":[{"question_id":"#{question_id}", "answer":false}]}}' localhost:3000/answers`
         end
-
+        private :request
       end
     end
     

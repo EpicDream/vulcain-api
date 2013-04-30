@@ -1,10 +1,11 @@
 module Dispatcher
   class Message
-    MESSAGES = {:no_idle => 'no_idle'}
+    MESSAGES = {no_idle:'no_idle', order_timeout:'order_timeout'}
     MESSAGES_VERBS = { 
-      :failure => 'failure',
+       failure: 'failure',
        ping:'ping', 
-       reload:'reload'
+       reload:'reload',
+       order_timeout: 'order_timeout'
     }
     ADMIN_MESSAGES_STATUSES = {
       started:'started', 
@@ -26,6 +27,8 @@ module Dispatcher
         @message = { verb:MESSAGES_VERBS[:ping] }
       when :reload
         @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new("Amazon").code}
+      when :order_timeout
+        @message = { verb:MESSAGES_VERBS[:order_timeout], content:{ message:MESSAGES[:order_timeout] }}
       end
     end
     

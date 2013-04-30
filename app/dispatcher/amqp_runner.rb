@@ -9,7 +9,8 @@ module Dispatcher
           channel.on_error(&channel_error_handler)
           exchange = channel.headers("amq.headers", :durable => true)
           pool = Pool.new
-          
+          supervisor = Supervisor.new(pool)
+                      
           Signal.trap("INT") do
             pool.dump
             connection.close { EventMachine.stop { exit }}

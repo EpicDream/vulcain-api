@@ -89,11 +89,36 @@ class PoolTest <  ActiveSupport::TestCase
     assert_equal [vulcain], pool.pool
   end
   
+  test "when vulcain is pull for running, its start time should be set to checkout times out" do
+    pool.pool = vulcains 
+    
+    vulcain = pool.pull({'uuid' => "1"})
+    
+    assert Time.now - vulcain.run_since < 1.seconds
+  end
+  
+  test "when vulcain is idle, its start time should be reset" do
+    pool.pool = vulcains 
+    
+    vulcain = pool.pull({'uuid' => "1"})
+    pool.idle(vulcain.id)
+    
+    assert_equal nil, vulcain.run_since 
+  end
+  
+  test "it should set callback url to new running vulcain" do
+    pool.pool = vulcains 
+    
+    vulcain = pool.pull({'uuid' => "1", 'callback_url' => "http://www.shopelia.com/9000"})
+    
+    assert_equal "http://www.shopelia.com/9000", vulcain.callback_url
+  end
+  
   private
   
   def vulcains
     (1..3).map do |n|
-      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, false)
+      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, false, 0)
     end
   end
   

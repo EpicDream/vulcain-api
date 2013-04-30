@@ -220,6 +220,7 @@ Les différents statuts peuvent être :
 
 "error": Erreur avec un message d'erreur de la stratégie
 
+"order_timeout": Timeout sur le process de commande, l'ordre est passé et non terminé depuis plus de 3mn
 
 VII - Succès
 -------------

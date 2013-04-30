@@ -7,7 +7,7 @@ Une réponse "assess" : false sera automatiquement renvoyée au dispatcher pour 
 
 0 - Voir doc startup.md
 
-1 -  Lancer le dispatcher en Mode 'check':
+1 - Lancer le dispatcher en Mode 'check':
 
 	DISPATCHER_MODE=CHECK rake vulcain:dispatcher:start 
 
