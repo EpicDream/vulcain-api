@@ -24,7 +24,18 @@ Il est préférable d'attendre qu'il soit près pour lancer les instances de vul
 
 **"Started" apparaît lorsque le dispatcher est près.**
 
+
 3 - Lancer les vulcains:
 
 	$ ./bin/run.sh
+	
+
+Lancement en mode debug
+-------------
+
+Permet d'afficher les logs dans la console.
+
+
+	$ DISPATCHER_MODE=DEBUG rake vulcain:dispatcher:start
+
 
