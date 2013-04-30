@@ -44,7 +44,8 @@ class Robot
     logged:"Logged",
     cart_emptied:"Cart emptied",
     cb_removed:"Credit Card removed",
-    cart_filled:"Cart filled"
+    cart_filled:"Cart filled",
+    login_failed:"Login failed"
   }
 
   attr_accessor :context, :driver, :messager

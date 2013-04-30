@@ -37,12 +37,12 @@ class AmazonTest < ActiveSupport::TestCase
                 
     @robot = Amazon.new(@context).robot
     @message = stub
-    @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message)
+    @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
   end
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -167,6 +167,16 @@ class AmazonTest < ActiveSupport::TestCase
     message = {'verb' => 'assess', 'content' => {:questions=>[{:text=>nil, :id=>"1", :options=>nil}], :products=>[{"delivery_text"=>"", "price_text"=>"Prix : EUR 10,20 Livraison gratuite dès 15 euros d'achats. ", "product_title"=>"Les Aristochats", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51QikAQ9Y6L._SL500_AA300_.jpg", "price_delivery"=>0, "price_product"=>10.2, "url"=>"http://www.amazon.fr/Les-Aristochats/dp/B002DEM97S"}], :billing=>{:price=>10.2, :shipping=>2.79}}}
     @message.expects(:message).with(:assess, message['content'])
     robot.run_step('finalize order')
+  end
+  
+  test "it should send failure message if login fail and terminate" do
+    @context['account']['password'] = 'toto'
+    robot.context = @context
+    
+    @message.expects(:message).times(1)
+    robot.expects(:terminate_on_error).with('Login failed')
+    
+    robot.run_step('login')
   end
   
   private
