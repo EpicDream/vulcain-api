@@ -120,12 +120,16 @@ class Robot
   end
   
   def terminate
+    screenshot
+    page_source
     messager.dispatcher.message(:terminate)
     messager.admin.message(:terminated)
     @driver.quit
   end
   
   def terminate_on_error error_type
+    screenshot
+    page_source
     messager.dispatcher.message(:failure, { status:error_type.to_s, message:MESSAGES[error_type] })
     messager.admin.message(:failure)
     messager.logging.message(:failure, { error_message:MESSAGES[error_type] })
