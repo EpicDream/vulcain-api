@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <title>TEST PAGE</title>
+</head>
+<body>
+  <div class="uneclass">
+    <a href="#link1" class="classa1">Mon premier lien</a><br>
+    <span><a href="#link2" id="ida2">Mon deuxième lien</a></span><br>
+    <a href="#link3"><span id="ida3"><b>Mon troisième lien</b></span></a>
+  </div>
+  <div class="uneclass uneautre"><button id="button1id"><span><b>Mon premier bouton !</b></span></button></div>
+  <form>
+    <label>Label 1 : <input type="text" /></label><br>
+    <label for="id2">Label 2 : </label><input type="text" id="id2" /><br>
+    <span>Label : <input type="text" /></span><br>
+    <label><input type="checkbox" class="class2" />Seulement si présent</label><br>
+    <label>Label 3 : <select id="id3"><option value=""></option></select></label><br>
+    <label for="addFieldArg">Label 4 : </label>
+    <select id="addFieldArg">
+      <option value=""></option>
+      <option value="M">Monsieur</option>
+      <option value="MME">Madame</option>
+      <option value="MLLE">Mademoiselle</option>
+    </select><br>
+    <span id="radiosSpan">
+      Label 5 : 
+      <label><input type="radio" name="addFieldOpt" checked value>aucune</label>
+      <label title="Doit absolument être demandé (couleur, taille, etc)"><input type="radio" name="addFieldOpt" value="mandatory">obligatoire</label>
+      <label title="Peut être choisis par l'utilisateur (quantité, moyen de livraison, etc)."><input type="radio" name="addFieldOpt" value="optionnal">optionnel</label>
+    </span><br>
+    <span id="id">
+      <button class="bouton6">Bouton 6</button>
+      <button id="bouton7">Bouton 7</button>
+    </span>
+  </form>
+
+  <hr>
+  <div id="selects">
+    <h3>Les select !</h3>
+    <select id="genreVal">
+      <option value=""></option>
+      <option value="M">Homme</option>
+      <option value="MME">Femme</option>
+      <option value="MLLE">Jeune fille</option>
+    </select><br>
+
+    <label for="genreText"><span class="classGT">Genre : </span></label>
+    <select id="genreText">
+      <option value=""></option>
+      <option value="10">Monsieur</option>
+      <option value="20">Madame</option>
+      <option value="30">Mademoiselle</option>
+    </select><br>
+  
+    <label>
+      <span class="classDV">Genre : </span>
+      <select id="dateVal">
+        <option value="01">Janvier</option>
+        <option value="02">Février</option>
+        <option value="03">Mars</option>
+        <option value="10">Octobre</option>
+      </select>
+    </label><br>
+
+    <div class="classDT">
+      <select id="dateText">
+        <option value="01">1</option>
+        <option value="02">2</option>
+        <option value="03">3</option>
+        <option value="dix">10</option>
+      </select>
+    </div><br>
+  </div>
+
+  <hr>
+  <p id="un_text1">Ceci est un texte</p>
+  <div>
+    <p id="un_prix1">1€50</p>
+    <p id="un_prix2">Livraison : 10€</p>
+  </div>
+  <div class="div_class1">
+    <button id="button1id">
+      <div class="div_class2">
+        <a href="#linkPrice"></a>
+        <span>1,40€</span>
+      </div>
+    </button>
+  </div>
+
+  <hr>
+  <div id="panierJavascript">
+    Panier Javascript : 
+    <div id="articleJavascript1"><a onclick="javascript:remove();">Article 1</a></div>
+    <div id="articleJavascript2"><a onclick="javascript:remove();">Article 2</a></div>
+    <div id="articleJavascript3"><a onclick="javascript:remove();">Article 3</a></div>
+  </div>
+
+  <hr>
+  <div id="panierHTML">
+    Panier HTML : 
+    <div id="articleHTML1"><a onclick="javascript:remove_from_cart(1);">Article 1</a></div>
+    <div id="articleHTML2"><a onclick="javascript:remove_from_cart(2);">Article 2</a></div>
+    <div id="articleHTML3"><a onclick="javascript:remove_from_cart(3);">Article 3</a></div>
+    <script type="text/javascript">
+    (function() {
+      var query = location.search.substring(1);
+      var params = query.split('&');
+      for ( var i in params ) {
+        params[i] = params[i].split('=');
+        if (params[i][0] == "remove") {
+          var e = document.getElementById("articleHTML"+params[i][1]);
+          e.parentNode.removeChild(e);
+        }
+      }
+    })();
+    function remove_from_cart(i) {
+      window.location.search += "&remove="+i;
+    };
+    </script>
+  </div>
+
+  <hr>
+  <div id="some_similar_link">
+    Pages : 
+    <span id="previousPage" hidden>[<a href="?page=">&lt;&lt;</a>]</span>
+    <span>[<a href="?page=1">1</a>],</span>
+    <span>[<a href="?page=2">2</a>],</span>
+    <span>[<a href="?page=3">3</a>]</span>
+    <span id="nextPage" hidden>[<a href="?page=">&gt;&gt;</a>]</span>
+    <script type="text/javascript">
+    (function() {
+      var query = location.search.substring(1);
+      var params = query.split('&');
+      for ( var i in params ) {
+        params[i] = params[i].split('=');
+        params[params[i][0]] = params[i][1];
+      }
+
+      if (params.page) {
+        var p = parseInt(params.page);
+        if (p > 1) {
+          console.log("> 1");
+          var e = document.getElementById("previousPage");
+          e.hidden = false;
+          e.getElementsByTagName("a")[0]["href"] += p-1;
+        }
+        if (p < 3) {
+          console.log("< 3");
+          var e = document.getElementById("nextPage");
+          e.hidden = false;
+          e.getElementsByTagName("a")[0]["href"] += p+1;
+        }
+
+      }
+    })();
+    </script>
+  </div>
+</body>
+</html>

@@ -355,20 +355,20 @@ var Model = function(host) {
   this.stratHash = function() { return strategiesHash; };
   this.setDefaultTypes = function() {
     this.types = [
-      {id: 'click_on', desc: "Cliquer sur un lien ou un bouton"},
-      {id: 'fill', desc: "Remplir le champ", has_arg: true},
-      {id: 'select_option', desc: "Sélectionner l'option", has_arg: true},
-      {id: 'click_on_radio', desc: "Sélectioner le radio bouton"},
-      {id: 'screenshot', desc: "Prendre une capture d'écran"},
-      {id: 'click_on_links_with_text', desc: "Cliquer sur le texte"},
-      {id: 'click_on_button_with_name', desc: "Cliquer sur le bouton (name)"},
-      {id: 'click_on_if_exists', desc: "Cliquer seulement si présent"},
-      {id: 'open_url', desc: "Ouvrir la page"},
-      {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
-      {id: 'wait_ajax', desc: "Attendre"},
-      {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
-      {id: 'assess', desc: "Demander la confirmation", has_arg: true},
-      {id: 'message', desc: "Envoyer un message", has_arg: true}
+      // {id: 'click_on', desc: "Cliquer sur un lien ou un bouton"},
+      // {id: 'fill', desc: "Remplir le champ", args: true},
+      // {id: 'select_option', desc: "Sélectionner l'option", has_arg: true},
+      // {id: 'click_on_radio', desc: "Sélectioner le radio bouton"},
+      // {id: 'screenshot', desc: "Prendre une capture d'écran"},
+      // {id: 'click_on_links_with_text', desc: "Cliquer sur le texte"},
+      // {id: 'click_on_button_with_name', desc: "Cliquer sur le bouton (name)"},
+      // {id: 'click_on_if_exists', desc: "Cliquer seulement si présent"},
+      // {id: 'open_url', desc: "Ouvrir la page"},
+      // {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
+      // {id: 'wait_ajax', desc: "Attendre"},
+      // {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
+      // {id: 'assess', desc: "Demander la confirmation", has_arg: true},
+      // {id: 'message', desc: "Envoyer un message", has_arg: true}
     ];
 
     this.typesArgs = [
@@ -392,7 +392,7 @@ var Model = function(host) {
     ];
   };
   this.clearCache = function() { this.bdd.clearCache(host); };
-  this.reset = function() { this.strategies = []; strategiesHash = {}; this.types = []; };
+  this.reset = function() { this.strategies = []; strategiesHash = {}; };
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
@@ -542,7 +542,7 @@ var View = function(controller) {
     var fieldset = getStratTab(strategy.id).find(".mapper fieldset");
     var field = {};
     field.id = fieldset.find(".addFieldIdent").val();
-    field_is_edit = fieldset.find(".addFieldIdent").prop("disabled");
+    field.is_edit = fieldset.find(".addFieldIdent").prop("disabled");
     field.desc = fieldset.find(".addFieldDescr").val();
     field.type = fieldset.find(".addFieldKind option:selected").val();
     field.arg = fieldset.find(".addFieldArg option:selected").val();
@@ -800,7 +800,7 @@ var Controller = function() {
     var s = event.data;
     var e = ui.item;
     var fId = e.attr('id');
-    console.log(this.model.moveField(s, fId, e.index()));
+    this.model.moveField(s, fId, e.index());
   };
 
   // ############################
@@ -847,10 +847,10 @@ var Controller = function() {
     field = this.model.editField(field, {xpath: xpath});
     this.view.editField(field);
 
-    var action = "pl_" + field.type + " ";
-    action += field.id + "_xpath ";
+    var action = field.type + " ";
+    action += field.id;
     if (field.arg)
-      action += ", with: " + this.model.getTypeArg(field.arg).value + " ";
+      action += ", " + this.model.getTypeArg(field.arg).value + " ";
     action += "# " + this.path;
     this.view.addAction(field, action);
     // model is updated by onStrategyTextChange() event.
@@ -863,7 +863,7 @@ var Controller = function() {
   this.onTypeChanged = function(event) {
     var strategy = event.data;
     var type = this.view.getSelectedType(strategy);
-    this.view.setSelectedArg(strategy, type != "" && this.model.getType(type).has_arg ? "" : null);
+    this.view.setSelectedArg(strategy, type != "" && this.model.getType(type).args.default_arg ? "" : null);
   }.bind(this);
   this.onClearFieldset = function(event) {
     event.preventDefault();
@@ -875,23 +875,27 @@ var Controller = function() {
     var strategy = event.data;
     var field = this.view.getFieldsetValues(strategy);
 
-    if (field.id == "" || field.desc == "" || field.type == "" || (this.model.getType(field.type).has_arg && field.arg == "")) {
+    if (field.id == "" || field.desc == "" || field.type == "" || (this.model.getType(field.type).args.default_arg && field.arg == "")) {
       alert("Some fields are missing.");
       return;
-    } else if (field.is_edit)
-      this.model.editField(field);
-    else {
+    } else if (field.is_edit) {
+      this.model.editField(field, field);
+      this.view.editField(field);
+    } else {
       var f = this.model.getField(field);
       if (f && ! confirm("Un champs avec l'identifiant "+f.id+" existe déjà ('"+f.desc+"').\nVoulez le remplacer ?"))
         return;
-      else if (f)
-        this.model.editField(field);
-      else
-        this.model.newField(field);
+      else if (f) {
+        this.model.editField(f, field);
+        this.view.editField(field);
+      }
+      else {
+        field = this.model.newField(field);
+        this.view.addField(field);
+      }
     }
 
     this.view.clearFieldset(strategy);
-    this.view.addField(field);
   }.bind(this);
 
   for (var f in this) {
