@@ -17,6 +17,10 @@ class Plugin::IRobot < Robot
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
     {id: 'pl_click_on_while', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {}}
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
     # {id: 'wait_ajax', desc: "Attendre"},
@@ -48,6 +52,7 @@ class Plugin::IRobot < Robot
   def initialize(context, &block)
     super(context, &block)
     @pl_driver = @driver.driver
+    @pl_current_product = {}
   end
 
   def pl_open_url(url)
@@ -188,14 +193,14 @@ class Plugin::IRobot < Robot
     @pl_current_product['product_image_url'] = image_url(xpath)
   end
 
-  def pl_set_product_delivery_price(xpath)
-    @pl_current_product['delivery_text'] = get_text(xpath) if exists? xpath
-    @pl_current_product['price_delivery'] = get_price(product['delivery_text'])
-  end
-
   def pl_set_product_price(xpath)
     @pl_current_product['price_text'] = get_text(xpath)
-    @pl_current_product['price_product'] = get_price(product['price_text'])
+    @pl_current_product['price_product'] = get_price(@pl_current_product['price_text'])
+  end
+
+  def pl_set_product_delivery_price(xpath)
+    @pl_current_product['delivery_text'] = get_text(xpath)
+    @pl_current_product['price_delivery'] = get_price(@pl_current_product['delivery_text'])
   end
 
   # private
@@ -358,10 +363,10 @@ class Plugin::IRobot < Robot
 
     # Return a float if price succed to parse, or raise
     def get_price text
-      price_reg = /(?'free'gratuit|free)|(?'eur'\d+)\s*(EUR|[\.,€])\s*(?'cent'\d\d)/i
+      price_reg = /(?'free'gratuit|free)|(?'eur'\d+)\s*(EUR|[\.,€])\s*(?'cent'\d\d)?|(EUR|€)\s*(?'eur'\d+)([\.,](?'cent'\d\d))?/i
       if text =~ price_reg
         return 0.0 if $~[:free]
-        return $~[:eur].to_f + ($~[:cent].to_f || 0.0) / 100.0
+        return $~[:eur].to_f + $~[:cent].to_f / 100.0
       else
         raise ArgumentError, "Can't get price in #{text.inspect}"
       end

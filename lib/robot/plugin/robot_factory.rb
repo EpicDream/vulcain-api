@@ -86,19 +86,26 @@ class Plugin::RobotFactory
         end
         pl_open_url URL
         run_step('login')
-        message Robot::MESSAGES[:logged], :next_step => 'run2'
+        message Robot::MESSAGES[:logged], :next_step => 'run_empty_cart'
       end
 
-      step('run2') do
+      step('run_empty_cart') do
         run_step('empty_cart')
-        message Robot::MESSAGES[:cart_emptied], :next_step => 'run3'
+        message Robot::MESSAGES[:cart_emptied], :next_step => 'run_fill_cart'
       end
 
-      step('run3') do
+      step('run_fill_cart') do
         order.products_urls.each do |url|
           pl_open_url url
+          @pl_current_product = {}
+          @pl_current_product['url'] = url
           run_step('add_to_cart')
+          products << @pl_current_product
         end
+        message Robot::MESSAGES[:cart_filled], :next_step => 'run_finalize'
+      end
+
+      step('run_finalize')
         pl_open_url URL
         run_step('finalize_order')
         assess next_step:'waitAck'

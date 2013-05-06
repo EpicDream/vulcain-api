@@ -214,13 +214,31 @@ class Plugin::IRobotTest < ActiveSupport::TestCase
     assert_equal 289.90, robot.get_price("289 € 90")
     assert_equal 6.99, robot.get_price("Livraison à partir de 6.99€")
     assert_equal 728.0, robot.get_price("EUR 728,00")
-    assert_equal 20.0, robot.get_price("+ EUR 20,00 (livraison)")
+    assert_equal 20.0, robot.get_price("+ EUR 20 (livraison)")
     assert_equal 6.30, robot.get_price("+ 6,30 € (frais de port)")
     assert_equal 0.0, robot.get_price("LIVRAISON GRATUITE")
     assert_equal 0.0, robot.get_price("Expedition : FREE !")
     assert_raise ArgumentError do
       robot.get_price("Il n'y a pas de prix ici")
     end
+  end
+
+  test "products methods" do
+    robot.pl_set_product_title("//div[@id='productInfos']//p[@id='un_text1']")
+    robot.pl_set_product_image_url("//div[@id='productInfos']//img")
+    robot.pl_set_product_price("//div[@id='productInfos']//p[@id='un_prix1']")
+    robot.pl_set_product_delivery_price("//div[@id='productInfos']//p[@id='un_prix2']")
+    p = robot.instance_variable_get(:@pl_current_product)
+    assert_equal "Ceci est un titre", p['product_title']
+    assert_match /mon_image\.png/i, p['product_image_url']
+    assert_equal "1€50", p['price_text']
+    assert_equal 1.50, p['price_product']
+    assert_equal "Livraison : 10€", p['delivery_text']
+    assert_equal 10.0, p['price_delivery']
+
+    robot.pl_set_product_price("//div[@id='productInfos']//button[@id='button2id']")
+    assert_equal "1,40€", p['price_text']
+    assert_equal 1.40, p['price_product']
   end
 
   test "z driver quit" do
