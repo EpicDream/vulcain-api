@@ -15,3 +15,9 @@ class Object
     end
   end
 end
+
+module Enumerable
+  def map_send(*args)
+    map { |x| x.send(*args) }
+  end
+end
