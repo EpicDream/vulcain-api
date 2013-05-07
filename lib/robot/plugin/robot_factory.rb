@@ -127,7 +127,7 @@ class Plugin::RobotFactory
           f.puts "\t\t\t\t#{field[:id]} = #{field[:xpath].inspect}"
         end
         f.puts
-        f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t")
+        f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t").rstrip
         f.puts "\t\t\tend"
         f.puts
       end
@@ -135,44 +135,5 @@ class Plugin::RobotFactory
       f.puts "\tend"
       f.puts "end"
     end
-  end
-
-  def self.test(create_account=false)
-    Plugin.send(:remove_const, :Priceminister) if Plugin.const_defined?(:Priceminister)
-    make_rb_file("www.priceminister.com")
-    context = { 'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
-                                                "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
-                            'credentials' => {
-                              'holder' => 'TIMMY DUPONT', 
-                              'number' => '101290129019201', 
-                              'exp_month' => 1,
-                              'exp_year' => 2014,
-                              'cvv' => 123}},
-                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0634562345',
-                           'land_phone' => '0134562345',
-                           'first_name' => 'Timmy',
-                           'gender' => 0,
-                           'last_name' => 'Dupont',
-                           'address' => { 'address_1' => '12 rue des lilas',
-                                          'address_2' => '',
-                                          'additionnal_address' => '',
-                                          'zip' => '75019',
-                                          'city' => 'Paris',
-                                          'country' => 'France'}
-              }
-    }
-    if create_account
-      context['account']['new_account'] = true
-      context['account']['login'] = "timmy75%03d" % rand(1000)
-    end
-    load "lib/robot/vendors/priceminister.rb"
-    r = Plugin::Priceminister.new(context).robot
-    r.self_exchanger = r.logging_exchanger = r.exchanger = ""
-    r.exchanger.stubs(:publish).returns("")
-    r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
-    return r
   end
 end
