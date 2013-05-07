@@ -326,16 +326,16 @@ class Plugin::IRobot < Robot
     # Search inside container if not found.
     def links(xpath)
       elems = find(xpath)
-      elems = elems.select { |e| e.tag_name == "a" || e.tag_name == "button" }
+      elems = elems.select { |e| e.link? }
       if elems.empty?
-        elems = find("#{xpath}//a | #{xpath}//button")
+        elems = find("#{xpath}//a | #{xpath}//button | #{xpath}//input[@type='submit']")
       end
       if elems.empty?
         e = find(xpath).first
         # raise "Can't find element for this xpath=#{xpath}." if e.nil?
         return [] if e.nil?
         while e.tag_name != "body"
-          return [e] if e.tag_name == "a" || e.tag_name == "button"
+          return [e] if e.link?
           e = e.parent
         end
         return []

@@ -71,7 +71,7 @@ class Plugin::IRobotTest < ActiveSupport::TestCase
   test "pl_click_on" do
     assert_not_match /\#link1$/, robot.current_url
     assert_raise Plugin::IRobot::NoSuchElementError do
-      robot.pl_click_on("//div[@class='uneclass']")
+      robot.pl_click_on!("//div[@class='uneclass']")
     end
     # Direct a
     robot.pl_click_on("//div[@class='uneclass']//a[@class='classa1']")

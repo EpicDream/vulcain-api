@@ -23,6 +23,10 @@ class Selenium::WebDriver::Element
   def checked?
     !! self["checked"]
   end
+
+  def link?
+    return tag_name == "a" || tag_name == "button" || (tag_name == "input" && self["type"] == "submit")
+  end
 end
 
 class Selenium::WebDriver::Support::Select
