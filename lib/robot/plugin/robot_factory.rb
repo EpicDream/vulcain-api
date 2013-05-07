@@ -105,24 +105,26 @@ class Plugin::RobotFactory
         message Robot::MESSAGES[:cart_filled], :next_step => 'run_finalize'
       end
 
-      step('run_finalize')
+      step('run_finalize') do
         pl_open_url URL
         run_step('finalize_order')
         assess next_step:'waitAck'
       end
 
       step('waitAck') do
-        if response.content == Robot::YES_ANSWER
+        if answers.last.answer == Robot::YES_ANSWER
           run_step('payment')
+        else
+          open_url URL
+          run_step('empty cart', next_step:'terminate')
         end
-        terminate
       end
 
   INIT
       for s in strategies
         f.puts "\t\t\tstep('#{s[:id]}') do"
         for field in s[:fields]
-          f.puts "\t\t\t\t#{field[:id]} = '#{field[:xpath]}'"
+          f.puts "\t\t\t\t#{field[:id]} = #{field[:xpath].inspect}"
         end
         f.puts
         f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t")
@@ -138,11 +140,12 @@ class Plugin::RobotFactory
   def self.test(create_account=false)
     Plugin.send(:remove_const, :Priceminister) if Plugin.const_defined?(:Priceminister)
     make_rb_file("www.priceminister.com")
-    context = { 'account' => {'email' => 'marie_rose_15@yopmail.com', 'login' => "marirose391", 'password' => 'shopelia2013'},
+    context = { 'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html"],
+                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
+                                                "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
                             'credentials' => {
-                              'holder' => 'MARIE ROSE', 
+                              'holder' => 'TIMMY DUPONT', 
                               'number' => '101290129019201', 
                               'exp_month' => 1,
                               'exp_year' => 2014,
@@ -150,9 +153,9 @@ class Plugin::RobotFactory
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
                            'mobile_phone' => '0634562345',
                            'land_phone' => '0134562345',
-                           'first_name' => 'Pierre',
+                           'first_name' => 'Timmy',
                            'gender' => 0,
-                           'last_name' => 'Legrand',
+                           'last_name' => 'Dupont',
                            'address' => { 'address_1' => '12 rue des lilas',
                                           'address_2' => '',
                                           'additionnal_address' => '',
@@ -163,13 +166,13 @@ class Plugin::RobotFactory
     }
     if create_account
       context['account']['new_account'] = true
-      context['account']['login'] = "marirose%03d" % rand(1000)
+      context['account']['login'] = "timmy75%03d" % rand(1000)
     end
     load "lib/robot/vendors/priceminister.rb"
-    s = Plugin::Priceminister.new(context).robot
-    s.self_exchanger = s.logging_exchanger = s.exchanger = ""
-    s.exchanger.stubs(:publish).returns("")
-    s.products << "http://www.priceminister.com/offer/buy/204229912/willpower-will-i-am.html#xtatc=PUB-[PMC]-[H]-[Musique]-[Push]-[2]-[Pdts]-[]"
-    return s
+    r = Plugin::Priceminister.new(context).robot
+    r.self_exchanger = r.logging_exchanger = r.exchanger = ""
+    r.exchanger.stubs(:publish).returns("")
+    r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
+    return r
   end
 end
