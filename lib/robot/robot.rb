@@ -46,6 +46,8 @@ class Robot
     cb_removed:"Credit Card removed",
     cart_filled:"Cart filled",
     login_failed:"Login failed",
+    account_created:"Account created",
+    order_canceled:"Order canceled",
     cart_not_emptied:"Empty cart not emptied",
     no_answer_found:"No answer found in message",
     order_validation_failed:"Order validation failed",
@@ -113,7 +115,7 @@ class Robot
   
   def message message, state={}
     @next_step = state[:next_step]
-    messager.dispatcher.message(:message, {message:message})
+    messager.dispatcher.message(:message, {status:message, message:MESSAGES[message]})
     if @next_step
       messager.vulcain.message(:next_step)
     end

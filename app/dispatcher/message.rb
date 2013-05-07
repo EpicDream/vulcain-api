@@ -63,6 +63,8 @@ module Dispatcher
       request.add_field "Content-type", "application/json"
       request.add_field "Accept", "application/json"
       http.request(request)
+      rescue
+        request url, data
     end
     
   end
