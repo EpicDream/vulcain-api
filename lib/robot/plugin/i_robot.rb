@@ -391,5 +391,6 @@ class Plugin::IRobot < Robot
       while self.next_step?
         self.next_step
       end
+      self
     end
 end

@@ -15,7 +15,7 @@ class Robot
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
-    @driver = Driver.new
+    @driver = Driver.new(context[:options] || {})
     @block = block
     self.context = context
     @next_step = nil
