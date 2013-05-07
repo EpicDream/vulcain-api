@@ -63,7 +63,6 @@ class Plugin::IRobot < Robot
 
   # 
   def method_missing(meth, *args, &block)
-    puts "method missing !"
     return super unless ! (meth.to_s =~ /\!$/) && self.method_exists?(meth.to_s+'!')
     return self.send(meth.to_s+'!', *args, &block) 
   rescue NoSuchElementError
