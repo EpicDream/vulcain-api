@@ -8,9 +8,10 @@ class Driver
   attr_accessor :driver, :wait
   
   def initialize options={}
-    profile = Selenium::WebDriver::Chrome::Profile.new
-    profile.add_extension("vendor/AdBlock_v2.5.63.crx")
-    @driver = Selenium::WebDriver.for :chrome, :switches => ["--user-agent=#{options[:user_agent] || USER_AGENT}"], profile: profile
+    switches = []
+    switches << "--user-agent=#{options[:user_agent] || USER_AGENT}"
+    switches << "--user-data-dir=#{options[:profile_dir]}" if options[:profile_dir]
+    @driver = Selenium::WebDriver.for :chrome, switches: switches
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
     @driver.manage.delete_all_cookies
