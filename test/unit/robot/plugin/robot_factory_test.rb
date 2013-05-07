@@ -9,7 +9,9 @@ class Plugin::RobotFactoryTest < ActiveSupport::TestCase
     Plugin.send(:remove_const, :Priceminister) if Plugin.const_defined?(:Priceminister)
     load "lib/robot/vendors/priceminister.rb"
 
-    context = { 'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
+    context = { options: {#user_agent: "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+                              profile_dir: "config/chromium/Default"},
+                'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
                                                 "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
