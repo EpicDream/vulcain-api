@@ -66,7 +66,7 @@ class Plugin::RobotFactory
       f.puts "# encoding: utf-8"
       f.puts
     f.puts "class Plugin::"+vendor.camelize
-      f.puts "\tURL = 'http://#{host}'"
+      f.puts "\tURL = 'http://#{host.gsub(/_mobile/,"")}'"
       f.puts
       f.puts "\tattr_accessor :context, :robot"
       f.puts "", <<-INIT
@@ -134,6 +134,64 @@ class Plugin::RobotFactory
       f.puts "\t\tend"
       f.puts "\tend"
       f.puts "end"
+    end
+  end
+
+  def self.make_test_file(host)
+    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
+    vendor_camel = vendor.camelize
+    File.open("test/unit/robot/plugin/vendors/"+vendor+"_test.rb", "w") do |f|
+      f.puts <<-INIT
+# encoding: utf-8
+
+class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
+
+  def test(create_account=false)
+    Plugin::RobotFactory.make_rb_file("#{host}")
+    Plugin.send(:remove_const, :#{vendor_camel}) if Plugin.const_defined?(:#{vendor_camel})
+    load "lib/robot/vendors/#{vendor}.rb"
+
+    context = { options: {profile_dir: "config/chromium/Default"},
+                'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
+                                                "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
+                            'credentials' => {
+                              'holder' => 'TIMMY DUPONT',
+                              'number' => '101290129019201',
+                              'exp_month' => 1,
+                              'exp_year' => 2014,
+                              'cvv' => 123}},
+                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                           'mobile_phone' => '0634562345',
+                           'land_phone' => '0134562345',
+                           'first_name' => 'Timmy',
+                           'gender' => 0,
+                           'last_name' => 'Dupont',
+                           'address' => { 'address_1' => '12 rue des lilas',
+                                          'address_2' => '',
+                                          'additionnal_address' => '',
+                                          'zip' => '75019',
+                                          'city' => 'Paris',
+                                          'country' => 'France'}
+              }
+    }
+    if #{host.inspect} =~ /_mobile/
+      context[:options][:user_agent] = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+    end
+    if create_account
+      context['account']['new_account'] = true
+      context['account']['login'] = "timmy75%03d" % rand(1000)
+    end
+
+    r = Plugin::#{vendor_camel}.new(context).robot
+    r.self_exchanger = r.logging_exchanger = r.exchanger = ""
+    r.exchanger.stubs(:publish).returns("")
+    r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
+
+    r.run_all
+end
+INIT
     end
   end
 end
