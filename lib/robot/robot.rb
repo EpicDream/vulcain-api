@@ -51,14 +51,19 @@ class Robot
     cart_not_emptied:"Empty cart not emptied",
     no_answer_found:"No answer found in message",
     order_validation_failed:"Order validation failed",
-    account_creation_failed:"Account creation failed"
+    account_creation_failed:"Account creation failed",
+    driver_failed:"Failed to initialize driver"
   }
 
   attr_accessor :context, :driver, :messager
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
-    @driver = Driver.new
+    begin
+      @driver = Driver.new
+    rescue
+      terminate_on_error :driver_failed
+    end
     @block = block
     self.context = context
     @next_step = nil
@@ -132,6 +137,7 @@ class Robot
     messager.admin.message(:failure)
     messager.logging.message(:failure, { error_message:MESSAGES[error_type] })
     @driver.quit
+    rescue
   end
   
   def new_question question, args
@@ -189,9 +195,14 @@ class Robot
     end
   end
   
-  def click_on_if_exists xpath
+  def click_on_if_exists xpath, move_and_click=false
     element = @driver.find_element(xpath, nowait:true)
-    @driver.click_on(element) if element
+    return if element.nil?
+    if move_and_click
+      @driver.move_to_and_click_on element
+    else  
+      @driver.click_on element
+    end
   end
   
   def click_on_radio value, choices

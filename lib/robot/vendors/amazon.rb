@@ -73,7 +73,7 @@ class Amazon
   LINK_PRICE_ITEMS =    '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[1]'
   LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
   PREMIUM_POPUP = '//*[@id="ap_container"]/div[2]/div[5]/a/span[2]'
-  PREMIUM_POPUP_2 = '//*[@id="primeAutomaticPopoverAdContent"]/table/tbody/tr/td/form/table/tbody/tr[1]/td/table/tbody/tr/td[3]/div/div'
+  PREMIUM_POPUP_DIV = '//*[@id="primeAutomaticPopoverAdContent"]/table/tbody/tr/td/form/table/tbody/tr[1]/td/table/tbody/tr/td[3]/div/div | //*[@id="primeAutomaticPopoverAdContent"]/table[2]/tbody/tr/td/form/table/tbody/tr/td[4]/table/tbody/tr[1]/td/div/span/div'
   
   THANK_YOU_MESSAGE = '//*[@id="thank-you-header"]'
   THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/span'
@@ -312,7 +312,7 @@ class Amazon
         screenshot
         page_source
         click_on_if_exists PREMIUM_POPUP
-        click_on_if_exists PREMIUM_POPUP_2
+        click_on_if_exists PREMIUM_POPUP_DIV, true
         click_on VALIDATE_ORDER
         wait_for([THANK_YOU_MESSAGE])
         if exists?(THANK_YOU_MESSAGE) && exists?(THANK_YOU_SHIPMENT)
