@@ -847,11 +847,13 @@ var Controller = function() {
     field = this.model.editField(field, {xpath: xpath});
     this.view.editField(field);
 
-    var action = field.type + " ";
-    action += field.id;
+    var action = field.type;
+    if (! field.if_present)
+      action += '!';
+    action += " "+field.id;
     if (field.arg)
-      action += ", " + this.model.getTypeArg(field.arg).value + " ";
-    action += "# " + this.path;
+      action += ", " + this.model.getTypeArg(field.arg).value;
+    action += " # " + this.path;
     this.view.addAction(field, action);
     // model is updated by onStrategyTextChange() event.
   };

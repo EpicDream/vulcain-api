@@ -11,7 +11,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_open_url', desc: "Ouvrir la page", args: {current_url: true}},
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
-    {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true}},
+    {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
     {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
@@ -45,7 +45,13 @@ class Plugin::IRobot < Robot
     {id: 'additionnal_address', desc:"Adresse compléments", value:"user.address.additionnal_address"},
     {id: 'zip', desc:"Code Postal", value:"user.address.zip"},
     {id: 'city', desc:"Ville", value:"user.address.city"},
-    {id: 'country', desc:"Pays", value:"user.address.country"}
+    {id: 'country', desc:"Pays", value:"user.address.country"},
+    {id: 'card_type', desc:"Type de carte", value:"/visa/i"},
+    {id: 'holder', desc:"Nom du porteur", value:"order.credentials.holder"},
+    {id: 'card_number', desc:"Numéro de la carte", value:"order.credentials.number"},
+    {id: 'exp_month', desc:"Mois d'expiration", value:"order.credentials.exp_month"},
+    {id: 'exp_year', desc:"Année d'expiration", value:"order.credentials.exp_year"},
+    {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
 
   attr_accessor :pl_driver
@@ -55,29 +61,38 @@ class Plugin::IRobot < Robot
     @pl_current_product = {}
   end
 
+  # 
+  def method_missing(meth, *args, &block)
+    puts "method missing !"
+    return super unless ! (meth.to_s =~ /\!$/) && self.method_exists?(meth.to_s+'!')
+    return self.send(meth.to_s+'!', *args, &block) 
+  rescue NoSuchElementError
+    return nil
+  end
+
   def pl_open_url(url)
     @pl_driver.get(url)
   end
 
   # Click on exact element, nevermid its type.
-  def pl_click_on_exact(xpath)
+  def pl_click_on_exact!(xpath)
     find(xpath).first.click
   end
 
   # Click on link or button. 
   # If element doesn't respond to click, search for a single <button> or <a>.
-  def pl_click_on(xpath)
+  def pl_click_on!(xpath)
     link!(xpath).click
   end
 
   # Click on all links/buttons matching xpath.
   # WARNING : May not work if page reload !
-  def pl_click_on_all(xpath)
+  def pl_click_on_all!(xpath)
     pl_click_on_while(xpath)
   end
   # Click on all links/buttons while some match xpath.
   # WARNING : wait links to disappear when clicked !
-  def pl_click_on_while(xpath)
+  def pl_click_on_while!(xpath)
     i = 0
     while i < 100 && l = links(xpath).last
       l.click
@@ -87,15 +102,15 @@ class Plugin::IRobot < Robot
   end
   # Click on all links/buttons matching xpath.
   # WARNING : May not work if page reload !
-  def pl_click_on_each(xpath)
+  def pl_click_on_each!(xpath)
     links(xpath).each(&:click)
   end
 
   # Fill text input.
   # If xpath isn't an input, search for a label for or a single input child.
-  def pl_fill_text(xpath, value)
+  def pl_fill_text!(xpath, value)
     inputs = inputs(xpath).select { |i| i.tag_name == 'input' }
-    raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect}" if inputs.size != 1
+    raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
     input.send_key(value)
@@ -103,7 +118,7 @@ class Plugin::IRobot < Robot
 
   # Select option.
   # If xpath isn't a select, search for a single select child.
-  def pl_select_option(xpath, value)
+  def pl_select_option!(xpath, value)
     Selenium::WebDriver::Support::Select.new(input!(xpath, 'select')).select!(value) #select = 
     # begin
     #   select.select_by(:value, value)
@@ -115,7 +130,7 @@ class Plugin::IRobot < Robot
   # Click on radio button.
   # If xpath isn't a radio button, search for a single radio button child.
   # If there are many of them, search the one with value == \a value.
-  def pl_click_on_radio(xpath, value=nil)
+  def pl_click_on_radio!(xpath, value=nil)
     elems = inputs(xpath, 'radio')
     if elems.size == 1
       elems.first.click
@@ -129,7 +144,7 @@ class Plugin::IRobot < Robot
   # Tick the checkbox.
   # If xpath isn't a checkbox, search for a single checkbox child.
   # If there are many of them, search the one with value == \a value.
-  def pl_tick_checkbox(xpath, value=nil)
+  def pl_tick_checkbox!(xpath, value=nil)
     elems = inputs(xpath, "checkbox")
     if elems.size == 1
       elems.first.click unless elems.first.checked?
@@ -144,7 +159,7 @@ class Plugin::IRobot < Robot
   # Untick the checkbox.
   # If xpath isn't a checkbox, search for a single checkbox child.
   # If there are many of them, search the one with value == \a value.
-  def pl_untick_checkbox(xpath, value=nil)
+  def pl_untick_checkbox!(xpath, value=nil)
     elems = inputs(xpath, "checkbox")
     if elems.size == 1
       elems.first.click if elems.first.checked?
@@ -185,20 +200,20 @@ class Plugin::IRobot < Robot
     retry
   end
 
-  def pl_set_product_title(xpath)
+  def pl_set_product_title!(xpath)
     @pl_current_product['product_title'] = get_text(xpath)
   end
 
-  def pl_set_product_image_url(xpath)
+  def pl_set_product_image_url!(xpath)
     @pl_current_product['product_image_url'] = image_url(xpath)
   end
 
-  def pl_set_product_price(xpath)
+  def pl_set_product_price!(xpath)
     @pl_current_product['price_text'] = get_text(xpath)
     @pl_current_product['price_product'] = get_price(@pl_current_product['price_text'])
   end
 
-  def pl_set_product_delivery_price(xpath)
+  def pl_set_product_delivery_price!(xpath)
     @pl_current_product['delivery_text'] = get_text(xpath)
     @pl_current_product['price_delivery'] = get_price(@pl_current_product['delivery_text'])
   end
@@ -266,12 +281,12 @@ class Plugin::IRobot < Robot
     def input!(xpath, type=nil)
       elems = inputs(xpath, type)
       return elems.first if elems.size == 1
-      raise NoSuchElementError, "#{elems.size} input found. 1 waited."
+      raise NoSuchElementError, "#{elems.size} input found. 1 waited. (for xpath=#{xpath.inspect})"
     end
     # If more or less than once element match, return nil
     def input(xpath, type=nil)
       return input!(xpath, type)
-    rescue NoSuchElementError
+    rescue NoSuchElementError, "(for xpath=#{xpath.inspect})"
       return nil
     end
 
@@ -332,11 +347,11 @@ class Plugin::IRobot < Robot
     def link!(xpath)
       elems = links(xpath)
       return elems.first if elems.size == 1
-      raise NoSuchElementError, "#{elems.size} link found. 1 waited."
+      raise NoSuchElementError, "#{elems.size} link found. 1 waited. (for xpath=#{xpath.inspect})"
     end
     def  link
       return link(xpath)
-    rescue NoSuchElementError
+    rescue NoSuchElementError, "(for xpath=#{xpath.inspect})"
       nil
     end
 
@@ -357,7 +372,7 @@ class Plugin::IRobot < Robot
 
     def image_url xpath
       i = images(xpath).first
-      raise NoSuchElementError if i.nil?
+      raise NoSuchElementError, "(for xpath=#{xpath.inspect})" if i.nil?
       return i["src"]
     end
 
@@ -372,7 +387,10 @@ class Plugin::IRobot < Robot
       end
     end
 
-    def show_text(xpath)
-      find(xpath).each { |e| puts e.text }
+    def run_all
+      self.run
+      while self.next_step?
+        self.next_step
+      end
     end
 end
