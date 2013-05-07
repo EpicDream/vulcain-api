@@ -70,7 +70,7 @@ class Plugin::StrategiesController < ApplicationController
             ]
           },{
             id: "empty_cart",
-            desc: "Mon panier",
+            desc: "Vider panier",
             value: "",
             fields: [
               {sId: "empty_cart", id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
