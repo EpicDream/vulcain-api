@@ -1,19 +1,8 @@
 # encoding: utf-8
 
 class Plugin::StrategiesController < ApplicationController
-  def types
-    types = Strategy::ACTION_METHODS
-    #   click_on_all: {descr: "Clic sur chaque instance"},
-    #   valide_check: {descr: "Checkbox à cocher"},
-    #   valide_check: {descr: "Checkbox à décocher"},
-    #   click_on_radio: {descr: "Radio bouton à sélectionner"},
-    #   value_to_save: {descr: "Valeur à enregistrer"},
-    #   ask_multiple_choices: {descr: "Quel choix choisir ? (radios ou select)"},
-    #   ask_checkbox: {descr: "Activer l'option ?" (check)}}
-    #   ask_text: {descr: "Quel est la valeur ? (text)"}}
-
-    args = Strategy::USER_INFO
-    render :json => {types: types, typesArgs: args}.to_json
+  def actions
+    render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO}.to_json
   end
 
   def create
@@ -42,59 +31,94 @@ class Plugin::StrategiesController < ApplicationController
 
   private
     def default
-      return {
-        "fields"=>{
-          "account_creation"=>{
-            "shopelia_cat_descr"=>"Inscription",
-            "account"=>{"descr"=>"Mon Compte","option"=>"","action"=>"click_on"},
-            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill","arg"=>"email"},
-            "pseudo"=>{"descr"=>"Pseudo","option"=>"","action"=>"fill","arg"=>"login"},
-            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill","arg"=>"password"},
-            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select_option","arg"=>"gender"},
-            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill","arg"=>"last_name"},
-            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill","arg"=>"first_name"},
-            "jourbirth"=>{"descr"=>"Jour de Naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_day"},
-            "moisbirth"=>{"descr"=>"Mois de naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_month"},
-            "anneeBirth"=>{"descr"=>"Année de naissance","option"=>"","action"=>"select_option","arg"=>"birthdate_year"},
-            "createBtn"=>{"descr"=>"Bouton créer le compte","option"=>"","action"=>"click_on"}},
-          "login"=>{
-            "shopelia_cat_descr"=>"Se Connecter",
-            "account"=>{"descr"=>"Mon Compte","option"=>"","action"=>"click_on"},
-            "email"=>{"descr"=>"E-mail","option"=>"","action"=>"fill","arg"=>"email"},
-            "password"=>{"descr"=>"Mot de passe","option"=>"","action"=>"fill","arg"=>"login"},
-            "continuerBtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"}},
-          "unlog"=>{
-            "shopelia_cat_descr"=>"Déconnexion",
-            "unconnect_btn"=>{"descr"=>"Bouton déconnexion","option"=>"","action"=>"click_on"}},
-          "empty_cart"=>{
-            "shopelia_cat_descr"=>"Mon panier",
-            "mon_panier_btn"=>{"descr"=>"Bouton mon panier","option"=>"","action"=>"click_on"},
-            "empty_btn"=>{"descr"=>"Bouton vider le panier","option"=>"","action"=>"click_on"},
-            "remove_btn"=>{"descr"=>"Bouton supprimer du panier","option"=>"","action"=>"click_on_all"}},
-          "add_to_cart"=>{
-            "shopelia_cat_descr"=>"Ajouter Produit",
-            "add_to_cart_btn"=>{"descr"=>"Bouton ajouter au panier","option"=>"","action"=>"click_on"},
-            "prixlivraison"=>{"descr"=>"Prix de la livraison","option"=>"","action"=>"show_text"},
-            "prix"=>{"descr"=>"Prix","option"=>"","action"=>"show_text"}},
-          "finalize_order"=>{
-            "shopelia_cat_descr"=>"Finalisation",
-            "civilite"=>{"descr"=>"Civilité","option"=>"","action"=>"select_option","arg"=>"gender"},
-            "name"=>{"descr"=>"Nom","option"=>"","action"=>"fill","arg"=>"last_name"},
-            "prenom"=>{"descr"=>"Prénom","option"=>"","action"=>"fill","arg"=>"first_name"},
-            "adresse"=>{"descr"=>"Adresse","option"=>"","action"=>"fill","arg"=>"address_1"},
-            "codepostal"=>{"descr"=>"Code Postal","option"=>"","action"=>"fill","arg"=>"zip"},
-            "ville"=>{"descr"=>"Ville","option"=>"","action"=>"fill","arg"=>"city"},
-            "telephoneFixe"=>{"descr"=>"Télephone fixe","option"=>"","action"=>"fill","arg"=>"land_phone"},
-            "telephoneMobile"=>{"descr"=>"Téléphone mobile","option"=>"","action"=>"fill","arg"=>"mobile_phone"},
-            "coninuerBtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"},
-            "contratbrisvol"=>{"descr"=>"Contrat bris et vol","option"=>"","action"=>"click_on_radio"},
-            "continuerbtn"=>{"descr"=>"Bouton continuer","option"=>"","action"=>"click_on"}},
-          "payment"=>{
-            "shopelia_cat_descr"=>"Payement",
-            "continuerBtn"=>{"descr"=>"Bouton Continuer","option"=>"","action"=>"click_on"}}},
-        "mapping"=>{},
-        "strategies"=>{}
-      }
+      return [
+          {
+            id: "account_creation",
+            desc: "Inscription",
+            value: "",
+            fields: [
+              {sId: "account_creation", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
+              {sId: "account_creation", id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
+              {sId: "account_creation", id: "pseudo_field", desc: "Pseudo", option: "", type: "pl_fill_text","arg"=>"login"},
+              {sId: "account_creation", id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+              {sId: "account_creation", id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
+              {sId: "account_creation", id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
+              {sId: "account_creation", id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
+              {sId: "account_creation", id: "jourbirth_select", desc: "Jour de Naissance", option: "", type: "pl_select_option","arg"=>"birthdate_day"},
+              {sId: "account_creation", id: "moisbirth_select", desc: "Mois de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_month"},
+              {sId: "account_creation", id: "anneeBirth_select", desc: "Année de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_year"},
+              {sId: "account_creation", id: "create_btn", desc: "Bouton créer le compte", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "unlog",
+            desc: "Déconnexion",
+            value: "",
+            fields: [
+                {sId: "unlog", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
+                {sId: "unlog", id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "login",
+            desc: "Se Connecter",
+            value: "",
+            fields: [
+                {sId: "login", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
+                {sId: "login", id: "login_field", desc: "Login", option: "", type: "pl_fill_text","arg"=>"login"},
+                {sId: "login", id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
+                {sId: "login", id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+                {sId: "login", id: "continuerBtn", desc: "Bouton continuer", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "empty_cart",
+            desc: "Vider panier",
+            value: "",
+            fields: [
+              {sId: "empty_cart", id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
+              {sId: "empty_cart", id: "empty_btn", desc: "Bouton vider le panier", option: "", type: "pl_click_on"},
+              {sId: "empty_cart", id: "remove_btn", desc: "Bouton supprimer produit du panier", option: "", type: "pl_click_on_all"}
+            ]
+          },{
+            id: "add_to_cart",
+            desc: "Ajouter Produit",
+            value: "",
+            fields: [
+              {sId: "add_to_cart", id: "set_product_title", desc: "Indiquer le titre de l'article", option: "", type: "pl_set_product_title"},
+              {sId: "add_to_cart", id: "set_product_image_url", desc: "Indiquer l'url de l'image de l'article", option: "", type: "pl_set_product_image_url"},
+              {sId: "add_to_cart", id: "set_product_price", desc: "Indiquer le prix de l'article", option: "", type: "pl_set_product_price"},
+              {sId: "add_to_cart", id: "set_product_delivery_price", desc: "Indiquer le prix de livraison de l'article", option: "", type: "pl_set_product_delivery_price"},
+              {sId: "add_to_cart", id: "add_to_cart_btn", desc: "Bouton ajouter au panier", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "finalize_order",
+            desc: "Finalisation",
+            value: "",
+            fields: [
+              {sId: "finalize_order", id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
+              {sId: "finalize_order", id: "finalize_btn", desc: "Bouton finalisation", option: "", type: "pl_click_on"},
+              {sId: "finalize_order", id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
+              {sId: "finalize_order", id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
+              {sId: "finalize_order", id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
+              {sId: "finalize_order", id: "adresse_field", desc: "Adresse", option: "", type: "pl_fill_text","arg"=>"address_1"},
+              {sId: "finalize_order", id: "codepostal_field", desc: "Code Postal", option: "", type: "pl_fill_text","arg"=>"zip"},
+              {sId: "finalize_order", id: "ville_field", desc: "Ville", option: "", type: "pl_fill_text","arg"=>"city"},
+              {sId: "finalize_order", id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
+              {sId: "finalize_order", id: "telephoneMobile_field", desc: "Téléphone mobile", option: "", type: "pl_fill_text","arg"=>"mobile_phone"},
+              {sId: "finalize_order", id: "continuer_btn", desc: "Bouton continuer", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "payment",
+            desc: "Payement",
+            value: "",
+            fields: [
+              {sId: "payment", id: "creditcard_type", desc: "Type de carte", option: "", type: "pl_click_on_radio"},
+              {sId: "payment", id: "card_number", desc: "Numéro de la carte", option: "", type: "pl_fill_text"},
+              {sId: "payment", id: "cvc", desc: "CVC", option: "", type: "pl_fill_text"},
+              {sId: "payment", id: "expire_month", desc: "Mois d'expiration", option: "", type: "pl_select_option"},
+              {sId: "payment", id: "expire_year", desc: "Année d'expiration", option: "", type: "pl_select_option"},
+              {sId: "payment", id: "continuer_btn", desc: "Bouton Continuer", option: "", type: "pl_click_on"}
+            ]
+          }
+      ]
     end
 
 end
