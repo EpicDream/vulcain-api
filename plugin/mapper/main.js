@@ -157,9 +157,10 @@ var BDD = function() {
   };
 };
 
-var Model = function(host) {
+var Model = function(host, userAgent) {
   var that = this;
   var host = host;
+  var mobility = (userAgent.match(/android|iphone/i) ? "_mobile" : "");
   var strategiesHash = {};
 
   function getStratIdx(sId) { for ( var i = 0 ; i < that.strategies.length ; i++ ) if (that.strategies[i].id == sId) return i; };
@@ -280,7 +281,7 @@ var Model = function(host) {
 
   this.load = function(onLoad) {
     if (! onLoad) throw "'onLoad' must be set."
-    this.bdd.load(host, function(hash) {
+    this.bdd.load(host+mobility, function(hash) {
       this.reset();
       this.strategies = hash;
       setStrategiesToHash();
@@ -292,7 +293,7 @@ var Model = function(host) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
-    this.bdd.save(host, this.strategies, onFail, onDone);
+    this.bdd.save(host+mobility, this.strategies, onFail, onDone);
   };
   this.setDefault = function() {
     this.strategies = [
@@ -706,11 +707,11 @@ var Controller = function() {
   this.view = null;
 
   chrome.extension.onMessage.addListener(function(msg, sender) {
-    if (msg.dest != 'shopelia')
+    if (msg.dest != 'plugin')
       return;
 
-    if (msg.action == "getUrl") {
-      this.model = new Model(msg.host);
+    if (msg.action == "setPageInfos") {
+      this.model = new Model(msg.host, msg.userAgent);
       this.view = new View(this);
       this.host = msg.host;
       this.path = msg.path;
@@ -765,7 +766,7 @@ var Controller = function() {
   };
   this.init = function() {
     window.addEventListener("beforeunload", this.onUnload);
-    chrome.extension.sendMessage({'dest':'contentscript', 'action':'getUrl'});
+    chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
   };
 
   // ############################

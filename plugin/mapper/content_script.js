@@ -52,24 +52,23 @@ function getElementAttrs(e) {
   return data;
 };
 
-function getElementData(e) {
-  var data = {};
-  data.parent = getElementAttrs(e.parentElement);
-  data.siblings = [];
+function getElementContext(e) {
+  var context = {};
+  context.parent = getElementAttrs(e.parentElement);
+  context.siblings = [];
   var children = e.parentElement.children;
   for (var i = 0 ; i < children.length ; i++)
-    data.siblings.push(getElementAttrs(children[i]));
-  data.html = e.outerHTML;
-  return data;
+    context.siblings.push(getElementAttrs(children[i]));
+  context.html = e.outerHTML;
+  return context;
 }
 
 function onBodyClick(event) {
-  var msg = {dest: 'shopelia'};
   if (event.ctrlKey) {
-    msg.action = 'newMap';
+    var msg = {dest: 'plugin', action: 'newMap'};
     msg.xpath = getElementXPath(event.target);
     var e = getGoodElement(event.target, true);
-    msg.data = getElementData(e);
+    msg.context = getElementContext(e);
     chrome.extension.sendMessage(msg);
     event.preventDefault();
   }
@@ -113,11 +112,12 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     highElements(msg.xpath, "#00dd00");
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
-  } else if (msg.action == "getUrl") {
-    msg.action = "getUrl"
+  } else if (msg.action == "getPageInfos") {
+    msg.action = "setPageInfos"
     msg.host = location.host;
     msg.path = location.pathname;
-    msg.dest = 'shopelia';
+    msg.userAgent = navigator.userAgent;
+    msg.dest = 'plugin';
     chrome.extension.sendMessage(msg);
   } else if (msg.action == "start") {
     buildExtension();
