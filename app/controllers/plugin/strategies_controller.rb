@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class Plugin::StrategiesController < ApplicationController
-  def types
+  def actions
     render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO}.to_json
   end
 

@@ -1,6 +1,6 @@
 Vulcain::Application.routes.draw do
   # PLUGIN
-  get "plugin/strategies/types"
+  get "plugin/strategies/actions"
   post "plugin/strategies/create"
   get "plugin/strategies/show"
 

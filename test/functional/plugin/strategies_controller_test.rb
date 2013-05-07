@@ -5,7 +5,7 @@ require 'test_helper'
 class Plugin::StrategiesControllerTest < ActionController::TestCase
 
   test "should get types" do
-    get :types
+    get :actions
     assert_response :success
     resp = nil
     assert_nothing_raised do
@@ -31,7 +31,7 @@ class Plugin::StrategiesControllerTest < ActionController::TestCase
           shopelia_cat_descr: "Inscription",
           value: "click_on account",
           fields: [
-            {id: "account", desc: "Mon Compte", options: "", type: "click_on", xpath: '//li[@id="account"]/a'}
+            {id: "account", desc: "Mon Compte", options: "", action: "click_on", xpath: '//li[@id="account"]/a'}
           ]
         }
       ]
