@@ -73,6 +73,7 @@ class Amazon
   LINK_PRICE_ITEMS =    '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[1]'
   LINK_SHIPPING_PRICE = '//*[@id="cart-gutter"]/div[3]/div[1]/div/div/div[2]/div[3]/div[2]'
   PREMIUM_POPUP = '//*[@id="ap_container"]/div[2]/div[5]/a/span[2]'
+  PREMIUM_POPUP_DIV = '//*[@id="primeAutomaticPopoverAdContent"]/table/tbody/tr/td/form/table/tbody/tr[1]/td/table/tbody/tr/td[3]/div/div | //*[@id="primeAutomaticPopoverAdContent"]/table[2]/tbody/tr/td/form/table/tbody/tr/td[4]/table/tbody/tr[1]/td/div/span/div'
   
   THANK_YOU_MESSAGE = '//*[@id="thank-you-header"]'
   THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/span'
@@ -101,7 +102,7 @@ class Amazon
         wait_for([PAYMENTS_PAGE_HOME_LINK])
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
-        message Robot::MESSAGES[:cb_removed], :next_step => 'empty cart'
+        message :cb_removed, :next_step => 'empty cart'
       end
       
       step('create account') do
@@ -116,6 +117,7 @@ class Amazon
         if exists? ERROR_MESSAGE_ON_CREATE_ACCOUNT
           terminate_on_error(:account_creation_failed)
         else
+          message :account_created
           run_step('logout')
           run_step('login')
         end
@@ -135,7 +137,7 @@ class Amazon
         if exists? LOGIN_ERROR
           terminate_on_error :login_failed
         else
-          message Robot::MESSAGES[:logged], :next_step => 'remove credit card'
+          message :logged, :next_step => 'remove credit card'
         end
       end
       
@@ -145,7 +147,7 @@ class Amazon
         click_on ACCESS_CART
         wait_for([EMPTIED_CART_MESSAGE])
         terminate_on_error(:cart_not_emptied) unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-        message Robot::MESSAGES[:cart_emptied], :next_step => (args && args[:next_step]) || 'add to cart'
+        message :cart_emptied, :next_step => (args && args[:next_step]) || 'add to cart'
       end
       
       step('size option') do
@@ -219,7 +221,7 @@ class Amazon
             run_step('select options')
           end
         else
-          message Robot::MESSAGES[:cart_filled], :next_step => 'finalize order'
+          message :cart_filled, :next_step => 'finalize order'
         end
       end
       
@@ -275,6 +277,10 @@ class Amazon
       step('terminate') do
         terminate
       end
+
+      step('cancel') do
+        terminate_on_error(:order_canceled)
+      end
       
       step('payment') do
         answer = answers.last
@@ -283,7 +289,7 @@ class Amazon
           run_step('submit credit card')
         else
           open_url URL
-          run_step('empty cart', next_step:'terminate')
+          run_step('empty cart', next_step:'cancel')
         end
       end
       
@@ -299,12 +305,14 @@ class Amazon
       end
       
       step('validate order') do
+        wait_ajax
         click_on CONTINUE_TO_PAYMENT
         click_on USE_THIS_ADDRESS
         wait_for([ORDER_SUMMARY])
         screenshot
         page_source
         click_on_if_exists PREMIUM_POPUP
+        click_on_if_exists PREMIUM_POPUP_DIV, true
         click_on VALIDATE_ORDER
         wait_for([THANK_YOU_MESSAGE])
         if exists?(THANK_YOU_MESSAGE) && exists?(THANK_YOU_SHIPMENT)

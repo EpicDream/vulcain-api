@@ -42,8 +42,12 @@ module Dispatcher
       when :shopelia
         request(@session['callback_url'], @message)
       else
-        @message['context']['session']['vulcain_id'] = consumer.id if @message['context']
-        consumer.exchange.publish(@message.to_json, headers: { queue:VULCAIN_QUEUE.(consumer.id) })
+        begin
+          @message['context']['session']['vulcain_id'] = consumer.id if @message['context']
+          consumer.exchange.publish(@message.to_json, headers: { queue:VULCAIN_QUEUE.(consumer.id) })
+        rescue Exception => e
+          puts e.inspect
+        end
       end
     end
     
@@ -63,6 +67,8 @@ module Dispatcher
       request.add_field "Content-type", "application/json"
       request.add_field "Accept", "application/json"
       http.request(request)
+      rescue
+        request url, data
     end
     
   end
