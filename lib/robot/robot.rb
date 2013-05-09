@@ -4,20 +4,6 @@ require "ostruct"
 class Robot
 
   YES_ANSWER = true
-  MESSAGES = {
-    logged:"Logged",
-    cart_emptied:"Cart emptied",
-    cb_removed:"Credit Card removed",
-    cart_filled:"Cart filled",
-    login_failed:"Login failed",
-    account_created:"Account created",
-    order_canceled:"Order canceled",
-    cart_not_emptied:"Empty cart not emptied",
-    no_answer_found:"No answer found in message",
-    order_validation_failed:"Order validation failed",
-    account_creation_failed:"Account creation failed",
-    driver_failed:"Failed to initialize driver"
-  }
 
   attr_accessor :context, :driver, :messager
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
@@ -84,26 +70,26 @@ class Robot
   
   def message message, state={}
     @next_step = state[:next_step]
-    messager.dispatcher.message(:message, {status:message, message:MESSAGES[message]})
+    messager.dispatcher.message(:message, {message:message})
     if @next_step
       messager.vulcain.message(:next_step)
     end
   end
   
   def terminate
-    screenshot
-    page_source
     messager.dispatcher.message(:terminate)
     messager.admin.message(:terminated)
+    screenshot
+    page_source
     @driver.quit
   end
   
   def terminate_on_error error_type
+    messager.dispatcher.message(:failure, {message:error_type})
+    messager.admin.message(:failure)
+    messager.logging.message(:failure, {error_message:error_type})
     screenshot
     page_source
-    messager.dispatcher.message(:failure, { status:error_type.to_s, message:MESSAGES[error_type] })
-    messager.admin.message(:failure)
-    messager.logging.message(:failure, { error_message:MESSAGES[error_type] })
     @driver.quit
     rescue
   end

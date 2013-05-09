@@ -86,12 +86,12 @@ class Plugin::RobotFactory
         end
         pl_open_url URL
         run_step('login')
-        message Robot::MESSAGES[:logged], :next_step => 'run_empty_cart'
+        message :logged, :next_step => 'run_empty_cart'
       end
 
       step('run_empty_cart') do
         run_step('empty_cart')
-        message Robot::MESSAGES[:cart_emptied], :next_step => 'run_fill_cart'
+        message :cart_emptied, :next_step => 'run_fill_cart'
       end
 
       step('run_fill_cart') do
@@ -102,7 +102,7 @@ class Plugin::RobotFactory
           run_step('add_to_cart')
           products << @pl_current_product
         end
-        message Robot::MESSAGES[:cart_filled], :next_step => 'run_finalize'
+        message :cart_filled, :next_step => 'run_finalize'
       end
 
       step('run_finalize') do

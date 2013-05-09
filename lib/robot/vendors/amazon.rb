@@ -90,8 +90,10 @@ class Amazon
 
       step('run') do
         if account.new_account
+          message :expect_8
           run_step('create account') 
         else
+          message :expect_7
           run_step('logout')
           run_step('login')
         end
@@ -258,6 +260,7 @@ class Amazon
         click_on ACCESS_CART
         run_step('checkout invoice')
         click_on_button_with_name ORDER_BUTTON_NAME
+        message :finalizing_order
         
         wait_for(["#{ORDER_PASSWORD} | #{SHIPMENT_FORM_NAME}"])
         
@@ -269,6 +272,7 @@ class Amazon
         unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
           run_step 'fill shipping form'
         end
+        message :shipping_address_filled
         
         click_on SHIPMENT_CONTINUE
         assess
