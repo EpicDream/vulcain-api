@@ -86,12 +86,12 @@ class Plugin::RobotFactory
         end
         pl_open_url URL
         run_step('login')
-        message Robot::MESSAGES[:logged], :next_step => 'run_empty_cart'
+        message :logged, :next_step => 'run_empty_cart'
       end
 
       step('run_empty_cart') do
         run_step('empty_cart')
-        message Robot::MESSAGES[:cart_emptied], :next_step => 'run_fill_cart'
+        message :cart_emptied, :next_step => 'run_fill_cart'
       end
 
       step('run_fill_cart') do
@@ -102,7 +102,7 @@ class Plugin::RobotFactory
           run_step('add_to_cart')
           products << @pl_current_product
         end
-        message Robot::MESSAGES[:cart_filled], :next_step => 'run_finalize'
+        message :cart_filled, :next_step => 'run_finalize'
       end
 
       step('run_finalize') do
@@ -145,6 +145,10 @@ class Plugin::RobotFactory
 # encoding: utf-8
 
 class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
+  setup do
+    @message = stub(message: true)
+    @messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
+  end
 
   def test(create_account=false)
     Plugin::RobotFactory.make_rb_file("#{host}")
@@ -185,8 +189,7 @@ class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
     end
 
     r = Plugin::#{vendor_camel}.new(context).robot
-    r.self_exchanger = r.logging_exchanger = r.exchanger = ""
-    r.exchanger.stubs(:publish).returns("")
+    r.messager = @messager
     r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
 
     r.run_all
