@@ -108,7 +108,6 @@ hu.getElementAttrs = function(e) {
 // getElementAttrs + xpath
 hu.getLabelAttrs = function(e) {
   var l = hu.getInputsLabel(e);
-  console.log("label=", l);
   if (! l) return {};
   return Object({xpath: hu.getElementXPath(l), id: l.getAttribute("id"), class: l.getAttribute("class"), text: l.innerText})
 };

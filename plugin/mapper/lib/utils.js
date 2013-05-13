@@ -6,6 +6,16 @@ Function.prototype.bind = function(scope) {
   };
 };
 
+// Pas réussi a le mettre dans Object.prototype => Plante.
+function dclone(o) {
+  if (o instanceof Array)
+    return jQuery.extend(true, [], o);
+  else if (typeof o == "object")
+    return jQuery.extend(true, {}, o);
+  else
+    return o;
+};
+
 function include(fileName){
   document.write("<script type='text/javascript' src='"+fileName+"'></script>" );
 }

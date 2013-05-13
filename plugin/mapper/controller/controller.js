@@ -29,8 +29,8 @@ var Controller = function() {
       var fId = this.view.getCurrentFieldId();
       if (fId) {
         var field = this.model.getField({sId: sId, id:fId});
-        this.onNewMapping(field, msg.xpath);
-        chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
+        this.onNewMapping(field, msg.context);
+        chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.context.xpath});
       }
     }
   }.bind(this));
@@ -142,8 +142,8 @@ var Controller = function() {
   this.onFieldChanged = function(event) {
     this.view.selectField(event.data);
   };
-  this.onNewMapping = function(field, xpath) {
-    field = this.model.editField(field, {xpath: xpath});
+  this.onNewMapping = function(field, context) {
+    field = this.model.editField(field, {xpath: context.xpath, context: context});
     this.view.editField(field);
 
     var action = field.type;

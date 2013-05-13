@@ -18,6 +18,7 @@ var Field = function(sId, id, args) {
   this.id = id;
   this.desc = args.desc || "";
   this.xpath = or(args.xpath, null);
+  this.context = or(args.context, null);
   this.type = or(args.type, null);
   this.arg = or(args.arg, null);
   this.option = or(args.option, null);
@@ -234,6 +235,7 @@ var Model = function(host, userAgent) {
     var field = strategiesHash[field.sId].fieldsHash[field.id];
     field.desc = or(args.desc, field.desc);
     field.xpath = or(args.xpath, field.xpath);
+    field.context = or(args.context, field.context);
     field.type = or(args.type, field.type);
     field.arg = or(args.arg, field.arg);
     field.option = or(args.option, field.option);
@@ -268,7 +270,10 @@ var Model = function(host, userAgent) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
-    this.bdd.save(host+mobility, this.strategies, onFail, onDone);
+    var s = dclone(this.strategies);
+    for (var i = 0; i < s.length ; i++)
+      delete s[i].fieldsHash;
+    this.bdd.save(host+mobility, s, onFail, onDone);
   };
   this.setDefault = function() {
     this.strategies = [
