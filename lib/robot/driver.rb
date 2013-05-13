@@ -49,7 +49,11 @@ class Driver
   def click_on element
     element.click
   end
-  
+ 
+  def move_to_and_click_on element
+    @driver.action.move_to(element).click.perform
+  end
+ 
   def find_element xpath, options={}
     return driver.find_elements(:xpath => xpath).first if options[:nowait]
     waiting { driver.find_elements(:xpath => xpath).first }
