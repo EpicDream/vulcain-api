@@ -149,14 +149,9 @@ class Robot
     end
   end
   
-  def click_on_if_exists xpath, move_and_click=false
+  def click_on_if_exists xpath
     element = @driver.find_element(xpath, nowait:true)
-    return if element.nil?
-    if move_and_click
-      @driver.move_to_and_click_on element
-    else  
-      @driver.click_on element
-    end
+    @driver.click_on element unless element.nil?
   end
   
   def click_on_radio value, choices
