@@ -96,7 +96,7 @@ hu.mergeFindCommonAncestor = function(old_context, xpath) {
 };
 
 // Return a HashMap h attributes/values.
-// Are present :
+// Are always present :
 // h.tagName, h.id, h.class and h.text.
 hu.getElementAttrs = function(e) {
   var attrs = e.attributes;
@@ -105,22 +105,67 @@ hu.getElementAttrs = function(e) {
     data[attrs[i].name] = attrs[i].value;
   return data;
 };
-
+// getElementAttrs + xpath
+hu.getLabelAttrs = function(e) {
+  var l = hu.getInputsLabel(e);
+  console.log("label=", l);
+  if (! l) return {};
+  return Object({xpath: hu.getElementXPath(l), id: l.getAttribute("id"), class: l.getAttribute("class"), text: l.innerText})
+};
+hu.getFormAttrs = function(e) {
+  var current = e;
+  while (current.tagName.toLowerCase() != "form" && current.tagName.toLowerCase() != "body")
+    current = current.parentNode;
+  if (current.tagName.toLowerCase() != "form") 
+    return {};
+  else
+    return hu.getElementAttrs(current);
+};
 
 // Return a HashMap h.
-// h.completeXPath
 // h.xpath
+// h.completeXPath
 // h.attrs : element's attrs. See hu.getElementAttrs().
 // h.siblings an Array of siblings' attrs. See hu.getElementAttrs().
 // h.parent : parent's attrs. See hu.getElementAttrs().
 // h.html : e.outerHTML;
+// For forms elements :
+// h.label : input's label's attributes + xpath. See hu.getElementAttrs().
+// h.form : input's form's attributes. See hu.getElementAttrs().
 hu.getElementContext = function(e) {
   var context = {};
+  context.xpath = hu.getElementXPath(e);
+  context.completeXPath = hu.getElementCompleteXPath(e);
+  context.attrs = hu.getElementAttrs(e);
   context.parent = hu.getElementAttrs(e.parentElement);
   context.siblings = [];
   var children = e.parentElement.children;
   for (var i = 0 ; i < children.length ; i++)
     context.siblings.push(hu.getElementAttrs(children[i]));
   context.html = e.outerHTML;
+
+  var tagName = e.tagName.toLowerCase();
+  if (tagName == "input" || tagName == "select" || tagName == "textarea") {
+    context.label = hu.getLabelAttrs(e);
+    context.form = hu.getFormAttrs(e);
+  }
   return context;
 }
+
+// For an input/textarea/select e, search the corresponding label :
+// search first with the 'for' attribute if present,
+// search if the label wrap e otherwise.
+hu.getInputsLabel = function(e) {
+  var nodelist = document.getElementsByTagName("label");
+  for (var i = 0 ; i < nodelist.length ; i++) {
+    var l = nodelist[i];
+    if (l.getAttribute("for") && l.getAttribute("for") == e.getAttribute("id"))
+      return l;
+    else if (! l.getAttribute("for")) {
+      var xpathResult = document.evaluate(".//input | .//textarea | .//select", l, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      for ( var i = 0 ; i < xpathResult.length ; i++ )
+        if (xpathResult.snapshotItem(i) == e)
+          return l;
+    }
+  }
+};
