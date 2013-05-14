@@ -23,7 +23,10 @@ hu.getElementCompleteXPath = function(element) {
   var xpath = '';
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var broAndSis = $(element.parentNode).children(element.tagName);
-    if (broAndSis.size() > 1)
+    var id = $(element).attr("id");
+    if (id) {
+      xpath = '/'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
+    } else if (broAndSis.size() > 1)
       xpath = '/'+element.tagName.toLowerCase()+'['+(broAndSis.index(element)+1)+']' + xpath;
     else
       xpath = '/'+element.tagName.toLowerCase() + xpath;
@@ -81,18 +84,6 @@ hu.setXPathUniq = function(xpath, e) {
 
 hu.askIfRandom = function(value) {
   return confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
-};
-
-// Try to merge xpath in old_context's xpath.
-// Return the new xpath if succeed, or xpath if failed.
-hu.mergeXPath = function(old_context, xpath) {
-  // On part 
-};
-hu.mergeDeleteElems = function(old_context, xpath) {
-};
-hu.mergeDeleteAttrs = function(old_context, xpath) {
-};
-hu.mergeFindCommonAncestor = function(old_context, xpath) {
 };
 
 // Return a HashMap h attributes/values.
