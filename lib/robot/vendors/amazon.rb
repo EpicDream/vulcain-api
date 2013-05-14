@@ -23,7 +23,38 @@ class Amazon
   PRODUCT_IMAGE = '//*[@id="previous-image"]'
   REMOVE_PRODUCT_LINK_NAME = 'Supprimer'
   EMPTIED_CART_MESSAGE = '//*[@id="cart-active-items"]/div[2]/h3'
-
+  ORDER_BUTTON_NAME = 'Passer la commande'
+  SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span'
+  SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
+  SHIPMENT_FORM_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
+  SHIPMENT_FORM_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
+  SHIPMENT_FORM_CITY = '//*[@id="enterAddressCity"]'
+  SHIPMENT_FORM_ZIPCODE = '//*[@id="enterAddressPostalCode"]'
+  SHIPMENT_FORM_PHONE = '//*[@id="enterAddressPhoneNumber"]'
+  SHIPMENT_FORM_ADDITIONAL = '//*[@id="GateCode"]'
+  SHIPMENT_FORM_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div[3]/button/span'
+  SHIPMENT_OPTIONS_SUBMIT = '//*[@id="shippingOptionFormId"]/div[2]/span/input'
+  
+  CREDIT_CARD_NUMBER = '//*[@id="addCreditCardNumber"]'
+  CREDIT_CARD_HOLDER = '//*[@id="ccName"]'
+  CREDIT_CARD_CVV = '//*[@id="addCreditCardVerificationNumber"]'
+  CREDIT_CARD_EXP_MONTH = '//*[@id="ccMonth"]'
+  CREDIT_CARD_EXP_YEAR = '//*[@id="ccYear"]'
+  CREDIT_CARD_SUBMIT = '//*[@id="ccAddCard"]'
+  CONTINUE_TO_PAYMENT = '//*[@id="continueButton"]'
+  
+  INVOICE_ADDRESS_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a'
+  VALIDATE_ORDER_SUBMIT = '//*[@id="spc-form"]/div/span[1]/span/input'
+  
+  THANK_YOU_HEADER = '//*[@id="thank-you-header"]'
+  THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/ul/li/div'
+  SHIPPING_DATE_PROMISE = '//*[@id="orders-list"]/div/ul/li/div/div[2]'
+  
+  PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
+  PAYMENTS_PAGE_HOME_LINK = '/html/body/table[1]/tbody/tr/td/b/nobr[1]/a | /html/body/table/tbody/tr/td/b/nobr[1]/a'
+  REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
+  VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -81,6 +112,15 @@ class Amazon
         end
       end
       
+      step('remove credit card') do
+        open_url PAYMENTS_PAGE
+        wait_for([PAYMENTS_PAGE_HOME_LINK])
+        click_on_if_exists REMOVE_CB
+        click_on_if_exists VALIDATE_REMOVE_CB
+        open_url URL
+        message :cb_removed, :timer => 5, :next_step => 'empty cart'
+      end
+      
       step('logout') do
         open_url URL
         wait_ajax
@@ -113,6 +153,7 @@ class Amazon
       end
       
       step('empty cart') do |args|
+        run_step('remove credit card')
         click_on CART_BUTTON
         click_on_links_with_text(REMOVE_PRODUCT_LINK_NAME) { wait_ajax }
         click_on CART_BUTTON
@@ -125,6 +166,73 @@ class Amazon
         end
       end
       
+      step('fill shipping form') do
+        fill SHIPMENT_FORM_NAME, with:"#{user.first_name} #{user.last_name}"
+        fill SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1
+        fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
+        fill SHIPMENT_FORM_ADDITIONAL, with:user.address.additionnal_address
+        fill SHIPMENT_FORM_CITY, with:user.address.city
+        fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
+        fill SHIPMENT_FORM_PHONE, with:(user.mobile_phone || user.land_phone)
+        click_on SHIPMENT_FORM_SUBMIT
+      end
+      
+      step('finalize order') do
+        click_on CART_BUTTON
+        click_on_button_with_name ORDER_BUTTON_NAME
+        wait_for([LOGIN_SUBMIT, SHIPMENT_FORM_NAME])
+        if exists? LOGIN_SUBMIT
+          fill LOGIN_PASSWORD, with:account.password
+          click_on LOGIN_SUBMIT
+        end
+        wait_ajax
+        unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
+          run_step 'fill shipping form'
+        end
+        1.upto(products.count) { click_on SHIPMENT_OPTIONS_SUBMIT }
+        assess
+      end
+      
+      step('submit credit card') do
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on CREDIT_CARD_SUBMIT
+        run_step('validate order')
+      end
+      
+      step('payment') do
+        answer = answers.last
+        action = questions[answers.last.question_id]
+
+        if eval(action)
+          run_step('submit credit card')
+        else
+          open_url URL
+          run_step('empty cart', next_step:'cancel')
+        end
+      end
+      
+      step('validate order') do
+        wait_ajax
+        click_on CONTINUE_TO_PAYMENT
+        wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
+        if exists? INVOICE_ADDRESS_SUBMIT
+          click_on INVOICE_ADDRESS_SUBMIT
+        end
+        screenshot
+        page_source
+        click_on VALIDATE_ORDER_SUBMIT
+        wait_for([THANK_YOU_HEADER])
+        if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
+          shipping_date = get_text SHIPPING_DATE_PROMISE
+          terminate({message:shipping_date)
+        else
+          terminate_on_error(:order_validation_failed)
+        end
+      end
       
     end
   end

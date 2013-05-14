@@ -76,8 +76,8 @@ class Robot
     end
   end
   
-  def terminate
-    messager.dispatcher.message(:terminate)
+  def terminate content=nil
+    messager.dispatcher.message(:terminate, content)
     messager.admin.message(:terminated)
     screenshot
     page_source

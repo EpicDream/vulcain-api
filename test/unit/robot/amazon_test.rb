@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -101,12 +101,31 @@ class AmazonTest < ActiveSupport::TestCase
     assert robot.exists? Amazon::LOGIN_SUBMIT
   end
   
+  test "remove credit card" do
+    @message.expects(:message).times(6)
+    
+    robot.run_step('login')
+    robot.run_step('remove credit card')
+  end
+  
   test "add to cart - build products" do
     @message.expects(:message).times(10)
-    expected_products = [
-      {"price_text"=>"EUR 131,50 + EUR 11,93 livraison", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg", "price_delivery"=>11.93, "price_product"=>131.5, "url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}, 
-      {"price_text"=>"EUR 44,36", "product_title"=>"Poe : Oeuvres en prose (Cuir/luxe)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg", "price_delivery"=>0, "price_product"=>44.36, "url"=>"http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}
-    ]
+    expected_products = [{"price_text"=>"EUR 131,72 + EUR 13,10 livraison",
+      "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir",
+      "product_image_url"=>
+       "http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg",
+      "price_delivery"=>13.1,
+      "price_product"=>131.72,
+      "url"=>
+       "http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"},
+     {"price_text"=>"EUR 44,36",
+      "product_title"=>"Poe : Oeuvres en prose (Cuir/luxe)",
+      "product_image_url"=>
+       "http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg",
+      "price_delivery"=>0,
+      "price_product"=>44.36,
+      "url"=>
+       "http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}]
     
     robot.run_step('login')
     robot.run_step('add to cart')
@@ -115,20 +134,75 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(12)
+    @message.expects(:message).times(14)
     @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
+    @message.expects(:message).with(:message, {message: :cb_removed, timer:5})
 
     robot.run_step('login')
     robot.run_step('add to cart')
     robot.run_step('empty cart')
   end
   
+  test "order with shipment address fill" do
+    @message.expects(:message).times(18)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+    
+    robot.answers = [OpenStruct.new(question_id:'1', answer:true)]
+    assert_equal 'payment', robot.instance_variable_get(:@next_step)
+    steps = robot.instance_variable_get(:@steps)
+    
+    robot.expects(:run_step).with('submit credit card')
+    steps['payment'].call
+    
+    robot.expects(:run_step).with('validate order')
+    steps['submit credit card'].call
+  end
+  
+  test "with REAL PAYMENT MODE" do
+    # @message.expects(:message).times(20)
+    # 
+    # @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
+    #                  'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+    #                  'order' => {'products_urls' => ['http://www.amazon.fr/La-Belle-au-Bois-dormant/dp/2014632677/ref=sr_1_1?ie=UTF8&qid=1368543847&sr=8-1&keywords=la+belle+au+bois+dormant'],
+    #                              'credentials' => {
+    #                                'holder' => 'M ERICE LARCHEVEQUE', 
+    #                                'number' => '4561003435926735', 
+    #                                'exp_month' => 5,
+    #                                'exp_year' => 2013,
+    #                                'cvv' => 400}},
+    #                  'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+    #                             'mobile_phone' => '0959497434',
+    #                             'land_phone' => '0959497434',
+    #                             'first_name' => 'Eric',
+    #                             'gender' => 1,
+    #                             'last_name' => 'Larcheveque',
+    #                             'address' => { 'address_1' => '14 boulevard du Chateau',
+    #                                            'address_2' => '',
+    #                                            'additionnal_address' => '',
+    #                                            'zip' => '92200',
+    #                                            'city' => ' Neuilly sur Seine',
+    #                                            'country' => 'France'}
+    #                            }
+    #                  }
+    # 
+    # robot.context = @context
+    # robot.run_step('login')
+    # robot.run_step('empty cart')
+    # robot.run_step('add to cart')
+    # robot.run_step('finalize order')
+    # 
+    # robot.answers = [OpenStruct.new(question_id:'1', answer:true)]
+    # steps = robot.instance_variable_get(:@steps)
+    # robot.expects(:terminate)
+    # steps['payment'].call
+  end
+  
   test "shipment fill with ask address confirmation" do
     
   end
   
-  test "shipment fill" do
-    
-  end
   
 end
