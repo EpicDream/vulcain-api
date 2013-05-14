@@ -10,6 +10,13 @@ class Amazon
   LOGIN_SUBMIT = '//*[@id="signInSubmit-input"]'
   LOGIN_ERROR = "//*[@id='mobile-message-box-slot']/div[@class='message error']"
   CART_BUTTON = '//*[@id="navbar-icon-cart"]'
+  REGISTER_LINK = '//*[@id="ap_register_url"]/a'
+  REGISTER_NAME = '//*[@id="ap_customer_name"]'
+  REGISTER_EMAIL = '//*[@id="ap_email"]'
+  REGISTER_PASSWORD = '//*[@id="ap_password"]'
+  REGISTER_PASSWORD_CONFIRMATION = '//*[@id="ap_password_check"]'
+  REGISTER_SUBMIT = '//*[@id="continue-input"]'
+  REGISTER_FAILURE = '//*[@id="mobile-message-box-slot"]/div[@class="message error"]'
   
   attr_accessor :context, :robot
   
@@ -23,13 +30,34 @@ class Amazon
 
       step('run') do
         if account.new_account
-          # message :expect_8
-          # run_step('create account') 
+          message :expect, :timer => 8
+          run_step('create account') 
         else
           # message :expect_7
           # run_step('logout')
           # run_step('login')
         end
+      end
+      
+      step('create account') do
+        open_url URL
+        wait_ajax
+        click_on MY_ACCOUNT
+        click_on REGISTER_LINK
+        fill REGISTER_NAME, with:"#{user.first_name} #{user.last_name}"
+        fill REGISTER_EMAIL, with:account.login
+        fill REGISTER_PASSWORD, with:account.password
+        fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
+        click_on REGISTER_SUBMIT
+        wait_for [CART_BUTTON, REGISTER_FAILURE]
+        if exists? REGISTER_FAILURE
+          terminate_on_error(:account_creation_failed)
+        else
+          message :account_created, :timer => 5
+          run_step('logout')
+          run_step('login')
+        end
+        
       end
       
       step('login') do
@@ -39,7 +67,7 @@ class Amazon
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
-        wait_for ["#{CART_BUTTON} | #{LOGIN_ERROR}"]
+        wait_for [CART_BUTTON, LOGIN_ERROR]
         if exists? LOGIN_ERROR
           terminate_on_error :login_failed
         else
@@ -49,6 +77,7 @@ class Amazon
       
       step('logout') do
         open_url URL
+        wait_ajax
         click_on_if_exists LOGOUT_LINK
       end
       

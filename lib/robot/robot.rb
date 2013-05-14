@@ -238,7 +238,8 @@ class Robot
   end
   
   def wait_for xpaths
-    xpaths.each { |xpath| @driver.find_element(xpath) }
+    xpath = xpaths.join("|")
+    @driver.find_element(xpath)
   end
   
   def alert?
