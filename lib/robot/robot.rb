@@ -70,7 +70,7 @@ class Robot
   
   def message message, state={}
     @next_step = state[:next_step]
-    messager.dispatcher.message(:message, {message:message})
+    messager.dispatcher.message(:message, {message:message, timer:state[:timer] || 0})
     if @next_step
       messager.vulcain.message(:next_step)
     end
@@ -143,6 +143,10 @@ class Robot
     rescue
       sleep(0.5)
       retry #wait element clickable
+  end
+  
+  def move_to_and_click_on xpath
+    @driver.move_to_and_click_on @driver.find_element(xpath)
   end
   
   def click_on_links_with_text text, &block
