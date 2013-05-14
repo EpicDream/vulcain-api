@@ -8,14 +8,14 @@ class AmazonTest < ActiveSupport::TestCase
   PRODUCT_URL_2 = 'http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4'
   PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
   PRODUCT_URL_4 = 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'
-  PRODUCT_URL_5 = 'http://www.amazon.fr/Sant%C3%A9-2008comp03-Maquillage-Poudres-Compacte/dp/B001V314NC/ref=pd_sim_sbs_beauty_4'
+  PRODUCT_URL_5 = 'http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75' #avec prix livraison
   
   attr_accessor :robot
   
   setup do
     @context = {'account' => {'login' => 'marie_rose_14@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => [PRODUCT_URL_1, PRODUCT_URL_2],
+                'order' => {'products_urls' => [PRODUCT_URL_5, PRODUCT_URL_2],
                             'credentials' => {
                               'holder' => 'MARIE ROSE', 
                               'number' => '101290129019201', 
@@ -69,7 +69,6 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('create account')
   end
   
-  
   test "login" do
     @message.expects(:message).times(1)
     robot.expects(:message).with(:logged, :next_step => 'empty cart', timer:5)
@@ -100,6 +99,35 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('logout')
     
     assert robot.exists? Amazon::LOGIN_SUBMIT
+  end
+  
+  test "add to cart - build products" do
+    @message.expects(:message).times(10)
+    expected_products = [
+      {"price_text"=>"EUR 131,50 + EUR 11,93 livraison", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg", "price_delivery"=>11.93, "price_product"=>131.5, "url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}, 
+      {"price_text"=>"EUR 44,36", "product_title"=>"Poe : Oeuvres en prose (Cuir/luxe)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg", "price_delivery"=>0, "price_product"=>44.36, "url"=>"http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}
+    ]
+    
+    robot.run_step('login')
+    robot.run_step('add to cart')
+    
+    assert_equal expected_products, robot.products
+  end
+  
+  test "empty cart" do
+    @message.expects(:message).times(12)
+    @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
+
+    robot.run_step('login')
+    robot.run_step('add to cart')
+    robot.run_step('empty cart')
+  end
+  
+  test "shipment fill with ask address confirmation" do
+    
+  end
+  
+  test "shipment fill" do
     
   end
   
