@@ -34,6 +34,8 @@ class Amazon
   SHIPMENT_FORM_ADDITIONAL = '//*[@id="GateCode"]'
   SHIPMENT_FORM_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div[3]/button/span'
   SHIPMENT_OPTIONS_SUBMIT = '//*[@id="shippingOptionFormId"]/div[2]/span/input'
+  SHIPMENT_ADDRESS_CONFIRM_OPTION = '//*[@id="addr-addr_0"]/label/i'
+  SHIPMENT_ADDRESS_CONFIRM_SUBMIT = '//*[@id="AVS"]/div[2]/form/button/span'
   
   CREDIT_CARD_NUMBER = '//*[@id="addCreditCardNumber"]'
   CREDIT_CARD_HOLDER = '//*[@id="ccName"]'
@@ -175,6 +177,12 @@ class Amazon
         fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
         fill SHIPMENT_FORM_PHONE, with:(user.mobile_phone || user.land_phone)
         click_on SHIPMENT_FORM_SUBMIT
+        wait_for [SHIPMENT_OPTIONS_SUBMIT, SHIPMENT_ADDRESS_CONFIRM_SUBMIT]
+        
+        if exists? SHIPMENT_ADDRESS_CONFIRM_SUBMIT
+          click_on SHIPMENT_ADDRESS_CONFIRM_OPTION
+          click_on SHIPMENT_ADDRESS_CONFIRM_SUBMIT
+        end
       end
       
       step('finalize order') do
@@ -228,7 +236,7 @@ class Amazon
         wait_for([THANK_YOU_HEADER])
         if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
           shipping_date = get_text SHIPPING_DATE_PROMISE
-          terminate({message:shipping_date)
+          terminate({ message:shipping_date })
         else
           terminate_on_error(:order_validation_failed)
         end

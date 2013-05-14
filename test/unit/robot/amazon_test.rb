@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -161,6 +161,19 @@ class AmazonTest < ActiveSupport::TestCase
     steps['submit credit card'].call
   end
   
+  test "shipment fill with ask address confirmation" do
+    @message.expects(:message).times(15..20)
+    
+    @context['user']['address']['zip'] = "75002"
+    robot.context = @context
+    
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+  end
+  
+  
   test "with REAL PAYMENT MODE" do
     # @message.expects(:message).times(20)
     # 
@@ -200,9 +213,6 @@ class AmazonTest < ActiveSupport::TestCase
     # steps['payment'].call
   end
   
-  test "shipment fill with ask address confirmation" do
-    
-  end
   
   
 end
