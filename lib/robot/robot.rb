@@ -70,7 +70,8 @@ class Robot
   
   def message message, state={}
     @next_step = state[:next_step]
-    messager.dispatcher.message(:message, {message:message, timer:state[:timer] || 0})
+    message = {message:message, timer:state[:timer], steps:state[:steps]}.delete_if {|k,v| v.nil?}
+    messager.dispatcher.message(:message, message)
     if @next_step
       messager.vulcain.message(:next_step)
     end

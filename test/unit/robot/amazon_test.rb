@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -102,7 +102,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "remove credit card" do
-    @message.expects(:message).times(6)
+    @message.expects(:message).times(4)
     
     robot.run_step('login')
     robot.run_step('remove credit card')
@@ -136,7 +136,6 @@ class AmazonTest < ActiveSupport::TestCase
   test "empty cart" do
     @message.expects(:message).times(14)
     @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
-    @message.expects(:message).with(:message, {message: :cb_removed, timer:5})
 
     robot.run_step('login')
     robot.run_step('add to cart')

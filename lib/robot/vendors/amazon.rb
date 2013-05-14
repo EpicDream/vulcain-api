@@ -120,7 +120,6 @@ class Amazon
         click_on_if_exists REMOVE_CB
         click_on_if_exists VALIDATE_REMOVE_CB
         open_url URL
-        message :cb_removed, :timer => 5, :next_step => 'empty cart'
       end
       
       step('logout') do
