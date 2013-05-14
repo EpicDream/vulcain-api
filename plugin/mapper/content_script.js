@@ -71,5 +71,15 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     buildExtension();
   } else if (msg.action == "stop") {
     removeExtension();
+  } else if (msg.action == "merge") {
+    var xpath = xu.merge(msg.old_context, msg.new_context);
+    if (! xpath)
+      return;
+    msg.dest = 'plugin';
+    msg.action = 'newMap';
+    msg.merged = true;
+    msg.context = msg.new_context;
+    msg.context.xpath = xpath;
+    chrome.extension.sendMessage(msg);
   }
 });

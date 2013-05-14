@@ -29,8 +29,7 @@ var Controller = function() {
       var fId = this.view.getCurrentFieldId();
       if (fId) {
         var field = this.model.getField({sId: sId, id:fId});
-        this.onNewMapping(field, msg.context);
-        chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.context.xpath});
+        this.onNewMapping(field, msg.context, msg.merged);
       }
     }
   }.bind(this));
@@ -142,7 +141,12 @@ var Controller = function() {
   this.onFieldChanged = function(event) {
     this.view.selectField(event.data);
   };
-  this.onNewMapping = function(field, context) {
+  this.onNewMapping = function(field, context, merged) {
+    if (field.context && ! merged) {
+      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':field.context, 'new_context':context});
+      return;
+    }
+
     field = this.model.editField(field, {context: context});
     this.view.editField(field);
 
@@ -155,6 +159,7 @@ var Controller = function() {
     action += " # " + this.path;
     this.view.addAction(field, action);
     // model is updated by onStrategyTextChange() event.
+    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
 
   // ############################
