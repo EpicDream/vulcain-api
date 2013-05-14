@@ -162,9 +162,79 @@ hu.getInputsLabel = function(e) {
       return l;
     else if (! l.getAttribute("for")) {
       var xpathResult = document.evaluate(".//input | .//textarea | .//select", l, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-      for ( var i = 0 ; i < xpathResult.length ; i++ )
+      for ( var i = 0 ; i < xpathResult.snapshotLength ; i++ )
         if (xpathResult.snapshotItem(i) == e)
           return l;
     }
   }
+};
+
+// Return all know types found for e.
+hu.knowTypes = function(e) {
+  var types = [];
+  types = types.concat(hu.inputs(e));
+  types = types.concat(hu.links(e));
+  types = types.concat(hu.labels(e));
+  return types;
+};
+// e an input, a select or a textarea,
+// or e include some inputs, selects, textarea.
+hu.inputs = function(e) {
+  var res = [];
+  var tag = e.tagName.toLowerCase();
+  if (tag == "select" || tag == "textarea" || (tag == "input" && ! (/submit/i).test(e.getAttribute("type"))))
+    res.push(e);
+
+  // Look for inputs inside e.
+  var xpathresult = document.evaluate(".//input | .//textarea | .//select", e, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  for (var i = 0 ; i < xpathresult.snapshotLength ; i++) {
+    var input = xpathresult.snapshotItem(i);
+    if (input.tagName.toLowerCase() != "input" || ! (/submit/i).test(input.getAttribute("type")))
+      res.push(input);
+  }
+  return res;
+};
+// e a a element, a button or a submit input,
+// or e include a elements or buttons,
+// or e inside a a element or a button.
+hu.links = function(e) {
+  var res = [];
+  var current = e;
+  var tag = current.tagName.toLowerCase();
+  // Look e + e's ancestors tagName
+  while (tag != "a" && tag != "button" && (tag != "input" || ! (/submit/i).test(e.getAttribute("type"))) && tag != "body") {
+    current = current.parentNode;
+    tag = current.tagName.toLowerCase();
+  }
+  if (tag == "a" || tag == "button" || (tag == "input" && (/submit/i).test(e.getAttribute("type"))))
+    res.push(current);
+
+  // Look for links inside e.
+  var xpathresult = document.evaluate(".//a | .//button | .//input[@type='submit']", e, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  for (var i = 0 ; i < xpathresult.snapshotLength ; i++)
+    res.push(xpathresult.snapshotItem(i));
+
+  return res;
+};
+// e a label, or e contains labels,
+// or e is inside a label.
+hu.labels = function(e) {
+  var res = [];
+  var current = e;
+  var tag = current.tagName.toLowerCase();
+  // Look e + e's ancestors tagName
+  while (tag != "label" && tag != "body") {
+    current = current.parentNode;
+    tag = current.tagName.toLowerCase();
+  }
+  if (tag == "label")
+    res.push(current);
+
+  // Look for labels inside e.
+  var xpathresult = document.evaluate(".//label", e, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  for (var i = 0 ; i < xpathresult.snapshotLength ; i++)
+    res.push(xpathresult.snapshotItem(i));
+  
+  return res;
+
 };

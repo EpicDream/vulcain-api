@@ -109,13 +109,13 @@ var Controller = function() {
   this.onShowField = function(event) {
     var field = event.data;
     field = this.model.getField(field);
-    chrome.extension.sendMessage({'dest':'contentscript','action': 'show', 'xpath': field.xpath});
+    chrome.extension.sendMessage({'dest':'contentscript','action': 'show', 'xpath': field.context.xpath});
   };
   this.onSetField = function(event) {
     var field = event.data;
     var xpath = prompt("Entrez le xpath : ");
     if (xpath) {
-      field = this.model.editField(field, {xpath: xpath});
+      field = this.model.editField(field, {context: {xpath: xpath}});
       this.view.editField(field);
     }
   };
@@ -127,8 +127,8 @@ var Controller = function() {
   this.onResetField = function(event) {
     var field = event.data;
     field = this.model.getField(field);
-    var xpath = field.xpath;
-    field = this.model.editField(field, {xpath: null});
+    var xpath = field.context.xpath;
+    field = this.model.editField(field, {context: null});
     this.view.editField(field);
     chrome.extension.sendMessage({'dest':'contentscript','action':'reset', 'xpath':xpath});
   };
@@ -143,7 +143,7 @@ var Controller = function() {
     this.view.selectField(event.data);
   };
   this.onNewMapping = function(field, context) {
-    field = this.model.editField(field, {xpath: context.xpath, context: context});
+    field = this.model.editField(field, {context: context});
     this.view.editField(field);
 
     var action = field.type;

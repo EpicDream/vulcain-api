@@ -186,8 +186,8 @@ var View = function(controller) {
     var f = getFieldElem(field);
     if (field.desc)
       f.find(".label").text(field.desc);
-    if (field.xpath) {
-      f.find(".show").attr("title",field.id+"="+field.xpath).tooltip();
+    if (field.context && field.context.xpath) {
+      f.find(".show").attr("title",field.id+"="+field.context.xpath).tooltip();
       f.addClass("good");
     } else if (f.hasClass('good')) {
       f.find((".show")).tooltip("destroy");

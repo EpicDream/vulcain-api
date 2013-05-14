@@ -17,7 +17,6 @@ var Field = function(sId, id, args) {
   this.sId = sId;
   this.id = id;
   this.desc = args.desc || "";
-  this.xpath = or(args.xpath, null);
   this.context = or(args.context, null);
   this.type = or(args.type, null);
   this.arg = or(args.arg, null);
@@ -36,7 +35,7 @@ var BDD = function() {
     var d = new $.Deferred();
     $.ajax({
       type : "GET",
-      url: pluginUrl+"/strategies/types",
+      url: pluginUrl+"/strategies/actions",
       dataType: "json"
     }).done(function(hash) {
       if (window.localStorage)
@@ -234,7 +233,6 @@ var Model = function(host, userAgent) {
   this.editField = function(field, args) {
     var field = strategiesHash[field.sId].fieldsHash[field.id];
     field.desc = or(args.desc, field.desc);
-    field.xpath = or(args.xpath, field.xpath);
     field.context = or(args.context, field.context);
     field.type = or(args.type, field.type);
     field.arg = or(args.arg, field.arg);

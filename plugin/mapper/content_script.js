@@ -9,12 +9,16 @@ function highElements(xpath, color) {
 
 function onBodyClick(event) {
   if (event.ctrlKey) {
+    event.preventDefault();
+    var e = event.target;
+    if (hu.knowTypes(e).length == 0) {
+      console.log(e);
+      if (! confirm("Aucun élement (input/lien/bouton/etc) trouvé : continuer quand même ?"))
+        return;
+    }
     var msg = {dest: 'plugin', action: 'newMap'};
-    msg.xpath = hu.getElementXPath(event.target);
-    var e = hu.getSameTextAncestor(event.target, true);
     msg.context = hu.getElementContext(e);
     chrome.extension.sendMessage(msg);
-    event.preventDefault();
   }
 };
 
