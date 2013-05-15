@@ -5,20 +5,31 @@ module Dispatcher
     def self.start
       pool = nil
       supervisor = nil
+      queues = nil
       
       AMQP.start(configuration) do |connection|
         channel = AMQP::Channel.new(connection)
         channel.on_error(&channel_error_handler)
-        exchange = channel.headers("amq.headers", :durable => true)
+        exchange = channel.headers("amqp.headers")
         pool = Pool.new
         supervisor = Supervisor.new(pool)
-                    
-        Signal.trap("INT") do
-          pool.dump
-          connection.close { EventMachine.stop { exit }}
+        
+        queues = [VULCAINS_QUEUE, LOGGING_QUEUE, ADMIN_QUEUE, RUN_API_QUEUE, ANSWER_API_QUEUE].inject({}) do |h, name|
+          queue = channel.queue.bind(exchange, arguments:{'x-match' => 'all', queue:name})
+          h.merge!({name => queue})
         end
         
-        yield channel, exchange, pool
+        Signal.trap("INT") do
+          pool.dump
+          queues.each do |name, queue|
+            queue.unbind(exchange, arguments:{'x-match' => 'all', queue:name})
+          end
+          EventMachine.add_timer(1.0) do
+            connection.close { EventMachine.stop { exit }}
+          end
+        end
+        
+        yield queues, pool
       end
       
     rescue => e

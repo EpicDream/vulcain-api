@@ -1,11 +1,18 @@
 module Dispatcher
   class Message
-    MESSAGES = { no_idle:'no_idle', order_timeout:'order_timeout', dispatcher_crash:'dispatcher_crash'}
+    MESSAGES = { 
+      no_idle:'no_idle', 
+      order_timeout:'order_timeout', 
+      dispatcher_crash:'dispatcher_crash',
+      no_dispatcher_running: 'no_dispatcher_running'
+    }
+    
     MESSAGES_VERBS = { 
        failure: 'failure',
        ping:'ping', 
        reload:'reload',
     }
+    
     ADMIN_MESSAGES_STATUSES = {
       started:'started', 
       reloaded:'reloaded', 
@@ -30,6 +37,8 @@ module Dispatcher
         @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :order_timeout, message:MESSAGES[:order_timeout] }}
       when :dispatcher_crash
         @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :dispatcher_crash, message:MESSAGES[:dispatcher_crash] }}
+      when :no_dispatcher_running
+        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :no_dispatcher_running, message:MESSAGES[:no_dispatcher_running] }}
       end
     end
     

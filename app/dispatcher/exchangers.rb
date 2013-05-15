@@ -11,7 +11,7 @@ module Dispatcher
       connection = AMQP::Session.connect configuration
       channel = AMQP::Channel.new(connection)
       channel.on_error(&channel_error_handler)
-      channel.headers("amq.headers", :durable => true)
+      channel.headers("amqp.headers")
     end
     
     private
@@ -33,11 +33,21 @@ module Dispatcher
     
     def self.request message
       AMQP.start(configuration) do |connection|
-        exchange = AMQP::Channel.new(connection).headers("amq.headers", :durable => true)
+        channel = AMQP::Channel.new(connection)
+        exchange = channel.headers("amqp.headers")
         msg = JSON.parse(message)
         queue = "Dispatcher::#{msg['verb'].upcase}_API_QUEUE".constantize
-        exchange.publish message, :headers => {:queue => queue}
-        EM.add_timer(1) { connection.close { EventMachine.stop }}
+        
+        exchange.on_return do |basic_return, metadata, payload|
+          session = msg['context']['session']
+          Message.new(:no_dispatcher_running).for(session).to(:shopelia)
+        end
+        
+        EventMachine.add_timer(0.3) {
+          exchange.publish(message, :headers => {:queue => queue}, :mandatory => true) {
+            connection.close { EventMachine.stop }
+          }
+        }
       end
     end
     

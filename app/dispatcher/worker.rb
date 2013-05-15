@@ -3,12 +3,10 @@ module Dispatcher
   class Worker
     
     def start
-      Dispatcher::AmqpRunner.start do |channel, exchange, pool|
-        @channel  = channel
-        @exchange = exchange
+      Dispatcher::AmqpRunner.start do |queues, pool|
         @pool     = pool
         
-        with_queue(RUN_API_QUEUE) do |message, session|
+        with_queue(queues[RUN_API_QUEUE]) do |message, session|
           vulcain = @pool.pull(session)
           unless vulcain
             Message.new(:no_idle).for(session).to(:shopelia)
@@ -17,12 +15,12 @@ module Dispatcher
           end
         end
         
-        with_queue(ANSWER_API_QUEUE) do |message, session|
+        with_queue(queues[ANSWER_API_QUEUE]) do |message, session|
           vulcain = @pool.fetch(session)
           Message.new.forward(message).to(vulcain)
         end
         
-        with_queue(ADMIN_QUEUE) do |message, session|
+        with_queue(queues[ADMIN_QUEUE]) do |message, session|
           vulcain_id = session['vulcain_id']
           case message['status']
           when Message::ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
@@ -34,11 +32,12 @@ module Dispatcher
           end
         end
         
-        with_queue(VULCAINS_QUEUE) do |message, session|
+        with_queue(queues[VULCAINS_QUEUE]) do |message, session|
           Message.new.forward(message).to(:shopelia)
         end
 
-        with_queue(LOGGING_QUEUE)
+        with_queue(queues[LOGGING_QUEUE])
+        
         
         @pool.restore
       end
@@ -47,7 +46,7 @@ module Dispatcher
     private
     
     def with_queue queue
-      @channel.queue.bind(@exchange, arguments:{'x-match' => 'all', queue:queue}).subscribe do |metadata, message|
+      queue.subscribe do |metadata, message|
         message = JSON.parse(message)
         session = (message['context']['session'] if message['context']) || message['session']
         Log.create(message)
