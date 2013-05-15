@@ -3,6 +3,32 @@
 require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
+  CONTEXT = { options: {profile_dir: "config/chromium/Default"},
+              'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
+              'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
+                                              "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
+                          'credentials' => {
+                            'holder' => 'TIMMY DUPONT',
+                            'number' => '101290129019201',
+                            'exp_month' => 1,
+                            'exp_year' => 2014,
+                            'cvv' => 123}},
+              'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                         'mobile_phone' => '0634562345',
+                         'land_phone' => '0134562345',
+                         'first_name' => 'Timmy',
+                         'gender' => 0,
+                         'last_name' => 'Dupont',
+                         'address' => { 'address_1' => '12 rue des lilas',
+                                        'address_2' => '',
+                                        'additionnal_address' => '',
+                                        'zip' => '75019',
+                                        'city' => 'Paris',
+                                        'country' => 'France'}
+            }
+  }
+
   def self.getStrategyHash(host)
     filename = Rails.root+"db/plugin/"+(host+".yml")
     if File.file?(filename)
@@ -10,53 +36,6 @@ class Plugin::RobotFactory
     else
       raise ArgumentError, "Cannot find any strategy for host '#{host}'."
     end
-  end
-
-  # def self.make(context, mapping, strategies)
-  #   steps = replaceXpaths(mapping, strategies)
-  #   s = PluginRobot.new(context) {}
-
-  #   s.step('run') do
-  #     if account.new_account
-  #       pl_open_url URL
-  #       run_step('account_creation')
-  #       run_step('unlog')
-  #     end
-  #     pl_open_url URL
-  #     run_step('login')
-  #     run_step('empty_cart')
-  #     order.products_urls.each do |url|
-  #       pl_open_url url
-  #       run_step('add_to_cart')
-  #     end
-  #     run_step('finalize_order')
-  #     assess next_step:'waitAck'
-  #   end
-  #   s.step('waitAck') do
-  #     if response.content == Robot::YES_ANSWER
-  #       run_step('payment')
-  #     end
-  #     terminate
-  #   end
-
-  #   for name, actions in steps
-  #     block = eval "Proc.new do #{actions} end"
-  #     s.step(name,&block)
-  #   end
-
-  #   return OpenStruct.new context: context, strategy: s
-  # end
-
-  def self.replaceXpaths(strategies)
-    steps = {}
-    for s in strategies
-      steps[s[:id]] = s.value
-      for field in s.fields
-        next if field.xpath.nil?
-        steps[s[:id]].gsub!(/ #{field[:id]}/, " #{field[:xpath]}")
-      end
-    end
-    return steps
   end
 
   def self.make_rb_file(host)
@@ -195,6 +174,57 @@ class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
     r.run_all
 end
 INIT
+    end
+  end
+
+  def self.test_strategy(host, strategy)
+    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
+    vendor_camel = vendor.camelize
+    
+    robot = Plugin::IRobot.new(CONTEXT) {}
+
+    for step in strategies
+      begin
+        # Get new context
+        step_binding = robot.pl_binding
+        # Create local variables for xpathes, etc
+        begin
+          fields = step[:fields].map do |field|
+            step_binding.eval "#{field[:id]} = #{field[:xpath].inspect}" 
+          end
+        rescue => err
+          return {step: step[:id], msg: err.message}
+        end
+        # Split and format actions
+        begin
+          actions = step[:value].split("\n").map(&:trim)
+          puts "\nactions =", actions, "\n"
+          create_account_action = actions.pop if step[:id] == "account_creation" # Don't finish the creation
+        rescue => err
+          return {step: step[:id], msg: err.message}
+        end
+        # Eval actions
+        for a in actions
+          begin
+            step_binding.eval a
+          rescue => err
+            return {step: step[:id], action: a, line: actions.index(a), msg: err.message}
+          end
+        end
+        # Test if final button is findable for account_creation
+        if step[:id] == "account_creation"
+          begin
+            command, var = create_account_action.split(' ')
+            xpath = step_binding.eval var
+            step_binding.eval "link!(#{var})" # raise if not found
+          rescue => err
+            return {step: step[:id], action: create_account_action, line: actions.size, msg: err.message}
+          end
+        end
+        return {}
+      rescue => err
+        return {step: step[:id], msg: err.message}
+      end
     end
   end
 end

@@ -217,6 +217,10 @@ class Plugin::IRobot < Robot
     @pl_current_product['price_delivery'] = get_price(@pl_current_product['delivery_text'])
   end
 
+  def pl_binding
+    return binding
+  end
+
   # private
     # Return element matching xpath
     def find(xpath)

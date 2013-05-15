@@ -29,6 +29,12 @@ class Plugin::StrategiesController < ApplicationController
     end
   end
 
+  def test
+    strategy = params["data"]
+    err = Plugin::RobotFactory.test_strategy(strategy)
+    render :json => err.to_json
+  end
+
   private
     def default
       return [
