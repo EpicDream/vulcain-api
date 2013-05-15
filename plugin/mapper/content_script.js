@@ -8,7 +8,8 @@ function highElements(xpath, color) {
 }
 
 function onBodyClick(event) {
-  if (event.ctrlKey) {
+  // Si on est sur mac on regarde la metaKey (==pomme) sinon la ctrlKey
+  if (navigator.platform.match(/mac/i) ? event.metaKey : event.ctrlKey) {
     event.preventDefault();
     var e = event.target;
     if (hu.knowTypes(e).length == 0) {
