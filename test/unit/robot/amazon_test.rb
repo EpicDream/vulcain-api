@@ -110,12 +110,12 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "add to cart - build products" do
     @message.expects(:message).times(10)
-    expected_products = [{"price_text"=>"EUR 131,72 + EUR 13,10 livraison",
+    expected_products = [{"price_text"=>"EUR 131,50 + EUR 11,93 livraison",
       "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir",
       "product_image_url"=>
        "http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg",
-      "price_delivery"=>13.1,
-      "price_product"=>131.72,
+      "price_delivery"=>11.93,
+      "price_product"=>131.5,
       "url"=>
        "http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"},
      {"price_text"=>"EUR 44,36",
@@ -134,7 +134,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(14)
+    @message.expects(:message).times(13)
     @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
 
     robot.run_step('login')
@@ -143,7 +143,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "order with shipment address fill" do
-    @message.expects(:message).times(18)
+    @message.expects(:message).times(16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

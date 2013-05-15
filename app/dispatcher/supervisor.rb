@@ -22,5 +22,13 @@ module Dispatcher
       end
     end
     
+    def handle_dispatcher_crash
+      @pool.pool.select { |vulcain| !vulcain.idle }.each do |vulcain|
+        session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
+        Message.new(:dispatcher_crash).for(session).to(:shopelia)
+      end
+      @pool.dump
+    end
+    
   end
 end

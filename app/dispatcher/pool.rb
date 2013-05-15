@@ -57,6 +57,7 @@ module Dispatcher
     def idle id
       vulcain = vulcain_with_id(id)
       vulcain.idle = true
+      vulcain.callback_url = nil
       vulcain.run_since = nil
       vulcain.uuid = nil
     end
@@ -103,6 +104,7 @@ module Dispatcher
         @pool.each do |vulcain| 
           Dispatcher.output(:ping, vulcain:vulcain)
           ping(vulcain)
+          reload(vulcain)
         end
       }
       
@@ -112,6 +114,11 @@ module Dispatcher
         Log.create({:pool_after_ping => @pool.map(&:id)})
         Dispatcher.output(:running, pool_size:@pool.size)
       }
+    end
+    
+    def reload vulcain
+      load_robots_on_vulcain(vulcain)
+      idle(vulcain.id)
     end
   
     private

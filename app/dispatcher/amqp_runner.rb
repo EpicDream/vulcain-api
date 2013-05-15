@@ -3,25 +3,27 @@ module Dispatcher
   class AmqpRunner
     
     def self.start
+      pool = nil
+      supervisor = nil
+      
       AMQP.start(configuration) do |connection|
-        begin
-          channel = AMQP::Channel.new(connection)
-          channel.on_error(&channel_error_handler)
-          exchange = channel.headers("amq.headers", :durable => true)
-          pool = Pool.new
-          supervisor = Supervisor.new(pool)
-                      
-          Signal.trap("INT") do
-            pool.dump
-            connection.close { EventMachine.stop { exit }}
-          end
-          
-          yield channel, exchange, pool
-          
-        rescue => e
+        channel = AMQP::Channel.new(connection)
+        channel.on_error(&channel_error_handler)
+        exchange = channel.headers("amq.headers", :durable => true)
+        pool = Pool.new
+        supervisor = Supervisor.new(pool)
+                    
+        Signal.trap("INT") do
           pool.dump
+          connection.close { EventMachine.stop { exit }}
         end
+        
+        yield channel, exchange, pool
       end
+      
+    rescue => e
+      supervisor.handle_dispatcher_crash
+      Log.create({ dispatcher_crash: "#{e.inspect}\n #{e.backtrace.join("\n")}" })
     end
     
     def self.configuration
