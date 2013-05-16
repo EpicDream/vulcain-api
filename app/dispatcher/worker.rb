@@ -17,6 +17,7 @@ module Dispatcher
           @supervisor = Supervisor.new(@connection, @exchange, @queues, @pool)
         
           Signal.trap("INT") { @supervisor.abort_worker }
+          Signal.trap("HUP") { @supervisor.abort_worker }
       
           mount_queues_handlers
           @pool.restore
