@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   ACCOUNT_KEYS = ['login', 'password']
   SESSION_KEYS = ['uuid', 'callback_url']
   ORDER_KEYS = ['products_urls']
-  VENDORS = ['Amazon', 'RueDuCommerce', 'Fnac']
+  VENDORS = ['AmazonFrance', 'RueDuCommerce', 'Fnac']
   
   before_filter :set_context
   

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 require 'test_helper'
-require_robot 'amazon'
+require_robot 'amazon_france'
 
 class AmazonTest < ActiveSupport::TestCase
   PRODUCT_URL_1 = 'http://www.amazon.fr/C%C3%A9line-Romans-2-Louis-Ferdinand/dp/2070107973/ref=pd_sim_b_2'
@@ -37,14 +37,14 @@ class AmazonTest < ActiveSupport::TestCase
                           }
                 }
                 
-    @robot = Amazon.new(@context).robot
+    @robot = AmazonFrance.new(@context).robot
     @message = stub
     @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
   end
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -98,7 +98,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('login')
     robot.run_step('logout')
     
-    assert robot.exists? Amazon::LOGIN_SUBMIT
+    assert robot.exists? AmazonFrance::LOGIN_SUBMIT
   end
   
   test "remove credit card" do

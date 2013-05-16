@@ -32,7 +32,7 @@ module Dispatcher
       when :ping
         @message = { verb:MESSAGES_VERBS[:ping] }
       when :reload
-        @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new("Amazon").code}
+        @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new("AmazonFrance").code}
       when :order_timeout
         @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :order_timeout, message:MESSAGES[:order_timeout] }}
       when :dispatcher_crash
