@@ -7,6 +7,31 @@ require "robot/core_extensions"
 class Plugin::IRobot < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
 
+  class StrategyError < StandardError
+    attr_reader :step, :action
+    def initialize(msg,args={})
+      super(msg)
+      @step = args[:step]
+      @action = args[:action]
+      @line = args[:line]
+    end
+    def to_h
+      return {step: @step, action: @action, line: @line, msg: self.message}
+    end
+    def message
+      return super+" in step '#{@step}'"
+    end
+  end
+
+  class FakeMessenger
+    def method_missing(meth, *args, &block)
+      return self
+    end
+    def message(meth, *args, &block)
+      return nil
+    end
+  end
+
   ACTION_METHODS = [
     {id: 'pl_open_url', desc: "Ouvrir la page", args: {current_url: true}},
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
@@ -22,6 +47,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {}}
+    # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
     # {id: 'wait_ajax', desc: "Attendre"},
     # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
@@ -59,14 +85,114 @@ class Plugin::IRobot < Robot
     super(context, &block)
     @pl_driver = @driver.driver
     @pl_current_product = {}
+
+    self.instance_eval do
+      step('run') do
+        if account.new_account
+          run_step('account_creation')
+          run_step('unlog')
+        end
+        run_step('login')
+        message :logged, :next_step => 'run_empty_cart'
+      end
+
+      step('run_empty_cart') do
+        run_step('empty_cart')
+        message :cart_emptied, :next_step => 'run_fill_cart'
+      end
+
+      step('run_fill_cart') do
+        order.products_urls.each do |url|
+          pl_open_url url
+          @pl_current_product = {}
+          @pl_current_product['url'] = url
+          run_step('add_to_cart')
+          products << @pl_current_product
+        end
+        message :cart_filled, :next_step => 'run_finalize'
+      end
+
+      step('run_finalize') do
+        run_step('finalize_order')
+        pl_assess next_step:'run_waitAck'
+      end
+
+      step('run_waitAck') do
+        if answers.last.answer == Robot::YES_ANSWER
+          run_step('payment', next_step:'run_terminate')
+        else
+          run_step('empty cart', next_step:'run_terminate')
+        end
+      end
+
+      step('run_terminate') do
+        terminate
+      end
+    end
   end
 
-  # 
-  def method_missing(meth, *args, &block)
-    return super unless ! (meth.to_s =~ /\!$/) && self.method_exists?(meth.to_s+'!')
-    return self.send(meth.to_s+'!', *args, &block) 
-  rescue NoSuchElementError
-    return nil
+  def pl_assess(args)
+    if products.all? { |p| p['price_product'].kind_of?(Fixnum) && p['price_delivery'].kind_of?(Fixnum) }
+      assess(args)
+    else
+      raise StrategyError.new("Impossible de faire un résumé : il manque des informations sur les prix de certains produits.")
+    end
+  end
+
+  def pl_fake_run
+    @messager = FakeMessenger.new
+    @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
+
+    run_step('account_creation')
+    run_step('unlog') if @steps['unlog']
+    run_step('run') if @steps['login']
+    run_step('run_empty_cart') if @steps['empty_cart']
+  ensure
+    @pl_driver.quit
+  end
+
+  def pl_add_strategy(strategy)
+    strategy.each { |s| pl_add_step(s) unless s[:value].blank? }
+  end
+
+  def pl_add_step(step)
+    # Get new context
+    step_binding = Kernel.binding
+    # Create local variables for xpathes, etc
+    step[:fields].each { |field|
+      step_binding.eval "#{field[:id]} = #{field[:context][:xpath].inspect}" if field[:context] && field[:context][:xpath]
+    }
+    # Split and format actions to do
+    actions = step[:value].split(/<\\n>|\n/).map(&:strip)
+    # Create callable step
+    step(step[:id]) do
+      # Eval each action
+      for act in actions
+        begin
+          step_binding.eval act
+        rescue => err
+          raise StrategyError.new(err, {step: step[:id], action: act, line: actions.index(act)})
+        end
+      end
+    end
+  rescue StrategyError
+    raise
+  rescue => err
+    raise StrategyError.new(err, {step: step[:id]})
+  end
+
+  # Call without bang method if exist.
+  def method_missing(methSym, *args, &block)
+    meth_name = methSym.to_s+'!'
+    if self.respond_to?(meth_name)
+      begin
+        return self.send(meth_name, *args, &block)
+      rescue NoSuchElementError
+        return nil
+      end
+    else
+      return super(methSym, *args, &block)
+    end
   end
 
   def pl_open_url(url)
@@ -118,12 +244,7 @@ class Plugin::IRobot < Robot
   # Select option.
   # If xpath isn't a select, search for a single select child.
   def pl_select_option!(xpath, value)
-    Selenium::WebDriver::Support::Select.new(input!(xpath, 'select')).select!(value) #select = 
-    # begin
-    #   select.select_by(:value, value)
-    # rescue
-    #   select.select_by(:text, value)
-    # end
+    Selenium::WebDriver::Support::Select.new(input!(xpath, 'select')).select!(value)
   end
 
   # Click on radio button.

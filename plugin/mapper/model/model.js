@@ -278,55 +278,37 @@ var Model = function(host, userAgent) {
       new Strategy('account_creation', {
         desc: "Inscription",
         value: "",
-        fields: [
-            new Field('account_creation', "account", {desc:"Mon Compte", option:"", type:"click_on"}),
-            new Field('account_creation', "email", {desc:"E-mail", option:"", type:"fill",arg:"email"}),
-            new Field('account_creation', "pseudo", {desc:"Pseudo", option:"", type:"fill",arg:"login"}),
-            new Field('account_creation', "password", {desc:"Mot de passe", option:"", type:"fill",arg:"password"}),
-            new Field('account_creation', "civilite", {desc:"Civilité", option:"", type:"select_option",arg:"gender"}),
-            new Field('account_creation', "name", {desc:"Nom", option:"", type:"fill",arg:"last_name"}),
-            new Field('account_creation', "prenom", {desc:"Prénom", option:"", type:"fill",arg:"first_name"}),
-            new Field('account_creation', "jourbirth", {desc:"Jour de Naissance", option:"", type:"select_option",arg:"birthdate_day"}),
-            new Field('account_creation', "moisbirth", {desc:"Mois de naissance", option:"", type:"select_option",arg:"birthdate_month"}),
-            new Field('account_creation', "anneeBirth", {desc:"Année de naissance", option:"", type:"select_option",arg:"birthdate_year"}),
-            new Field('account_creation', "createBtn", {desc:"Bouton créer le compte", option:"", type:"click_on"})
-        ]
+        fields: []
       }),
       new Strategy('login', {
         desc: "Connexion",
         value: "",
-        fields: [
-        ]
+        fields: []
       }),
       new Strategy('unlog', {
         desc: "Déconnexion",
         value: "",
-        fields: [
-        ]
+        fields: []
       }),
       new Strategy('empty_cart', {
         desc: "Vider panier",
         value: "",
-        fields: [
-        ]
+        fields: []
       }),
       new Strategy('add_to_cart', {
         desc: "Ajouter panier",
         value: "",
-        fields: [
-        ]
+        fields: []
       }),
       new Strategy('finalize_order', {
         desc: "Finaliser",
         value: "",
-        fields: [
-        ]
+        fields: []
       }),
       new Strategy('payment', {
         desc: "Payement",
         value: "",
-        fields: [
-        ]
+        fields: []
       })
     ];
     setStrategiesToHash.bind(this)();

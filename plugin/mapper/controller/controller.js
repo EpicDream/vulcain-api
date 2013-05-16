@@ -61,6 +61,25 @@ var Controller = function() {
   this.onClear = function(event) { 
     if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) this.model.clearCache(); 
   };
+  this.onTest = function(event) {
+    $.ajax({
+      type: 'POST',
+      url: PLUGIN_URL+"/strategies/test",
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify({
+        "host": this.host,
+        "strategy": this.model.strategies
+      })
+    }).done(function(hash) {
+      console.log(hash);
+      if (hash.action)
+        alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
+      else
+        alert("Une erreur c'est produite : "+hash.msg);
+    }).fail(function() {
+      alert("Problème de connectivité.");
+    });
+  };
   this.init = function() {
     window.addEventListener("beforeunload", this.onUnload);
     chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});

@@ -42,13 +42,14 @@ class Plugin::RobotFactory
     strategies = getStrategyHash(host)
     vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
     File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |f|
-      f.puts "# encoding: utf-8"
-      f.puts
-    f.puts "class Plugin::"+vendor.camelize
-      f.puts "\tURL = 'http://#{host.gsub(/_mobile/,"")}'"
-      f.puts
-      f.puts "\tattr_accessor :context, :robot"
-      f.puts "", <<-INIT
+      f.puts <<-INIT
+# encoding: utf-8"
+
+class Plugin::#{vendor.camelize}
+  URL = "http://#{host.gsub(/_mobile/,"")}"
+
+  attr_accessor :context, :robot
+
   def initialize context
     @context = context
     @robot = instanciate_robot
@@ -56,50 +57,7 @@ class Plugin::RobotFactory
 
   def instanciate_robot
     Plugin::IRobot.new(@context) do
-
-      step('run') do
-        if account.new_account
-          pl_open_url URL
-          run_step('account_creation')
-          run_step('unlog')
-        end
-        pl_open_url URL
-        run_step('login')
-        message :logged, :next_step => 'run_empty_cart'
-      end
-
-      step('run_empty_cart') do
-        run_step('empty_cart')
-        message :cart_emptied, :next_step => 'run_fill_cart'
-      end
-
-      step('run_fill_cart') do
-        order.products_urls.each do |url|
-          pl_open_url url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
-          run_step('add_to_cart')
-          products << @pl_current_product
-        end
-        message :cart_filled, :next_step => 'run_finalize'
-      end
-
-      step('run_finalize') do
-        pl_open_url URL
-        run_step('finalize_order')
-        assess next_step:'waitAck'
-      end
-
-      step('waitAck') do
-        if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment')
-        else
-          open_url URL
-          run_step('empty cart', next_step:'terminate')
-        end
-      end
-
-  INIT
+INIT
       for s in strategies
         f.puts "\t\t\tstep('#{s[:id]}') do"
         for field in s[:fields]
@@ -130,101 +88,29 @@ class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
   end
 
   def test(create_account=false)
-    Plugin::RobotFactory.make_rb_file("#{host}")
-    Plugin.send(:remove_const, :#{vendor_camel}) if Plugin.const_defined?(:#{vendor_camel})
-    load "lib/robot/vendors/#{vendor}.rb"
-
-    context = { options: {profile_dir: "config/chromium/Default"},
-                'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
-                                                "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
-                            'credentials' => {
-                              'holder' => 'TIMMY DUPONT',
-                              'number' => '101290129019201',
-                              'exp_month' => 1,
-                              'exp_year' => 2014,
-                              'cvv' => 123}},
-                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0634562345',
-                           'land_phone' => '0134562345',
-                           'first_name' => 'Timmy',
-                           'gender' => 0,
-                           'last_name' => 'Dupont',
-                           'address' => { 'address_1' => '12 rue des lilas',
-                                          'address_2' => '',
-                                          'additionnal_address' => '',
-                                          'zip' => '75019',
-                                          'city' => 'Paris',
-                                          'country' => 'France'}
-              }
-    }
-    if #{host.inspect} =~ /_mobile/
-      context[:options][:user_agent] = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
-    end
-    if create_account
-      context['account']['new_account'] = true
-      context['account']['login'] = "timmy75%03d" % rand(1000)
-    end
-
-    r = Plugin::#{vendor_camel}.new(context).robot
-    r.messager = @messager
-    r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
-
-    r.run_all
+    strategy = lugin::RobotFactory.getStrategyHash(#{host})
+    Plugin::RobotFactory.test_strategy(strategy)
+  end
 end
 INIT
     end
   end
 
-  def self.test_strategy(host, strategy)
-    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
-    vendor_camel = vendor.camelize
-    
+  def self.test_strategy(strategy)
     robot = Plugin::IRobot.new(CONTEXT) {}
 
-    for step in strategies
-      begin
-        # Get new context
-        step_binding = robot.pl_binding
-        # Create local variables for xpathes, etc
-        begin
-          fields = step[:fields].map do |field|
-            step_binding.eval "#{field[:id]} = #{field[:xpath].inspect}" 
-          end
-        rescue => err
-          return {step: step[:id], msg: err.message}
-        end
-        # Split and format actions
-        begin
-          actions = step[:value].split("\n").map(&:trim)
-          puts "\nactions =", actions, "\n"
-          create_account_action = actions.pop if step[:id] == "account_creation" # Don't finish the creation
-        rescue => err
-          return {step: step[:id], msg: err.message}
-        end
-        # Eval actions
-        for a in actions
-          begin
-            step_binding.eval a
-          rescue => err
-            return {step: step[:id], action: a, line: actions.index(a), msg: err.message}
-          end
-        end
-        # Test if final button is findable for account_creation
-        if step[:id] == "account_creation"
-          begin
-            command, var = create_account_action.split(' ')
-            xpath = step_binding.eval var
-            step_binding.eval "link!(#{var})" # raise if not found
-          rescue => err
-            return {step: step[:id], action: create_account_action, line: actions.size, msg: err.message}
-          end
-        end
-        return {}
-      rescue => err
-        return {step: step[:id], msg: err.message}
-      end
+    # On supprime le click sur le bouton 'Valider création compte'
+    # On vérifie juste qu'il est présent.
+    actions = strategy.first[:value].strip.split("\n")
+    if actions[-1] =~ /pl_click_on!/
+      actions[-1] = actions[-1].sub(/pl_click_on!/, "link!")
+      strategy.first[:value] = actions.join("\n")
     end
+
+    robot.pl_add_strategy(strategy)
+    robot.pl_fake_run
+    return {}
+  rescue Plugin::IRobot::StrategyError => err
+    return err.to_h
   end
 end

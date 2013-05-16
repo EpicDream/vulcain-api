@@ -7,6 +7,7 @@ var View = function(controller) {
   $('#import').click(controller.onLoad);
   $('#reset').click(controller.onReset);
   $('#clear').click(controller.onClear);
+  $('#test').click(controller.onTest);
   $('#newCat').click(controller.onNewStrategy);
 
   function getStratTab(sId) { return tabs.children("div#"+sId); };
