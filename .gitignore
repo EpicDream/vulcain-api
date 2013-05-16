@@ -7,3 +7,6 @@ Gemfile.lock
 config/ovh_cloud.yml
 config/dispatcher.yml
 *.swp
+.autotest
+vulcain.sublime-project
+vulcain.sublime-workspace

@@ -3,6 +3,10 @@
 require 'test_helper'
 
 class Plugin::RobotFactoryTest < ActiveSupport::TestCase
+  setup do
+    @message = stub(message: true)
+    @messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
+  end
 
   def test(create_account=false)
     Plugin::RobotFactory.make_rb_file("www.priceminister.com")
@@ -41,13 +45,13 @@ class Plugin::RobotFactoryTest < ActiveSupport::TestCase
     end
 
     r = Plugin::Priceminister.new(context).robot
-    r.self_exchanger = r.logging_exchanger = r.exchanger = ""
-    r.exchanger.stubs(:publish).returns("")
+    r.messager = @messager
     r.answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
 
     begin
       r.run_all
     rescue Selenium::WebDriver::Error::NoSuchElementError => err
+      puts "NoSuchElementError : #{err.to_s}"
       # message("NoSuchElementError : "+err.to_s) # Only in Ruby 2.0
     ensure
       r.pl_driver.quit
