@@ -7,5 +7,7 @@ Vulcain::Application.routes.draw do
 
   resource :orders, :only => [:create]
   resource :answers, :only => [:create]
-  
+  namespace :admin do
+    resources :monitors, :only => [:index]
+  end
 end

@@ -3,6 +3,9 @@ module Dispatcher
   class Supervisor
     RUNNING_TIMEOUT = 3.minutes
     CHECK_INTERVAL = 10.seconds
+    MONITORING_INTERVAL = 3.seconds
+    VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked)
+    DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     
     def initialize connection, exchange, queues, pool
       @pool = pool
@@ -10,6 +13,16 @@ module Dispatcher
       @exchange = exchange
       @queues = queues
       EM.add_periodic_timer(CHECK_INTERVAL, check_timeouts)
+      EM.add_periodic_timer(MONITORING_INTERVAL, push_vulcains)
+    end
+    
+    def push_vulcains
+      Proc.new do 
+        states = @pool.pool.map do |vulcain|
+          VulcainInfo.new(*vulcain.to_a[1..-1]).to_json
+        end
+        File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states)}
+      end
     end
     
     def check_timeouts
