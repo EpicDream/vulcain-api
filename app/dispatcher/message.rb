@@ -69,6 +69,10 @@ module Dispatcher
     def request url, data
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
+      if uri.scheme == "https"
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
       request = Net::HTTP::Put.new(uri.request_uri)
       request.body = data.to_json
       request.add_field "Content-type", "application/json"
