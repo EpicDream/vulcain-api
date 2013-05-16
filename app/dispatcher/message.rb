@@ -67,7 +67,9 @@ module Dispatcher
     private
     
     def request url, data
+      Log.create({request:url, data:data})
       uri = URI.parse(url)
+      
       http = Net::HTTP.new(uri.host, uri.port)
       if uri.scheme == "https"
         http.use_ssl = true
