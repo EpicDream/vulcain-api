@@ -77,6 +77,11 @@ class Driver
     waiting { driver.find_elements(:link_text => text) }
   end
   
+  def find_link_with_href href
+    elements = driver.find_elements(:tag_name => 'a')
+    elements.detect {|element| puts element.attribute('href');element.attribute('href') == href }
+  end
+  
   def find_link_with_text text
     driver.find_elements(:link_text => text).first
   end

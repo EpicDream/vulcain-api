@@ -210,6 +210,11 @@ class Robot
     @driver.find_elements xpath
   end
   
+  def click_on_link_with_href href
+    link = @driver.find_link_with_href(href)
+    click_on link
+  end
+  
   def find_element xpath
     find_elements(xpath).first
   end
