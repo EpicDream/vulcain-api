@@ -13,7 +13,7 @@ class AmazonTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_14@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'marie_rose_17@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_5, PRODUCT_URL_2],
                             'credentials' => {
@@ -51,9 +51,8 @@ class AmazonTest < ActiveSupport::TestCase
   
   test "account creation" do
     skip "Can' create account each time!"
-    @message.expects(:message).times(3)
-    robot.expects(:message).with(:account_created, :timer => 5)
-    robot.expects(:message).with(:logged, :next_step => 'empty cart', timer:5)
+    @message.expects(:message).times(1)
+    robot.expects(:message).with(:account_created, :timer => 5, :next_step => 'renew login')
     
     robot.run_step('create account')
   end

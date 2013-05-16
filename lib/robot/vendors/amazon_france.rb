@@ -4,7 +4,7 @@ class AmazonFrance
   URL = 'http://www.amazon.fr/'
   LOGIN_LINK = '//*[@id="who-are-you"]/a'
   LOGOUT_LINK = '//*[@id="who-are-you"]/span[2]/a'
-  MY_ACCOUNT = '/html/body/div[14]/div/div/div[1]/div/div/ul/li[4]/a/div'
+  MY_ACCOUNT_HREF = 'https://www.amazon.fr/gp/aw/ya'
   LOGIN_EMAIL = '//*[@id="ap_email"]'
   LOGIN_PASSWORD = '//*[@id="ap_password"]'
   LOGIN_SUBMIT = '//*[@id="signInSubmit-input"]'
@@ -85,7 +85,7 @@ class AmazonFrance
       step('create account') do
         open_url URL
         wait_ajax
-        click_on MY_ACCOUNT
+        open_url(MY_ACCOUNT_HREF)
         click_on REGISTER_LINK
         fill REGISTER_NAME, with:"#{user.first_name} #{user.last_name}"
         fill REGISTER_EMAIL, with:account.login
