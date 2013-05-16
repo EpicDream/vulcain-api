@@ -28,7 +28,6 @@ module Dispatcher
   end
 end
 
-require_relative 'amqp_runner'
 require_relative 'pool'
 require_relative 'worker'
 require_relative 'loader'
