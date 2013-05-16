@@ -15,16 +15,24 @@ module Dispatcher
   RUNNING_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/started.txt")
   RESTORING_POOL_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/restore.txt")
   
-  def self.output msg, args={}
+  def self.logs msg, args={}, console=true
     output = case msg
     when :new_vulcain then "\nNew Vulcain running on host : #{args[:vulcain].host}"
     when :removed_vulcain then "\nVulcain on host : #{args[:vulcain].host} is dead !"
     when :ack_ping then "\nVulcain on host #{args[:vulcain].host} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
     when :ping then "\nPing Vulcain on host : #{args[:vulcain].host}"
-    when :running then RUNNING_MESSAGE + "\n\nRunning on : #{CONFIG['host']}" + "\nNumbers of vulcains : #{args[:pool_size]}"
+    when :running 
+      header = (RUNNING_MESSAGE if console) || ""
+      header + "\n\nRunning on : #{CONFIG['host']}" + "\nNumbers of vulcains : #{args[:pool_size]}"
     when :restoring_pool then RESTORING_POOL_MESSAGE
     end
-    $stdout << output
+    output.gsub!(/\n/, ' ') unless console
+    output
+  end
+  
+  def self.output msg, args={}
+    Log.create({ admin_message:logs(msg, args, false) })
+    $stdout << logs(msg, args)
   end
 end
 
