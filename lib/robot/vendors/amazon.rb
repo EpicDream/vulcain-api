@@ -284,7 +284,7 @@ class Amazon
       end
 
       step('cancel') do
-        terminate_on_error(:order_canceled)
+        terminate_on_cancel
       end
       
       step('payment') do

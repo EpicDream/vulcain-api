@@ -84,6 +84,11 @@ class Robot
     @driver.quit
   end
   
+  def terminate_on_cancel
+    messager.dispatcher.message(:failure, {message: :order_canceled})
+    @driver.quit
+  end
+  
   def terminate_on_error error_type
     messager.dispatcher.message(:failure, {message:error_type})
     messager.admin.message(:failure)
@@ -91,7 +96,6 @@ class Robot
     screenshot
     page_source
     @driver.quit
-    rescue
   end
   
   def new_question question, args
