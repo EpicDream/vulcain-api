@@ -244,9 +244,16 @@ class Robot
     !!element && element.displayed?
   end
   
-  def wait_for xpaths
+  def wait_for xpaths, &rescue_block
     xpath = xpaths.join("|")
     @driver.find_element(xpath)
+  rescue => e
+    if block_given?
+      rescue_block.call
+      return false
+    else
+      raise e
+    end
   end
   
   def alert?

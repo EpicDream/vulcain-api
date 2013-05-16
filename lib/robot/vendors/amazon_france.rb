@@ -146,10 +146,15 @@ class AmazonFrance
       step('add to cart') do
         if url = next_product_url
           open_url url
-          wait_for [ADD_TO_CART]
-          run_step('build product')
-          click_on ADD_TO_CART
-          run_step 'add to cart'
+          found = wait_for [ADD_TO_CART] do
+            message :no_product_available
+            terminate_on_error(:no_product_available) 
+          end
+          if found
+            run_step('build product')
+            click_on ADD_TO_CART
+            run_step 'add to cart'
+          end
         else
           message :cart_filled, :next_step => 'finalize order', :timer => 15
         end
