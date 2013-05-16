@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -174,7 +174,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   
   test "with REAL PAYMENT MODE" do
-    # @message.expects(:message).times(20)
+    # @message.expects(:message).times(18)
     # 
     # @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
     #                  'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},

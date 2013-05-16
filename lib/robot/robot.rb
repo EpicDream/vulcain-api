@@ -152,10 +152,16 @@ class Robot
   
   def click_on_links_with_text text, &block
     elements = @driver.find_links_with_text text
+    return false if elements.none?
     elements.each do |element| 
       @driver.click_on element
       block.call if block_given?
     end
+  end
+  
+  def click_on_link_with_text_if_exists text
+    return unless element = @driver.find_link_with_text(text)
+    @driver.click_on(element)
   end
   
   def click_on_if_exists xpath

@@ -77,6 +77,10 @@ class Driver
     waiting { driver.find_elements(:link_text => text) }
   end
   
+  def find_link_with_text text
+    driver.find_elements(:link_text => text).first
+  end
+  
   def find_input_with_value value
     waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
   end

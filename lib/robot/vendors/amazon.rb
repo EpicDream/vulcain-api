@@ -24,7 +24,8 @@ class Amazon
   REMOVE_PRODUCT_LINK_NAME = 'Supprimer'
   EMPTIED_CART_MESSAGE = '//*[@id="cart-active-items"]/div[2]/h3'
   ORDER_BUTTON_NAME = 'Passer la commande'
-  SHIPMENT_SEND_TO_THIS_ADDRESS = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span'
+  SHIPMENT_SEND_TO_THIS_ADDRESS = 'Envoyer à cette adresse'
+  
   SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
   SHIPMENT_FORM_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
   SHIPMENT_FORM_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
@@ -45,7 +46,7 @@ class Amazon
   CREDIT_CARD_SUBMIT = '//*[@id="ccAddCard"]'
   CONTINUE_TO_PAYMENT = '//*[@id="continueButton"]'
   
-  INVOICE_ADDRESS_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a'
+  INVOICE_ADDRESS_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a | /html/body/div[4]/div[2]/div[1]/form/div/div[1]/div/div[2]/div/span'
   VALIDATE_ORDER_SUBMIT = '//*[@id="spc-form"]/div/span[1]/span/input'
   
   THANK_YOU_HEADER = '//*[@id="thank-you-header"]'
@@ -193,7 +194,8 @@ class Amazon
           click_on LOGIN_SUBMIT
         end
         wait_ajax
-        unless click_on_if_exists SHIPMENT_SEND_TO_THIS_ADDRESS
+
+        unless click_on_link_with_text_if_exists(SHIPMENT_SEND_TO_THIS_ADDRESS)
           run_step 'fill shipping form'
         end
         1.upto(products.count) { click_on SHIPMENT_OPTIONS_SUBMIT }
