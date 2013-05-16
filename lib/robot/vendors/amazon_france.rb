@@ -218,6 +218,10 @@ class AmazonFrance
         run_step('validate order')
       end
       
+      step('cancel') do
+        terminate_on_cancel
+      end
+      
       step('payment') do
         answer = answers.last
         action = questions[answers.last.question_id]
