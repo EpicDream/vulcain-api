@@ -1,0 +1,31 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag "admin/logs" %>
+<% end %>
+
+<table>
+	<thead>
+	</thead>
+	<tbody>
+		<% @logs.each do |log| %>
+		  <% next if log.verb == 'page_source' %>
+			<tr>
+				<td>
+					<%= log.created_at %>
+				</td>
+				<td>
+					<%= log.session %>
+				</td>
+				<td>
+					<%= log.verb %>
+				</td>
+				<td>
+					<% if log.verb == 'screenshot'%>
+						<img src="data:image/jpeg;base64,<%=log.content%>" class='screenshot'></img>
+					<% else %>
+						<%= "#{log.content}" %>
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
