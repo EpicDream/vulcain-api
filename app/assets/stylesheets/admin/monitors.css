@@ -1,0 +1,17 @@
+table{
+	border: thin solid black;
+	width:100%;
+	border-collapse: collapse;
+}
+table td,
+table th
+{
+	border: thin solid black;
+	
+}
+table tr[data-blocked=true]{
+	background:rgba(255, 0, 0, 0.4);
+}
+table tr[data-running=true]{
+	background:rgba(0, 255, 0, 0.4);
+}

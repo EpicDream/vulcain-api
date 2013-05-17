@@ -1,3 +1,20 @@
-<% @states.each do |state| %>
-	<%= state %>
+<% content_for :head do %>
+	<%= stylesheet_link_tag "admin/monitors" %>
+	<%= javascript_include_tag "admin/monitors" %>
 <% end %>
+
+<table>
+	<thead>
+		<th>Host</th>
+		<th>PID</th>
+		<th>UUID</th>
+		<th>IDLE</th>
+		<th>Ack ping</th>
+		<th>Run Since</th>
+		<th>Callback url</th>
+		<th>Blocked</th>
+		<th>ScreenShot</th>
+	</thead>
+	<tbody id="vulcains-states">
+	</tbody>
+</table>

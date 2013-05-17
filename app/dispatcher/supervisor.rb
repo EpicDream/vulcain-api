@@ -19,9 +19,9 @@ module Dispatcher
     def push_vulcains
       Proc.new do 
         states = @pool.pool.map do |vulcain|
-          VulcainInfo.new(*vulcain.to_a[1..-1]).to_json
+          JSON.parse(VulcainInfo.new(*vulcain.to_a[1..-1]).to_json)
         end
-        File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states)}
+        File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states.to_json)}
       end
     end
     

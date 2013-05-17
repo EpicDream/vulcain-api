@@ -1,9 +1,13 @@
 class Admin::MonitorsController < ApplicationController
-  DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
+  VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
   
   def index
-    @states = JSON.parse File.read(DUMP_VULCAIN_STATES_FILE_PATH)
-    render 'index' 
+    render 'index', :layout => 'layouts/admin'
+  end
+  
+  def show
+    @states = JSON.parse File.read(VULCAIN_STATES_FILE_PATH)
+    render 'show'
   end
   
 end

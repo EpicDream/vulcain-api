@@ -1,0 +1,14 @@
+<% @states.each do |state| %>
+	<% running = !state["idle"] && !state["blocked"] %>
+	<tr data-blocked="<%= state["blocked"]%>" data-running="<%= running %>">
+		<td><%= state["host"]%></td>
+		<td><%= state["id"].split("|")[1]%></td>
+		<td><%= state["uuid"]%></td>
+		<td><%= state["idle"]%></td>
+		<td><%= state["ack_ping"]%></td>
+		<td><%= l(Time.parse(state["run_since"])) if  state["run_since"]%></td>
+		<td><%= state["callback_url"]%></td>
+		<td><%= state["blocked"]%></td>
+		<td></td>
+	</tr>
+<% end %>
