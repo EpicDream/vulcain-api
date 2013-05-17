@@ -271,8 +271,10 @@ class AmazonFrance
         wait_for([THANK_YOU_HEADER])
         if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
           self.billing.merge!({:shipping_info => get_text(SHIPPING_DATE_PROMISE)})
+          run_step('remove credit card')
           terminate({ billing:self.billing})
         else
+          run_step('remove credit card')
           terminate_on_error(:order_validation_failed)
         end
       end
