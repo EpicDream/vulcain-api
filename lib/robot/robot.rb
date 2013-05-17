@@ -64,7 +64,7 @@ class Robot
     @next_step = state[:next_step] || 'payment'
     message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
                :products => products, 
-               :billing => billing || billing_from_products}
+               :billing => self.billing }
     messager.dispatcher.message(:assess, message)
   end
   
@@ -112,14 +112,6 @@ class Robot
  
   def current_product_url
     order.products_urls[@product_url_index - 1]
-  end
-  
-  def billing_from_products
-    billing = products.inject({price:0, shipping:0}) do |billing, product|
-      billing[:price] += product['price_product']
-      billing[:shipping] += product['price_delivery']
-      billing
-    end
   end
   
   def context=context

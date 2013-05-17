@@ -1,6 +1,18 @@
 # encoding: utf-8
 class AmazonFrance
   USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
+  PRICES_IN_TEXT = lambda do |text| 
+    text.scan(/EUR\s+(\d+(?:,\d+)?)/).flatten.map { |price| price.gsub(',', '.').to_f }
+  end
+  DELIVERY_PRICE = lambda do |product|
+    pattern = /Livraison\s+gratuite\s+dès\s+15\s+euros/
+    if product['product_title'] =~ pattern && product['price_product'] < 15.0
+      2.79
+    else
+      0
+    end
+  end
+  
   URL = 'http://www.amazon.fr/'
   LOGIN_LINK = '//*[@id="who-are-you"]/a'
   LOGOUT_LINK = '//*[@id="who-are-you"]/span[2]/a'
@@ -48,6 +60,9 @@ class AmazonFrance
   
   INVOICE_ADDRESS_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a | /html/body/div[4]/div[2]/div[1]/form/div/div[1]/div/div[2]/div/span'
   VALIDATE_ORDER_SUBMIT = '//*[@id="spc-form"]/div/span[1]/span/input'
+  PRODUCT_PRICE_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[1]/td[2]'
+  PRODUCT_SHIPPING_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[2]/td[2]'
+  TOTAL_PRICE_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[3]/td[2]' 
   
   THANK_YOU_HEADER = '//*[@id="thank-you-header"]'
   THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/ul/li/div'
@@ -135,11 +150,10 @@ class AmazonFrance
         product['price_text'] = get_text PRICE_TEXT
         product['product_title'] = get_text PRODUCT_TITLE
         product['product_image_url'] = image_url(PRODUCT_IMAGE)
-        prices = product['price_text'].scan(/EUR\s+(\d+(?:,\d+)?)/).flatten.map { |price| price.gsub(',', '.').to_f }
-        product['price_delivery'] = prices[1] || 0
+        prices = PRICES_IN_TEXT.(product['price_text'])
         product['price_product'] = prices[0]
+        product['price_delivery'] = prices[1] || DELIVERY_PRICE.(product)
         product['url'] = current_product_url
-        
         products << product
       end
       
@@ -205,7 +219,7 @@ class AmazonFrance
           run_step 'fill shipping form'
         end
         1.upto(products.count) { click_on SHIPMENT_OPTIONS_SUBMIT }
-        assess
+        run_step('submit credit card')
       end
       
       step('submit credit card') do
@@ -215,7 +229,16 @@ class AmazonFrance
         select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
-        run_step('validate order')
+        
+        wait_ajax
+        click_on CONTINUE_TO_PAYMENT
+        wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
+        if exists? INVOICE_ADDRESS_SUBMIT
+          click_on INVOICE_ADDRESS_SUBMIT
+        end
+        wait_for [VALIDATE_ORDER_SUBMIT]
+        run_step('build final billing')
+        assess
       end
       
       step('cancel') do
@@ -227,27 +250,28 @@ class AmazonFrance
         action = questions[answers.last.question_id]
 
         if eval(action)
-          run_step('submit credit card')
+          run_step('validate order')
         else
           open_url URL
           run_step('empty cart', next_step:'cancel')
         end
       end
       
+      step('build final billing') do
+        product, shipping, total = [PRODUCT_PRICE_ON_SUBMIT, PRODUCT_SHIPPING_ON_SUBMIT, TOTAL_PRICE_ON_SUBMIT].map do |xpath|
+          PRICES_IN_TEXT.(get_text xpath).first
+        end  
+        self.billing = { product:product, shipping:shipping, total:total}
+      end
+      
       step('validate order') do
-        wait_ajax
-        click_on CONTINUE_TO_PAYMENT
-        wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
-        if exists? INVOICE_ADDRESS_SUBMIT
-          click_on INVOICE_ADDRESS_SUBMIT
-        end
         screenshot
         page_source
         click_on VALIDATE_ORDER_SUBMIT
         wait_for([THANK_YOU_HEADER])
         if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
-          shipping_date = get_text SHIPPING_DATE_PROMISE
-          terminate({ message:shipping_date })
+          self.billing.merge!({:shipping_info => get_text(SHIPPING_DATE_PROMISE)})
+          terminate({ billing:self.billing})
         else
           terminate_on_error(:order_validation_failed)
         end
