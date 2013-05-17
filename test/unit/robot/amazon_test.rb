@@ -142,32 +142,28 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "order with shipment address fill" do
-    @message.expects(:message).times(16)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.run_step('finalize order')
-    
-    robot.answers = [OpenStruct.new(question_id:'1', answer:true)]
-    assert_equal 'payment', robot.instance_variable_get(:@next_step)
-    steps = robot.instance_variable_get(:@steps)
-    
-    robot.expects(:run_step).with('submit credit card')
-    steps['payment'].call
-    
-    robot.expects(:run_step).with('validate order')
-    steps['submit credit card'].call
-  end
-  
+     @message.expects(:message).times(16)
+     robot.run_step('login')
+     robot.run_step('empty cart')
+     robot.run_step('add to cart')
+     steps = robot.instance_variable_get(:@steps)
+     steps['submit credit card'] = Proc.new {}
+     
+     robot.run_step('finalize order')
+   end
+   
   test "shipment fill with ask address confirmation" do
     @message.expects(:message).times(15..20)
-    
+
     @context['user']['address']['zip'] = "75002"
     robot.context = @context
-    
+
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
+    steps = robot.instance_variable_get(:@steps)
+    steps['submit credit card'] = Proc.new {}
+
     robot.run_step('finalize order')
   end
   
