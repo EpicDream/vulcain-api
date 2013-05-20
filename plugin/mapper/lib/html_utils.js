@@ -60,9 +60,14 @@ hu.getSameTextAncestor = function(e, stopIfId) {
 
 hu.getElementsByXPath = function(xpath) { 
   var aResult = new Array();
-  var a = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-  for ( var i = 0 ; i < a.snapshotLength ; i++ ){aResult.push(a.snapshotItem(i));}
-  return aResult;
+  try {
+    var a = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for ( var i = 0 ; i < a.snapshotLength ; i++ ){aResult.push(a.snapshotItem(i));}
+    return aResult;
+  } catch(err) {
+    console.error("for", xpath);
+    console.error(err);
+  }
 };
 
 // Does this xpath lead to a single element.
