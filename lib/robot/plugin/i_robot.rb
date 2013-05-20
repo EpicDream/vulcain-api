@@ -53,6 +53,14 @@ class Plugin::IRobot < Robot
     # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
     # {id: 'message', desc: "Envoyer un message", has_arg: true}
   ]
+  for a in ACTION_METHODS
+    a[:method] ||= a[:id]
+    a[:argsTxt] ||= if a[:args][:current_url]
+      "(plarg_url)"
+    elsif a[:args][:xpath]
+      "(plarg_xpath" + (a[:args][:default_arg] ? ", plarg_argument" : "") + ")"
+    end
+  end
 
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
