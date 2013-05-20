@@ -17,16 +17,16 @@ module Dispatcher
   
   def self.logs msg, args={}, console=true
     output = case msg
-    when :new_vulcain then "\nNew Vulcain running on host : #{args[:vulcain].host}"
-    when :removed_vulcain then "\nVulcain on host : #{args[:vulcain].host} is dead !"
+    when :new_vulcain then "\nNew Vulcain running : #{args[:vulcain].id}"
+    when :removed_vulcain then "\nVulcain : #{args[:vulcain].id} is dead !"
     when :ack_ping then "\nVulcain #{args[:vulcain].id} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
     when :idle then "\nVulcain #{args[:vulcain].id} Status : idle"
-    when :ping then "\nPing Vulcain on host : #{args[:vulcain].host}"
+    when :ping then "\nPing Vulcain : #{args[:vulcain].id}"
     when :running 
       header = (RUNNING_MESSAGE if console) || ""
       header + "\n\nRunning on : #{CONFIG['host']}" + "\nNumbers of vulcains : #{args[:pool_size]}"
     when :restoring_pool then RESTORING_POOL_MESSAGE
-    when :reload_vulcain then "\nReload Vulcain: #{args[:vulcain]}"
+    when :reload_vulcain then "\nReload Vulcain: #{args[:vulcain].id}"
     end
     output.gsub!(/\n/, ' ') unless console
     output

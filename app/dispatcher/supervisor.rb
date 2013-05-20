@@ -29,8 +29,7 @@ module Dispatcher
       @pool.pool.size.times do
         session = {'uuid' => 'RELOAD', 'callback_url' => ''}
         next unless vulcain = @pool.pull(session)
-        Dispatcher.output(:reload_vulcain, :vulcain => vulcain.id)
-        
+        Dispatcher.output(:reload_vulcain, :vulcain => vulcain)
         @pool.reload(vulcain)
       end
     end
