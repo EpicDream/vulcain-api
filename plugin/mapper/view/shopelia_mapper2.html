@@ -33,12 +33,12 @@
       <h1>Shopelia Plugin - Start Menu</h1>
     </div>
     <div data-role="content">
-      <fieldset class="ui-grid-c">
-        <div class="ui-block-a"><button id="saveBtn">Sauvegarder</button></div>
-        <div class="ui-block-b"><button id="importBtn">Charger</button></div>
-        <div class="ui-block-c"><button id="newBtn">Nouvelle</button></div>
-        <div class="ui-block-d"><button id="clearBtn">Clear Cache</button></div>
-      </fieldset><!-- /grid-c -->
+      <div class="ui-grid-c">
+        <div class="ui-block-a"><a data-role="button" data-icon="check" id="saveBtn">Save</a></div>
+        <div class="ui-block-b"><a data-role="button" data-icon="refresh" id="importBtn">Load</a></div>
+        <div class="ui-block-c"><a data-role="button" data-icon="plus" id="newBtn">New</a></div>
+        <div class="ui-block-d"><a data-role="button" data-icon="delete" id="clearBtn">Clear</a></div>
+      </div><!-- /grid-c -->
       <h2>Liste des étapes</h2>
       <ul data-role="listview" id="stepsList"></ul>
     </div>
@@ -130,20 +130,44 @@
         </select>
         </li>
         <li data-role="fieldcontain">
-            <label for="editPass">Passer si on ne trouve pas</label>
-            <input type="checkbox" id="editPass" class="pass">
+          <label for="editPass">Passer si on ne trouve pas</label>
+          <input type="checkbox" id="editPass" class="pass">
         </li>
         <li data-role="fieldcontain">
-            <label for="editUrl">Entrez l'url:</label>
-            <input type="text" id="editUrl" class="url" placeholder="Ex : http://www.shopelia.com/cart" data-clear-btn="true">
+          <label for="editUrl">Entrez l'url:</label>
+          <input type="text" id="editUrl" class="url" placeholder="Ex : http://www.shopelia.com/cart" data-clear-btn="true">
         </li>
         <li data-role="fieldcontain">
-            <label for="editXPath">Associer le xpath:</label>
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <legend>Associer le xpath:</legend>
             <input type="text" id="editXPath" class="xpath" placeholder='Ex : //input[@id="login"]' data-clear-btn="true">
+            <a href="#xpathMenu" data-rel="popup" data-role="button" data-inline="true" data-icon="gear" data-iconpos="notext">Actions</a>
+            <div data-role="popup" id="xpathMenu">
+              <ul data-role="listview" data-inset="true">
+                <li data-icon="false"><a>View details</a></li>
+                <li data-icon="false"><a>Edit</a></li>
+                <li data-icon="false"><a>Disable</a></li>
+                <li data-icon="false"><a>Delete</a></li>
+              </ul>
+            </div>
+          </fieldset>
+          <!-- <fieldset data-role="controlgroup" data-type="horizontal">
+            <legend>Associer le xpath:</legend>
+            <input type="text" id="editXPath" class="xpath" placeholder='Ex : //input[@id="login"]' data-clear-btn="true">
+            <a href="#xpathMenu" data-rel="popup" data-role="button" data-inline="true" data-icon="gear" data-iconpos="notext">Actions</a>
+            <div data-role="popup" id="xpathMenu">
+              <ul data-role="listview" data-inset="true">
+                <li><button>View details</button></li>
+                <li><button>Edit</button></li>
+                <li><button>Disable</button></li>
+                <li><button>Delete</button></li>
+              </ul>
+            </div>
+          </fieldset>-->
         </li>
         <li data-role="fieldcontain">
-            <label for="editCode">Code généré:</label>
-            <textarea id="editCode" class="code" cols="3">Ex : pl_fill(xpath, login)</textarea>
+          <label for="editCode">Code généré:</label>
+          <textarea id="editCode" class="code" cols="3">Ex : pl_fill(xpath, login)</textarea>
         </li>
       </ul>
       <div>

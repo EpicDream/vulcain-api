@@ -110,7 +110,6 @@ var EditActionView = function(types, arguments) {
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':xpathField.val()});
   });
 
-
   this.onNewMapping = function(context, merged) {
     if (xpathField.val() && ! merged) {
       chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':currentAction.context, 'new_context':context});
@@ -118,19 +117,6 @@ var EditActionView = function(types, arguments) {
     }
     xpathField.val(context.xpath);
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
-
-    // field = this.model.editField(field, {context: context});
-    // this.view.editField(field);
-
-    // var action = field.type;
-    // if (! field.if_present)
-    //   action += '!';
-    // action += " "+field.id;
-    // if (field.arg)
-    //   action += ", " + this.model.getTypeArg(field.arg).value;
-    // action += " # " + this.path;
-    // this.view.addAction(field, action);
-    // // model is updated by onStrategyTextChange() event.
   };
 
   chrome.extension.onMessage.addListener(function(msg, sender) {
