@@ -13,7 +13,6 @@ class Plugin::StrategiesController < ApplicationController
         FileUtils.rm_f(filename)
       else
         File.open(filename, "w") do |f|
-          params["data"].each { |s| s[:value].gsub!("\n","<\\n>") }
           f.puts params["data"].to_yaml
         end
       end
@@ -26,7 +25,6 @@ class Plugin::StrategiesController < ApplicationController
     filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
     if File.file?(filename)
       data = YAML.load_file(filename)
-      data.each { |s| s[:value].gsub!("<\\n>","\n") }
       render :json => data.to_json
     else
       render :json => default.to_json

@@ -19,8 +19,8 @@ var StrategyView = function(controller) {
       {id: "fill_email", type: 'pl_fill_text', arg: 'email', desc: "Renseigner l'email"}
     ];
 
-  // $('#saveBtn').click(controller.onSave);
-  // $('#importBtn').click(controller.onLoad);
+  $('#saveBtn').click(controller.onSave);
+  $('#importBtn').click(controller.onLoad);
   // $('#newBtn').click(controller.onReset);
   // $('#clearBtn').click(controller.onClear);
   // $('.testBtn').click(controller.onTest);
@@ -31,7 +31,7 @@ var StrategyView = function(controller) {
     stepsList.listview('refresh');
   };
   
-  // steps an Array of object {id: , desc: , value: , fields: }
+  // steps an Array of object {id: , desc: , value: , actions: }
   this.init = function(types, typesArgs, predefined, steps) {
     newActionView = new NewActionView(predefinedActions, types, typesArgs);
     editActionView = new EditActionView(types, typesArgs);

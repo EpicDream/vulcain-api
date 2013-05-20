@@ -28,7 +28,7 @@ var Controller = function() {
   // PLUGIN
   // ############################
 
-  this.onSave = function(event) { 
+  this.onSave = function(event) {
     this.model.save();
   };
   this.onLoad = function(event) {
@@ -36,72 +36,72 @@ var Controller = function() {
       // this.view.initStrategies(this.model.strategies);
     }.bind(this));
   };
-  this.onUnload = function(event) {
-    if (this.model.strategies.length > 0) {
-      this.model.save();
-      wait(200);/*send ajax*/
-    }
-  };
-  this.onReset = function(event) { 
-    if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
-      // this.view.reset();
-      this.model.reset();
-    }
-  };
-  this.onClear = function(event) { 
-    if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) this.model.clearCache(); 
-  };
-  this.onTest = function(event) {
-    $.ajax({
-      type: 'POST',
-      url: PLUGIN_URL+"/strategies/test",
-      contentType: 'application/json; charset=utf-8',
-      data: JSON.stringify({
-        "host": this.host,
-        "strategy": this.model.strategies
-      })
-    }).done(function(hash) {
-      console.log(hash);
-      if (hash.action)
-        alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
-      else
-        alert("Une erreur c'est produite : "+hash.msg);
-    }).fail(function() {
-      alert("Problème de connectivité.");
-    });
-  };
+  // this.onUnload = function(event) {
+  //   if (this.model.strategies.length > 0) {
+  //     this.model.save();
+  //     wait(200);/*send ajax*/
+  //   }
+  // };
+  // this.onReset = function(event) { 
+  //   if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
+  //     // this.view.reset();
+  //     this.model.reset();
+  //   }
+  // };
+  // this.onClear = function(event) { 
+  //   if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) this.model.clearCache(); 
+  // };
+  // this.onTest = function(event) {
+  //   $.ajax({
+  //     type: 'POST',
+  //     url: PLUGIN_URL+"/strategies/test",
+  //     contentType: 'application/json; charset=utf-8',
+  //     data: JSON.stringify({
+  //       "host": this.host,
+  //       "strategy": this.model.strategies
+  //     })
+  //   }).done(function(hash) {
+  //     console.log(hash);
+  //     if (hash.action)
+  //       alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
+  //     else
+  //       alert("Une erreur c'est produite : "+hash.msg);
+  //   }).fail(function() {
+  //     alert("Problème de connectivité.");
+  //   });
+  // };
   this.init = function() {
-    window.addEventListener("beforeunload", this.onUnload);
+    // window.addEventListener("beforeunload", this.onUnload);
     chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
   };
 
-  this.onAddField = function(event) {
-    event.preventDefault();
-    var strategy = event.data;
-    var field = this.view.getFieldsetValues(strategy);
+  // this.onAddAction = function(event) {
+  //   event.preventDefault();
+  //   var strategy = event.data;
+  //   var action = this.view.getActionsetValues(strategy);
 
-    if (field.id == "" || field.desc == "" || field.type == "" || (this.model.getType(field.type).args.default_arg && field.arg == "")) {
-      alert("Some fields are missing.");
-      return;
-    } else if (field.is_edit) {
-      this.model.editField(field, field);
-      this.view.editField(field);
-    } else {
-      var f = this.model.getField(field);
-      if (f && ! confirm("Un champs avec l'identifiant "+f.id+" existe déjà ('"+f.desc+"').\nVoulez le remplacer ?"))
-        return;
-      else if (f) {
-        this.model.editField(f, field);
-        this.view.editField(field);
-      }
-      else {
-        field = this.model.newField(field);
-        this.view.addField(field);
-      }
-    }
+  //   if (action.id == "" || action.desc == "" || action.type == "" || (this.model.getType(action.type).args.default_arg && action.arg == "")) {
+  //     alert("Some fields are missing.");
+  //     return;
+  //   } else if (action.is_edit) {
+  //     this.model.editAction(action, action);
+  //     this.view.editAction(action);
+  //   } else {
+  //     var f = this.model.getAction(action);
+  //     if (f && ! confirm("Un champs avec l'identifiant "+f.id+" existe déjà ('"+f.desc+"').\nVoulez le remplacer ?"))
+  //       return;
+  //     else if (f) {
+  //       this.model.editAction(f, action);
+  //       this.view.editAction(action);
+  //     }
+  //     else {
+  //       action = this.model.newAction(action);
+  //       this.view.addAction(action);
+  //     }
+  //   }
 
-    this.view.clearFieldset(strategy);
-  }.bind(this);
+  //   this.view.clearActionset(strategy);
+  // }.bind(this);
 
   for (var f in this) {
     if (typeof(this[f]) == "function")

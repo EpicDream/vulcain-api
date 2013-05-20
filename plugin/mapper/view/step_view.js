@@ -38,20 +38,20 @@ var StepView = function(step, patternPage, predefined) {
 
   this.renderMenu = function(pos) {
     menu.find("a span.ui-li-pos").text(pos);
-    menu.find("a span.ui-li-count").text(step.fields.length);
+    menu.find("a span.ui-li-count").text(step.actions.length);
     return menu;
   };
 
   this.addActions = function(actions) {
     for (var i in actions)
-      this.addAction(step.fields[i]);
+      this.addAction(step.actions[i]);
   };
 
   this.addAction = function(action) {
     var actionView = new ActionView(this, action);
     actionsList.append(actionView.render());
     actionsList.listview("refresh");
-    menu.find("a span.ui-li-count").text(step.fields.length);
+    menu.find("a span.ui-li-count").text(step.actions.length);
     return actionView;
   };
 
@@ -70,5 +70,5 @@ var StepView = function(step, patternPage, predefined) {
     this.addAction(predefined[option.val()]).edit();
     $.mobile.changePage("#editActionPage");
   }.bind(this));
-  this.addActions(step.fields);
+  this.addActions(step.actions);
 };
