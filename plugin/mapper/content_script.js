@@ -31,7 +31,7 @@ function buildExtension() {
   var extension_id = chrome.i18n.getMessage("@@extension_id");
   plugin.iframe = document.createElement('iframe');
   plugin.iframe.id = "shopeliaFrame";
-  plugin.iframe.src = "chrome-extension://" + extension_id + "/shopelia_mapper.html";
+  plugin.iframe.src = "chrome-extension://" + extension_id + "/view/shopelia_mapper2.html";
   body.appendChild(plugin.iframe);
 
   plugin.link = document.createElement('link');
