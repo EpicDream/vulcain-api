@@ -19,7 +19,8 @@ module Dispatcher
     output = case msg
     when :new_vulcain then "\nNew Vulcain running on host : #{args[:vulcain].host}"
     when :removed_vulcain then "\nVulcain on host : #{args[:vulcain].host} is dead !"
-    when :ack_ping then "\nVulcain on host #{args[:vulcain].host} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
+    when :ack_ping then "\nVulcain #{args[:vulcain].id} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
+    when :idle then "\nVulcain #{args[:vulcain].id} Status : idle"
     when :ping then "\nPing Vulcain on host : #{args[:vulcain].host}"
     when :running 
       header = (RUNNING_MESSAGE if console) || ""

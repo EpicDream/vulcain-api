@@ -60,6 +60,7 @@ module Dispatcher
       vulcain.callback_url = nil
       vulcain.run_since = nil
       vulcain.uuid = nil
+      Dispatcher.output(:idle, vulcain:vulcain)
     end
     
     def dump
