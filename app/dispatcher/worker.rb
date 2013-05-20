@@ -18,6 +18,7 @@ module Dispatcher
         
           Signal.trap("INT") { @supervisor.abort_worker }
           Signal.trap("TERM") { @supervisor.abort_worker }
+          Signal.trap("USR2") { @supervisor.reload_vulcains_code }
       
           mount_queues_handlers
           @pool.restore

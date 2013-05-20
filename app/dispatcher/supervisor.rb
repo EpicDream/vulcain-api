@@ -25,6 +25,16 @@ module Dispatcher
       end
     end
     
+    def reload_vulcains_code
+      @pool.pool.size.times do
+        session = {'uuid' => 'RELOAD', 'callback_url' => ''}
+        next unless vulcain = @pool.pull(session)
+        Dispatcher.output(:reload_vulcain, :vulcain => vulcain.id)
+        
+        @pool.reload(vulcain)
+      end
+    end
+    
     def check_timeouts
       Proc.new do 
         @pool.pool.each do |vulcain|

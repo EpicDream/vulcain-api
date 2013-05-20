@@ -25,6 +25,7 @@ module Dispatcher
       header = (RUNNING_MESSAGE if console) || ""
       header + "\n\nRunning on : #{CONFIG['host']}" + "\nNumbers of vulcains : #{args[:pool_size]}"
     when :restoring_pool then RESTORING_POOL_MESSAGE
+    when :reload_vulcain then "\nReload Vulcain: #{args[:vulcain]}"
     end
     output.gsub!(/\n/, ' ') unless console
     output

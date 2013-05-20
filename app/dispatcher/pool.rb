@@ -15,7 +15,7 @@ module Dispatcher
   
     def pull session
       vulcain = nil
-      @mutex.synchronize { 
+      @mutex.synchronize {
         if vulcain = @pool.detect { |vulcain| vulcain.idle && !vulcain.blocked}
           vulcain.idle = false
           vulcain.uuid = session['uuid']
@@ -117,8 +117,8 @@ module Dispatcher
     end
     
     def reload vulcain
+      vulcain.idle = false
       load_robots_on_vulcain(vulcain)
-      idle(vulcain.id)
     end
   
     private
