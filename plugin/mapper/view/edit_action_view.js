@@ -3,18 +3,24 @@ var EditActionView = function(types, arguments) {
   var page = $("#editActionPage");
   var typesField = page.find("select.type").selectmenu();
   var argumentsField = page.find("select.argument").selectmenu();
-  var passField = page.find("checkbox.pass");
+  var passField = page.find("input.pass");
   var descriptionField = page.find("input.description");
   var urlField = page.find("input.url").textinput();
   var xpathField = page.find("input.xpath").textinput();
   var codeField = page.find("textarea.code");
+  var saveBtn = page.find("#editSaveBtn");
   var typesH = {};
   for (var i in types) {
-    typesH[types[i].id] = types[i];
-    typesField.append($("<option value='"+types[i].id+"'>"+types[i].desc+"</option>"));
+    var id = types[i].id;
+    typesH[id] = types[i];
+    typesField.append($("<option value='"+id+"'>"+types[i].desc+"</option>"));
   }
-  for (var i in arguments)
-    argumentsField.append($("<option value='"+arguments[i].id+"'>"+arguments[i].desc+"</option>"));
+  var argumentsH = {};
+  for (var i in arguments) {
+    var id = arguments[i].id;
+    argumentsH[id] = arguments[i];
+    argumentsField.append($("<option value='"+id+"'>"+arguments[i].desc+"</option>"));
+  }
   var currentAction = null;
 
   function onTypeChanged(event) {
@@ -74,9 +80,15 @@ var EditActionView = function(types, arguments) {
     // Others
     passField.prop('checked', action.if_present);
     descriptionField.val(action.desc);
-    codeField.val(action.code);
+    if (action.code)
+      codeField.val(action.code);
+    else
+      this.generateCode();
     codeField.css("height", "100%").keyup();
-    saveBtn.click(onSave);
+    saveBtn[0].onclick = function() {
+      onSave();
+      this.clear();
+    }.bind(this);
   };
   this.get = function() {
     var action = {};
@@ -104,7 +116,6 @@ var EditActionView = function(types, arguments) {
     codeField.css("height", "100%").keyup();
   };
   page.find("#editCancelBtn").click(this.clear);
-  var saveBtn = page.find("#editSaveBtn").click(this.clear);
 
   $("#searchXPathBtn").click(function(event) {
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':xpathField.val()});
@@ -118,6 +129,44 @@ var EditActionView = function(types, arguments) {
     xpathField.val(context.xpath);
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
+
+  this.generateCode = function() {
+    var code = "# "+descriptionField.val() + "\n";
+    // url
+    if (! urlField.prop("disabled")) {
+      code += "plarg_url = \"" + urlField.val().replace(/"/g,'\\"') + "\"\n";
+    }
+    // xpath
+    if (! xpathField.prop("disabled")) {
+      code += "plarg_xpath = \"" + xpathField.val().replace(/"/g,'\\"') + "\"\n";
+    }
+    // argument
+    if (! argumentsField.prop("disabled") && argumentsField.val()) {
+      var argId = argumentsField.val();
+      code += "plarg_argument = " + (argumentsH[argId].value) + "\n";
+    }
+    // type = method
+    typeId = typesField.val();
+    if (typesH[typeId])
+      code += typesH[typeId].method;
+    else
+      code += "raise 'Nothing to do !'";
+    // pass if not present
+    if (! passField.prop("checked")) code += "!";
+    // method's args.
+    if (typesH[typeId])
+      code += typesH[typeId].argsTxt;
+
+    codeField.val(code);
+    codeField.keyup();
+    return code;
+  };
+  typesField.change(this.generateCode);
+  argumentsField.change(this.generateCode);
+  passField.change(this.generateCode);
+  descriptionField.change(this.generateCode);
+  urlField.change(this.generateCode);
+  xpathField.change(this.generateCode);
 
   chrome.extension.onMessage.addListener(function(msg, sender) {
     if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != page[0])
