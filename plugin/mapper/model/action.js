@@ -1,21 +1,33 @@
 
 var Action = function(sId, id, args) {
-  if (! sId || typeof(sId) != "string") throw "'sId' must be set as a string."
-  if (! id || typeof(id) != "string") throw "'id' must be set as a string."
-  if (! args || typeof(args) != "object") throw "'args' must be set as an object."
   
-  this.sId = sId;
-  this.id = id;
-  this.desc = args.desc || "";
-  this.context = or(args.context, null);
-  this.type = or(args.type, null);
-  this.arg = or(args.arg, null);
-  this.argument = or(args.argument, null);
-  this.url = or(args.url, null);
-  this.option = or(args.option, null);
-  this.if_present = args.if_present || false;
-  this.pass = args.pass || false;
-  this.code = args.code || "";
+  var that = this;
+  function init() {
+    // if (! sId || typeof(sId) != "string") throw "'sId' must be set as a string."
+    // if (! id || typeof(id) != "string") throw "'id' must be set as a string."
+    if (! args || typeof(args) != "object") throw "'args' must be set as an object."
+
+    that.sId = sId;
+    that.id = id;
+    that.desc = args.desc || "";
+    that.context = or(args.context, null);
+    that.type = or(args.type, null);
+    that.arg = or(args.arg, null);
+    that.argument = or(args.argument, null);
+    that.url = or(args.url, null);
+    that.option = or(args.option, null);
+    that.if_present = args.if_present || false;
+    that.pass = args.pass || false;
+    that.code = args.code || "";
+
+    if (! id)
+      generateId();
+  };
+
+  function generateId() {
+    that.id = that.sId + _.uniqueId('_action_');
+    // return that.sId + that.desc.replace(/\W/g,'_');
+  };
 
   this.edit = function(action) {
     this.desc = or(action.desc, this.desc);
@@ -29,4 +41,11 @@ var Action = function(sId, id, args) {
     this.code = or(action.code, this.code);
     return this;
   };
+
+  for (var f in this) {
+    if (typeof(this[f]) == "function")
+      this[f] = this[f].bind(this);
+  }
+
+  init();
 };

@@ -1,25 +1,47 @@
 
 var StepView = function(step, patternPage, predefined) {
-  this.model = step;
+  var that = this;
+  var page, actionsList, title, predefinedActionsH, predefinedActionSelect, menu;
+  page = actionsList = title = predefinedActionsH = predefinedActionSelect = menu = null;
 
-  var page = patternPage.clone();
-  page.attr('id', step.id+"Page");
-  var actionsList = page.find("ul.actionList").listview();
-  actionsList.sortable({ delay: 20, distance: 10 }).on("sortupdate", this.onActionsSorted);
-  var title = page.find(".title");
+  function init() {
+    that.model = step;
 
-  var predefinedActionsH = {};
-  var predefinedActionSelect = page.find(".newActionSelect");
-  for (var i in predefined) {
-    var p = predefined[i];
-    predefinedActionsH[p.id] = p;
-    predefinedActionSelect.append($("<option value='"+p.id+"'>"+p.desc+"</option>"));    
-  }
+    page = patternPage.clone();
+    page.attr('id', step.id+"Page");
+    page.find(".newActionButton").click(function() {
+      newActionView.onAdd(function() {
+        var a = step.newAction(newActionView.get());
+        that.addAction(a).edit();
+      }.bind(that));
+    }.bind(that));
+    page.find(".newActionSelect").change(function (event) {
+      var option = $(event.target).find("option:selected");
+      var a = step.newAction(predefinedActionsH[option.val()]);
+      that.addAction(a).edit();
+      $.mobile.changePage("#editActionPage");
+    }.bind(that));
 
-  var menu = $("<a>").append('Etape <span class="ui-li-pos"></span> : '+step.desc).
+    actionsList = page.find("ul.actionsList").listview();
+    actionsList.sortable({ delay: 20, distance: 10 }).on("sortupdate", that.onActionsSorted);
+
+    title = page.find(".title");
+
+    predefinedActionsH = {};
+    predefinedActionSelect = page.find(".newActionSelect");
+    for (var i in predefined) {
+      var p = predefined[i];
+      predefinedActionsH[p.id] = p;
+      predefinedActionSelect.append($("<option value='"+p.id+"'>"+p.desc+"</option>"));
+    }
+
+    menu = $("<a>").append('Etape <span class="ui-li-pos"></span> : '+step.desc).
           attr("href", "#"+step.id+"Page").
           append('<span class="ui-li-count">0</span>').
           appendTo("<li>").parent();
+
+    that.addActions(step.actions);
+  };
 
   this.renderPage = function(previousStepId, nextStepId) {
     title.text(step.desc);
@@ -49,26 +71,24 @@ var StepView = function(step, patternPage, predefined) {
 
   this.addAction = function(action) {
     var actionView = new ActionView(this, action);
-    actionsList.append(actionView.render());
+    var li = actionView.render();
+    actionsList.append(li);
     actionsList.listview("refresh");
+    li[0].view = actionView;
     menu.find("a span.ui-li-count").text(step.actions.length);
     return actionView;
   };
 
   this.onActionsSorted = function(event, ui) {
-    var actionView = ui.item;
-    console.log(stepView.model.desc, actionView);
+    var actionView = ui.item[0].view;
+    var idx = $.inArray(ui.item[0], actionsList.find("li"));
+    step.moveAction(actionView.model, idx);
+  };
+
+  for (var f in this) {
+    if (typeof(this[f]) == "function")
+      this[f] = this[f].bind(this);
   }
 
-  page.find(".newActionButton").click(function() {
-    newActionView.onAdd(function() {
-      this.addAction(newActionView.get()).edit();
-    }.bind(this));
-  }.bind(this));
-  page.find(".newActionSelect").change(function (event) {
-    var option = $(event.target).find("option:selected");
-    this.addAction(predefined[option.val()]).edit();
-    $.mobile.changePage("#editActionPage");
-  }.bind(this));
-  this.addActions(step.actions);
+  init();
 };
