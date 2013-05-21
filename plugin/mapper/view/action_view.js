@@ -1,6 +1,5 @@
 
 var ActionView = function(step, action) {
-  this.controller = step.controller;
   this.model = action;
 
   var a = $("<a>").attr("href","#editActionPage");
@@ -12,10 +11,13 @@ var ActionView = function(step, action) {
   };
 
   this.edit = function() {
-    editActionView.load(this.model, this.save);
+    editActionView.load(this.model, this.save, this.delete);
   };
   this.save = function() {
     this.model.edit(editActionView.get());
+  };
+  this.delete = function() {
+    step.deleteAction(this);
   };
 
   for (var f in this) {

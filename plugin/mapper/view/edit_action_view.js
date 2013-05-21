@@ -10,6 +10,7 @@ var EditActionView = function() {
   var _xpathField = _page.find("input.xpath").textinput();
   var _codeField = _page.find("textarea.code");
   var _saveBtn = _page.find("#editSaveBtn");
+  var _deleteBtn = _page.find("#editDeleteBtn");
   var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
   var _currentAction = null;
 
@@ -32,7 +33,7 @@ var EditActionView = function() {
       if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
         return;
 
-      this.onNewMapping(msg.context, msg.merged);
+      _onNewMapping(msg.context, msg.merged).bind(_that);
     }.bind(_that));
   };
 
@@ -84,11 +85,11 @@ var EditActionView = function() {
       _xpathField.textinput('enable');
   };
 
-  this.load = function(action, onSave) {
+  this.load = function(action, onSave, onDel) {
     _currentAction = action;
     // Types
     var type = action.type;
-    _typesField.find("option[value='"+action.type+"']").prop('selected',true).parent().selectmenu('refresh');
+    _typesField.find("option[value='"+type+"']").prop('selected',true).parent().selectmenu('refresh');
     // Arguments
     if (type == "" || ! _typesH[type].args.default_arg)
       _argumentsField.selectmenu("disable");
@@ -128,6 +129,11 @@ var EditActionView = function() {
       onSave();
       this.clear();
     }.bind(this);
+
+    _deleteBtn[0].onclick = function() {
+      onDel();
+      this.clear();
+    }.bind(this);
   };
 
   this.get = function() {
@@ -146,6 +152,8 @@ var EditActionView = function() {
   };
 
   this.clear = function() {
+    _saveBtn[0].onclick = null;
+    _deleteBtn[0].onclick = null;
     _currentAction = null;
     _typesField[0].selectedIndex = 0;
     _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
@@ -155,15 +163,6 @@ var EditActionView = function() {
     _xpathField.prop("disabled", true).val("");
     _codeField.val("");
     _codeField.css("height", "100%").keyup();
-  };
-
-  this.onNewMapping = function(context, merged) {
-    if (_xpathField.val() && ! merged) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_currentAction.context, 'new_context':context});
-      return;
-    }
-    _xpathField.val(context.xpath);
-    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
 
   this.generateCode = function() {
@@ -196,6 +195,15 @@ var EditActionView = function() {
     _codeField.val(code);
     _codeField.keyup();
     return code;
+  };
+
+  function _onNewMapping(context, merged) {
+    if (_xpathField.val() && ! merged) {
+      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_currentAction.context, 'new_context':context});
+      return;
+    }
+    _xpathField.val(context.xpath);
+    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
 
   for (var f in this) {
