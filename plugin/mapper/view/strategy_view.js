@@ -8,9 +8,9 @@ var newActionView = null;
 var editActionView = null;
 var ctrlr = null;
 
-var StrategyView = function(controller) {
+var StrategyView = function(strategy, controller) {
   ctrlr = controller;
-  this.model = controller.model;
+  this.model = strategy;
 
   var _that = this;
   var _patternPage = $(".stepTemplatePage").detach().removeClass(".stepTemplatePage").page();
@@ -40,7 +40,7 @@ var StrategyView = function(controller) {
   };
   
   // steps an Array of object {id: , desc: , value: , actions: }
-  this.render = function(types, typesArgs, predefined, strategy) {
+  this.render = function(types, typesArgs, predefined) {
     this.reset();
 
     newActionView.render(predefinedActions, types, typesArgs);
@@ -64,13 +64,17 @@ var StrategyView = function(controller) {
   };
 
   function _onSave(event) {
-    this.model.save();
+    strategy.save();
   };
   function _onLoad(event) {
-    this.model.load(function() {
+    strategy.load(function() {
       this.reset();
       this.render();
     }.bind(this));
+  };
+  function _onUnload(event) {
+    strategy.save();
+    wait(200);/*send ajax*/
   };
 
   for (var f in this) {
