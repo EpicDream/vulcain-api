@@ -56,10 +56,7 @@ var Controller = function() {
   //     type: 'POST',
   //     url: PLUGIN_URL+"/strategies/test",
   //     contentType: 'application/json; charset=utf-8',
-  //     data: JSON.stringify({
-  //       "host": this.host,
-  //       "strategy": this.model
-  //     })
+  //     data: JSON.stringify(this.model)
   //   }).done(function(hash) {
   //     console.log(hash);
   //     if (hash.action)

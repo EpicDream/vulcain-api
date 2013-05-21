@@ -12,7 +12,7 @@ var Strategy = function(host, userAgent) {
     that.types = [];
     that.typesArgs = [];
     that.steps = [];
-    mobility = (userAgent.match(/android|iphone/i) ? "_mobile" : "");
+    mobility = !! userAgent.match(/android|iphone/i);
   };
 
   this.initTypes = function() {
@@ -38,15 +38,12 @@ var Strategy = function(host, userAgent) {
 
   this.load = function(onLoad) {
     if (! onLoad) throw "'onLoad' must be set."
-    this.bdd.load(host+mobility, function(hash) {
+    this.bdd.load(this.toHash(), function(hash) {
       this.reset();
       this.steps = [];
-      for (var i in hash) {
-        var s = hash[i];
-        if (s instanceof Step)
-          this.steps.push(s);
-        else
-          this.steps.push(new Step(s.id, s));
+      for (var i in hash.steps) {
+        var s = hash.steps[i];
+        this.steps.push(new Step(s.id, s));
       }
       onLoad();
     }.bind(this), function() {
@@ -56,10 +53,7 @@ var Strategy = function(host, userAgent) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
-    var s = dclone(this.steps);
-    for (var i = 0; i < s.length ; i++)
-      delete s[i].actionsHash;
-    this.bdd.save(host+mobility, s, onFail, onDone);
+    this.bdd.save(this.toHash(), onFail, onDone);
   };
   this.setDefault = function() {
     this.steps = [
@@ -99,7 +93,6 @@ var Strategy = function(host, userAgent) {
         actions: []
       })
     ];
-    setStrategiesToHash.bind(this)();
   };
 
   this.clearCache = function() { this.bdd.clearCache(host); };

@@ -23,7 +23,6 @@ var Step = function(id, args) {
       else
         that.actions.push(new Action(a.sId, a.id, a));
     }
-    that.actionsHash = {};
   };
 
   this.toHash = function() {
@@ -39,7 +38,6 @@ var Step = function(id, args) {
   this.newAction = function(action) {
     var a = new Action(this.id, undefined, action);
     this.actions.push(a);
-    this.actionsHash[a.id] = a;
     return a;
   };
 

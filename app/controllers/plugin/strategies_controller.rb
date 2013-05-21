@@ -6,23 +6,15 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def create
-    if params["host"]
-      filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
-      FileUtils.mkdir_p(File.dirname(filename))
-      if params["data"].nil?
-        FileUtils.rm_f(filename)
-      else
-        File.open(filename, "w") do |f|
-          f.puts params["data"].to_yaml
-        end
-      end
-    else
-      render :json => {:error => "Missing or Bad parameters"}.to_json, :status => 451
+    filename = Rails.root+"db/plugin/#{params["host"]}#{params["mobility"] == "true" ? "_mobile" : ""}.yml"
+    FileUtils.mkdir_p(File.dirname(filename))
+    File.open(filename, "w") do |f|
+      f.puts params.to_yaml
     end
   end
 
   def show
-    filename = Rails.root+"db/plugin/"+(params["host"]+".yml")
+    filename = Rails.root+"db/plugin/#{params["host"]}#{params["mobility"] == "true" ? "_mobile" : ""}.yml"
     if File.file?(filename)
       data = YAML.load_file(filename)
       render :json => data.to_json
@@ -32,7 +24,7 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def test
-    err = Plugin::RobotFactory.test_strategy(params["strategy"])
+    err = Plugin::RobotFactory.test_strategy(params)
     render :json => err.to_json
   end
 
