@@ -32,7 +32,9 @@ var StrategyView = function(controller) {
   };
   
   // steps an Array of object {id: , desc: , value: , actions: }
-  this.init = function(types, typesArgs, predefined, steps) {
+  this.init = function(types, typesArgs, predefined, strategy) {
+    var steps = strategy.steps;
+
     newActionView = new NewActionView(predefinedActions, types, typesArgs);
     editActionView = new EditActionView(types, typesArgs);
 
