@@ -1,26 +1,41 @@
 # encoding: utf-8
 module Dispatcher
   class Supervisor
-    RUNNING_TIMEOUT = 3.minutes
-    CHECK_INTERVAL = 10.seconds
-    MONITORING_INTERVAL = 3.seconds
     VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked)
+
+    VULCAIN_RUN_CMD = "#{Rails.root}/../vulcain/bin/run.sh"
+    RUNNING_TIMEOUT = 3.minutes
+    CHECK_TIMEOUTS_INTERVAL = 10.seconds
+    MONITORING_INTERVAL = 3.seconds
     DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
+    CHECK_RUN_NEW_VULCAINS_INTERVAL = 1.minute
+    MIN_FREE_VULCAINS = 1
+    MAX_NEW_VULCAINS_AT_START = 3
     
     def initialize connection, exchange, queues, pool
       @pool = pool
       @connection = connection
       @exchange = exchange
       @queues = queues
-      EM.add_periodic_timer(CHECK_INTERVAL, check_timeouts)
+      check_run_new_vulcains.call(MAX_NEW_VULCAINS_AT_START)
+      EM.add_periodic_timer(CHECK_TIMEOUTS_INTERVAL, check_timeouts)
       EM.add_periodic_timer(MONITORING_INTERVAL, push_vulcains)
+      EM.add_periodic_timer(CHECK_RUN_NEW_VULCAINS_INTERVAL, check_run_new_vulcains)
+    end
+    
+    def check_run_new_vulcains
+      Proc.new do |n=1|
+        if @pool.idle_vulcains.count <= MIN_FREE_VULCAINS
+          n.times do 
+            #mount new vulcain instance
+          end
+        end
+      end
     end
     
     def push_vulcains
       Proc.new do 
-        states = @pool.pool.map do |vulcain|
-          JSON.parse(VulcainInfo.new(*vulcain.to_a[1..-1]).to_json)
-        end
+        states = @pool.pool.map {|vulcain| JSON.parse(VulcainInfo.new(*vulcain.to_a[1..-1]).to_json)}
         File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states.to_json)}
       end
     end
@@ -48,18 +63,17 @@ module Dispatcher
     end
     
     def abort_worker e=nil
-      @queues.each do |name, queue|
-        queue.unbind(@exchange, arguments:{'x-match' => 'all', queue:name})
-      end
       Log.create({ dispatcher_crash: "#{e.inspect}\n #{e.backtrace.join("\n")}" }) if e
-      @pool.pool.select { |vulcain| !vulcain.idle }.each do |vulcain|
-        session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
-        Message.new(:dispatcher_crash).for(session).to(:shopelia)
+      
+      @queues.each {|name, queue| queue.unbind(@exchange, arguments:{'x-match' => 'all', queue:name})}
+      @pool.busy_vulcains do |vulcains|
+        vulcains.each do |vulcain|
+          session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
+          Message.new(:dispatcher_crash).for(session).to(:shopelia)
+        end
       end
       @pool.dump
-      EventMachine.add_timer(1.0) do
-        @connection.close { EventMachine.stop { exit }}
-      end
+      EventMachine.add_timer(1){ @connection.close { EventMachine.stop { exit }} }
     end
     
   end

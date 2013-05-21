@@ -79,7 +79,7 @@ class Driver
   
   def find_link_with_href href
     elements = driver.find_elements(:tag_name => 'a')
-    elements.detect {|element| puts element.attribute('href');element.attribute('href') == href }
+    elements.detect {|element| element.attribute('href') == href }
   end
   
   def find_link_with_text text

@@ -80,6 +80,8 @@ module Dispatcher
       request.add_field "Content-type", "application/json"
       request.add_field "Accept", "application/json"
       http.request(request)
+    rescue => e
+      Log.create({message:"#{data} could not have been send to shopelia #{url}"})
     end
     
   end

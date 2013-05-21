@@ -18,7 +18,7 @@ module Dispatcher
   def self.logs msg, args={}, console=true
     output = case msg
     when :new_vulcain then "\nNew Vulcain running : #{args[:vulcain].id}"
-    when :removed_vulcain then "\nVulcain : #{args[:vulcain].id} is dead !"
+    when :removed_vulcain then "\nVulcain : #{args[:vulcain].id} : ouch! a serial killer has killed me!"
     when :ack_ping then "\nVulcain #{args[:vulcain].id} acknowledged ping - Status : #{args[:vulcain].idle ? 'idle' : 'busy'}"
     when :idle then "\nVulcain #{args[:vulcain].id} Status : idle"
     when :ping then "\nPing Vulcain : #{args[:vulcain].id}"
