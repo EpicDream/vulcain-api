@@ -120,7 +120,6 @@ module Dispatcher
     
     def ack_ping id
       vulcain = vulcain_with_id(id)
-      # Dispatcher.output(:ack_ping, vulcain:vulcain)
       vulcain.ack_ping = true
     end
     

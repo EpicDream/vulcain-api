@@ -69,6 +69,7 @@ module Dispatcher
     end
     
     def abort_worker e=nil
+      Dispatcher.output(:abort)
       Log.create({ dispatcher_crash: "#{e.inspect}\n #{e.backtrace.join("\n")}" }) if e
       unbind_queues
       send_crash_messages
