@@ -24,6 +24,23 @@ var Action = function(sId, id, args) {
       generateId();
   };
 
+  this.toHash = function() {
+    var res = {};
+    res.sId = this.sId;
+    res.id = this.id;
+    res.desc = this.desc;
+    res.context = this.context;
+    res.type = this.type;
+    res.arg = this.arg;
+    res.argument = this.argument;
+    res.url = this.url;
+    res.option = this.option;
+    res.if_present = this.if_present;
+    res.pass = this.pass;
+    res.code = this.code;
+    return res;
+  };
+
   function generateId() {
     that.id = that.sId + _.uniqueId('_action_');
     // return that.sId + that.desc.replace(/\W/g,'_');

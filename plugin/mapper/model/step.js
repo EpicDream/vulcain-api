@@ -26,6 +26,16 @@ var Step = function(id, args) {
     that.actionsHash = {};
   };
 
+  this.toHash = function() {
+    var res = {};
+    res.id = this.id;
+    res.desc = this.desc;
+    res.actions = [];
+    for (var i in this.actions)
+      res.actions[i] = this.actions[i].toHash();
+    return res;
+  };
+
   this.newAction = function(action) {
     var a = new Action(this.id, undefined, action);
     this.actions.push(a);
