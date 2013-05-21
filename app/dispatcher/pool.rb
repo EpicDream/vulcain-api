@@ -98,11 +98,19 @@ module Dispatcher
         Marshal.load(f).map do |obj|
           vulcain = Vulcain.new(nil, *obj)
           vulcain.ack_ping = false
+          vulcain.idle = false
           vulcain.exchange = Dispatcher::VulcainExchanger.new(vulcain.host).exchange
           vulcain
         end
       end
-      ping_vulcains
+      
+      ping_vulcains do 
+        Log.create({:pool_before_ping => @pool.map(&:id)})
+        @pool.each {|vulcain| @pool.delete(vulcain) unless vulcain.ack_ping}
+        Log.create({:pool_after_ping => @pool.map(&:id)})
+        @pool.each {|vulcain| reload(vulcain) }
+        Dispatcher.output(:running, pool_size:@pool.size)
+      end
       @pool
     end
 
@@ -112,24 +120,21 @@ module Dispatcher
     
     def ack_ping id
       vulcain = vulcain_with_id(id)
-      Dispatcher.output(:ack_ping, vulcain:vulcain)
+      # Dispatcher.output(:ack_ping, vulcain:vulcain)
       vulcain.ack_ping = true
     end
     
-    def ping_vulcains
+    def ping_vulcains opt={}, &callback
       EM.add_timer(PING_LAP_TIME) {
-        @pool.each do |vulcain| 
-          Dispatcher.output(:ping, vulcain:vulcain)
+        @pool.each do |vulcain|
+          vulcain.ack_ping = false
+          Dispatcher.output(:ping, vulcain:vulcain) if opt[:verbose]
           ping(vulcain)
-          reload(vulcain)
         end
       }
       
       EM.add_timer(PING_TIMEOUT + PING_LAP_TIME) {
-        Log.create({:pool_before_ping => @pool.map(&:id)})
-        @pool.delete_if { |vulcain| !vulcain.ack_ping}
-        Log.create({:pool_after_ping => @pool.map(&:id)})
-        Dispatcher.output(:running, pool_size:@pool.size)
+        callback.call if block_given?
       }
     end
     

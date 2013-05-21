@@ -9,25 +9,35 @@ module Dispatcher
     MONITORING_INTERVAL = 3.seconds
     DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     MOUNT_NEW_VULCAINS_INTERVAL = 1.minute
-    MIN_FREE_VULCAINS = 1
+    MIN_IDLE_VULCAINS = 1
     MAX_NEW_VULCAINS_AT_START = 3
+    PING_VULCAIN_INTERVAL = 30.seconds
     
     def initialize connection, exchange, queues, pool
       @pool = pool
       @connection = connection
       @exchange = exchange
       @queues = queues
-      mount_new_vulcains.call(MAX_NEW_VULCAINS_AT_START)
-      EM.add_periodic_timer(CHECK_TIMEOUTS_INTERVAL, check_timeouts)
-      EM.add_periodic_timer(MONITORING_INTERVAL, dump_vulcains)
-      EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, mount_new_vulcains)
+      instanciate_periodic_timers
     end
     
     def mount_new_vulcains
       Proc.new do |n=1|
-        if @pool.idle_vulcains.count <= MIN_FREE_VULCAINS
+        if @pool.idle_vulcains.count <= MIN_IDLE_VULCAINS
           n.times do 
             #mount new vulcain instance
+          end
+        end
+      end
+    end
+    
+    def ping_vulcains
+      Proc.new do 
+        @pool.ping_vulcains do
+          @pool.idle_vulcains do |vulcains| 
+            vulcains.each do |vulcain|
+              vulcain.blocked = !(vulcain.idle && vulcain.ack_ping)
+            end
           end
         end
       end
@@ -67,6 +77,13 @@ module Dispatcher
     end
     
     private
+    
+    def instanciate_periodic_timers
+      EM.add_periodic_timer(CHECK_TIMEOUTS_INTERVAL, check_timeouts)
+      EM.add_periodic_timer(MONITORING_INTERVAL, dump_vulcains)
+      EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, mount_new_vulcains)
+      EM.add_periodic_timer(PING_VULCAIN_INTERVAL, ping_vulcains)
+    end
     
     def unbind_queues
       @queues.each {|name, queue| queue.unbind(@exchange, arguments:{'x-match' => 'all', queue:name})}
