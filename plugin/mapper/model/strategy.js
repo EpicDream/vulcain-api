@@ -11,6 +11,7 @@ var Strategy = function(host, userAgent) {
     that.bdd = new BDD();
     that.types = [];
     that.typesArgs = [];
+    that.predefined = [];
     that.steps = [];
     mobility = !! userAgent.match(/android|iphone/i);
   };
@@ -20,6 +21,7 @@ var Strategy = function(host, userAgent) {
     d.done(function(hash) {
       this.types = hash.types;
       this.typesArgs = hash.typesArgs;
+      this.predefined = hash.predefined;
     }.bind(this));
     return d;
   };

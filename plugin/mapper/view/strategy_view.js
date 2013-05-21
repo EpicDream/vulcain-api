@@ -16,10 +16,7 @@ var StrategyView = function(strategy, controller) {
   var _patternPage = $(".stepTemplatePage").detach().removeClass(".stepTemplatePage").page();
   var _startPage = $("#startPage").page();
   var _stepsList = _startPage.find("#stepsList").listview();
-  var predefinedActions = [
-    {id: "click_on_my_account", type: 'pl_click_on', desc: "Cliquer sur le bouton 'Mon Compte'"},
-    {id: "fill_email", type: 'pl_fill_text', arg: 'email', desc: "Renseigner l'email"}
-  ];
+  var _predefined = {};
   newActionView = new NewActionView();
   editActionView = new EditActionView();
 
@@ -35,6 +32,7 @@ var StrategyView = function(strategy, controller) {
     $(".stepPage").remove();
     _stepsList.find("li").remove();
     _stepsList.listview('refresh');
+    _predefined = {};
     newActionView.reset();
     editActionView.reset();
   };
@@ -42,8 +40,8 @@ var StrategyView = function(strategy, controller) {
   // steps an Array of object {id: , desc: , value: , actions: }
   this.render = function(types, typesArgs, predefined) {
     this.reset();
-
-    newActionView.render(predefinedActions, types, typesArgs);
+    _predefined = predefined;
+    newActionView.render(_.flatten(_.values(predefined)), types, typesArgs);
     editActionView.render(types, typesArgs);
 
     var steps = strategy.steps;
@@ -55,7 +53,7 @@ var StrategyView = function(strategy, controller) {
   };
 
   this.addStep = function(step, previousStepId, nextStepId) {
-    var stepView = new StepView(step, _patternPage, predefinedActions);
+    var stepView = new StepView(step, _patternPage, _predefined[step.id]);
     $("body").append(stepView.renderPage(previousStepId, nextStepId));
     var nb = _stepsList.find("li").length;
     _stepsList.append(stepView.renderMenu(nb+1));
