@@ -1,41 +1,38 @@
 
 var Controller = function() {
-  var that = this;
+  var _that = this;
   this.model = null;
   this.view = null;
 
-  chrome.extension.onMessage.addListener(function(msg, sender) {
-    if (msg.dest != 'plugin' || msg.action != 'setPageInfos')
-      return;
+  function _init() {
+    // window.addEventListener("beforeunload", this.onUnload);
+    chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
 
-    this.model = new Strategy(msg.host, msg.userAgent);
-    this.view = new StrategyView(this);
-    this.host = msg.host;
-    this.path = msg.path;
-    var d = this.model.initTypes().done(function() {
-      this.model.load(function() {
-        this.view.init(this.model.types, this.model.typesArgs, null, this.model);
-      }.bind(this), function() {
-        console.error("fail to load strategies for host", this.host);
+    chrome.extension.onMessage.addListener(function(msg, sender) {
+      if (msg.dest != 'plugin' || msg.action != 'setPageInfos')
+        return;
+
+      this.model = new Strategy(msg.host, msg.userAgent);
+      this.view = new StrategyView(this);
+      this.host = msg.host;
+      this.path = msg.path;
+      var d = this.model.initTypes().done(function() {
+        this.model.load(function() {
+          this.view.render(this.model.types, this.model.typesArgs, null, this.model);
+        }.bind(this), function() {
+          console.error("fail to load strategies for host", this.host);
+        }.bind(this));
+      }.bind(this)).fail(function() {
+        console.error("fail to load types for host", this.host);
       }.bind(this));
-    }.bind(this)).fail(function() {
-      console.error("fail to load types for host", this.host);
-    }.bind(this));
-    
-  }.bind(this));
+
+    }.bind(_that));
+  };
 
   // ############################
   // PLUGIN
   // ############################
 
-  this.onSave = function(event) {
-    this.model.save();
-  };
-  this.onLoad = function(event) {
-    this.model.load(function() {
-      // this.view.initStrategies(this.model.strategies);
-    }.bind(this));
-  };
   // this.onUnload = function(event) {
   //   if (this.model.strategies.length > 0) {
   //     this.model.save();
@@ -67,16 +64,13 @@ var Controller = function() {
   //     alert("Problème de connectivité.");
   //   });
   // };
-  this.init = function() {
-    // window.addEventListener("beforeunload", this.onUnload);
-    chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
-  };
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
       this[f] = this[f].bind(this);
   }
+
+  _init();
 };
 
 ctroller = new Controller();
-ctroller.init();

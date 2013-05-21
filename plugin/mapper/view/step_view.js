@@ -49,11 +49,11 @@ var StepView = function(step, patternPage, predefined) {
     if (previousStepId)
       page.find(".previousStepButton").attr("href", "#"+previousStepId+"Page").show();
     else
-      page.find(".previousStepButton").hide();
+      page.find(".previousStepButton").remove();
     if (nextStepId)
       page.find(".nextStepButton").attr("href", "#"+nextStepId+"Page").show();
     else
-      page.find(".nextStepButton").hide();
+      page.find(".nextStepButton").remove();
 
     return page;
   };

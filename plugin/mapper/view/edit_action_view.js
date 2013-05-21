@@ -1,182 +1,207 @@
 
-var EditActionView = function(types, arguments) {
-  var page = $("#editActionPage");
-  var typesField = page.find("select.type").selectmenu();
-  var argumentsField = page.find("select.argument").selectmenu();
-  var passField = page.find("input.pass");
-  var descriptionField = page.find("input.description");
-  var urlField = page.find("input.url").textinput();
-  var xpathField = page.find("input.xpath").textinput();
-  var codeField = page.find("textarea.code");
-  var saveBtn = page.find("#editSaveBtn");
-  var typesH = {};
-  for (var i in types) {
-    var id = types[i].id;
-    typesH[id] = types[i];
-    typesField.append($("<option value='"+id+"'>"+types[i].desc+"</option>"));
-  }
-  var argumentsH = {};
-  for (var i in arguments) {
-    var id = arguments[i].id;
-    argumentsH[id] = arguments[i];
-    argumentsField.append($("<option value='"+id+"'>"+arguments[i].desc+"</option>"));
-  }
-  var currentAction = null;
+var EditActionView = function() {
+  var _that = this;
+  var _page = $("#editActionPage");
+  var _typesField = _page.find("select.type").selectmenu();
+  var _argumentsField = _page.find("select.argument").selectmenu();
+  var _passField = _page.find("input.pass");
+  var _descriptionField = _page.find("input.description");
+  var _urlField = _page.find("input.url").textinput();
+  var _xpathField = _page.find("input.xpath").textinput();
+  var _codeField = _page.find("textarea.code");
+  var _saveBtn = _page.find("#editSaveBtn");
+  var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
+  var _currentAction = null;
 
-  function onTypeChanged(event) {
-    var type = typesField.val();
-    // Arguments
-    if (type == "" || ! typesH[type].args.default_arg)
-      argumentsField.selectmenu("disable");
-    else
-      argumentsField.selectmenu("enable");
-    if (argumentsField.prop("disabled"))
-      argumentsField.find("option[value='']").prop('selected',true).parent().selectmenu("refresh");
-    // URL
-    if (type == "" || ! typesH[type].args.current_url)
-      urlField.textinput('disable');
-    else
-      urlField.textinput('enable');
-    // XPath
-    if (type == "" || ! typesH[type].args.xpath)
-      xpathField.textinput('disable');
-    else
-      xpathField.textinput('enable');
+  function _init() {
+    _page.find(".type").change(_onTypeChanged.bind(_that));
+    _page.find("#editCancelBtn").click(_that.clear);
+
+    $("#searchXPathBtn").click(function(event) {
+      chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':_xpathField.val()});
+    });
+
+    _typesField.change(_that.generateCode);
+    _argumentsField.change(_that.generateCode);
+    _passField.change(_that.generateCode);
+    _descriptionField.change(_that.generateCode);
+    _urlField.change(_that.generateCode);
+    _xpathField.change(_that.generateCode);
+
+    chrome.extension.onMessage.addListener(function(msg, sender) {
+      if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
+        return;
+
+      this.onNewMapping(msg.context, msg.merged);
+    }.bind(_that));
   };
-  page.find(".type").change(onTypeChanged);
+
+  this.reset = function() {
+    _types = [];
+    _arguments = [];
+    _typesH = {};
+    _argumentsH = {};
+    _typesField.find("option:gt(1)").remove();
+    _argumentsField.find("option:gt(1)").remove();
+  }
+
+  this.render = function(types, arguments) {
+    this.reset();
+    _types = types;
+    _arguments = arguments;
+
+    for (var i in types) {
+      var id = types[i].id;
+      _typesH[id] = types[i];
+      _typesField.append($("<option value='"+id+"'>"+types[i].desc+"</option>"));
+    }
+
+    for (var i in arguments) {
+      var id = arguments[i].id;
+      _argumentsH[id] = arguments[i];
+      _argumentsField.append($("<option value='"+id+"'>"+arguments[i].desc+"</option>"));
+    }
+  };
+
+  function _onTypeChanged(event) {
+    var type = _typesField.val();
+    // Arguments
+    if (type == "" || ! _typesH[type].args.default_arg)
+      _argumentsField.selectmenu("disable");
+    else
+      _argumentsField.selectmenu("enable");
+    if (_argumentsField.prop("disabled"))
+      _argumentsField.find("option[value='']").prop('selected',true).parent().selectmenu("refresh");
+    // URL
+    if (type == "" || ! _typesH[type].args.current_url)
+      _urlField.textinput('disable');
+    else
+      _urlField.textinput('enable');
+    // XPath
+    if (type == "" || ! _typesH[type].args.xpath)
+      _xpathField.textinput('disable');
+    else
+      _xpathField.textinput('enable');
+  };
 
   this.load = function(action, onSave) {
-    currentAction = action;
+    _currentAction = action;
     // Types
     var type = action.type;
-    typesField.find("option[value='"+action.type+"']").prop('selected',true).parent().selectmenu('refresh');
+    _typesField.find("option[value='"+action.type+"']").prop('selected',true).parent().selectmenu('refresh');
     // Arguments
-    if (type == "" || ! typesH[type].args.default_arg)
-      argumentsField.selectmenu("disable");
+    if (type == "" || ! _typesH[type].args.default_arg)
+      _argumentsField.selectmenu("disable");
     else
-      argumentsField.selectmenu("enable");
-    if (argumentsField.prop("disabled"))
-      argumentsField.find("option[value='']").prop('selected',true).parent().selectmenu("refresh");
+      _argumentsField.selectmenu("enable");
+    if (_argumentsField.prop("disabled"))
+      _argumentsField.find("option[value='']").prop('selected',true).parent().selectmenu("refresh");
     else
-      argumentsField.find("option[value='"+action.arg+"']").prop('selected',true).parent().selectmenu("refresh");
+      _argumentsField.find("option[value='"+action.arg+"']").prop('selected',true).parent().selectmenu("refresh");
     // URL
-    urlField.val('');
+    _urlField.val('');
     if (type == "")
-      urlField.textinput('disable');
-    else if (typesH[type].args.current_url) {
-      urlField.textinput('enable');
-      urlField.val(action.url || 'http://'+ctrlr.host+ctrlr.path);
-    } else if (typesH[type].args.url) {
-      urlField.textinput('enable');
-      urlField.val(action.url);
+      _urlField.textinput('disable');
+    else if (_typesH[type].args.current_url) {
+      _urlField.textinput('enable');
+      _urlField.val(action.url || 'http://'+ctrlr.host+ctrlr.path);
+    } else if (_typesH[type].args.url) {
+      _urlField.textinput('enable');
+      _urlField.val(action.url);
     } else
-      urlField.textinput('disable');
+      _urlField.textinput('disable');
     // XPath
-    xpathField.val(action.context && action.context.xpath);
-    if (type == "" || ! typesH[type].args.xpath)
-      xpathField.textinput('disable');
+    _xpathField.val(action.context && action.context.xpath);
+    if (type == "" || ! _typesH[type].args.xpath)
+      _xpathField.textinput('disable');
     else
-      xpathField.textinput('enable');
+      _xpathField.textinput('enable');
     // Others
-    passField.prop('checked', action.if_present);
-    descriptionField.val(action.desc);
+    _passField.prop('checked', action.if_present);
+    _descriptionField.val(action.desc);
     if (action.code)
-      codeField.val(action.code);
+      _codeField.val(action.code);
     else
       this.generateCode();
-    codeField.css("height", "100%").keyup();
-    saveBtn[0].onclick = function() {
+    _codeField.css("height", "100%").keyup();
+    _saveBtn[0].onclick = function() {
       onSave();
       this.clear();
     }.bind(this);
   };
+
   this.get = function() {
     var action = {};
-    action.type = typesField.val();
-    if (! argumentsField.prop("disabled"))
-      action.arg = argumentsField.val();
-    action.pass = passField.prop('checked')
-    action.description = descriptionField.val();
-    if (! urlField.prop("disabled"))
-      action.url = urlField.val();
-    if (! xpathField.prop("disabled"))
-      action.xpath = xpathField.val();
-    action.code = codeField.val();;
+    action.type = _typesField.val();
+    if (! _argumentsField.prop("disabled"))
+      action.arg = _argumentsField.val();
+    action.pass = _passField.prop('checked')
+    action.description = _descriptionField.val();
+    if (! _urlField.prop("disabled"))
+      action.url = _urlField.val();
+    if (! _xpathField.prop("disabled"))
+      action.xpath = _xpathField.val();
+    action.code = _codeField.val();;
     return action;
   };
-  this.clear = function() {
-    currentAction = null;
-    typesField[0].selectedIndex = 0;
-    argumentsField.prop("disabled", true)[0].selectedIndex = 0;
-    passField.prop('checked', false);
-    descriptionField.val("");
-    urlField.prop("disabled", true).val("");
-    xpathField.prop("disabled", true).val("");
-    codeField.val("");
-    codeField.css("height", "100%").keyup();
-  };
-  page.find("#editCancelBtn").click(this.clear);
 
-  $("#searchXPathBtn").click(function(event) {
-    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':xpathField.val()});
-  });
+  this.clear = function() {
+    _currentAction = null;
+    _typesField[0].selectedIndex = 0;
+    _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
+    _passField.prop('checked', false);
+    _descriptionField.val("");
+    _urlField.prop("disabled", true).val("");
+    _xpathField.prop("disabled", true).val("");
+    _codeField.val("");
+    _codeField.css("height", "100%").keyup();
+  };
 
   this.onNewMapping = function(context, merged) {
-    if (xpathField.val() && ! merged) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':currentAction.context, 'new_context':context});
+    if (_xpathField.val() && ! merged) {
+      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_currentAction.context, 'new_context':context});
       return;
     }
-    xpathField.val(context.xpath);
+    _xpathField.val(context.xpath);
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
 
   this.generateCode = function() {
-    var code = "# "+descriptionField.val() + "\n";
+    var code = "# "+_descriptionField.val() + "\n";
     // url
-    if (! urlField.prop("disabled")) {
-      code += "plarg_url = \"" + urlField.val().replace(/"/g,'\\"') + "\"\n";
+    if (! _urlField.prop("disabled")) {
+      code += "plarg_url = \"" + _urlField.val().replace(/"/g,'\\"') + "\"\n";
     }
     // xpath
-    if (! xpathField.prop("disabled")) {
-      code += "plarg_xpath = \"" + xpathField.val().replace(/"/g,'\\"') + "\"\n";
+    if (! _xpathField.prop("disabled")) {
+      code += "plarg_xpath = \"" + _xpathField.val().replace(/"/g,'\\"') + "\"\n";
     }
     // argument
-    if (! argumentsField.prop("disabled") && argumentsField.val()) {
-      var argId = argumentsField.val();
-      code += "plarg_argument = " + (argumentsH[argId].value) + "\n";
+    if (! _argumentsField.prop("disabled") && _argumentsField.val()) {
+      var argId = _argumentsField.val();
+      code += "plarg_argument = " + (_argumentsH[argId].value) + "\n";
     }
     // type = method
-    typeId = typesField.val();
-    if (typesH[typeId])
-      code += typesH[typeId].method;
+    typeId = _typesField.val();
+    if (_typesH[typeId])
+      code += _typesH[typeId].method;
     else
       code += "raise 'Nothing to do !'";
     // pass if not present
-    if (! passField.prop("checked")) code += "!";
+    if (! _passField.prop("checked")) code += "!";
     // method's args.
-    if (typesH[typeId])
-      code += typesH[typeId].argsTxt;
+    if (_typesH[typeId])
+      code += _typesH[typeId].argsTxt;
 
-    codeField.val(code);
-    codeField.keyup();
+    _codeField.val(code);
+    _codeField.keyup();
     return code;
   };
-  typesField.change(this.generateCode);
-  argumentsField.change(this.generateCode);
-  passField.change(this.generateCode);
-  descriptionField.change(this.generateCode);
-  urlField.change(this.generateCode);
-  xpathField.change(this.generateCode);
-
-  chrome.extension.onMessage.addListener(function(msg, sender) {
-    if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != page[0])
-      return;
-
-    this.onNewMapping(msg.context, msg.merged);
-  }.bind(this));
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
       this[f] = this[f].bind(this);
   }
+
+  _init();
 };
