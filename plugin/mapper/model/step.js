@@ -16,13 +16,6 @@ var Step = function(id, args) {
       else
         that.actions.push(new Action(a.sId, a.id, a));
     }
-    for (var i in args.fields) {
-      var a = args.fields[i];
-      if (a instanceof Action)
-        that.actions.push(a);
-      else
-        that.actions.push(new Action(a.sId, a.id, a));
-    }
   };
 
   this.toHash = function() {

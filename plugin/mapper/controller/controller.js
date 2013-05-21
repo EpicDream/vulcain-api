@@ -18,7 +18,7 @@ var Controller = function() {
       this.path = msg.path;
       var d = this.model.initTypes().done(function() {
         this.model.load(function() {
-          this.view.render(this.model.types, this.model.typesArgs, null);
+          this.view.render(this.model.types, this.model.typesArgs, this.model.predefined);
         }.bind(this), function() {
           console.error("fail to load strategies for host", this.host);
         }.bind(this));

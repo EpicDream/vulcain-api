@@ -2,7 +2,7 @@
 
 class Plugin::StrategiesController < ApplicationController
   def actions
-    render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO}.to_json
+    render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO, predefined: predefined}.to_json
   end
 
   def create
@@ -30,12 +30,12 @@ class Plugin::StrategiesController < ApplicationController
 
   private
     def default
-      return [
+      return {
+        steps: [
           {
             id: "account_creation",
             desc: "Inscription",
-            value: "",
-            fields: [
+            actions: [
               {sId: "account_creation", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
               {sId: "account_creation", id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
               {sId: "account_creation", id: "pseudo_field", desc: "Pseudo", option: "", type: "pl_fill_text","arg"=>"login"},
@@ -51,16 +51,14 @@ class Plugin::StrategiesController < ApplicationController
           },{
             id: "unlog",
             desc: "Déconnexion",
-            value: "",
-            fields: [
+            actions: [
                 {sId: "unlog", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
                 {sId: "unlog", id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"}
             ]
           },{
             id: "login",
             desc: "Se Connecter",
-            value: "",
-            fields: [
+            actions: [
                 {sId: "login", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
                 {sId: "login", id: "login_field", desc: "Login", option: "", type: "pl_fill_text","arg"=>"login"},
                 {sId: "login", id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
@@ -70,8 +68,7 @@ class Plugin::StrategiesController < ApplicationController
           },{
             id: "empty_cart",
             desc: "Vider panier",
-            value: "",
-            fields: [
+            actions: [
               {sId: "empty_cart", id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
               {sId: "empty_cart", id: "empty_btn", desc: "Bouton vider le panier", option: "", type: "pl_click_on"},
               {sId: "empty_cart", id: "remove_btn", desc: "Bouton supprimer produit du panier", option: "", type: "pl_click_on_all"}
@@ -79,8 +76,7 @@ class Plugin::StrategiesController < ApplicationController
           },{
             id: "add_to_cart",
             desc: "Ajouter Produit",
-            value: "",
-            fields: [
+            actions: [
               {sId: "add_to_cart", id: "set_product_title", desc: "Indiquer le titre de l'article", option: "", type: "pl_set_product_title"},
               {sId: "add_to_cart", id: "set_product_image_url", desc: "Indiquer l'url de l'image de l'article", option: "", type: "pl_set_product_image_url"},
               {sId: "add_to_cart", id: "set_product_price", desc: "Indiquer le prix de l'article", option: "", type: "pl_set_product_price"},
@@ -90,8 +86,7 @@ class Plugin::StrategiesController < ApplicationController
           },{
             id: "finalize_order",
             desc: "Finalisation",
-            value: "",
-            fields: [
+            actions: [
               {sId: "finalize_order", id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
               {sId: "finalize_order", id: "finalize_btn", desc: "Bouton finalisation", option: "", type: "pl_click_on"},
               {sId: "finalize_order", id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
@@ -107,8 +102,7 @@ class Plugin::StrategiesController < ApplicationController
           },{
             id: "payment",
             desc: "Payement",
-            value: "",
-            fields: [
+            actions: [
               {sId: "payment", id: "creditcard_type", desc: "Type de carte", option: "", type: "pl_click_on_radio"},
               {sId: "payment", id: "card_number", desc: "Numéro de la carte", option: "", type: "pl_fill_text"},
               {sId: "payment", id: "cvc", desc: "CVC", option: "", type: "pl_fill_text"},
@@ -117,7 +111,12 @@ class Plugin::StrategiesController < ApplicationController
               {sId: "payment", id: "continuer_btn", desc: "Bouton Continuer", option: "", type: "pl_click_on"}
             ]
           }
-      ]
+        ]
+      }
+    end
+
+    def predefined
+      return Hash[default[:steps].map { |s| [s[:id], s[:actions]]}]
     end
 
 end
