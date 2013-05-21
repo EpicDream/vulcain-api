@@ -12,6 +12,6 @@ else if (ENV == "prod")
   PLUGIN_URL = "http://prixing.fr/plugin";
 
 
-include("../model/model.js");
+include("../model/strategy.js");
 include("../view/strategy_view.js");
 include("../controller/controller.js");
