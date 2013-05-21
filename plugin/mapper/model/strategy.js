@@ -24,6 +24,16 @@ var Strategy = function(host, userAgent) {
     return d;
   };
 
+  this.toHash = function() {
+    var res = {};
+    res.host = host;
+    res.mobility = mobility;
+    res.steps = [];
+    for (var i in this.steps)
+      res.steps[i] = this.steps[i].toHash();
+    return res;
+  };
+
   // PLUGIN
 
   this.load = function(onLoad) {
