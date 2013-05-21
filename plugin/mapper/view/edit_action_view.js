@@ -105,7 +105,7 @@ var EditActionView = function() {
       _urlField.textinput('disable');
     else if (_typesH[type].args.current_url) {
       _urlField.textinput('enable');
-      _urlField.val(action.url || 'http://'+ctrlr.host+ctrlr.path);
+      _urlField.val(action.url || 'http://'+glob.host+glob.path);
     } else if (_typesH[type].args.url) {
       _urlField.textinput('enable');
       _urlField.val(action.url);
