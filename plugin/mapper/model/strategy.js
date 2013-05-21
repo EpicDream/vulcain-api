@@ -3,7 +3,7 @@ include("../model/action.js");
 include("../model/step.js");
 include("../model/bdd.js");
 
-var Model = function(host, userAgent) {
+var Strategy = function(host, userAgent) {
   var that = this;
   var mobility = null;
 

@@ -8,7 +8,7 @@ var Controller = function() {
     if (msg.dest != 'plugin' || msg.action != 'setPageInfos')
       return;
 
-    this.model = new Model(msg.host, msg.userAgent);
+    this.model = new Strategy(msg.host, msg.userAgent);
     this.view = new StrategyView(this);
     this.host = msg.host;
     this.path = msg.path;
