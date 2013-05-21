@@ -1,29 +1,19 @@
 
 var StepView = function(step, patternPage, predefined) {
-  var that = this;
+  var _that = this;
   var page, actionsList, title, predefinedActionsH, predefinedActionSelect, menu;
   page = actionsList = title = predefinedActionsH = predefinedActionSelect = menu = null;
 
   function init() {
-    that.model = step;
+    _that.model = step;
 
     page = patternPage.clone();
     page.attr('id', step.id+"Page");
-    page.find(".newActionButton").click(function() {
-      newActionView.onAdd(function() {
-        var a = step.newAction(newActionView.get());
-        that.addAction(a).edit();
-      }.bind(that));
-    }.bind(that));
-    page.find(".newActionSelect").change(function (event) {
-      var option = $(event.target).find("option:selected");
-      var a = step.newAction(predefinedActionsH[option.val()]);
-      that.addAction(a).edit();
-      $.mobile.changePage("#editActionPage");
-    }.bind(that));
+    page.find(".newActionButton").click(_onNewActionClicked.bind(_that));
+    page.find(".newActionSelect").change(_onNewActionSelected.bind(_that));
 
     actionsList = page.find("ul.actionsList").listview();
-    actionsList.sortable({ delay: 20, distance: 10 }).on("sortupdate", that.onActionsSorted);
+    actionsList.sortable({ delay: 20, distance: 10 }).on("sortupdate", _onActionsSorted.bind(_that));
 
     title = page.find(".title");
 
@@ -40,7 +30,8 @@ var StepView = function(step, patternPage, predefined) {
           append('<span class="ui-li-count">0</span>').
           appendTo("<li>").parent();
 
-    that.addActions(step.actions);
+    for (var i in step.actions)
+      _that.addAction(step.actions[i]);
   };
 
   this.renderPage = function(previousStepId, nextStepId) {
@@ -64,11 +55,6 @@ var StepView = function(step, patternPage, predefined) {
     return menu;
   };
 
-  this.addActions = function(actions) {
-    for (var i in actions)
-      this.addAction(step.actions[i]);
-  };
-
   this.addAction = function(action) {
     var actionView = new ActionView(this, action);
     var li = actionView.render();
@@ -79,10 +65,24 @@ var StepView = function(step, patternPage, predefined) {
     return actionView;
   };
 
-  this.onActionsSorted = function(event, ui) {
+  function _onActionsSorted(event, ui) {
     var actionView = ui.item[0].view;
     var idx = $.inArray(ui.item[0], actionsList.find("li"));
     step.moveAction(actionView.model, idx);
+  };
+
+  function _onNewActionClicked(event) {
+    newActionView.onAdd(function() {
+      var a = step.newAction(newActionView.get());
+      _that.addAction(a).edit();
+    }.bind(_that));
+  };
+
+  function _onNewActionSelected(event) {
+    var option = $(event.target).find("option:selected");
+    var a = step.newAction(predefinedActionsH[option.val()]);
+    _that.addAction(a).edit();
+    $.mobile.changePage("#editActionPage");
   };
 
   for (var f in this) {
