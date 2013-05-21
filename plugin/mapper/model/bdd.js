@@ -3,6 +3,10 @@ var BDD = function() {
   var pluginUrl = PLUGIN_URL;
   this.remote = true;
 
+  function save_key(strategy) {
+    return strategy.host+"_"+(strategy.mobility ? "_mobile" : "");
+  };
+
   // Load Types and TypesArgs, remotely or in local if remote fail.
     // Then call onDone() with a hash.
     // Call onFail if ajax failed and nothing is stored in localStorage.
@@ -24,85 +28,84 @@ var BDD = function() {
     });
     return d;
   };
-  this.remoteLoad = function(host, onDone, onFail) {
-    if (! host) throw "'host' must be set."
-    if (! onDone) throw "'onDone' must be set."
+  this.remoteLoad = function(strategy, onDone, onFail) {
+    if (! strategy) throw "'strategy' must be set.";
+    if (! onDone) throw "'onDone' must be set.";
     $.ajax({
       type : "GET",
       url: pluginUrl+"/strategies/show",
       //dataType: 'application/json; charset=utf-8',
-      data: {"host": host}
+      data: strategy
     }).done(function(hash) {
       onDone(hash);
     }).fail(function() {
       if (onFail) onFail();
     });
   };
-  this.remoteSave = function(host, data, onFail, onDone) {
-    if (! host) throw "'host' must be set."
-    if (! data || typeof(data) != "object") throw "'data' must be set as an Object."
+  this.remoteSave = function(strategy, onFail, onDone) {
+    if (! strategy || typeof(strategy) != "object") throw "'data' must be set as an Object."
     $.ajax({
       type: 'POST',
       url: pluginUrl+"/strategies/create",
       contentType: 'application/json; charset=utf-8', 
-      data: JSON.stringify({
-        "host": host,
-        "data": data
-      })
+      data: JSON.stringify(strategy)
     }).done(function() {
       if (onDone) onDone();
     }).fail(function() {
       if (onFail) onFail();
     });
   };
-  this.localLoad = function(host, onDone, onFail) {
-    if (! host) throw "'host' must be set."
-    if (! onDone) throw "'onDone' must be set."
-    if (window.localStorage && localStorage[host])
-      onDone(JSON.parse(localStorage[host]));
-    else if (onFail) onFail();
+  this.localLoad = function(strategy) {
+    if (! strategy) throw "'strategy' must be set.";
+    var key = save_key(strategy);
+    if (window.localStorage && localStorage[key])
+      return JSON.parse(localStorage[key]);
+    return null;
   };
-  this.localSave = function(host, data, onFail, onDone) {
+  this.localSave = function(strategy, onFail, onDone) {
     if (window.localStorage) {
-      localStorage[host] = JSON.stringify(data);
+      localStorage[save_key(strategy)] = JSON.stringify(strategy);
       if (onDone) onDone();
     } else if (onFail) onFail();
   };
   // Load model data for host, remotely or in local if remote fail.
-  this.load = function(host, onDone, onFail) {
+  this.load = function(strategy, onDone, onFail) {
     if (! onFail)
       onFail = function() { alert("WARNING : Unable to load remotly nor localy !"); };
 
+    var localHash = this.localLoad(strategy);
     if (this.remote)
-      this.remoteLoad(host, function(hash) {
-        if (window.localStorage) this.localSave(host, hash);
-        onDone(hash);
+      this.remoteLoad(strategy, function(hash) {
+        if (! localHash || (hash && hash.updated_at > localHash.updated_at)) onDone(hash);
+        else if (localHash) onDone(localHash);
+        else onFail();
       }.bind(this), function() {
-        this.localLoad(host, onDone, onFail);
+        if (localHash) onDone(localHash);
+        else onFail();
       }.bind(this));
-    else
-      this.localLoad(host, onDone, onFail);
+    else if (localHash) onDone(localHash);
+    else onFail();
   };
   // Save model data, remotely or in local if remote fail.
-  this.save = function(host, data, onFail, onDone) {
+  this.save = function(strategy, onFail, onDone) {
     if (! onFail)
       onFail = function() { alert("WARNING : Unable to save remotly nor localy !"); };
-
+    strategy.update_at = new Date();
     if (this.remote)
-      this.remoteSave(host, data, function() {
-        this.localSave(host, data);
+      this.remoteSave(strategy, function() {
+        this.localSave(strategy);
         if (onDone) onDone();
       }.bind(this), function() {
-        this.localSave(host, data, onFail, onDone);
+        this.localSave(strategy, onFail, onDone);
       }.bind(this));
     else
-      this.localSave(host, data, onFail, onDone);
+      this.localSave(strategy, onFail, onDone);
   };
   // Clear data saved in localStorage.
-  this.clearCache = function(host) {
+  this.clearCache = function(strategy) {
     if (window.localStorage) {
       delete localStorage['types'];
-      delete localStorage[host];
+      delete localStorage[save_key(strategy)];
     }
   };
 };
