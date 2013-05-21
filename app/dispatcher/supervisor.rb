@@ -8,7 +8,7 @@ module Dispatcher
     CHECK_TIMEOUTS_INTERVAL = 10.seconds
     MONITORING_INTERVAL = 3.seconds
     DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
-    CHECK_RUN_NEW_VULCAINS_INTERVAL = 1.minute
+    MOUNT_NEW_VULCAINS_INTERVAL = 1.minute
     MIN_FREE_VULCAINS = 1
     MAX_NEW_VULCAINS_AT_START = 3
     
@@ -17,13 +17,13 @@ module Dispatcher
       @connection = connection
       @exchange = exchange
       @queues = queues
-      check_run_new_vulcains.call(MAX_NEW_VULCAINS_AT_START)
+      mount_new_vulcains.call(MAX_NEW_VULCAINS_AT_START)
       EM.add_periodic_timer(CHECK_TIMEOUTS_INTERVAL, check_timeouts)
-      EM.add_periodic_timer(MONITORING_INTERVAL, push_vulcains)
-      EM.add_periodic_timer(CHECK_RUN_NEW_VULCAINS_INTERVAL, check_run_new_vulcains)
+      EM.add_periodic_timer(MONITORING_INTERVAL, dump_vulcains)
+      EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, mount_new_vulcains)
     end
     
-    def check_run_new_vulcains
+    def mount_new_vulcains
       Proc.new do |n=1|
         if @pool.idle_vulcains.count <= MIN_FREE_VULCAINS
           n.times do 
@@ -33,7 +33,7 @@ module Dispatcher
       end
     end
     
-    def push_vulcains
+    def dump_vulcains
       Proc.new do 
         states = @pool.pool.map {|vulcain| JSON.parse(VulcainInfo.new(*vulcain.to_a[1..-1]).to_json)}
         File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states.to_json)}
@@ -53,27 +53,38 @@ module Dispatcher
       Proc.new do 
         @pool.pool.each do |vulcain|
           next unless @pool.can_check_timeout_of?(vulcain) 
-          if Time.now - vulcain.run_since > RUNNING_TIMEOUT
-            @pool.block(vulcain)
-            session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
-            Message.new(:order_timeout).for(session).to(:shopelia)
-          end
+          timeout(vulcain) if Time.now - vulcain.run_since > RUNNING_TIMEOUT
         end
       end
     end
     
     def abort_worker e=nil
       Log.create({ dispatcher_crash: "#{e.inspect}\n #{e.backtrace.join("\n")}" }) if e
-      
+      unbind_queues
+      send_crash_messages
+      @pool.dump
+      EventMachine.add_timer(1){ @connection.close { EventMachine.stop { exit }} }
+    end
+    
+    private
+    
+    def unbind_queues
       @queues.each {|name, queue| queue.unbind(@exchange, arguments:{'x-match' => 'all', queue:name})}
+    end
+    
+    def send_crash_messages
       @pool.busy_vulcains do |vulcains|
         vulcains.each do |vulcain|
           session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
           Message.new(:dispatcher_crash).for(session).to(:shopelia)
         end
       end
-      @pool.dump
-      EventMachine.add_timer(1){ @connection.close { EventMachine.stop { exit }} }
+    end
+    
+    def timeout vulcain
+      @pool.block(vulcain)
+      session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
+      Message.new(:order_timeout).for(session).to(:shopelia)
     end
     
   end
