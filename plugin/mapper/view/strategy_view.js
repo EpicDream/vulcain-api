@@ -6,43 +6,39 @@ include("action_view.js");
 
 var newActionView = null;
 var editActionView = null;
-var ctrlr = null;
 
-var StrategyView = function(strategy, controller) {
-  ctrlr = controller;
+var StrategyView = function(strategy) {
   this.model = strategy;
 
   var _that = this;
   var _patternPage = $(".stepTemplatePage").detach().removeClass(".stepTemplatePage").page();
   var _startPage = $("#startPage").page();
   var _stepsList = _startPage.find("#stepsList").listview();
-  var _predefined = {};
   newActionView = new NewActionView();
   editActionView = new EditActionView();
 
   function _init() {
     $('#saveBtn').click(_onSave.bind(_that));
     $('#importBtn').click(_onLoad.bind(_that));
-    // $('#newBtn').click(controller.onReset);
-    // $('#clearBtn').click(controller.onClear);
-    // $('.testBtn').click(controller.onTest);
+    // $('#newBtn').click(_onReset.bind(_that));
+    // $('#clearBtn').click(_onClear.bind(_that));
+    // $('.testBtn').click(_onTest.bind(_that));
+
+    window.addEventListener("beforeunload", _that.onUnload);
   };
 
   this.reset = function() {
     $(".stepPage").remove();
     _stepsList.find("li").remove();
     _stepsList.listview('refresh');
-    _predefined = {};
     newActionView.reset();
     editActionView.reset();
   };
   
-  // steps an Array of object {id: , desc: , value: , actions: }
-  this.render = function(types, typesArgs, predefined) {
+  this.render = function() {
     this.reset();
-    _predefined = predefined;
-    newActionView.render(_.flatten(_.values(predefined)), types, typesArgs);
-    editActionView.render(types, typesArgs);
+    newActionView.render(_.flatten(_.values(strategy.predefined)), strategy.types, strategy.typesArgs);
+    editActionView.render(strategy.types, strategy.typesArgs);
 
     var steps = strategy.steps;
     for (var i = 0 ; i < steps.length ; i++) {
@@ -53,7 +49,7 @@ var StrategyView = function(strategy, controller) {
   };
 
   this.addStep = function(step, previousStepId, nextStepId) {
-    var stepView = new StepView(step, _patternPage, _predefined[step.id]);
+    var stepView = new StepView(step, _patternPage, strategy.predefined[step.id]);
     $("body").append(stepView.renderPage(previousStepId, nextStepId));
     var nb = _stepsList.find("li").length;
     _stepsList.append(stepView.renderMenu(nb+1));

@@ -1,12 +1,11 @@
 
 var ActionView = function(step, action) {
   this.model = action;
-
-  var a = $("<a>").attr("href","#editActionPage");
-  this.page = $("<li>").append(a);
+  this.page = $("<li>").append($("<a>").attr("href","#editActionPage"));
+  var _that = this;
 
   this.render = function() {
-    a.text(action.desc).click(this.edit);
+    this.page.find("a").text(action.desc).click(this.edit);
     return this.page;
   };
 
