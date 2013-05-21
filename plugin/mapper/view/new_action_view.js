@@ -84,13 +84,14 @@ var NewActionView = function() {
   };
 
   this.clear = function() {
+    _addBtn[0].onclick = null;
     _nameField.val("");
     _typesField[0].selectedIndex = 0;
     _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
   };
 
   this.onAdd = function(f) {
-    _addBtn.click(f);
+    _addBtn[0].onclick = f;
   };
 
   for (var f in this) {

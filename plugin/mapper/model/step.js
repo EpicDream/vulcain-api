@@ -48,6 +48,12 @@ var Step = function(id, args) {
     return this;
   };
 
+  this.deleteAction = function(action) {
+    var idx = this.actions.indexOf(action);
+    this.actions.splice(idx, 1);
+    return action;
+  };
+
   for (var f in this) {
     if (typeof(this[f]) == "function")
       this[f] = this[f].bind(this);
