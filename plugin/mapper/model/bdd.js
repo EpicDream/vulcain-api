@@ -72,6 +72,8 @@ var BDD = function() {
   this.load = function(strategy, onDone, onFail) {
     if (! onFail)
       onFail = function() { alert("WARNING : Unable to load remotly nor localy !"); };
+    if (strategy.steps)
+      delete strategy.steps;
 
     var localHash = this.localLoad(strategy);
     if (this.remote)
