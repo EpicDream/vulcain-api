@@ -72,12 +72,14 @@ var StrategyView = function(strategy) {
   };
   function _onTest(event) {
     console.log("Lunch test");
+    $.mobile.loading('show');
     $.ajax({
       type: 'POST',
       url: PLUGIN_URL+"/strategies/test",
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(strategy)
     }).done(function(hash) {
+      $.mobile.loading('hide');
       console.log(hash);
       if (hash.action)
         alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
@@ -86,6 +88,7 @@ var StrategyView = function(strategy) {
       else
         console.log("Aucune erreur détecté :-)");
     }).fail(function() {
+      $.mobile.loading('hide');
       console.error("Problème de connectivité.");
     });
   };
