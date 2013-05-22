@@ -15,6 +15,7 @@ var StepView = function(step, patternPage, predefined) {
     _page.attr('id', step.id+"Page");
     _page.find(".newActionButton").click(_onNewActionClicked.bind(_that));
     _page.find(".newActionSelect").change(_onNewActionSelected.bind(_that));
+    _page.find(".testPopup").popup();
 
     _actionsList.on("sortupdate", _onActionsSorted.bind(_that));
 

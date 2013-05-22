@@ -11,7 +11,7 @@ var StrategyView = function(strategy) {
   this.model = strategy;
 
   var _that = this;
-  var _patternPage = $(".stepTemplatePage").detach().removeClass(".stepTemplatePage").page();
+  var _patternPage = $(".stepTemplatePage").detach().removeClass("stepTemplatePage").addClass("stepPage").page();
   var _startPage = $("#startPage").page();
   var _stepsList = _startPage.find("#stepsList").listview();
   newActionView = new NewActionView();
@@ -71,8 +71,8 @@ var StrategyView = function(strategy) {
     wait(200);/*send ajax*/
   };
   function _onTest(event) {
-    console.log("Lunch test");
     $.mobile.loading('show');
+    var popupText = $(".stepPage:visible .testPopup .popupText");
     $.ajax({
       type: 'POST',
       url: PLUGIN_URL+"/strategies/test",
@@ -80,16 +80,16 @@ var StrategyView = function(strategy) {
       data: JSON.stringify(strategy)
     }).done(function(hash) {
       $.mobile.loading('hide');
-      console.log(hash);
       if (hash.action)
-        alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
+        popupText.text("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
       else if (hash.msg)
-        console.error("Une erreur c'est produite : "+hash.msg);
+        popupText.text("Une erreur c'est produite : "+hash.msg);
       else
-        console.log("Aucune erreur détecté :-)");
+        popupText.text("Aucune erreur détecté :-)");
+      popupText.parent().popup("open");
     }).fail(function() {
       $.mobile.loading('hide');
-      console.error("Problème de connectivité.");
+      popupText.text("Problème de connectivité...").parent().popup("open");
     });
   };
   // this.onReset = function(event) {
