@@ -33,7 +33,7 @@ class Plugin::IRobot < Robot
   end
 
   ACTION_METHODS = [
-    {id: 'pl_open_url', desc: "Ouvrir la page", args: {current_url: true}},
+    {id: 'pl_open_url!', desc: "Ouvrir la page", args: {current_url: true}},
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
     {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
@@ -111,7 +111,7 @@ class Plugin::IRobot < Robot
 
       step('run_fill_cart') do
         order.products_urls.each do |url|
-          pl_open_url url
+          pl_open_url! url
           @pl_current_product = {}
           @pl_current_product['url'] = url
           run_step('add_to_cart')
@@ -160,26 +160,24 @@ class Plugin::IRobot < Robot
   end
 
   def pl_add_strategy(strategy)
-    strategy.each { |s| pl_add_step(s) unless s[:value].blank? }
+    strategy[:steps].each { |s|
+      pl_add_step(s) unless s[:actions].one? { |a| ! a[:code].blank? }
+    }
   end
 
   def pl_add_step(step)
     # Get new context
     step_binding = Kernel.binding
-    # Create local variables for xpathes, etc
-    step[:fields].each { |field|
-      step_binding.eval "#{field[:id]} = #{field[:context][:xpath].inspect}" if field[:context] && field[:context][:xpath]
-    }
-    # Split and format actions to do
-    actions = step[:value].split(/<\\n>|\n/).map(&:strip)
     # Create callable step
     step(step[:id]) do
+      puts "Running #{step[:id]} :"
       # Eval each action
-      for act in actions
+      for act in step[:actions]
         begin
-          step_binding.eval act
+          puts act[:code]
+          step_binding.eval act[:code]
         rescue => err
-          raise StrategyError.new(err, {step: step[:id], action: act, line: actions.index(act)})
+          raise StrategyError.new(err, {step: step[:id], action: act[:code].inspect, line: step[:actions].index(act)})
         end
       end
     end
@@ -203,7 +201,7 @@ class Plugin::IRobot < Robot
     end
   end
 
-  def pl_open_url(url)
+  def pl_open_url!(url)
     @pl_driver.get(url)
   end
 

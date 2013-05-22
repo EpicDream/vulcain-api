@@ -6,7 +6,7 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def create
-    filename = Rails.root+"db/plugin/#{params["host"]}#{params["mobility"] == "true" ? "_mobile" : ""}.yml"
+    filename = to_filename(params)
     FileUtils.mkdir_p(File.dirname(filename))
     File.open(filename, "w") do |f|
       f.puts params.to_yaml
@@ -14,7 +14,7 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def show
-    filename = Rails.root+"db/plugin/#{params["host"]}#{params["mobility"] == "true" ? "_mobile" : ""}.yml"
+    filename = to_filename(params)
     if File.file?(filename)
       data = YAML.load_file(filename)
       render :json => data.to_json
@@ -29,6 +29,10 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   private
+    def to_filename(strategy)
+      return Rails.root+"db/plugin/#{strategy["host"]}#{strategy["mobility"] == "true" ? "_mobile" : ""}.yml"
+    end
+
     def default
       return {
         steps: [

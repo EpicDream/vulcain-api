@@ -22,7 +22,6 @@ var StrategyView = function(strategy) {
     $('#importBtn').click(_onLoad.bind(_that));
     // $('#newBtn').click(_onReset.bind(_that));
     // $('#clearBtn').click(_onClear.bind(_that));
-    // $('.testBtn').click(_onTest.bind(_that));
 
     window.addEventListener("beforeunload", _that.onUnload);
   };
@@ -54,6 +53,7 @@ var StrategyView = function(strategy) {
     var nb = _stepsList.find("li").length;
     _stepsList.append(stepView.renderMenu(nb+1));
     _stepsList.listview("refresh");
+    stepView.page.find('.testBtn').click(_onTest.bind(this));
     return stepView;
   };
 
@@ -70,6 +70,35 @@ var StrategyView = function(strategy) {
     strategy.save();
     wait(200);/*send ajax*/
   };
+  function _onTest(event) {
+    console.log("Lunch test");
+    $.ajax({
+      type: 'POST',
+      url: PLUGIN_URL+"/strategies/test",
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify(strategy)
+    }).done(function(hash) {
+      console.log(hash);
+      if (hash.action)
+        alert("Erreur pour la ligne : '"+hash.action+"' : "+hash.msg);
+      else if (hash.msg)
+        console.error("Une erreur c'est produite : "+hash.msg);
+      else
+        console.log("Aucune erreur détecté :-)");
+    }).fail(function() {
+      console.error("Problème de connectivité.");
+    });
+  };
+  // this.onReset = function(event) {
+  //   if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
+  //     // this.view.reset();
+  //     this.model.reset();
+  //   }
+  // };
+  // this.onClear = function(event) {
+  //   if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) this.model.clearCache();
+  // };
+
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
