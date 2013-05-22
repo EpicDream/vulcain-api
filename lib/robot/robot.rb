@@ -156,6 +156,13 @@ class Robot
     end
   end
   
+  def click_on_link_with_attribute attribute, value, options={}
+    index = options[:index] || 0
+    element = @driver.find_elements_by_attribute("a", attribute, value)[index]
+    @driver.click_on(element) if element
+    element
+  end
+  
   def click_on_link_with_text text
     element = @driver.find_links_with_text(text).first
     @driver.click_on element
@@ -177,20 +184,26 @@ class Robot
     end
   end
   
-  def click_on_all xpaths
+  def click_on_all xpaths, options={}
     start = Time.now
+    start_index = options[:start_index] || 0
     begin
       element = xpaths.inject(nil) do |element, xpath|
-        element = @driver.find_element(xpath, nowait:true)
+        element = @driver.find_element(xpath, nowait:true, index:start_index)
         break element if element
         element
       end
-      @driver.click_on(element) if element
+      begin
+        @driver.click_on(element) if element
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        puts "STALE"
+        element = nil
+      end
       continue = yield element
       terminate_on_error("Click on all timeout") if continue && Time.now - start > 30
     end while continue
   end
-  
+
   def click_on_button_with_name name
     button = @driver.find_input_with_value(name)
     @driver.click_on button
@@ -202,6 +215,10 @@ class Robot
   
   def wait_ajax n=2
     sleep(n)
+  end
+  
+  def find_elements_by_attribute tag, attribute, value
+    @driver.find_elements_by_attribute tag, attribute, value
   end
   
   def find_any_element xpaths

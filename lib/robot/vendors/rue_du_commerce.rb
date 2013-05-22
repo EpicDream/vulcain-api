@@ -5,6 +5,7 @@ class RueDuCommerce
   LOGIN_URL = 'http://m.rueducommerce.fr/identification'
   MY_ACCOUNT_URL = 'http://m.rueducommerce.fr/mon-compte'
   LOGOUT_URL = 'http://m.rueducommerce.fr/deconnexion'
+  CART_URL = 'http://m.rueducommerce.fr/panier'
   
   MENU = '//*[@id="header"]/a[2]'
   MY_ACCOUNT = '/html/body/div/div[1]/div[1]/ul[2]/li[1]/a'
@@ -31,6 +32,9 @@ class RueDuCommerce
   LOGIN_PASSWORD = '//*[@id="login_password"]'
   LOGIN_SUBMIT = '//*[@id="login-form"]/fieldset/div[2]/input'
 
+  ADD_TO_CART = 'Ajouter au panier'
+  REMOVE_ITEM = '/html/body/div/div[2]/div/div[3]/div[1]/div/a[2]'
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -89,6 +93,34 @@ class RueDuCommerce
         select_option BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
         click_on ADDRESS_SUBMIT
+      end
+      
+      step('empty cart') do
+        open_url CART_URL
+        click_on_all [REMOVE_ITEM] do |remove_link|
+          wait_for(['//*[@id="header"]/a[2]'])
+          !remove_link.nil?
+        end
+      end
+      
+      step('delete product options') do
+        begin
+          open_url CART_URL
+          wait_for [REMOVE_ITEM]
+          element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
+        end while element
+      end
+      
+      step('add to cart') do
+        open_url next_product_url
+        click_on_link_with_text(ADD_TO_CART)
+        wait_ajax
+      end
+      
+      step('finalize order') do
+        open_url CART_URL
+        run_step('delete product options')
+        
       end
       
     end

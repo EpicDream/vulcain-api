@@ -59,11 +59,12 @@ class Driver
   end
  
   def find_element xpath, options={}
-    return driver.find_elements(:xpath => xpath).first if options[:nowait]
+    index = options[:index] || 0
+    return driver.find_elements(:xpath => xpath)[index] if options[:nowait]
     waiting { driver.find_elements(:xpath => xpath).first }
   end
   
-  def find_elements xpath
+  def find_elements xpath, options={}
     waiting { driver.find_elements(:xpath => xpath) }
   end
   
@@ -92,6 +93,10 @@ class Driver
   
   def find_input_with_value value
     waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
+  end
+  
+  def find_elements_by_attribute tag, attribute, value
+    driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{value}']")
   end
   
   def find_by_text label, tag="*"

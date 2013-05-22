@@ -2,15 +2,16 @@ require 'test_helper'
 require_robot 'rue_du_commerce'
 
 class RueDuCommerceTest < ActiveSupport::TestCase
-  PRODUCT_1_URL = "http://www.rueducommerce.fr/Composants/Cle-USB/Cles-USB/LEXAR/4845912-Cle-USB-2-0-Lexar-JumpDrive-V10-8Go-LJDV10-8GBASBEU.htm"
-  PRODUCT_2_URL = "http://www.rueducommerce.fr/Accessoires-Consommables/Calculatrice/Calculatrice/HP/410563-Calculatrice-Scientifique-ecologique-college-HP10S.htm"
+  PRODUCT_1_URL = "http://m.rueducommerce.fr/fiche-produit/KVR16S11S8%252F4"
+  PRODUCT_2_URL = "http://m.rueducommerce.fr/fiche-produit/MO-67C48M5606091"
+  PRODUCT_3_URL = "http://m.rueducommerce.fr/fiche-produit/PENDRIVE-USB2-4GO"
   
   attr_accessor :robot
   
   setup do
     @context = {'account' => {'login' => 'marie_rose_17@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL],
+                'order' => {'products_urls' => [PRODUCT_1_URL],
                             'credentials' => {
                               'holder' => 'MARIE ROSE', 
                               'number' => '101290129019201', 
@@ -65,13 +66,36 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     assert robot.exists? RueDuCommerce::LOGIN_SUBMIT
   end
   
-  test "empty basket" do
-    robot.exchanger.expects(:publish).times(2)
+  test "empty cart" do
+    @message.expects(:message).times(6)
     robot.run_step('login')
-    robot.run_step('add to cart')
+    
+    [PRODUCT_1_URL, PRODUCT_2_URL].each do |url|
+      robot.stubs(:next_product_url).returns(url)
+      robot.run_step('add to cart')
+    end
+    
     robot.run_step('empty cart')
-    assert robot.exists? RueDuCommerce::EMPTY_CART_MESSAGE
+    
+    assert !(robot.exists? RueDuCommerce::REMOVE_ITEM)
   end
   
+  test "delete product options" do
+    @message.expects(:message).times(6)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('delete product options')
+    
+    assert_equal 1, robot.find_elements(RueDuCommerce::REMOVE_ITEM).count
+  end
+  
+  test "add to cart and finalize order" do
+    @message.expects(:message).times(7)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+  end
   
 end
