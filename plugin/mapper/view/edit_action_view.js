@@ -33,7 +33,7 @@ var EditActionView = function() {
       if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
         return;
 
-      _onNewMapping(msg.context, msg.merged).bind(_that);
+      _onNewMapping(msg.context, msg.merged);
     }.bind(_that));
   };
 
@@ -112,7 +112,7 @@ var EditActionView = function() {
     } else
       _urlField.textinput('disable');
     // XPath
-    _xpathField.val(action.context && action.context.xpath);
+    _xpathField.val(action.xpath);
     if (type == "" || ! _typesH[type].args.xpath)
       _xpathField.textinput('disable');
     else
@@ -129,7 +129,6 @@ var EditActionView = function() {
       onSave();
       this.clear();
     }.bind(this);
-
     _deleteBtn[0].onclick = function() {
       onDel();
       this.clear();
@@ -169,11 +168,11 @@ var EditActionView = function() {
     var code = "# "+_descriptionField.val() + "\n";
     // url
     if (! _urlField.prop("disabled")) {
-      code += "plarg_url = \"" + _urlField.val().replace(/"/g,'\\"') + "\"\n";
+      code += "plarg_url = '" + _urlField.val().replace(/'/g,'"') + "'\n";
     }
     // xpath
     if (! _xpathField.prop("disabled")) {
-      code += "plarg_xpath = \"" + _xpathField.val().replace(/"/g,'\\"') + "\"\n";
+      code += "plarg_xpath = '" + _xpathField.val().replace(/'/g,'"') + "'\n";
     }
     // argument
     if (! _argumentsField.prop("disabled") && _argumentsField.val()) {
@@ -202,7 +201,7 @@ var EditActionView = function() {
       chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_currentAction.context, 'new_context':context});
       return;
     }
-    _xpathField.val(context.xpath);
+    _xpathField.val(context.xpath).change();
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
   };
 

@@ -13,7 +13,7 @@ var Strategy = function(host, userAgent) {
     that.typesArgs = [];
     that.predefined = [];
     that.steps = [];
-    that.id = host+"_"+(mobility ? "_mobile" : "");
+    that.id = host+(mobility ? "_mobile" : "");
     mobility = !! userAgent.match(/android|iphone/i);
   };
 
@@ -27,13 +27,14 @@ var Strategy = function(host, userAgent) {
     return d;
   };
 
-  this.toHash = function() {
+  this.toHash = function(args) {
     var res = {};
+    res.id = this.id;
     res.host = host;
     res.mobility = mobility;
     res.steps = [];
     for (var i in this.steps)
-      res.steps[i] = this.steps[i].toHash();
+      res.steps[i] = this.steps[i].toHash(args);
     return res;
   };
 

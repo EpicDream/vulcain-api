@@ -4,7 +4,7 @@ require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
   CONTEXT = { options: {profile_dir: "config/chromium/Default"},
-              'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
+              'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
               'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
@@ -94,20 +94,24 @@ INIT
   end
 
   def self.test_strategy(strategy)
-    robot = Plugin::IRobot.new(CONTEXT) {}
-
-    # On supprime le click sur le bouton 'Valider création compte'
-    # On vérifie juste qu'il est présent.
-    action = strategy[:steps].first[:actions][-1]
-    if action[:code] =~ /pl_click_on!/
-      action[:code] = action[:code].sub(/pl_click_on!/, "link!")
+    isNewAccount = strategy[:steps].first[:id] == "account_creation"
+    if isNewAccount
+      # On supprime le click sur le bouton 'Valider création compte'
+      # On vérifie juste qu'il est présent.
+      action = strategy[:steps].first[:actions][-1]
+      if action[:code] =~ /pl_click_on!/
+        action[:code] = action[:code].sub(/pl_click_on!/, "link!")
+      end
+      CONTEXT['account'][:new_account] = true
     end
-    p strategy[:steps].first[:actions][-1][:code]
 
+    robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
     return {}
   rescue Plugin::IRobot::StrategyError => err
     return err.to_h
+  ensure
+    CONTEXT['account'][:new_account] = false
   end
 end

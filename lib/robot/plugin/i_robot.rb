@@ -136,6 +136,30 @@ class Plugin::IRobot < Robot
       step('run_terminate') do
         terminate
       end
+
+      step('run_test') do
+        run_step('account_creation')
+        run_step('login')
+        run_step('unlog')
+        run_step('login')
+        run_step('empty_cart')
+        order.products_urls.each do |url|
+          pl_open_url! url
+          @pl_current_product = {}
+          run_step('add_to_cart')
+        end
+        run_step('empty_cart')
+        order.products_urls.each do |url|
+          pl_open_url! url
+          @pl_current_product = {}
+          @pl_current_product['url'] = url
+          run_step('add_to_cart')
+          products << @pl_current_product
+        end
+        run_step('finalize_order')
+        run_step('payment')
+        @pl_driver.quit
+      end
     end
   end
 
@@ -150,18 +174,14 @@ class Plugin::IRobot < Robot
   def pl_fake_run
     @messager = FakeMessenger.new
     @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
-
-    run_step('account_creation')
-    run_step('unlog') if @steps['unlog']
-    run_step('run') if @steps['login']
-    run_step('run_empty_cart') if @steps['empty_cart']
+    run_step('run_test')
   ensure
     @pl_driver.quit
   end
 
   def pl_add_strategy(strategy)
     strategy[:steps].each { |s|
-      pl_add_step(s) unless s[:actions].one? { |a| ! a[:code].blank? }
+      pl_add_step(s)# unless s[:actions].one? { |a| ! a[:code].blank? }
     }
   end
 

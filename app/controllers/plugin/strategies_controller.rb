@@ -1,6 +1,9 @@
 # encoding: utf-8
 
+require "ostruct"
+
 class Plugin::StrategiesController < ApplicationController
+
   def actions
     render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO, predefined: predefined}.to_json
   end
@@ -9,7 +12,7 @@ class Plugin::StrategiesController < ApplicationController
     filename = to_filename(params[:id])
     FileUtils.mkdir_p(File.dirname(filename))
     File.open(filename, "w") do |f|
-      f.puts params.to_yaml
+      f.puts fixed_param.to_yaml
     end
   end
 
@@ -24,11 +27,19 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def test
-    err = Plugin::RobotFactory.test_strategy(params)
+    err = Plugin::RobotFactory.test_strategy(fixed_param)
     render :json => err.to_json
   end
 
   private
+    def fixed_param
+      s = params
+      for step in s[:steps]
+        step[:actions] ||= []
+      end
+      return s
+    end
+
     def to_filename(strategyId)
       return Rails.root+"db/plugin/#{strategyId}.yml"
     end
@@ -53,13 +64,6 @@ class Plugin::StrategiesController < ApplicationController
               {sId: "account_creation", id: "create_btn", desc: "Bouton créer le compte", option: "", type: "pl_click_on"}
             ]
           },{
-            id: "unlog",
-            desc: "Déconnexion",
-            actions: [
-                {sId: "unlog", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
-                {sId: "unlog", id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"}
-            ]
-          },{
             id: "login",
             desc: "Se Connecter",
             actions: [
@@ -68,6 +72,13 @@ class Plugin::StrategiesController < ApplicationController
                 {sId: "login", id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
                 {sId: "login", id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
                 {sId: "login", id: "continuerBtn", desc: "Bouton continuer", option: "", type: "pl_click_on"}
+            ]
+          },{
+            id: "unlog",
+            desc: "Déconnexion",
+            actions: [
+                {sId: "unlog", id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
+                {sId: "unlog", id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"}
             ]
           },{
             id: "empty_cart",
