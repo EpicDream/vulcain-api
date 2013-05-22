@@ -51,6 +51,15 @@ class RueDuCommerce
   SHIPPING_DATE_PROMISE = '/html/body/div/div[2]/div/div[5]'
   BILLING_TEXT = '/html/body/div/div[2]/div/ul'
   
+  CB_CARD_PAYMENT = '//*[@id="inpMop1"]'
+  VISA_PAYMENT = '//*[@id="inpMop_VISA"]'
+  CREDIT_CARD_NUMBER = '//*[@id="CARD_NUMBER"]'
+  CREDIT_CARD_EXP_MONTH = '//*[@id="contentsips"]/form[2]/select[1]'
+  CREDIT_CARD_EXP_YEAR = '//*[@id="contentsips"]/form[2]/select[2]'
+  CREDIT_CARD_CVV = '//*[@id="CVV_KEY"]'
+  CREDIT_CARD_SUBMIT = '//*[@id="contentsips"]/form[2]/input[9]'
+  CREDIT_CARD_CANCEL = '//*[@id="contentsips"]/center[1]/form/input[2]'
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -167,6 +176,35 @@ class RueDuCommerce
         run_step 'remove contract options'
         run_step 'build product'
         run_step 'build final billing'
+        click_on_links_with_text FINALIZE_PAYMENT
+        click_on CB_CARD_PAYMENT
+        click_on VISA_PAYMENT
+        assess
+      end
+      
+      step('payment') do
+        answer = answers.last
+        action = questions[answers.last.question_id]
+
+        if eval(action)
+          run_step('validate order')
+        else
+          run_step('cancel order')
+        end
+      end
+      
+      step('cancel order') do
+        click_on CREDIT_CARD_CANCEL
+        open_url URL
+        run_step('empty cart', next_step:'cancel')
+      end
+      
+      step('validate order') do
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s.rjust(2, "0")
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s[2..3]
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on CREDIT_CARD_SUBMIT
       end
       
     end
