@@ -51,14 +51,17 @@ class RueDuCommerce
   SHIPPING_DATE_PROMISE = '/html/body/div/div[2]/div/div[5]'
   BILLING_TEXT = '/html/body/div/div[2]/div/ul'
   
-  CB_CARD_PAYMENT = '//*[@id="inpMop1"]'
+  CB_CARD_PAYMENT = '//*[@id="inpMop1"] | //*[@id="inpMop2"]'
   VISA_PAYMENT = '//*[@id="inpMop_VISA"]'
+
   CREDIT_CARD_NUMBER = '//*[@id="CARD_NUMBER"]'
   CREDIT_CARD_EXP_MONTH = '//*[@id="contentsips"]/form[2]/select[1]'
   CREDIT_CARD_EXP_YEAR = '//*[@id="contentsips"]/form[2]/select[2]'
   CREDIT_CARD_CVV = '//*[@id="CVV_KEY"]'
   CREDIT_CARD_SUBMIT = '//*[@id="contentsips"]/form[2]/input[9]'
   CREDIT_CARD_CANCEL = '//*[@id="contentsips"]/center[1]/form/input[2]'
+
+  THANK_YOU_HEADER = '/html/body/div/div[2]/div/div[3]'
   
   attr_accessor :context, :robot
   
@@ -71,6 +74,7 @@ class RueDuCommerce
     Robot.new(@context) do
 
       step('run') do
+        open_url 'http://ad.zanox.com/ppc/?24740694C1299374118T'
         if account.new_account
           run_step 'create account'
         else
@@ -126,6 +130,7 @@ class RueDuCommerce
           wait_for(['//*[@id="header"]/a[2]'])
           !remove_link.nil?
         end
+        run_step('add to cart')
       end
       
       step('delete product options') do
@@ -140,6 +145,7 @@ class RueDuCommerce
         open_url next_product_url
         click_on_link_with_text(ADD_TO_CART)
         wait_ajax
+        run_step('finalize order')
       end
       
       step('build product') do
@@ -161,9 +167,11 @@ class RueDuCommerce
       end
       
       step('remove contract options') do
-        click_on GOLD_CONTRACT_CHECKBOX
-        checkbox = find_elements(GOLD_CONTRACT_CHECKBOX).first
-        raise unless checkbox.attribute('checked').nil?
+        if exists? GOLD_CONTRACT_CHECKBOX
+          click_on GOLD_CONTRACT_CHECKBOX
+          checkbox = find_elements(GOLD_CONTRACT_CHECKBOX).first
+          raise unless checkbox.attribute('checked').nil?
+        end
       end
       
       step('finalize order') do
@@ -185,12 +193,16 @@ class RueDuCommerce
       step('payment') do
         answer = answers.last
         action = questions[answers.last.question_id]
-
+        
         if eval(action)
           run_step('validate order')
         else
           run_step('cancel order')
         end
+      end
+      
+      step('cancel') do
+        terminate_on_cancel
       end
       
       step('cancel order') do
@@ -205,6 +217,15 @@ class RueDuCommerce
         select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s[2..3]
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
+        
+        wait_for([THANK_YOU_HEADER])
+        thanks = get_text THANK_YOU_HEADER
+        if thanks =~ /Merci\s+pour\s+votre\s+commande/
+          terminate({ billing:self.billing})
+        else
+          terminate_on_error(:order_validation_failed)
+        end
+        
       end
       
     end
