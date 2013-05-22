@@ -23,7 +23,7 @@ var StrategyView = function(strategy) {
     // $('#newBtn').click(_onReset.bind(_that));
     // $('#clearBtn').click(_onClear.bind(_that));
 
-    window.addEventListener("beforeunload", _that.onUnload);
+    window.addEventListener("beforeunload", _onUnload.bind(_that));
   };
 
   this.reset = function() {
@@ -45,6 +45,10 @@ var StrategyView = function(strategy) {
       var nextStepId = (i+1 < steps.length ? steps[i+1].id : null);
       this.addStep(steps[i], previousStepId, nextStepId);
     }
+
+    var lastPageId = localStorage[strategy.id+"_lastPage"];
+    if (lastPageId && lastPageId != "newActionPage" && lastPageId != "editActionPage")
+      $.mobile.changePage("#"+lastPageId);
   };
 
   this.addStep = function(step, previousStepId, nextStepId) {
@@ -67,6 +71,7 @@ var StrategyView = function(strategy) {
     }.bind(this));
   };
   function _onUnload(event) {
+    localStorage[strategy.id+"_lastPage"] = $("div[data-role='page']:visible").attr("id");
     strategy.save();
     wait(200);/*send ajax*/
   };
