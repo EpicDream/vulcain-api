@@ -10,6 +10,7 @@ var StepView = function(step, patternPage, predefined) {
 
   function init() {
     _that.model = step;
+    _that.page = _page;
 
     _page.attr('id', step.id+"Page");
     _page.find(".newActionButton").click(_onNewActionClicked.bind(_that));

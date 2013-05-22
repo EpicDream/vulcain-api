@@ -39,7 +39,7 @@ class Plugin::RobotFactory
   end
 
   def self.make_rb_file(host)
-    strategies = getStrategyHash(host)
+    strategy = getStrategyHash(host)
     vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
     File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |f|
       f.puts <<-INIT
@@ -58,15 +58,12 @@ class Plugin::#{vendor.camelize}
   def instanciate_robot
     Plugin::IRobot.new(@context) do
 INIT
-      for s in strategies
+      for s in strategy[:steps]
         f.puts "\t\t\tstep('#{s[:id]}') do"
-        for field in s[:fields]
-          f.puts "\t\t\t\t#{field[:id]} = #{field[:xpath].inspect}"
+        for action in s[:actions]
+          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\t\t\t\t\n").rstrip) + "\n"
         end
-        f.puts
-        f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t").rstrip
         f.puts "\t\t\tend"
-        f.puts
       end
       f.puts "\t\tend"
       f.puts "\tend"
@@ -101,11 +98,11 @@ INIT
 
     # On supprime le click sur le bouton 'Valider création compte'
     # On vérifie juste qu'il est présent.
-    actions = strategy.first[:value].strip.split("\n")
-    if actions[-1] =~ /pl_click_on!/
-      actions[-1] = actions[-1].sub(/pl_click_on!/, "link!")
-      strategy.first[:value] = actions.join("\n")
+    action = strategy[:steps].first[:actions][-1]
+    if action[:code] =~ /pl_click_on!/
+      action[:code] = action[:code].sub(/pl_click_on!/, "link!")
     end
+    p strategy[:steps].first[:actions][-1][:code]
 
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
