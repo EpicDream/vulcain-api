@@ -13,6 +13,7 @@ var Strategy = function(host, userAgent) {
     that.typesArgs = [];
     that.predefined = [];
     that.steps = [];
+    that.id = host+"_"+(mobility ? "_mobile" : "");
     mobility = !! userAgent.match(/android|iphone/i);
   };
 
@@ -40,7 +41,7 @@ var Strategy = function(host, userAgent) {
 
   this.load = function(onLoad) {
     if (! onLoad) throw "'onLoad' must be set."
-    this.bdd.load(this.toHash(), function(hash) {
+    this.bdd.load(this.id, function(hash) {
       this.reset();
       this.steps = [];
       for (var i in hash.steps) {

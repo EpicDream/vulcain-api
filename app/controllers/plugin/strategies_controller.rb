@@ -6,7 +6,7 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def create
-    filename = to_filename(params)
+    filename = to_filename(params[:id])
     FileUtils.mkdir_p(File.dirname(filename))
     File.open(filename, "w") do |f|
       f.puts params.to_yaml
@@ -29,8 +29,8 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   private
-    def to_filename(strategy)
-      return Rails.root+"db/plugin/#{strategy["host"]}#{strategy["mobility"] == "true" ? "_mobile" : ""}.yml"
+    def to_filename(strategyId)
+      return Rails.root+"db/plugin/#{strategyId}.yml"
     end
 
     def default
