@@ -33,7 +33,7 @@ class Plugin::IRobot < Robot
   end
 
   ACTION_METHODS = [
-    {id: 'pl_open_url!', desc: "Ouvrir la page", args: {current_url: true}},
+    {id: 'pl_open_url', desc: "Ouvrir la page", args: {current_url: true}},
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
     {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
