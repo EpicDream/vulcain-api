@@ -11,6 +11,7 @@ var Action = function(sId, id, args) {
     that.id = id;
     that.desc = args.desc || "";
     that.context = or(args.context, null);
+    that.xpath = args.xpath || (that.context ? that.context.xpath : null);
     that.type = or(args.type, null);
     that.arg = or(args.arg, null);
     that.argument = or(args.argument, null);
@@ -24,12 +25,14 @@ var Action = function(sId, id, args) {
       generateId();
   };
 
-  this.toHash = function() {
+  this.toHash = function(args) {
     var res = {};
     res.sId = this.sId;
     res.id = this.id;
     res.desc = this.desc;
-    res.context = this.context;
+    res.xpath = this.xpath;
+    if (! args || ! args.noContext)
+      res.context = this.context;
     res.type = this.type;
     res.arg = this.arg;
     res.argument = this.argument;
@@ -48,6 +51,7 @@ var Action = function(sId, id, args) {
 
   this.edit = function(action) {
     this.desc = or(action.desc, this.desc);
+    this.xpath = or(action.xpath, this.xpath);
     this.context = or(action.context, this.context);
     this.type = or(action.type, this.type);
     this.argument = or(action.argument, this.argument);

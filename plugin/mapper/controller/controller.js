@@ -1,7 +1,7 @@
 
-var glob = {};
-glob.model = null;
-glob.view = null;
+var glob = {},
+  model = null,
+  view = null;
 
 chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
 

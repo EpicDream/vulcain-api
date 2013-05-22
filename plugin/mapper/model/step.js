@@ -18,13 +18,13 @@ var Step = function(id, args) {
     }
   };
 
-  this.toHash = function() {
+  this.toHash = function(args) {
     var res = {};
     res.id = this.id;
     res.desc = this.desc;
     res.actions = [];
     for (var i in this.actions)
-      res.actions[i] = this.actions[i].toHash();
+      res.actions[i] = this.actions[i].toHash(args);
     return res;
   };
 

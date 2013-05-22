@@ -44,7 +44,7 @@ var StepView = function(step, patternPage, predefined) {
       _page.find(".nextStepButton").attr("href", "#"+nextStepId+"Page").show();
     else
       _page.find(".nextStepButton").remove();
-
+    _page[0].view = this;
     return _page;
   };
 
@@ -52,6 +52,7 @@ var StepView = function(step, patternPage, predefined) {
     _menu.find("a span.step-li-pos").text(pos);
     _menu.find("a span.step-desc").text(step.desc);
     _menu.find("a span.ui-li-count").text(step.actions.length);
+    _menu[0].view = this;
     return _menu;
   };
 
@@ -66,7 +67,7 @@ var StepView = function(step, patternPage, predefined) {
   };
 
   this.deleteAction = function(action) {
-    action._page.remove();
+    action.page.remove();
     _actionsList.listview("refresh");
     step.deleteAction(action.model);
     _menu.find("a span.ui-li-count").text(step.actions.length);
