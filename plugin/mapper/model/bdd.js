@@ -3,10 +3,6 @@ var BDD = function() {
   var pluginUrl = PLUGIN_URL;
   this.remote = true;
 
-  function save_key(strategy) {
-    return strategy.host+"_"+(strategy.mobility ? "_mobile" : "");
-  };
-
   // Load Types and TypesArgs, remotely or in local if remote fail.
     // Then call onDone() with a hash.
     // Call onFail if ajax failed and nothing is stored in localStorage.
@@ -28,14 +24,14 @@ var BDD = function() {
     });
     return d;
   };
-  this.remoteLoad = function(strategy, onDone, onFail) {
-    if (! strategy) throw "'strategy' must be set.";
+  this.remoteLoad = function(strategyId, onDone, onFail) {
+    if (! strategyId) throw "'strategyId' must be set.";
     if (! onDone) throw "'onDone' must be set.";
     $.ajax({
       type : "GET",
       url: pluginUrl+"/strategies/show",
       //dataType: 'application/json; charset=utf-8',
-      data: strategy
+      data: strategyId
     }).done(function(hash) {
       onDone(hash);
     }).fail(function() {
@@ -55,29 +51,26 @@ var BDD = function() {
       if (onFail) onFail();
     });
   };
-  this.localLoad = function(strategy) {
-    if (! strategy) throw "'strategy' must be set.";
-    var key = save_key(strategy);
-    if (window.localStorage && localStorage[key])
-      return JSON.parse(localStorage[key]);
+  this.localLoad = function(strategyId) {
+    if (! strategyId) throw "'strategyId' must be set.";
+    if (window.localStorage && localStorage[strategyId])
+      return JSON.parse(localStorage[strategyId]);
     return null;
   };
   this.localSave = function(strategy, onFail, onDone) {
     if (window.localStorage) {
-      localStorage[save_key(strategy)] = JSON.stringify(strategy);
+      localStorage[strategy.id] = JSON.stringify(strategy);
       if (onDone) onDone();
     } else if (onFail) onFail();
   };
   // Load model data for host, remotely or in local if remote fail.
-  this.load = function(strategy, onDone, onFail) {
+  this.load = function(strategyId, onDone, onFail) {
     if (! onFail)
       onFail = function() { alert("WARNING : Unable to load remotly nor localy !"); };
-    if (strategy.steps)
-      delete strategy.steps;
 
-    var localHash = this.localLoad(strategy);
+    var localHash = this.localLoad(strategyId);
     if (this.remote)
-      this.remoteLoad(strategy, function(hash) {
+      this.remoteLoad(strategyId, function(hash) {
         if (! localHash || (hash && hash.updated_at > localHash.updated_at)) onDone(hash);
         else if (localHash) onDone(localHash);
         else onFail();
@@ -107,7 +100,7 @@ var BDD = function() {
   this.clearCache = function(strategy) {
     if (window.localStorage) {
       delete localStorage['types'];
-      delete localStorage[save_key(strategy)];
+      delete localStorage[strategy.id];
     }
   };
 };
