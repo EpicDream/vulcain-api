@@ -10,7 +10,11 @@ var Action = function(sId, id, args) {
     that.sId = sId;
     that.id = id;
     that.desc = args.desc || "";
-    that.context = or(args.context, null);
+    // To delete
+    if (args.context && ! args.context instanceof Array)
+      that.context = [args.context];
+    else
+      that.context = or(args.context, []);
     that.xpath = args.xpath || (that.context ? that.context.xpath : null);
     that.type = or(args.type, null);
     that.arg = or(args.arg, null);
@@ -52,7 +56,10 @@ var Action = function(sId, id, args) {
   this.edit = function(action) {
     this.desc = or(action.desc, this.desc);
     this.xpath = or(action.xpath, this.xpath);
-    this.context = or(action.context, this.context);
+    if (action.context)
+      this.context.push(action.context);
+    if (action.context.length > 5)
+      this.context.shift();
     this.type = or(action.type, this.type);
     this.argument = or(action.argument, this.argument);
     this.arg = or(action.arg, this.arg);

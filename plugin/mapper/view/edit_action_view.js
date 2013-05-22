@@ -34,7 +34,7 @@ var EditActionView = function() {
       if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
         return;
 
-      _onNewMapping(msg.context, msg.merged);
+      _onNewMapping(msg);
     }.bind(_that));
   };
 
@@ -151,11 +151,15 @@ var EditActionView = function() {
       action.url = _urlField.val();
     if (! _xpathField.prop("disabled"))
       action.xpath = _xpathField.val();
-    action.code = _codeField.val();;
+    action.code = _codeField.val();
+    if (_currentContext)
+      action.context = _currentContext;
     return action;
   };
 
   this.clear = function() {
+    _currentAction = null;
+    _currentContext = null;
     _saveBtn[0].onclick = null;
     _deleteBtn[0].onclick = null;
     _currentAction = null;
@@ -201,13 +205,14 @@ var EditActionView = function() {
     return code;
   };
 
-  function _onNewMapping(context, merged) {
-    if (_xpathField.val() && ! merged) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_currentAction.context, 'new_context':context});
+  function _onNewMapping(msg) {
+    if (_xpathField.val() != msg.xpath && ! msg.merged && _currentAction.context.length > 0) {
+      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_.last(_currentAction.context), 'new_context': msg.context});
       return;
     }
-    _xpathField.val(context.xpath).change();
-    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':context.xpath});
+    _xpathField.val(msg.xpath).change();
+    _currentContext = msg.context;
+    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
   };
 
   for (var f in this) {

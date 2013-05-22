@@ -19,6 +19,8 @@ function onBodyClick(event) {
     }
     var msg = {dest: 'plugin', action: 'newMap'};
     msg.context = hu.getElementContext(e);
+    msg.merged = false;
+    msg.xpath = msg.context.xpath;
     chrome.extension.sendMessage(msg);
   }
 };
@@ -79,8 +81,8 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.dest = 'plugin';
     msg.action = 'newMap';
     msg.merged = true;
+    msg.xpath = xpath;
     msg.context = msg.new_context;
-    msg.context.xpath = xpath;
     chrome.extension.sendMessage(msg);
   }
 });
