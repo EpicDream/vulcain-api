@@ -8,39 +8,61 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_08@yopmail.com', 'password' => 'shopelia2013'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'order'},
+    @context = {'account' => {'login' => 'marie_rose_17@yopmail.com', 'password' => 'shopelia2013'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL],
                             'credentials' => {
-                              'owner' => '', 
-                              'number' => '', 
-                              'exp_month' => '',
-                              'exp_year' => '',
-                              'cvv' => ''}},
-                'user' => {'birthdate' => {'day' => '1', 'month' => '4', 'year' => '1985'},
+                              'holder' => 'MARIE ROSE', 
+                              'number' => '101290129019201', 
+                              'exp_month' => 1,
+                              'exp_year' => 2014,
+                              'cvv' => 123}},
+                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
                            'mobile_phone' => '0134562345',
                            'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
-                           'gender' => '1',
+                           'gender' => 1,
                            'last_name' => 'Legrand',
-                           'address' => { 'address1' => '12 rue des lilas',
-                                          'zip' => '75002',
+                           'address' => { 'address_1' => '12 rue des lilas',
+                                          'address_2' => '',
+                                          'additionnal_address' => '',
+                                          'zip' => '75019',
                                           'city' => 'Paris',
                                           'country' => 'France'}
                           }
                 }
                 
     @robot = RueDuCommerce.new(@context).robot
-    @robot.exchanger = stub()
+    @message = stub
+    @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
   end
   
   teardown do
-    @robot.driver.quit
+    #@robot.driver.quit
+  end
+  
+  test "account creation" do
+    skip "Can' create account each time!"
+    @message.expects(:message).times(1)
+    robot.run_step('create account')
   end
   
   test "login" do
-    robot.exchanger.expects(:publish).with({"verb"=>"message", "content"=>"logged"}, {"uuid"=>"0129801H", "callback_url"=>"http://", "state"=>"order"})
+    @message.expects(:message).times(1)
+    robot.expects(:message).with(:logged, :next_step => 'empty cart')
+
     robot.run_step('login')
+  end
+  
+  test "logout" do
+    @message.expects(:message).times(4)
+    
+    robot.run_step('login')
+    robot.run_step('logout')
+    
+    robot.open_url RueDuCommerce::LOGIN_URL
+    
+    assert robot.exists? RueDuCommerce::LOGIN_SUBMIT
   end
   
   test "empty basket" do
@@ -51,9 +73,5 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     assert robot.exists? RueDuCommerce::EMPTY_CART_MESSAGE
   end
   
-  test "account creation" do
-    # skip "Can' create account each time!"
-    robot.run_step('create account')
-  end
   
 end

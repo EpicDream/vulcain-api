@@ -167,46 +167,4 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
   end
   
-  
-  test "with REAL PAYMENT MODE" do
-    # @message.expects(:message).times(18)
-    # 
-    # @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
-    #                  'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-    #                  'order' => {'products_urls' => ['http://www.amazon.fr/La-Belle-au-Bois-dormant/dp/2014632677/ref=sr_1_1?ie=UTF8&qid=1368543847&sr=8-1&keywords=la+belle+au+bois+dormant'],
-    #                              'credentials' => {
-    #                                'holder' => 'M ERICE LARCHEVEQUE', 
-    #                                'number' => '4561003435926735', 
-    #                                'exp_month' => 5,
-    #                                'exp_year' => 2013,
-    #                                'cvv' => 400}},
-    #                  'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-    #                             'mobile_phone' => '0959497434',
-    #                             'land_phone' => '0959497434',
-    #                             'first_name' => 'Eric',
-    #                             'gender' => 1,
-    #                             'last_name' => 'Larcheveque',
-    #                             'address' => { 'address_1' => '14 boulevard du Chateau',
-    #                                            'address_2' => '',
-    #                                            'additionnal_address' => '',
-    #                                            'zip' => '92200',
-    #                                            'city' => ' Neuilly sur Seine',
-    #                                            'country' => 'France'}
-    #                            }
-    #                  }
-    # 
-    # robot.context = @context
-    # robot.run_step('login')
-    # robot.run_step('empty cart')
-    # robot.run_step('add to cart')
-    # robot.run_step('finalize order')
-    # 
-    # robot.answers = [OpenStruct.new(question_id:'1', answer:true)]
-    # steps = robot.instance_variable_get(:@steps)
-    # robot.expects(:terminate)
-    # steps['payment'].call
-  end
-  
-  
-  
 end

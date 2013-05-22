@@ -132,6 +132,10 @@ class Robot
     @driver.get url
   end
   
+  def current_url
+    @driver.current_url
+  end
+  
   def click_on xpath
     @driver.click_on @driver.find_element(xpath)
     rescue
@@ -150,6 +154,11 @@ class Robot
       @driver.click_on element
       block.call if block_given?
     end
+  end
+  
+  def click_on_link_with_text text
+    element = @driver.find_links_with_text(text).first
+    @driver.click_on element
   end
   
   def click_on_link_with_text_if_exists text

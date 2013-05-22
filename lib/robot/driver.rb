@@ -29,6 +29,10 @@ class Driver
     @driver.alert?
   end
   
+  def current_url
+    driver.current_url
+  end
+  
   def accept_alert
     @driver.switch_to.alert.accept
   end
@@ -88,6 +92,14 @@ class Driver
   
   def find_input_with_value value
     waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
+  end
+  
+  def find_by_text label, tag="*"
+    ["text()", "@name", "@value", "@id"].inject(nil) do |element, attribute|
+      element = driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{label}']").first
+      break element if element
+      element
+    end
   end
   
   def screenshot
