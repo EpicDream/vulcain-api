@@ -1,5 +1,9 @@
 class RueDuCommerce
   USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
+  PRICES_IN_TEXT = lambda do |text| 
+    text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
+  end
+  
   URL = 'http://m.rueducommerce.fr'
   CREATE_ACCOUNT_URL = 'http://m.rueducommerce.fr/creation-compte'
   LOGIN_URL = 'http://m.rueducommerce.fr/identification'
@@ -34,6 +38,18 @@ class RueDuCommerce
 
   ADD_TO_CART = 'Ajouter au panier'
   REMOVE_ITEM = '/html/body/div/div[2]/div/div[3]/div[1]/div/a[2]'
+  
+  FINALIZE_ORDER = 'Finaliser ma commande'
+  SHIPMENT_SUBMIT = 'Choix du transporteur'
+  ORDER_OVERVIEW_SUBMIT = 'Récapitulatif de commande'
+  FINALIZE_PAYMENT = 'Finaliser ma commande'
+  
+  PRODUCT_IMAGE = '/html/body/div/div[2]/div/div[4]/img'
+  PRODUCT_TITLE = '/html/body/div/div[2]/div/div[4]/section[1]'
+  PRICE_TEXT = '/html/body/div/div[2]/div/div[4]/section[2]'
+  GOLD_CONTRACT_CHECKBOX = '//*[@id="agree"]'
+  SHIPPING_DATE_PROMISE = '/html/body/div/div[2]/div/div[5]'
+  BILLING_TEXT = '/html/body/div/div[2]/div/ul'
   
   attr_accessor :context, :robot
   
@@ -117,10 +133,40 @@ class RueDuCommerce
         wait_ajax
       end
       
+      step('build product') do
+        product = Hash.new
+        product['price_text'] = get_text PRICE_TEXT
+        product['product_title'] = get_text PRODUCT_TITLE
+        product['product_image_url'] = image_url(PRODUCT_IMAGE)
+        prices = PRICES_IN_TEXT.(get_text BILLING_TEXT)
+        product['price_product'] = prices[0]
+        product['price_delivery'] = prices[1]
+        product['url'] = current_product_url
+        products << product
+      end
+      
+      step('build final billing') do
+        shipping_info = get_text(SHIPPING_DATE_PROMISE)
+        prices = PRICES_IN_TEXT.(get_text BILLING_TEXT)
+        self.billing = { product:prices[0], shipping:prices[1], total:prices[2], shipping_info:shipping_info}
+      end
+      
+      step('remove contract options') do
+        click_on GOLD_CONTRACT_CHECKBOX
+        checkbox = find_elements(GOLD_CONTRACT_CHECKBOX).first
+        raise unless checkbox.attribute('checked').nil?
+      end
+      
       step('finalize order') do
         open_url CART_URL
         run_step('delete product options')
-        
+        click_on_links_with_text FINALIZE_ORDER
+        click_on_button_with_name SHIPMENT_SUBMIT
+        click_on_button_with_name ORDER_OVERVIEW_SUBMIT
+        wait_for_link_with_text FINALIZE_PAYMENT
+        run_step 'remove contract options'
+        run_step 'build product'
+        run_step 'build final billing'
       end
       
     end

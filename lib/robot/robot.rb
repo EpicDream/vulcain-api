@@ -213,6 +213,10 @@ class Robot
     @driver.find_input_with_value(name)
   end
   
+  def wait_for_link_with_text text
+    @driver.find_links_with_text(text).first  
+  end
+  
   def wait_ajax n=2
     sleep(n)
   end
