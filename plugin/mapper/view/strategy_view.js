@@ -123,7 +123,7 @@ var StrategyView = function(_strategy) {
     //   actions.splice(-1,1);
     for (var i = actions.length-1 ; i >= 0 ; i--)
       if (! actions[i].code)
-        actions[i].code = 'raise "Action '+actions[i].desc+'not set"';
+        actions[i].code = 'raise "Action '+actions[i].desc+' not set"';
     return s;
   };
   // this.onReset = function(event) {

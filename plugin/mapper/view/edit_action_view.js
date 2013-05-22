@@ -1,7 +1,7 @@
 
 var EditActionView = function() {
   var _that = this;
-  var _page = $("#editActionPage");
+  var _page = $("#editActionPage").page();
   var _typesField = _page.find("select.type").selectmenu();
   var _argumentsField = _page.find("select.argument").selectmenu();
   var _passField = _page.find("input.pass");
@@ -9,6 +9,7 @@ var EditActionView = function() {
   var _urlField = _page.find("input.url").textinput();
   var _xpathField = _page.find("input.xpath").textinput();
   var _codeField = _page.find("textarea.code");
+  var _backBtn = _page.find("div[data-role='header'] a[data-rel='back']");
   var _saveBtn = _page.find("#editSaveBtn");
   var _deleteBtn = _page.find("#editDeleteBtn");
   var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
@@ -125,6 +126,10 @@ var EditActionView = function() {
     else
       this.generateCode();
     _codeField.css("height", "100%").keyup();
+    _backBtn[0].onclick = function() {
+      onSave();
+      this.clear();
+    }.bind(this);
     _saveBtn[0].onclick = function() {
       onSave();
       this.clear();
