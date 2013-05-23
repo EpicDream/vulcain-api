@@ -4,7 +4,7 @@ var EditActionView = function() {
   var _page = $("#editActionPage").page();
   var _typesField = _page.find("select.type").selectmenu();
   var _argumentsField = _page.find("select.argument").selectmenu();
-  var _passField = _page.find("input.pass");
+  var _passField = _page.find("input.pass").checkboxradio();
   var _descriptionField = _page.find("input.description");
   var _urlField = _page.find("input.url").textinput();
   var _xpathField = _page.find("input.xpath").textinput();
@@ -120,7 +120,7 @@ var EditActionView = function() {
     else
       _xpathField.textinput('enable');
     // Others
-    _passField.prop('checked', action.if_present);
+    _passField.prop('checked', action.pass).checkboxradio( "refresh" );
     _descriptionField.val(action.desc);
     if (action.code)
       _codeField.val(action.code);
@@ -147,7 +147,7 @@ var EditActionView = function() {
     action.type = _typesField.val();
     if (! _argumentsField.prop("disabled"))
       action.arg = _argumentsField.val();
-    action.pass = _passField.prop('checked')
+    action.pass = _passField.prop('checked');
     if (! _urlField.prop("disabled"))
       action.url = _urlField.val();
     if (! _xpathField.prop("disabled"))
@@ -166,7 +166,7 @@ var EditActionView = function() {
     _currentAction = null;
     _typesField[0].selectedIndex = 0;
     _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
-    _passField.prop('checked', false);
+    _passField.prop('checked', false).checkboxradio( "refresh" );
     _descriptionField.val("");
     _urlField.prop("disabled", true).val("");
     _xpathField.prop("disabled", true).val("");
