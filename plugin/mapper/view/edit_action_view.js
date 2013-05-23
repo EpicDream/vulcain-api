@@ -143,11 +143,11 @@ var EditActionView = function() {
 
   this.get = function() {
     var action = {};
+    action.desc = _descriptionField.val();
     action.type = _typesField.val();
     if (! _argumentsField.prop("disabled"))
       action.arg = _argumentsField.val();
     action.pass = _passField.prop('checked')
-    action.description = _descriptionField.val();
     if (! _urlField.prop("disabled"))
       action.url = _urlField.val();
     if (! _xpathField.prop("disabled"))
