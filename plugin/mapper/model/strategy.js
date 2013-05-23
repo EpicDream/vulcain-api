@@ -47,7 +47,7 @@ var Strategy = function(host, userAgent) {
       this.steps = [];
       for (var i in hash.steps) {
         var s = hash.steps[i];
-        this.steps.push(new Step(s.id, s));
+        this.steps.push(new Step(s));
       }
       onLoad();
     }.bind(this), function() {
@@ -61,41 +61,13 @@ var Strategy = function(host, userAgent) {
   };
   this.setDefault = function() {
     this.steps = [
-      new Step('account_creation', {
-        desc: "Inscription",
-        value: "",
-        actions: []
-      }),
-      new Step('login', {
-        desc: "Connexion",
-        value: "",
-        actions: []
-      }),
-      new Step('unlog', {
-        desc: "Déconnexion",
-        value: "",
-        actions: []
-      }),
-      new Step('empty_cart', {
-        desc: "Vider panier",
-        value: "",
-        actions: []
-      }),
-      new Step('add_to_cart', {
-        desc: "Ajouter panier",
-        value: "",
-        actions: []
-      }),
-      new Step('finalize_order', {
-        desc: "Finaliser",
-        value: "",
-        actions: []
-      }),
-      new Step('payment', {
-        desc: "Payement",
-        value: "",
-        actions: []
-      })
+      new Step({id: 'account_creation', desc: "Inscription", value: "", actions: []}),
+      new Step({id: 'login', desc: "Connexion", value: "", actions: []}),
+      new Step({id: 'unlog', desc: "Déconnexion", value: "", actions: []}),
+      new Step({id: 'empty_cart', desc: "Vider panier", value: "", actions: []}),
+      new Step({id: 'add_to_cart', desc: "Ajouter panier", value: "", actions: []}),
+      new Step({id: 'finalize_order', desc: "Finaliser", value: "", actions: []}),
+      new Step({id: 'payment', desc: "Payement", value: "", actions: []})
     ];
   };
 
