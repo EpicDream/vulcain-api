@@ -36,7 +36,7 @@ module Dispatcher
         @pool.ping_vulcains do
           @pool.idle_vulcains do |vulcains| 
             vulcains.each do |vulcain|
-              vulcain.blocked = !(vulcain.idle && vulcain.ack_ping)
+              vulcain.blocked = !vulcain.ack_ping
             end
           end
         end

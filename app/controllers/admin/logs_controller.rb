@@ -1,7 +1,7 @@
 class Admin::LogsController < ApplicationController
   
   def index
-    @uuids = Log.where(:created_at.gte => Time.now - 10.days).distinct("session.uuid")
+    @uuids = Log.uuids(crashes: params["crash"] == "true")
     render 'index', :layout => 'layouts/admin'
   end
   
