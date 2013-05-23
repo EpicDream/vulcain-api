@@ -196,7 +196,6 @@ class Robot
       begin
         @driver.click_on(element) if element
       rescue Selenium::WebDriver::Error::StaleElementReferenceError
-        puts "STALE"
         element = nil
       end
       continue = yield element
