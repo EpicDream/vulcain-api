@@ -17,7 +17,7 @@ class Plugin::StrategiesController < ApplicationController
   end
 
   def show
-    filename = to_filename(params)
+    filename = to_filename(params[:id])
     if File.file?(filename)
       data = YAML.load_file(filename)
       render :json => data.to_json
