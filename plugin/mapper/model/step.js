@@ -1,12 +1,11 @@
 
-var Step = function(id, args) {
+var Step = function(args) {
   var that = this;
 
   function init() {
-    if (! id || typeof(id) != "string") throw "'id' must be set as a string."
     if (! args || typeof(args) != "object") throw "'args' must be set as an object."
     console.log()
-    that.id = id;
+    that.id = args.id;
     that.desc = args.desc || "";
     that.actions = [];
     for (var i in args.actions) {
@@ -14,7 +13,7 @@ var Step = function(id, args) {
       if (a instanceof Action)
         that.actions.push(a);
       else
-        that.actions.push(new Action(a.sId, a.id, a));
+        that.actions.push(new Action(a));
     }
   };
 

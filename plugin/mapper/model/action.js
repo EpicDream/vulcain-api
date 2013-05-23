@@ -1,14 +1,10 @@
 
-var Action = function(sId, id, args) {
+var Action = function(args) {
   
   var that = this;
   function init() {
-    // if (! sId || typeof(sId) != "string") throw "'sId' must be set as a string."
-    // if (! id || typeof(id) != "string") throw "'id' must be set as a string."
     if (! args || typeof(args) != "object") throw "'args' must be set as an object."
 
-    that.sId = sId;
-    that.id = id;
     that.desc = args.desc || "";
     // To delete
     if (args.context && ! args.context instanceof Array)
@@ -24,15 +20,10 @@ var Action = function(sId, id, args) {
     that.if_present = args.if_present || false;
     that.pass = args.pass || false;
     that.code = args.code || "";
-
-    if (! id)
-      generateId();
   };
 
   this.toHash = function(args) {
     var res = {};
-    res.sId = this.sId;
-    res.id = this.id;
     res.desc = this.desc;
     res.xpath = this.xpath;
     if (! args || ! args.noContext)
@@ -46,11 +37,6 @@ var Action = function(sId, id, args) {
     res.pass = this.pass;
     res.code = this.code;
     return res;
-  };
-
-  function generateId() {
-    that.id = that.sId + _.uniqueId('_action_');
-    // return that.sId + that.desc.replace(/\W/g,'_');
   };
 
   this.edit = function(action) {
