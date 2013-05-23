@@ -9,6 +9,6 @@ Vulcain::Application.routes.draw do
   resource :answers, :only => [:create]
   namespace :admin do
     resources :monitors, :only => [:index, :show]
-    resources :logs, :only => [:show]
+    resources :logs, :only => [:show, :index]
   end
 end

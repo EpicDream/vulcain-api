@@ -1,0 +1,3 @@
+<%= select_tag('uuid', options_for_select(["uuid"] + @uuids), 
+    :onchange => "window.location = '/admin/logs/' + this.value")
+%>
