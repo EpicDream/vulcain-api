@@ -13,7 +13,8 @@ var EditActionView = function() {
   var _saveBtn = _page.find("#editSaveBtn");
   var _deleteBtn = _page.find("#editDeleteBtn");
   var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
-  var _currentAction = null;
+  var _currentAction = null,
+     _currentContext = null;
 
   function _init() {
     _page.find(".type").change(_onTypeChanged.bind(_that));

@@ -75,6 +75,7 @@ var StepView = function(step, patternPage, predefined) {
   };
 
   function _onActionsSorted(event, ui) {
+    _actionsList.listview("refresh");
     var actionView = ui.item[0].view;
     var idx = $.inArray(ui.item[0], _actionsList.find("li"));
     step.moveAction(actionView.model, idx);
@@ -84,6 +85,7 @@ var StepView = function(step, patternPage, predefined) {
     newActionView.onAdd(function() {
       var a = step.newAction(newActionView.get());
       _that.addAction(a).edit();
+      $.mobile.changePage("#editActionPage", {changeHash: false});
     }.bind(_that));
   };
 
