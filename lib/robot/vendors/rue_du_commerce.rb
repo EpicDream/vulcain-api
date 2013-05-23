@@ -122,6 +122,7 @@ class RueDuCommerce
         select_option BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
         click_on ADDRESS_SUBMIT
+        message :account_created, :next_step => 'renew login'
       end
       
       step('empty cart') do
@@ -130,14 +131,14 @@ class RueDuCommerce
           wait_for(['//*[@id="header"]/a[2]'])
           !remove_link.nil?
         end
-        run_step('add to cart')
+        message :cart_emptied, :next_step => 'add to cart'
       end
       
       step('delete product options') do
         begin
-          open_url CART_URL
           wait_for [REMOVE_ITEM]
           element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
+          wait_ajax(4)
         end while element
       end
       
@@ -145,7 +146,7 @@ class RueDuCommerce
         open_url next_product_url
         click_on_link_with_text(ADD_TO_CART)
         wait_ajax
-        run_step('finalize order')
+        message :cart_filled, :next_step => 'finalize order'
       end
       
       step('build product') do
