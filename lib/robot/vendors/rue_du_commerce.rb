@@ -196,9 +196,9 @@ class RueDuCommerce
         action = questions[answers.last.question_id]
         
         if eval(action)
-          run_step('validate order')
+          message :validate_order, :next_step => 'validate order'
         else
-          run_step('cancel order')
+          message :cancel_order, :next_step => 'validate order'
         end
       end
       
