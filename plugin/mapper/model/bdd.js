@@ -17,6 +17,7 @@ var BDD = function() {
         localStorage['types'] = JSON.stringify(hash);
       d.resolve(hash);
     }).fail(function() {
+      view.noServerNotify();
       if (window.localStorage && localStorage['types'])
         d.resolve(JSON.parse(localStorage['types']));
       else
@@ -35,6 +36,7 @@ var BDD = function() {
     }).done(function(hash) {
       onDone(hash);
     }).fail(function() {
+      view.noServerNotify();
       if (onFail) onFail();
     });
   };
@@ -48,6 +50,7 @@ var BDD = function() {
     }).done(function() {
       if (onDone) onDone();
     }).fail(function() {
+      view.noServerNotify();
       if (onFail) onFail();
     });
   };
