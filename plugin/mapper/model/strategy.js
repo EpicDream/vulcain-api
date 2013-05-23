@@ -45,7 +45,7 @@ var Strategy = function(host, mobile) {
 
   this.load = function(onLoad) {
     if (! onLoad) throw "'onLoad' must be set."
-    this.bdd.load(this.id, function(hash) {
+    this.bdd.load({id: this.id}, function(hash) {
       this.reset();
       this.steps = [];
       for (var i in hash.steps) {
@@ -60,6 +60,8 @@ var Strategy = function(host, mobile) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
+    if (this.steps.length == 0)
+      return;
     this.bdd.save(this.toHash(), onFail, onDone);
   };
   this.setDefault = function() {

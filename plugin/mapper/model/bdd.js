@@ -68,7 +68,7 @@ var BDD = function() {
     var localHash = this.localLoad(strategyId);
     if (this.remote)
       this.remoteLoad(strategyId, function(hash) {
-        if (! localHash || (hash && hash.updated_at >= localHash.updated_at)) onDone(hash);
+        if (! localHash || (hash && hash.updated_at >= localHash.updated_at) && hash.steps.length != 0) onDone(hash);
         else if (localHash) onDone(localHash);
         else onFail();
       }.bind(this), function() {
