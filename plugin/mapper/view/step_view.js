@@ -4,7 +4,7 @@ var StepView = function(step, patternPage, predefined) {
   var _page = patternPage.clone();
   var _actionsList = _page.find("ul.actionsList").listview().sortable({ delay: 20, distance: 10 });
   var _title = _page.find(".title");
-  var _predefinedActionSelect = _page.find(".newActionSelect");
+  var _predefinedActionSelect = _page.find(".newActionSelect").selectmenu();
   var _predefinedActionsH = {};
   var _menu = $("<li>").append("<a>");
 
@@ -92,7 +92,8 @@ var StepView = function(step, patternPage, predefined) {
   function _onNewActionSelected(event) {
     var optionVal = $(event.target).find("option:selected").val();
     if (optionVal == "") return;
-    _predefinedActionSelect.find("option[value='']").prop('selected',true).parent().select_menu('refresh');
+    _predefinedActionSelect.find("option[value='']").prop('selected',true)
+    _predefinedActionSelect.selectmenu('refresh');
     var aModel = step.newAction(_predefinedActionsH[optionVal]);
     var aView = _that.addAction(aModel).edit();
     $.mobile.changePage("#editActionPage");
