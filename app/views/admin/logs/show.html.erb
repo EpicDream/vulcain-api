@@ -1,19 +1,30 @@
-<% content_for :head do %>
-	<%= stylesheet_link_tag "admin/logs" %>
-<% end %>
+<h1>Order Logs</h1>
 
-<table>
+<table class="table table-striped table-bordered ">
 	<thead>
+        <tr>
+          <th>Time</th>
+          <th>Shopelia Session</th>
+          <th>Verb</th>
+          <th>Log Content</th>
+        </tr>
 	</thead>
 	<tbody>
 		<% @logs.each do |log| %>
 		  <% next if log.verb == 'page_source' %>
 			<tr>
-				<td>
-					<%= log.created_at %>
+				<td class="span2">
+					<%= log.created_at.strftime("%m/%d/%Y at %I:%M%p") %>
 				</td>
-				<td>
-					<%= log.session %>
+				<td class="span4">
+                  <dl class="dl-horizontal">
+                    <dt>uuid :</dt>
+                    <dd> <%= log.session["uuid"] %></dd>
+                    <dt>callback_url :</dt>
+                    <dd> <%= log.session["callback_url"] %></dd>
+                    <dt>vulcain_id :</dt>
+                    <dd><%= log.session["vulcain_id"] %></dd>
+                  </dl>
 				</td>
 				<td>
 					<%= log.verb %>

@@ -1,6 +1,6 @@
 <% @states.each do |state| %>
 	<% running = !state["idle"] && !state["blocked"] %>
-	<tr data-blocked="<%= state["blocked"]%>" data-running="<%= running %>">
+	<tr class="<%= "success" if running %> <%= "error" if state["blocked"] %>">
 		<td><%= state["host"]%></td>
 		<td><%= state["id"].split("|")[1]%></td>
 		<td><%= state["uuid"]%></td>
