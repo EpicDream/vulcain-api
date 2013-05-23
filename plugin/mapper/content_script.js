@@ -67,10 +67,11 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.action = "setPageInfos"
     msg.host = location.host;
     msg.path = location.pathname;
-    msg.userAgent = navigator.userAgent;
+    msg.mobile = plugin.mobile;
     msg.dest = 'plugin';
     chrome.extension.sendMessage(msg);
   } else if (msg.action == "start") {
+    plugin.mobile = msg.mobile;
     buildExtension();
   } else if (msg.action == "stop") {
     removeExtension();

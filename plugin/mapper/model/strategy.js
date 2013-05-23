@@ -3,9 +3,8 @@ include("../model/action.js");
 include("../model/step.js");
 include("../model/bdd.js");
 
-var Strategy = function(host, userAgent) {
+var Strategy = function(host, mobile) {
   var that = this;
-  var mobility = null;
 
   function init() {
     that.bdd = new BDD();
@@ -13,8 +12,7 @@ var Strategy = function(host, userAgent) {
     that.typesArgs = [];
     that.predefined = [];
     that.steps = [];
-    that.id = host+(mobility ? "_mobile" : "");
-    mobility = !! userAgent.match(/android|iphone/i);
+    that.setMobility(mobile);
   };
 
   this.initTypes = function() {
@@ -31,11 +29,16 @@ var Strategy = function(host, userAgent) {
     var res = {};
     res.id = this.id;
     res.host = host;
-    res.mobility = mobility;
+    res.mobility = this.mobility;
     res.steps = [];
     for (var i in this.steps)
       res.steps[i] = this.steps[i].toHash(args);
     return res;
+  };
+
+  this.setMobility = function(mobility) {
+    that.mobility = mobility;
+    that.id = host+(mobility ? "_mobile" : "");
   };
 
   // PLUGIN

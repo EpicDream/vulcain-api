@@ -12,7 +12,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   glob.host = msg.host;
   glob.path = msg.path;
 
-  model = new Strategy(msg.host, msg.userAgent);
+  model = new Strategy(msg.host, msg.mobile);
   view = new StrategyView(model);
 
   model.initTypes().done(function() {

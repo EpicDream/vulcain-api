@@ -13,12 +13,11 @@ var BDD = function() {
       url: pluginUrl+"/strategies/actions",
       dataType: "json"
     }).done(function(hash) {
-      if (window.localStorage)
-        localStorage['types'] = JSON.stringify(hash);
+      localStorage['types'] = JSON.stringify(hash);
       d.resolve(hash);
     }).fail(function() {
       view.noServerNotify();
-      if (window.localStorage && localStorage['types'])
+      if (localStorage['types'])
         d.resolve(JSON.parse(localStorage['types']));
       else
         d.reject();
@@ -56,21 +55,16 @@ var BDD = function() {
   };
   this.localLoad = function(strategyId) {
     if (! strategyId) throw "'strategyId' must be set.";
-    if (window.localStorage && localStorage[strategyId])
+    if (localStorage[strategyId])
       return JSON.parse(localStorage[strategyId]);
     return null;
   };
   this.localSave = function(strategy, onFail, onDone) {
-    if (window.localStorage) {
-      localStorage[strategy.id] = JSON.stringify(strategy);
-      if (onDone) onDone();
-    } else if (onFail) onFail();
+    localStorage[strategy.id] = JSON.stringify(strategy);
+    if (onDone) onDone();
   };
   // Load model data for host, remotely or in local if remote fail.
   this.load = function(strategyId, onDone, onFail) {
-    if (! onFail)
-      onFail = function() { alert("WARNING : Unable to load remotly nor localy !"); };
-
     var localHash = this.localLoad(strategyId);
     if (this.remote)
       this.remoteLoad(strategyId, function(hash) {
@@ -86,8 +80,6 @@ var BDD = function() {
   };
   // Save model data, remotely or in local if remote fail.
   this.save = function(strategy, onFail, onDone) {
-    if (! onFail)
-      onFail = function() { alert("WARNING : Unable to save remotly nor localy !"); };
     strategy.update_at = new Date();
     if (this.remote)
       this.remoteSave(strategy, function() {
@@ -101,9 +93,7 @@ var BDD = function() {
   };
   // Clear data saved in localStorage.
   this.clearCache = function(strategy) {
-    if (window.localStorage) {
-      delete localStorage['types'];
-      delete localStorage[strategy.id];
-    }
+    delete localStorage['types'];
+    delete localStorage[strategy.id];
   };
 };
