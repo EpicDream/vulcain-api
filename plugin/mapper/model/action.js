@@ -17,7 +17,6 @@ var Action = function(args) {
     that.argument = or(args.argument, null);
     that.url = or(args.url, null);
     that.option = or(args.option, null);
-    that.if_present = args.if_present || false;
     that.pass = args.pass || false;
     that.code = args.code || "";
   };
@@ -33,7 +32,6 @@ var Action = function(args) {
     res.argument = this.argument;
     res.url = this.url;
     res.option = this.option;
-    res.if_present = this.if_present;
     res.pass = this.pass;
     res.code = this.code;
     return res;
