@@ -62,7 +62,7 @@ var NewActionView = function() {
     _types = types;
     _arguments = arguments;
 
-    for (var i in predefinedActions) {
+    for (var i in _.uniq(predefinedActions, function(a) { return a.id; })) {
       _predefinedActionsH[predefinedActions[i].id] = predefinedActions[i];
       _predefinedActionsField.append($("<option value='"+predefinedActions[i].id+"'>"+predefinedActions[i].desc+"</option>"));
     }
