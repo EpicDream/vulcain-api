@@ -15,6 +15,8 @@ var StrategyView = function(_strategy) {
   var _startPage = $("#startPage").page();
   var _stepsList = _startPage.find("#stepsList").listview();
   var _noServerPopup = $("#noServerPopup").popup();
+  var _currentHostSpan = $("#currentHostSpan");
+  var _isCurrentHostMobile = $("#isCurrentHostMobile").checkboxradio();
   newActionView = new NewActionView();
   editActionView = new EditActionView();
 
@@ -23,7 +25,8 @@ var StrategyView = function(_strategy) {
     $('#importBtn').click(_onLoad.bind(_that));
     // $('#newBtn').click(_onReset.bind(_that));
     // $('#clearBtn').click(_onClear.bind(_that));
-
+    _currentHostSpan.text(glob.host);
+    _isCurrentHostMobile.change(_onSwitchMobility.bind(_that));
     window.addEventListener("beforeunload", _onUnload.bind(_that));
   };
 
@@ -39,6 +42,7 @@ var StrategyView = function(_strategy) {
     this.reset();
     newActionView.render(_.flatten(_.values(_strategy.predefined)), _strategy.types, _strategy.typesArgs);
     editActionView.render(_strategy.types, _strategy.typesArgs);
+    _isCurrentHostMobile.prop("checked", _strategy.mobility).checkboxradio( "refresh" );
 
     var steps = _strategy.steps;
     for (var i = 0 ; i < steps.length ; i++) {
@@ -63,7 +67,6 @@ var StrategyView = function(_strategy) {
   };
 
   this.noServerNotify = function() {
-    console.log(_noServerPopup);
     _noServerPopup.popup("open");
   };
 
@@ -131,6 +134,12 @@ var StrategyView = function(_strategy) {
       if (! actions[i].code)
         actions[i].code = 'raise "Action '+actions[i].desc+' not set"';
     return s;
+  };
+  function _onSwitchMobility() {
+    var mobility = _isCurrentHostMobile.prop("checked");
+    _strategy.setMobility(mobility);
+    chrome.extension.sendMessage({'dest':'background','action':'setMobility',
+      'host': glob.host, 'mobility': mobility});
   };
   // this.onReset = function(event) {
   //   if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {

@@ -1,8 +1,16 @@
 var activeHost = JSON.parse(localStorage.activeHost || "{}");
+var mobileHost = JSON.parse(localStorage.mobileHost || "{}");
 var activeTabs = {};
 
-chrome.extension.onMessage.addListener(function(request, sender) {
-  chrome.tabs.sendMessage(sender.tab.id, request);
+chrome.extension.onMessage.addListener(function(msg, sender) {
+  if (msg.dest != "background")
+    chrome.tabs.sendMessage(sender.tab.id, msg);
+  else if (msg.action == "setMobility") {
+    mobileHost[msg.host] = msg.mobility;
+    localStorage.mobileHost = JSON.stringify(mobileHost);
+    chrome.tabs.reload();
+  } else
+    console.error("Unknow action :", msg.action);
 });
 
 chrome.browserAction.onClicked.addListener(function(tab) {
@@ -33,8 +41,25 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
     startExt(tabId);
 });
 
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  function(details) {
+    if (! mobileHost[getHost(details.url)])
+      return;
+
+    for (var i = 0; i < details.requestHeaders.length; ++i) {
+      if (details.requestHeaders[i].name === 'User-Agent') {
+        details.requestHeaders[i].value = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30";
+        break;
+      }
+    }
+    return {requestHeaders: details.requestHeaders};
+  },
+  {urls: ["<all_urls>"]},
+  ["blocking", "requestHeaders"]
+);
+
 function startExt(tabId) {
-  chrome.tabs.sendMessage(tabId, {dest: 'contentscript', action: 'start'});
+  chrome.tabs.sendMessage(tabId, {dest: 'contentscript', action: 'start', mobile: !! mobileHost[activeTabs[tabId]] });
 };
 
 function stopExt(tabId) {
@@ -42,6 +67,8 @@ function stopExt(tabId) {
 };
 
 function getHost(url) {
-  var res = url.match(/:\/\/[^\/]+\.\w+\//)[0].slice(3,-1);
+  var m = url.match(/:\/\/[^\/]+\.\w+\//);
+  if (!m) return "";
+  var res = m[0].slice(3,-1);
   return res;
 };
