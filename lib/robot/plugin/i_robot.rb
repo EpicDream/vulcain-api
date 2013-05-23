@@ -6,6 +6,7 @@ require "robot/core_extensions"
 
 class Plugin::IRobot < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
+  MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
     attr_reader :step, :action
@@ -96,9 +97,11 @@ class Plugin::IRobot < Robot
 
     self.instance_eval do
       step('run') do
+        pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
           run_step('unlog')
+          pl_open_url @shop_base_url
         end
         run_step('login')
         message :logged, :next_step => 'run_empty_cart'
@@ -138,27 +141,34 @@ class Plugin::IRobot < Robot
       end
 
       step('run_test') do
+        pl_open_url! @shop_base_url
         run_step('account_creation')
-        run_step('login')
-        run_step('unlog')
-        run_step('login')
-        run_step('empty_cart')
+        continue = false if ! @steps['login']
+        pl_open_url! @shop_base_url if continue
+        run_step('login') if continue
+        continue = false if ! @steps['unlog']
+        run_step('unlog') if continue
+        run_step('login') if continue
+        continue = false if ! @steps['empty_cart']
+        run_step('empty_cart') if continue
+        continue = false if ! @steps['add_to_cart']
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
           run_step('add_to_cart')
-        end
-        run_step('empty_cart')
+        end if continue
+        run_step('empty_cart') if continue
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
           @pl_current_product['url'] = url
           run_step('add_to_cart')
           products << @pl_current_product
-        end
-        run_step('finalize_order')
-        run_step('payment')
-        @pl_driver.quit
+        end if continue
+        continue = false if ! @steps['finalize_order']
+        run_step('finalize_order') if continue
+        continue = false if ! @steps['payment']
+        run_step('payment') if continue
       end
     end
   end
@@ -180,8 +190,9 @@ class Plugin::IRobot < Robot
   end
 
   def pl_add_strategy(strategy)
+    @shop_base_url = "http://"+strategy[:host]+"/"
     strategy[:steps].each { |s|
-      pl_add_step(s)# unless s[:actions].one? { |a| ! a[:code].blank? }
+      pl_add_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
     }
   end
 
