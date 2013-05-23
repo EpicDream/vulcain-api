@@ -138,7 +138,7 @@ class RueDuCommerce
         begin
           wait_for [REMOVE_ITEM]
           element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
-          wait_ajax(4)
+          wait_ajax(5)
         end while element
       end
       
@@ -198,7 +198,7 @@ class RueDuCommerce
         if eval(action)
           message :validate_order, :next_step => 'validate order'
         else
-          message :cancel_order, :next_step => 'validate order'
+          message :cancel_order, :next_step => 'cancel'
         end
       end
       
