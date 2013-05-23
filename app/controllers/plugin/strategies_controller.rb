@@ -34,7 +34,7 @@ class Plugin::StrategiesController < ApplicationController
   private
     def fixed_param
       s = params
-      for step in s[:steps]
+      for step in (s[:steps] || [])
         step[:actions] ||= []
       end
       return s

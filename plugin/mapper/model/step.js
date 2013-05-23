@@ -28,7 +28,7 @@ var Step = function(args) {
   };
 
   this.newAction = function(action) {
-    var a = new Action(this.id, undefined, action);
+    var a = new Action(action);
     this.actions.push(a);
     return a;
   };
