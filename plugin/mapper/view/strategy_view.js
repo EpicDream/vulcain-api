@@ -14,6 +14,7 @@ var StrategyView = function(_strategy) {
   var _patternPage = $(".stepTemplatePage").detach().removeClass("stepTemplatePage").addClass("stepPage").page();
   var _startPage = $("#startPage").page();
   var _stepsList = _startPage.find("#stepsList").listview();
+  var _noServerPopup = $("#noServerPopup").popup();
   newActionView = new NewActionView();
   editActionView = new EditActionView();
 
@@ -59,6 +60,11 @@ var StrategyView = function(_strategy) {
     _stepsList.listview("refresh");
     stepView.page.find('.testBtn').click(_onTest.bind(this));
     return stepView;
+  };
+
+  this.noServerNotify = function() {
+    console.log(_noServerPopup);
+    _noServerPopup.popup("open");
   };
 
   function _onSave(event) {
