@@ -10,7 +10,7 @@ var Action = function(args) {
     if (args.context && ! args.context instanceof Array)
       that.context = [args.context];
     else
-      that.context = or(args.context, []);
+      that.context = args.context || [];
     that.xpath = args.xpath || (that.context ? that.context.xpath : null);
     that.type = or(args.type, null);
     that.arg = or(args.arg, null);
@@ -42,10 +42,11 @@ var Action = function(args) {
   this.edit = function(action) {
     this.desc = or(action.desc, this.desc);
     this.xpath = or(action.xpath, this.xpath);
-    if (action.context)
+    if (action.context) {
       this.context.push(action.context);
-    if (action.context.length > 5)
-      this.context.shift();
+      if (action.context.length > 5)
+        this.context.shift();
+    }
     this.type = or(action.type, this.type);
     this.argument = or(action.argument, this.argument);
     this.arg = or(action.arg, this.arg);
