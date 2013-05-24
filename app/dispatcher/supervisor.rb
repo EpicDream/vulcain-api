@@ -4,25 +4,32 @@ module Dispatcher
     VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked, :stale)
 
     DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
+    DUMP_IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
     VULCAIN_RUN_CMD = "#{Rails.root}/../vulcain/bin/run.sh"
     RUNNING_TIMEOUT = 3.minutes
     CHECK_TIMEOUTS_INTERVAL = 10.seconds
     MONITORING_INTERVAL = 3.seconds
     MOUNT_NEW_VULCAINS_INTERVAL = 1.minute
-    UNMOUNT_VULCAINS_INTERVAL = 2.hours
     MIN_IDLE_VULCAINS = 1
     MAX_NEW_VULCAINS_AT_START = 3
     PING_VULCAIN_INTERVAL = 30.seconds
+
+    IDLE_VULCAINS_SAMPLE_INTERVAL = 10.seconds
+    UNMOUNT_INTERVAL = 1.hour
+    UNMOUNT_USE_LIMIT = 50 # %
+    UNMOUNT_KEEP = 2
     
     def initialize connection, exchange, queues, pool
       @pool = pool
       @connection = connection
       @exchange = exchange
       @queues = queues
+      @idle_samples = []
+      create_dump_files
       instanciate_periodic_timers
     end
     
-    def mount_new_vulcains
+    def check_mount_new_vulcains
       Proc.new do |n=1|
         if @pool.idle_vulcains.count <= MIN_IDLE_VULCAINS
           n.times do
@@ -32,10 +39,17 @@ module Dispatcher
       end
     end
     
-    def unmount_vulcains
-      vulcains_count = @pool.pool.size
-      idle_count = @pool.idle_vulcains.count
-      
+    def check_unmount_vulcains
+      Proc.new do
+        if @pool.pool.size > 0
+          push_idle_sample and dump_idle_sample
+          if @idle_samples.count > (UNMOUNT_INTERVAL / IDLE_VULCAINS_SAMPLE_INTERVAL)
+            average = @idle_samples.sum / @idle_samples.count
+            @idle_samples = []
+            unmount_vulcains if average > UNMOUNT_USE_LIMIT
+          end
+        end
+      end
     end
     
     def ping_vulcains
@@ -89,9 +103,9 @@ module Dispatcher
     def instanciate_periodic_timers
       EM.add_periodic_timer(CHECK_TIMEOUTS_INTERVAL, check_timeouts)
       EM.add_periodic_timer(MONITORING_INTERVAL, dump_vulcains)
-      EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, mount_new_vulcains)
+      EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, check_mount_new_vulcains)
       EM.add_periodic_timer(PING_VULCAIN_INTERVAL, ping_vulcains)
-      EM.add_periodic_timer(UNMOUNT_VULCAINS_INTERVAL, unmount_vulcains)
+      EM.add_periodic_timer(IDLE_VULCAINS_SAMPLE_INTERVAL, check_unmount_vulcains)
     end
     
     def unbind_queues
@@ -111,6 +125,30 @@ module Dispatcher
       @pool.block(vulcain)
       session = {'uuid' => vulcain.uuid, 'callback_url' => vulcain.callback_url}
       Message.new(:order_timeout).for(session).to(:shopelia)
+    end
+    
+    def create_dump_files
+      unless File.exists?(DUMP_IDLE_SAMPLES_FILE_PATH)
+        File.open(DUMP_IDLE_SAMPLES_FILE_PATH, "w+") { |f| YAML.dump([], f) }
+      end
+    end
+    
+    def push_idle_sample
+      @idle_samples << @pool.idle_vulcains.count.to_f / @pool.pool.size
+    end
+    
+    def dump_idle_sample
+      samples = YAML.load_file(DUMP_IDLE_SAMPLES_FILE_PATH)#TODO empty dump file every 24h
+      samples << @idle_samples.last
+      File.open(DUMP_IDLE_SAMPLES_FILE_PATH, "w+") { |f| YAML.dump(samples, f) }
+    end
+    
+    def unmount_vulcains
+      @pool.idle_vulcains do |vulcains|
+        vulcains[UNMOUNT_KEEP..-1].each do |vulcain|
+          #unmount vulcain
+        end
+      end
     end
     
   end
