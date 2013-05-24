@@ -98,10 +98,10 @@ INIT
     if isNewAccount
       # On supprime le click sur le bouton 'Valider création compte'
       # On vérifie juste qu'il est présent.
-      action = strategy[:steps].first[:actions][-1]
-      if action[:code] =~ /pl_click_on!/
-        action[:code] = action[:code].sub(/pl_click_on!/, "link!")
-      end
+      # action = strategy[:steps].first[:actions][-1]
+      # if action[:code] =~ /pl_click_on!/
+      #   action[:code] = action[:code].sub(/pl_click_on!/, "link!")
+      # end
       CONTEXT['account'][:new_account] = true
     end
     CONTEXT[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if strategy['mobility']
