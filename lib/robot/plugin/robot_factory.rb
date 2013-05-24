@@ -4,7 +4,7 @@ require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
   CONTEXT = { options: {profile_dir: "config/chromium/Default"},
-              'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson', new_account: false},
+              'account' => {'email' => 'timmy78@yopmail.com', 'login' => "timmy781", 'password' => 'paterson', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
               'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
@@ -94,7 +94,7 @@ INIT
   end
 
   def self.test_strategy(strategy)
-    isNewAccount = strategy[:steps].first[:id] == "account_creation"
+    isNewAccount = strategy[:steps].first[:actions].length > 0
     if isNewAccount
       # On supprime le click sur le bouton 'Valider création compte'
       # On vérifie juste qu'il est présent.

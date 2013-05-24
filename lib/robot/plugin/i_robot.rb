@@ -41,13 +41,13 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
-    {id: 'pl_click_on_while', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
+    {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
-    {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {}}
+    {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
     # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
     # {id: 'wait_ajax', desc: "Attendre"},
@@ -141,13 +141,17 @@ class Plugin::IRobot < Robot
       end
 
       step('run_test') do
+        continue = true
         pl_open_url! @shop_base_url
-        run_step('account_creation')
-        continue = false if ! @steps['login']
-        pl_open_url! @shop_base_url if continue
-        run_step('login') if continue
+        if account.new_account
+          run_step('account_creation')
+        else
+          continue = false if ! @steps['login']
+          run_step('login') if continue
+        end
         continue = false if ! @steps['unlog']
         run_step('unlog') if continue
+        continue = false if ! @steps['login']
         run_step('login') if continue
         continue = false if ! @steps['empty_cart']
         run_step('empty_cart') if continue
