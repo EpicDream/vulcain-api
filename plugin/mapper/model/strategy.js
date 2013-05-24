@@ -76,8 +76,8 @@ var Strategy = function(host, mobile) {
     ];
   };
 
-  this.clearCache = function() { this.bdd.clearCache(host); };
-  this.reset = function() { this.steps = []; };
+  this.clearCache = function() { this.bdd.clearCache(this); };
+  this.reset = function() { this.setDefault(); };
 
   for (var f in this) {
     if (typeof(this[f]) == "function")

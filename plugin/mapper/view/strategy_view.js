@@ -23,8 +23,8 @@ var StrategyView = function(_strategy) {
   function _init() {
     $('#saveBtn').click(_onSave.bind(_that));
     $('#importBtn').click(_onLoad.bind(_that));
-    // $('#newBtn').click(_onReset.bind(_that));
-    // $('#clearBtn').click(_onClear.bind(_that));
+    $('#newBtn').click(_onReset.bind(_that));
+    $('#clearBtn').click(_onClear.bind(_that));
     _currentHostSpan.text(glob.host);
     _isCurrentHostMobile.change(_onSwitchMobility.bind(_that));
     window.addEventListener("beforeunload", _onUnload.bind(_that));
@@ -142,15 +142,17 @@ var StrategyView = function(_strategy) {
     chrome.extension.sendMessage({'dest':'background','action':'setMobility',
       'host': glob.host, 'mobility': mobility});
   };
-  // this.onReset = function(event) {
-  //   if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
-  //     // this.view.reset();
-  //     this.model.reset();
-  //   }
-  // };
-  // this.onClear = function(event) {
-  //   if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) this.model.clearCache();
-  // };
+  function _onReset(event) {
+    if (confirm("Êtes vous sûr de vouloir tout effacer ?")) {
+      _strategy.reset();
+      this.render();
+    }
+  };
+  function _onClear(event) {
+    if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) {
+      _strategy.clearCache();
+    }
+  };
 
 
   for (var f in this) {
