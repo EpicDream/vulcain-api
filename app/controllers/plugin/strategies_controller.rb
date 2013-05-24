@@ -3,21 +3,27 @@
 require "ostruct"
 
 class Plugin::StrategiesController < ApplicationController
+  MAX_BACKUP = 5
+
+  def initialize
+    @backup_counter = {}
+  end
 
   def actions
     render :json => {types: Plugin::IRobot::ACTION_METHODS, typesArgs: Plugin::IRobot::USER_INFO, predefined: predefined}.to_json
   end
 
   def create
-    filename = to_filename(params[:id])
+    filename = to_filename(params)
     FileUtils.mkdir_p(File.dirname(filename))
+    backup(filename) if File.file?(filename)
     File.open(filename, "w") do |f|
       f.puts fixed_param.to_yaml
     end
   end
 
   def show
-    filename = to_filename(params[:id])
+    filename = to_filename(params)
     if File.file?(filename)
       data = YAML.load_file(filename)
       render :json => data.to_json
@@ -40,8 +46,20 @@ class Plugin::StrategiesController < ApplicationController
       return s
     end
 
-    def to_filename(strategyId)
-      return Rails.root+"db/plugin/#{strategyId}.yml"
+    def to_filename(strategy)
+      return Rails.root.to_s+"/db/plugin/#{strategy[:id]}.yml"
+    end
+
+    def backup(filename)
+      backs = Dir["#{filename}.back*"].sort
+      if backs.empty?
+        cpt = 1
+      else
+        backs.last.to_s =~ /\.back(\d+)$/
+        cpt = $~[1].to_i + 1
+      end
+      FileUtils.cp(filename, filename+".back#{cpt}")
+      FileUtils.rm_f(backs.first) if backs.size > MAX_BACKUP
     end
 
     def default

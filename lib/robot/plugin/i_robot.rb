@@ -28,7 +28,8 @@ class Plugin::IRobot < Robot
     def method_missing(meth, *args, &block)
       return self
     end
-    def message(meth, *args, &block)
+    def message(*args, &block)
+      p args
       return nil
     end
   end
