@@ -134,7 +134,9 @@ module Dispatcher
     end
     
     def push_idle_sample
-      @idle_samples << @pool.idle_vulcains.count.to_f / @pool.pool.size
+      idle = @pool.idle_vulcains.count.to_f / @pool.pool.size
+      total = @pool.pool.size
+      @idle_samples << {idle:idle, total:total}
     end
     
     def dump_idle_sample
@@ -144,10 +146,11 @@ module Dispatcher
     end
     
     def unmount_vulcains
-      @pool.idle_vulcains do |vulcains|
-        vulcains[UNMOUNT_KEEP..-1].each do |vulcain|
-          #unmount vulcain
-        end
+      count = @pool.idle_vulcains
+      (count - UNMOUNT_KEEP).times do
+        session = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
+        next unless vulcain = @pool.pull(session)
+        #unmount vulcain
       end
     end
     
