@@ -1,14 +1,15 @@
 # encoding: utf-8
 module Dispatcher
   class Supervisor
-    VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked)
+    VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked, :stale)
 
+    DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     VULCAIN_RUN_CMD = "#{Rails.root}/../vulcain/bin/run.sh"
     RUNNING_TIMEOUT = 3.minutes
     CHECK_TIMEOUTS_INTERVAL = 10.seconds
     MONITORING_INTERVAL = 3.seconds
-    DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     MOUNT_NEW_VULCAINS_INTERVAL = 1.minute
+    UNMOUNT_VULCAINS_INTERVAL = 2.hours
     MIN_IDLE_VULCAINS = 1
     MAX_NEW_VULCAINS_AT_START = 3
     PING_VULCAIN_INTERVAL = 30.seconds
@@ -24,15 +25,21 @@ module Dispatcher
     def mount_new_vulcains
       Proc.new do |n=1|
         if @pool.idle_vulcains.count <= MIN_IDLE_VULCAINS
-          n.times do 
+          n.times do
             #mount new vulcain instance
           end
         end
       end
     end
     
+    def unmount_vulcains
+      vulcains_count = @pool.pool.size
+      idle_count = @pool.idle_vulcains.count
+      
+    end
+    
     def ping_vulcains
-      Proc.new do 
+      Proc.new do
         @pool.ping_vulcains do
           @pool.idle_vulcains do |vulcains| 
             vulcains.each do |vulcain|
@@ -62,7 +69,7 @@ module Dispatcher
     def check_timeouts
       Proc.new do 
         @pool.pool.each do |vulcain|
-          next unless @pool.can_check_timeout_of?(vulcain) 
+          next unless @pool.can_check_timeout_of?(vulcain)
           timeout(vulcain) if Time.now - vulcain.run_since > RUNNING_TIMEOUT
         end
       end
@@ -84,6 +91,7 @@ module Dispatcher
       EM.add_periodic_timer(MONITORING_INTERVAL, dump_vulcains)
       EM.add_periodic_timer(MOUNT_NEW_VULCAINS_INTERVAL, mount_new_vulcains)
       EM.add_periodic_timer(PING_VULCAIN_INTERVAL, ping_vulcains)
+      EM.add_periodic_timer(UNMOUNT_VULCAINS_INTERVAL, unmount_vulcains)
     end
     
     def unbind_queues

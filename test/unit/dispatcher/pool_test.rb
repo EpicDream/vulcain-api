@@ -86,6 +86,7 @@ class PoolTest <  ActiveSupport::TestCase
     pool.stubs(:ping_vulcains)
     pool.restore
     
+    vulcain.idle = false
     assert_equal [vulcain], pool.pool
   end
   
@@ -118,7 +119,7 @@ class PoolTest <  ActiveSupport::TestCase
   
   def vulcains
     (1..3).map do |n|
-      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, false, 0)
+      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, false, nil)
     end
   end
   
