@@ -105,6 +105,7 @@ INIT
       CONTEXT['account'][:new_account] = true
     end
     CONTEXT[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if strategy['mobility']
+    CONTEXT[:options][:profile_dir] = nil if strategy['mobility']
 
     robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)
