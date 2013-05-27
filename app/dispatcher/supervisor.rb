@@ -134,9 +134,7 @@ module Dispatcher
     end
     
     def push_idle_sample
-      idle = @pool.idle_vulcains.count.to_f / @pool.pool.size
-      total = @pool.pool.size
-      @idle_samples << {idle:idle, total:total}
+      @idle_samples << {idle:@pool.idle_vulcains.count, total:@pool.pool.size}
     end
     
     def dump_idle_sample

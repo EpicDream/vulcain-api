@@ -11,10 +11,10 @@ class Admin::MonitorsController < ApplicationController
       idles = []
       totals = []
       YAML.load_file(IDLE_SAMPLES_FILE_PATH).last(360).each_with_index do |sample, i|
-        idles << { "x" => i, "y" => sample[:idle] *  100}
+        idles << { "x" => i, "y" => sample[:idle]}
         totals << { "x" => i, "y" => sample[:total] }
       end
-      render :json => {"main" => [{"data" => idles}], "comp" => [{"data" => totals}]}.to_json
+      render :json => {"idles" => idles, "totals" => totals}.to_json
     else
       @states = JSON.parse File.read(VULCAIN_STATES_FILE_PATH)
       render 'show'

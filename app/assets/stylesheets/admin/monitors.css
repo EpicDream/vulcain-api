@@ -1,5 +1,9 @@
-#idleGraph, #totalsGraph{
+#idleGraph{
 	width:100%;
 	height:200px;
 	margin: 100px 0 0 0;
+}
+
+.xchart .idles .line{
+	stroke: #4DA944 !important;
 }

@@ -1,17 +1,15 @@
 var Graph = {
 	_idleGraph: null,
-	_totalsGraph: null,
 	
 	init: function() {
 		var data = {
 		  "xScale": "ordinal",
 		  "yScale": "linear",
-		  "type": "line",
+		  "type": "bar",
 		  "main": []
 		};
 
-		this._idleGraph = new xChart('idle', data, '#idleGraph');
-		this._totalsGraph = new xChart('total', data, '#totalsGraph');
+		this._idleGraph = new xChart('graph', data, '#idleGraph');
 	},
 	
 	refresh: function(samples) {
@@ -20,18 +18,11 @@ var Graph = {
 		  "xScale": "ordinal",
 		  "yScale": "linear",
 		  "type": "line",
-		  "main": samples.comp
-		};
-		this._totalsGraph.setData(data);
-		
-		data = {
-		  "xScale": "ordinal",
-		  "yScale": "linear",
-		  "type": "line",
-		  "main": samples.main
+		  "main": [{"className": ".totals", "data": samples.totals}],
+			"comp": [{"className": ".idles", "type": "line", "data": samples.idles}]		
+					
 		};
 		this._idleGraph.setData(data);
-		
 		
 	}
 }
