@@ -40,7 +40,7 @@ class PoolTest <  ActiveSupport::TestCase
   test "push vulcain with a given id in pool" do
     expected_vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", nil, true)
     
-    pool.expects(:load_robots_on_vulcain).with(expected_vulcain)
+    pool.expects(:reload).with(expected_vulcain)
     pool.push("127.0.0.1|210123")
     
     assert_equal [expected_vulcain], pool.pool
@@ -113,6 +113,16 @@ class PoolTest <  ActiveSupport::TestCase
     vulcain = pool.pull({'uuid' => "1", 'callback_url' => "http://www.shopelia.com/9000"})
     
     assert_equal "http://www.shopelia.com/9000", vulcain.callback_url
+  end
+  
+  test "a stale vulcain must not be idle" do
+    pool.pool = vulcains 
+    vulcain = pool.pool.first
+    
+    pool.stale(vulcain)
+    
+    assert !vulcain.idle
+    assert vulcain.stale
   end
   
   private

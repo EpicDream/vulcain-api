@@ -44,7 +44,8 @@ module Dispatcher
         if @pool.pool.size > 0
           push_idle_sample and dump_idle_sample
           if @idle_samples.count > (UNMOUNT_INTERVAL / IDLE_VULCAINS_SAMPLE_INTERVAL)
-            average = @idle_samples.sum / @idle_samples.count
+            averages = @idle_samples.map { |sample| sample[:idle].to_f / sample[:total] }
+            average = averages.sum / averages.count
             @idle_samples = []
             unmount_vulcains if average > UNMOUNT_USE_LIMIT
           end
@@ -72,9 +73,11 @@ module Dispatcher
     end
     
     def reload_vulcains_code
-      @pool.pool.size.times do
+      @pool.pool.each do |vulcain|
+        vulcain.stale = true
         session = {'uuid' => 'RELOAD', 'callback_url' => ''}
         next unless vulcain = @pool.pull(session)
+        @pool.stale(vulcain)
         Dispatcher.output(:reload_vulcain, :vulcain => vulcain)
         @pool.reload(vulcain)
       end

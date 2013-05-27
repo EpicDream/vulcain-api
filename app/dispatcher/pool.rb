@@ -16,7 +16,7 @@ module Dispatcher
     def pull session
       vulcain = nil
       @mutex.synchronize {
-        if vulcain = @pool.detect { |vulcain| vulcain.idle && !vulcain.blocked}
+        if vulcain = @pool.detect { |vulcain| vulcain.idle && !vulcain.blocked && !vulcain.stale}
           vulcain.idle = false
           vulcain.uuid = session['uuid']
           vulcain.callback_url = session['callback_url']
@@ -28,7 +28,7 @@ module Dispatcher
     
     def idle_vulcains &block
       @mutex.synchronize {
-        vulcains = @pool.select { |vulcain| vulcain.idle && !vulcain.blocked }
+        vulcains = @pool.select { |vulcain| vulcain.idle && !vulcain.blocked && !vulcain.stale }
         block.call(vulcains) if block_given?
         vulcains
       }
@@ -67,17 +67,28 @@ module Dispatcher
       exchange = Dispatcher::VulcainExchanger.new(host).exchange
       vulcain = Vulcain.new(exchange, id, false, host, nil, true)
       @pool << vulcain
-      load_robots_on_vulcain(vulcain)
+      reload(vulcain)
       Dispatcher.output(:new_vulcain, vulcain:vulcain)
     end
     
     def idle id
       vulcain = vulcain_with_id(id)
-      vulcain.idle = true
-      vulcain.callback_url = nil
-      vulcain.run_since = nil
-      vulcain.uuid = nil
-      Dispatcher.output(:idle, vulcain:vulcain)
+      if vulcain.stale
+        vulcain.stale = false
+        reload(vulcain)
+      else
+        vulcain.idle = true
+        vulcain.stale = false
+        vulcain.callback_url = nil
+        vulcain.run_since = nil
+        vulcain.uuid = nil
+        Dispatcher.output(:idle, vulcain:vulcain)
+      end
+    end
+    
+    def stale vulcain
+      vulcain.idle = false
+      vulcain.stale = true
     end
     
     def dump
@@ -139,8 +150,7 @@ module Dispatcher
     end
     
     def reload vulcain
-      vulcain.idle = false
-      load_robots_on_vulcain(vulcain)
+      Message.new(:reload).to(vulcain)
     end
   
     private
@@ -151,10 +161,6 @@ module Dispatcher
     
     def vulcain_with_uuid uuid
       @pool.detect { |vulcain| vulcain.uuid == uuid  }
-    end
-    
-    def load_robots_on_vulcain vulcain
-      Message.new(:reload).to(vulcain)
     end
 
   end

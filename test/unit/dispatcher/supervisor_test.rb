@@ -52,6 +52,32 @@ class SupervisorTest <  ActiveSupport::TestCase
     @supervisor.abort_worker
   end
   
+  test "reload code on all idle vulcains" do
+    @pool.pool = vulcains
+    vulcain = @pool.pool.first
+    vulcain.idle = false
+    
+    @pool.expects(:reload).twice
+    @supervisor.reload_vulcains_code
+    
+    @pool.pool[1..-1].each do |vulcain| 
+      assert vulcain.stale
+      assert !vulcain.idle
+    end
+  end
+  
+  test "reload at next idle when busy" do
+    @pool.pool = vulcains
+    vulcain = @pool.pool.first
+    vulcain.idle = false
+    
+    @pool.expects(:reload).twice
+    @supervisor.reload_vulcains_code
+    
+    @pool.expects(:reload).with(vulcain).once
+    @pool.idle(vulcain.id)
+  end
+  
   private
   
   def vulcains
