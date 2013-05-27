@@ -1,6 +1,4 @@
 class Admin::MonitorsController < ApplicationController
-  VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
-  IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
   
   def index
     render 'index', :layout => 'layouts/admin'
@@ -8,15 +6,9 @@ class Admin::MonitorsController < ApplicationController
   
   def show
     if params[:id] == 1.to_s
-      idles = []
-      totals = []
-      YAML.load_file(IDLE_SAMPLES_FILE_PATH).last(360).each_with_index do |sample, i|
-        idles << { "x" => i, "y" => sample[:idle]}
-        totals << { "x" => i, "y" => sample[:total] }
-      end
-      render :json => {"idles" => idles, "totals" => totals}.to_json
+      render :json => VulcainsMonitor.idles.to_json
     else
-      @states = JSON.parse File.read(VULCAIN_STATES_FILE_PATH)
+      @states = VulcainsMonitor.states
       render 'show'
     end
   end
