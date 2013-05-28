@@ -291,4 +291,10 @@ class Robot
     @driver.accept_alert
   end
   
+  def resolve_captcha image_url
+    client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
+    response = client.decode image_url
+    response['text'] #if response['is_correct']
+  end
+  
 end

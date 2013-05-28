@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -69,7 +69,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "login" do
-    @message.expects(:message).times(1)
+    @message.expects(:message).times(2)
     robot.expects(:message).with(:logged, :next_step => 'empty cart', timer:5)
 
     robot.run_step('login')
@@ -79,20 +79,20 @@ class AmazonTest < ActiveSupport::TestCase
     @context['account']['password'] = "badpassword"
     robot.context = @context
     
-    @message.expects(:message).times(1)
+    @message.expects(:message).times(2)
     robot.expects(:terminate_on_error).with(:login_failed)
     
     robot.run_step('login')
   end
   
   test "logout whithout beeing logged" do
-    @message.expects(:message).times(1)
+    @message.expects(:message).times(2)
     
     robot.run_step('logout')
   end
   
   test "logout" do
-    @message.expects(:message).times(4)
+    @message.expects(:message).times(5)
     
     robot.run_step('login')
     robot.run_step('logout')
@@ -101,14 +101,14 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "remove credit card" do
-    @message.expects(:message).times(4)
+    @message.expects(:message).times(6)
     
     robot.run_step('login')
     robot.run_step('remove credit card')
   end
   
   test "add to cart - build products" do
-    @message.expects(:message).times(10)
+    @message.expects(:message).times(11)
     expected_products = [{"price_text"=>"EUR 131,50 + EUR 11,93 livraison",
       "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir",
       "product_image_url"=>
@@ -133,7 +133,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(13)
+    @message.expects(:message).times(14)
     @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
 
     robot.run_step('login')
@@ -142,7 +142,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "order with shipment address fill" do
-     @message.expects(:message).times(16)
+     @message.expects(:message).times(17)
      robot.run_step('login')
      robot.run_step('empty cart')
      robot.run_step('add to cart')

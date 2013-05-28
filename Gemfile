@@ -14,6 +14,7 @@ gem "mongo_mapper"
 gem "sqlite3"
 gem "bson_ext"
 gem 'bootstrap-sass', '~> 2.3.1.0'
+gem 'deathbycaptcha'
 
 group :assets do
   gem 'sass-rails', '~> 3.2'
