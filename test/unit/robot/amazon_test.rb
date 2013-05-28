@@ -52,7 +52,7 @@ class AmazonTest < ActiveSupport::TestCase
   test "account creation" do
     skip "Can' create account each time!"
     @message.expects(:message).times(1)
-    robot.expects(:message).with(:account_created, :timer => 5, :next_step => 'renew login')
+    robot.expects(:message).with(:account_created, :next_step => 'renew login')
     
     robot.run_step('create account')
   end
@@ -79,7 +79,7 @@ class AmazonTest < ActiveSupport::TestCase
     @context['account']['password'] = "badpassword"
     robot.context = @context
     
-    @message.expects(:message).times(2)
+    @message.expects(:message).times(1)
     robot.expects(:terminate_on_error).with(:login_failed)
     
     robot.run_step('login')

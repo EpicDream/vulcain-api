@@ -116,7 +116,7 @@ class AmazonFrance
         if exists? REGISTER_FAILURE
           terminate_on_error(:account_creation_failed)
         else
-          message :account_created, :timer => 5, :next_step => 'renew login'
+          message :account_created, :next_step => 'renew login'
         end
       end
       

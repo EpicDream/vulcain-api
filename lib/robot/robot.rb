@@ -252,6 +252,14 @@ class Robot
     input.send_key args[:with]
   end
   
+  def fill_all xpath, args={}
+    inputs = @driver.find_elements(xpath)
+    inputs.each do |input|
+      input.clear
+      input.send_key args[:with]
+    end
+  end
+  
   def select_option xpath, value
     select = @driver.find_element(xpath)
     value = value[:with] if value.kind_of?(Hash)
@@ -294,7 +302,7 @@ class Robot
   def resolve_captcha image_url
     client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
     response = client.decode image_url
-    response['text'] #if response['is_correct']
+    response['text']
   end
   
 end
