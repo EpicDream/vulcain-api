@@ -48,7 +48,6 @@ module Dispatcher
       
       with_queue(@queues[ADMIN_QUEUE]) do |message, session|
         vulcain_id = session['vulcain_id']
-        puts "#{vulcain_id} #{message['status']}"
         case message['status']
         when Message::ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id

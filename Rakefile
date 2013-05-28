@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Vulcain::Application.load_tasks
+VulcainApi::Application.load_tasks

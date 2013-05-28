@@ -82,7 +82,7 @@ class SupervisorTest <  ActiveSupport::TestCase
   
   def vulcains
     (1..3).map do |n|
-      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, true, nil)
+      Vulcain.new(exchange:@io_stub, id:"127.0.0.1|#{n}", idle:true, host:"127.0.0.1", uuid:nil, ack_ping:true)
     end
   end
   

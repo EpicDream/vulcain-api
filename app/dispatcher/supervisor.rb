@@ -1,8 +1,6 @@
 # encoding: utf-8
 module Dispatcher
   class Supervisor
-    VulcainInfo = Struct.new(:id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked, :stale)
-
     DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     DUMP_IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
     VULCAIN_RUN_CMD = "#{Rails.root}/../vulcain/bin/run.sh"
@@ -66,10 +64,7 @@ module Dispatcher
     end
     
     def dump_vulcains
-      Proc.new do 
-        states = @pool.pool.map {|vulcain| JSON.parse(VulcainInfo.new(*vulcain.to_a[1..-1]).to_json)}
-        File.open(DUMP_VULCAIN_STATES_FILE_PATH, "w") { |f|  f.write(states.to_json)}
-      end
+      Proc.new { @pool.dump }
     end
     
     def reload_vulcains_code

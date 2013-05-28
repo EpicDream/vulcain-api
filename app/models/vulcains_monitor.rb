@@ -1,9 +1,12 @@
 class VulcainsMonitor
-  VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
   IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
+  VULCAINS_DUMP_FILE_PATH = "#{Rails.root}/tmp/vulcain_pool.obj"
   
-  def self.states
-    JSON.parse File.read(VULCAIN_STATES_FILE_PATH)
+  def self.pool
+    return [] unless File.exists?(VULCAINS_DUMP_FILE_PATH)
+    File.open(VULCAINS_DUMP_FILE_PATH) do |f| 
+      Marshal.load(f)
+    end
   end
   
   def self.idles

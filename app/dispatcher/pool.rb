@@ -1,7 +1,8 @@
 # encoding: utf-8
+require 'vulcain'
+
 module Dispatcher
   class Pool
-    Vulcain = Struct.new(:exchange, :id, :idle, :host, :uuid, :ack_ping, :run_since, :callback_url, :blocked, :stale)
     DUMP_FILE_PATH = "#{Rails.root}/tmp/vulcain_pool.obj"
     PING_TIMEOUT = 5
     PING_LAP_TIME = 2
@@ -65,7 +66,8 @@ module Dispatcher
       id =~ /^(.*?)\|\d+$/
       host = $1
       exchange = Dispatcher::VulcainExchanger.new(host).exchange
-      vulcain = Vulcain.new(exchange, id, false, host, nil, true)
+      vulcain = Vulcain.new(exchange:exchange, id:id, idle:false, host:host, ack_ping:true)
+
       @pool << vulcain
       reload(vulcain)
       Dispatcher.output(:new_vulcain, vulcain:vulcain)
@@ -93,7 +95,7 @@ module Dispatcher
     
     def dump
       File.open(DUMP_FILE_PATH, "w+") do |f|
-        object = @pool.map { |v| [v.id, v.idle, v.host, v.uuid, v.ack_ping, v.run_since, v.callback_url] }
+        object = @pool.map { |vulcain| v = vulcain.dup; v.exchange = nil; v }
         Marshal.dump(object, f)
       end
     end
@@ -107,8 +109,7 @@ module Dispatcher
       end
       
       @pool = File.open(DUMP_FILE_PATH) do |f| 
-        Marshal.load(f).map do |obj|
-          vulcain = Vulcain.new(nil, *obj)
+        Marshal.load(f).map do |vulcain|
           vulcain.ack_ping = false
           vulcain.idle = false
           vulcain.exchange = Dispatcher::VulcainExchanger.new(vulcain.host).exchange

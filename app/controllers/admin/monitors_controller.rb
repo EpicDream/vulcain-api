@@ -8,7 +8,7 @@ class Admin::MonitorsController < ApplicationController
     if params[:id] == 1.to_s
       render :json => VulcainsMonitor.idles.to_json
     else
-      @states = VulcainsMonitor.states
+      @pool = VulcainsMonitor.pool
       render 'show'
     end
   end
