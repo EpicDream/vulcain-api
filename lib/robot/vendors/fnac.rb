@@ -245,6 +245,7 @@ class Fnac
       
       step('cancel order') do
         click_on CREDIT_CARD_CANCEL
+        accept_alert
         open_url URL
         run_step('empty cart', next_step:'cancel')
       end

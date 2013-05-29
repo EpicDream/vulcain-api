@@ -133,7 +133,7 @@ class FnacTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    robot.run_step('validate order')
+#    robot.run_step('validate order')
   end
   
   
