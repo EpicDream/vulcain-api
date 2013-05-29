@@ -28,16 +28,35 @@ var Graph = {
 }
 
 var Refresh = {
+	total:0,
+	sound:false,
+	
 	run: function() {
 		Refresh.refresh();
 		window.setInterval("Refresh.refresh()", 10000);
 	},
 	
 	refresh: function() {
-		$('#vulcains-states').load("/admin/monitors/0")
+		$('#vulcains-states').load("/admin/monitors/0", function() {
+			Refresh.fun();
+		});
+		
 		$.get("/admin/monitors/1", function(samples) {
 			Graph.refresh(samples);
-		})
+		});
+	},
+	
+	fun: function() {
+		if (!this.sound) return;
+		var total = $("#vulcains-states tr").size();
+		
+		if (this.total < total){
+			document.getElementById("sound-naissance").play();
+		}
+		if (this.total > total){
+			document.getElementById("sound-agonie").play();
+		}
+		this.total = total;
 	},
 }
 
