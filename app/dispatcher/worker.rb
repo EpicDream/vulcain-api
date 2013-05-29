@@ -59,6 +59,7 @@ module Dispatcher
         when Message::ADMIN_MESSAGES_STATUSES[:aborted] then @pool.pop vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:terminated] then @pool.idle vulcain_id
+        when Message::ADMIN_MESSAGES_STATUSES[:ping] then @pool.ping_from vulcain_id
         end
       end
       

@@ -20,7 +20,8 @@ module Dispatcher
       aborted:'aborted', 
       failure:'failure',
       terminated:'terminated',
-      ack_ping:'ack_ping'
+      ack_ping:'ack_ping',
+      ping:'ping'
     }
     
     attr_accessor :message

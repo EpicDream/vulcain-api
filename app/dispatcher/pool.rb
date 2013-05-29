@@ -136,6 +136,12 @@ module Dispatcher
       vulcain.ack_ping = true
     end
     
+    def ping_from id
+      @mutex.synchronize {
+        push(id) unless vulcain_with_id(id)
+      }
+    end
+    
     def ping_vulcains opt={}, &callback
       EM.add_timer(PING_LAP_TIME) {
         @pool.each do |vulcain|
