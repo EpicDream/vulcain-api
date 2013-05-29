@@ -4,7 +4,8 @@ module Dispatcher
       no_idle:'no_idle', 
       order_timeout:'order_timeout', 
       dispatcher_crash:'dispatcher_crash',
-      no_dispatcher_running: 'no_dispatcher_running'
+      no_dispatcher_running: 'no_dispatcher_running',
+      session_not_found: 'session_not_found'
     }
     
     MESSAGES_VERBS = { 
@@ -29,6 +30,8 @@ module Dispatcher
       case verb
       when :no_idle 
         @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :no_idle, message:MESSAGES[:no_idle] } }
+      when :session_not_found 
+        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :session_not_found, message:MESSAGES[:session_not_found] } }
       when :ping
         @message = { verb:MESSAGES_VERBS[:ping] }
       when :reload
