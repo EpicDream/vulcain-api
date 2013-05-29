@@ -97,10 +97,44 @@ class FnacTest < ActiveSupport::TestCase
      robot.run_step('login')
      robot.run_step('empty cart')
      robot.run_step('add to cart')
-     # steps = robot.instance_variable_get(:@steps)
-     # steps['submit credit card'] = Proc.new {}
-     
      robot.run_step('finalize order')
-   end
+     robot.run_step('validate order')
+  end
+  
+  test "with REAL PAYMENT MODE" do
+    @message.expects(:message).times(20)
+    
+    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
+                     'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                     'order' => {'products_urls' => ['http://www4.fnac.com/Djeco-Puzzle-La-Danse-100-pieces/a2713570/w-4'],
+                                 'credentials' => {
+                                   'holder' => 'M ERICE LARCHEVEQUE', 
+                                   'number' => '4561003435926735', 
+                                   'exp_month' => 5,
+                                   'exp_year' => 2013,
+                                   'cvv' => 200}},
+                     'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                                'mobile_phone' => '0659497434',
+                                'land_phone' => '0959497434',
+                                'first_name' => 'Eric',
+                                'gender' => 1,
+                                'last_name' => 'Larcheveque',
+                                'address' => { 'address_1' => '14 boulevard du Chateau',
+                                               'address_2' => '',
+                                               'additionnal_address' => '',
+                                               'zip' => '92200',
+                                               'city' => ' Neuilly sur Seine',
+                                               'country' => 'France'}
+                               }
+                     }
+    
+    robot.context = @context
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+    robot.run_step('validate order')
+  end
+  
   
 end

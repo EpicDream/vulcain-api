@@ -37,10 +37,10 @@ class Fnac
   CART_URL = 'https://secure.fnac.com/mobile/OrderPipe/Default.aspx?pipe=webmobile&APP=webmobile'
   QUANTITY_INPUT = '//div[@class="quantite"]/input'
   RECOMPUTE_BUTTON = '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]'
-  PRODUCT_PRICE_ON_SUBMIT = '//*[@id="form1"]/div[3]/div[9]/div[3]'
-  PRODUCT_SHIPPING_ON_SUBMIT = '//*[@id="form1"]/div[3]/div[9]/div[2]'
-  TOTAL_PRICE_ON_SUBMIT = '//*[@id="form1"]/div[4]/div[6]/span[2]'
-  CGU_CHECKBOX = '//*[@id="form1"]/div[6]/div[1]/span/div | //*[@id="form1"]/div[5]/div[1]/span/div'
+  PRODUCT_PRICE_ON_SUBMIT = '//div[@class="prix"]'
+  PRODUCT_SHIPPING_ON_SUBMIT = '//div[@class="livraison"]'
+  TOTAL_PRICE_ON_SUBMIT = '//span[@class="valeur_total_commande"]'
+  CGU_CHECKBOX = '//div[@class="ui-checkbox"]'
   CONTINUE_ORDER_SUBMIT = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
   ORDER_LOGIN_PASSWORD = '//*[@id="OPControl1_ctl00_LoginControl1_txtPassword"]'
   ORDER_LOGIN_SUBMIT = '//*[@id="OPControl1_ctl00_LoginControl1_btnPoursuivre"]'
@@ -53,10 +53,20 @@ class Fnac
   SHIPMENT_FORM_ADDRESS_2 = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine2"]'
   SHIPMENT_FORM_CITY = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCity"]'
   SHIPMENT_FORM_ZIPCODE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtZipCode"]'
-  SHIPMENT_FORM_PHONE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]'
+  SHIPMENT_FORM_MOBILE_PHONE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]'
+  SHIPMENT_FORM_LAND_PHONE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]'
   SHIPMENT_FORM_SUBMIT = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_btnUpdate"]'
   
   ORDER_CONTINUE = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
+  
+  CREDIT_CARD_NUMBER = '//*[@id="Ecom_Payment_Card_Number"]'
+  CREDIT_CARD_EXP_MONTH = '//*[@id="Ecom_Payment_Card_ExpDate_Month"]'
+  CREDIT_CARD_EXP_YEAR = '//*[@id="Ecom_Payment_Card_ExpDate_Year"]'
+  CREDIT_CARD_CVV = '//*[@id="Ecom_Payment_Card_Verification"]'
+  CREDIT_CARD_SUBMIT = '//*[@id="submit3"]'
+  CREDIT_CARD_CANCEL = '//*[@id="ncol_cancel"]'
+
+  THANK_YOU_HEADER = ''
   
   attr_accessor :context, :robot
   
@@ -172,6 +182,7 @@ class Fnac
             run_step 'add to cart'
           end
         else
+          wait_ajax(3)
           message :cart_filled, :next_step => 'finalize order'
         end
       end
@@ -181,7 +192,6 @@ class Fnac
           PRICES_IN_TEXT.(get_text xpath).first
         end  
         self.billing = { product:product, shipping:shipping, total:total}
-        puts self.billing.inspect
       end
       
       step('submit address') do
@@ -195,7 +205,8 @@ class Fnac
           fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
           fill SHIPMENT_FORM_CITY, with:user.address.city
           fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
-          fill SHIPMENT_FORM_PHONE, with:(user.mobile_phone || user.land_phone)
+          fill SHIPMENT_FORM_LAND_PHONE, with:user.land_phone
+          fill SHIPMENT_FORM_MOBILE_PHONE, with:user.mobile_phone
           click_on SHIPMENT_FORM_SUBMIT
         else
           click_on SELECT_THIS_ADDRESS
@@ -204,7 +215,6 @@ class Fnac
       
       step('finalize order') do
         open_url CART_URL
-        wait_ajax
         run_step('build final billing')
         click_on CGU_CHECKBOX
         click_on CONTINUE_ORDER_SUBMIT
@@ -215,8 +225,51 @@ class Fnac
         click_on '//*[@id="divNewCard"]/div[2]/div[1]/label/span'
         click_on '//*[@id="divNewCard"]/div[3]/div'
         click_on '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
+        assess
+      end
+      
+      step('payment') do
+        answer = answers.last
+        action = questions[answers.last.question_id]
+        
+        if eval(action)
+          message :validate_order, :next_step => 'validate order'
+        else
+          message :cancel_order, :next_step => 'cancel order'
+        end
+      end
+      
+      step('cancel') do
+        terminate_on_cancel
+      end
+      
+      step('cancel order') do
+        click_on CREDIT_CARD_CANCEL
+        open_url URL
+        run_step('empty cart', next_step:'cancel')
+      end
+      
+      step('validate order') do
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s.rjust(2, "0")
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on CREDIT_CARD_SUBMIT
+        
+        
+        wait_for([THANK_YOU_HEADER]) do
+          terminate_on_error(:order_validation_failed)
+        end
+        
+        thanks = get_text THANK_YOU_HEADER
+        if thanks =~ /Merci\s+pour\s+votre\s+commande/
+          terminate({ billing:self.billing})
+        else
+          terminate_on_error(:order_validation_failed)
+        end
         
       end
+      
     end
   end
 end

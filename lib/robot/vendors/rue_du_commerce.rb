@@ -74,7 +74,7 @@ class RueDuCommerce
     Robot.new(@context) do
 
       step('run') do
-        open_url 'http://ad.zanox.com/ppc/?24740694C1299374118T'
+        open_url 'http://ad.zanox.com/ppc/?19201448C67402965T'
         if account.new_account
           run_step 'create account'
         else
@@ -198,7 +198,7 @@ class RueDuCommerce
         if eval(action)
           message :validate_order, :next_step => 'validate order'
         else
-          message :cancel_order, :next_step => 'cancel'
+          message :cancel_order, :next_step => 'cancel order'
         end
       end
       
