@@ -14,7 +14,7 @@ module Dispatcher
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
   RUNNING_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/started.txt")
   RESTORING_POOL_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/restore.txt")
-  STRATEGIES = ["AmazonFrance", "RueDuCommerce"]
+  STRATEGIES = ["AmazonFrance", "RueDuCommerce", "Fnac"]
   
   def self.logs msg, args={}, console=true
     output = case msg
