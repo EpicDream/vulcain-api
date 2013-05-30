@@ -9,30 +9,30 @@ class Vulcain
   end
   
   def start session
-    self.idle = false
-    self.uuid = session['uuid']
-    self.callback_url = session['callback_url']
-    self.run_since = Time.now
+    @idle = false
+    @uuid = session['uuid']
+    @callback_url = session['callback_url']
+    @run_since = Time.now
   end
   
   def available?
-    self.idle && !self.blocked && !self.stale
+    @idle && !@blocked && !@stale
   end
   
   def busy?
-    !self.idle
+    !@idle
   end
   
   def reset
-    self.idle = true
-    self.stale = false
-    self.callback_url = nil
-    self.run_since = nil
-    self.uuid = nil
+    @idle = true
+    @stale = false
+    @callback_url = nil
+    @run_since = nil
+    @uuid = nil
   end
   
   def stale=staled
-    self.idle = false if staled
+    @idle = false if staled
     @stale = staled
   end
   
