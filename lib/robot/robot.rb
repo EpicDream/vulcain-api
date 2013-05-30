@@ -252,6 +252,12 @@ class Robot
     input.send_key args[:with]
   end
   
+  def fill_element_with_attribute_matching tag, attribute, regexp, args={}
+    input = @driver.find_by_attribute_matching tag, attribute, regexp
+    input.clear
+    input.send_key args[:with]
+  end
+  
   def fill_all xpath, args={}
     inputs = @driver.find_elements(xpath)
     inputs.each do |input|
@@ -264,6 +270,15 @@ class Robot
     select = @driver.find_element(xpath)
     value = value[:with] if value.kind_of?(Hash)
     @driver.select_option(select, value.to_s)
+  end
+  
+  def select_options xpath, value, &block
+    count = @driver.find_elements(xpath).count
+    count.times do
+      select = @driver.find_element(xpath)
+      @driver.select_option(select, value.to_s)
+      block.call(select) if block_given?
+    end
   end
   
   def options_of_select xpath
@@ -289,10 +304,6 @@ class Robot
     else
       raise e
     end
-  end
-  
-  def alert?
-    @driver.alert?
   end
   
   def accept_alert

@@ -25,16 +25,12 @@ class Driver
     @driver.get url
   end
   
-  def alert?
-    @driver.alert?
-  end
-  
   def current_url
     driver.current_url
   end
   
   def accept_alert
-    @driver.switch_to.alert.accept
+    waiting { @driver.switch_to.alert.accept }
   end
 
   def select_option select, value
@@ -92,7 +88,7 @@ class Driver
   end
   
   def find_input_with_value value
-    waiting { driver.find_element(:xpath => "//input[@value='#{value}']")}
+    waiting { driver.find_elements(:xpath => "//input[@value='#{value}']").first }
   end
   
   def find_elements_by_attribute tag, attribute, value
@@ -105,6 +101,13 @@ class Driver
       break element if element
       element
     end
+  end
+  
+  def find_by_attribute_matching tag, attribute, regexp
+    waiting {
+      elements = driver.find_elements(:xpath => "//#{tag}")
+      elements.detect { |element| element.attribute(attribute) =~ regexp }
+    }
   end
   
   def screenshot
