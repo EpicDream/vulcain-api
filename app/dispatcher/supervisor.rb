@@ -16,7 +16,7 @@ module Dispatcher
     
     def check_mount_new_vulcains
       Proc.new do |n=1|
-        if @pool.idle_vulcains.count <= CONFIG["min_idle_vulcains"]
+        if @pool.idle_vulcains.count <= CONFIG[:min_idle_vulcains]
           n.times do
             #mount new vulcain instance
           end
@@ -28,11 +28,11 @@ module Dispatcher
       Proc.new do
         if @pool.pool.size > 0
           push_idle_sample and dump_idle_sample
-          if @idle_samples.count > (CONFIG["unmount_interval"] / CONFIG["idle_vulcains_sample_interval"])
+          if @idle_samples.count > (CONFIG[:unmount_interval] / CONFIG[:idle_vulcains_sample_interval])
             averages = @idle_samples.map { |sample| sample[:idle].to_f / sample[:total] }
             average = averages.sum / averages.count
             @idle_samples = []
-            unmount_vulcains if average > CONFIG["unmount_use_limit"]
+            unmount_vulcains if average > CONFIG[:unmount_use_limit]
           end
         end
       end
@@ -69,7 +69,7 @@ module Dispatcher
       Proc.new do 
         @pool.pool.each do |vulcain|
           next unless @pool.can_check_timeout_of?(vulcain)
-          timeout(vulcain) if Time.now - vulcain.run_since > CONFIG["running_timeout"]        
+          timeout(vulcain) if Time.now - vulcain.run_since > CONFIG[:running_timeout]        
         end
       end
     end
@@ -131,7 +131,7 @@ module Dispatcher
     
     def unmount_vulcains
       count = @pool.idle_vulcains
-      (count - CONFIG["unmount_keep"]).times do
+      (count - CONFIG[:unmount_keep]).times do
         session = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
         next unless vulcain = @pool.pull(session)
         #unmount vulcain

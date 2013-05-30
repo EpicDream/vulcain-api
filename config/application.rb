@@ -65,6 +65,20 @@ module VulcainApi
       :timeout => 20,
       :password => '54be5bab7259f887d5d27f8a1153d61e'
     }
+    
+    config.dispatcher = {
+      running_timeout: 180.seconds,
+      check_timeouts_interval: 10.seconds,
+      monitoring_interval: 3.seconds,
+      mount_new_vulcains_interval: 60.seconds,
+      min_idle_vulcains: 1,
+      max_new_vulcains_at_start: 3.seconds,
+      ping_vulcain_interval: 30.seconds,
+      idle_vulcains_sample_interval: 10.seconds,
+      unmount_interval: 1.hours,
+      unmount_use_limit: 50, # %
+      unmount_keep:  2
+    }
 
   end
 end

@@ -40,6 +40,8 @@ module Dispatcher
   end
 end
 
+Dispatcher::CONFIG.merge!(VulcainApi::Application.config.dispatcher)
+
 require_relative 'pool'
 require_relative 'worker'
 require_relative 'loader'
