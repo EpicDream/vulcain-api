@@ -17,11 +17,8 @@ module Dispatcher
     def pull session
       vulcain = nil
       @mutex.synchronize {
-        if vulcain = @pool.detect { |vulcain| vulcain.idle && !vulcain.blocked && !vulcain.stale}
-          vulcain.idle = false
-          vulcain.uuid = session['uuid']
-          vulcain.callback_url = session['callback_url']
-          vulcain.run_since = Time.now
+        if vulcain = @pool.detect { |vulcain| vulcain.available? }
+          vulcain.start session
         end
       }
       vulcain
@@ -29,7 +26,7 @@ module Dispatcher
     
     def idle_vulcains &block
       @mutex.synchronize {
-        vulcains = @pool.select { |vulcain| vulcain.idle && !vulcain.blocked && !vulcain.stale }
+        vulcains = @pool.select { |vulcain| vulcain.available? }
         block.call(vulcains) if block_given?
         vulcains
       }
@@ -37,7 +34,7 @@ module Dispatcher
     
     def busy_vulcains &block
       @mutex.synchronize {
-        vulcains = @pool.select { |vulcain| !vulcain.idle }
+        vulcains = @pool.select { |vulcain| vulcain.busy? }
         block.call(vulcains) if block_given?
         vulcains
       }
@@ -79,17 +76,12 @@ module Dispatcher
         vulcain.stale = false
         reload(vulcain)
       else
-        vulcain.idle = true
-        vulcain.stale = false
-        vulcain.callback_url = nil
-        vulcain.run_since = nil
-        vulcain.uuid = nil
+        vulcain.reset
         Dispatcher.output(:idle, vulcain:vulcain)
       end
     end
     
     def stale vulcain
-      vulcain.idle = false
       vulcain.stale = true
     end
     

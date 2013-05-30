@@ -21,7 +21,7 @@ class MessageTest <  ActiveSupport::TestCase
     message = Dispatcher::Message.new(:reload)
     
     assert_equal "reload", message.message[:verb]
-    assert_equal Robots::Loader.new(["AmazonFrance", "RueDuCommerce"]).code, message.message[:code]
+    assert_equal Robots::Loader.new(["AmazonFrance", "RueDuCommerce", "Fnac"]).code, message.message[:code]
   end
   
   test "forward set message and session" do
