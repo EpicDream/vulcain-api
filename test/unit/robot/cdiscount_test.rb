@@ -90,21 +90,58 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "add to cart and finalize order" do
-    @message.expects(:message).times(20)
+    @message.expects(:message).times(13)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
 
     products = [{"price_text"=>"20,83 €\nsoit 17,42 € HT", "product_title"=>"Happy Box Haribo 600 gr. par 5", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg", "price_product"=>20.83, "url"=>"http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html"}]
-    # billing = {:product => 31.28, :shipping => 5.9, :total => 37.18, :shipping_info => 'Date de livraison estimée : entre le 25/05/2013 et le 28/05/2013 par Colissimo suivi'}
-    # questions = [{:text => nil, :id => '1', :options => nil}]
-    # @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
+    billing = {:product=>20.83, :shipping=>6.99, :total=>27.82}
+    questions = [{:text => nil, :id => '1', :options => nil}]
+    @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     
     robot.run_step('finalize order')
 
     assert_equal products, robot.products
-    puts robot.billing.inspect
-    # assert_equal billing, robot.billing
+    assert_equal billing, robot.billing
+    
+    robot.run_step('validate order')
   end
+  
+  test "with REAL PAYMENT MODE" do
+    @message.expects(:message).times(20)
+
+    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
+                     'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                     'order' => {'products_urls' => ['http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'],
+                                 'credentials' => {
+                                   'holder' => 'M ERICE LARCHEVEQUE', 
+                                   'number' => '4561003435926735', 
+                                   'exp_month' => 5,
+                                   'exp_year' => 2013,
+                                   'cvv' => 200}},
+                     'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                                'mobile_phone' => '0659497434',
+                                'land_phone' => '0959497434',
+                                'first_name' => 'Eric',
+                                'gender' => 1,
+                                'last_name' => 'Larcheveque',
+                                'address' => { 'address_1' => '14 boulevard du Chateau',
+                                               'address_2' => '',
+                                               'additionnal_address' => '',
+                                               'zip' => '92200',
+                                               'city' => ' Neuilly sur Seine',
+                                               'country' => 'France'}
+                               }
+                     }
+
+    robot.context = @context
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+#    robot.run_step('validate order')
+    end
+  
   
 end  

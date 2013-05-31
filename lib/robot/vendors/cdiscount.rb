@@ -1,6 +1,6 @@
 # encoding: utf-8
 class Cdiscount
-  URL = 'http://m.cdiscount.com'
+  URL = 'http://www.cdiscount.com/'
   HOME_URL = 'https://clients.cdiscount.com/Account/Home.aspx'
   LOGIN_URL = 'https://clients.cdiscount.com/'
   CREATE_ACCOUNT_URL = 'https://clients.cdiscount.com/Account/RegistrationForm.aspx'
@@ -55,6 +55,16 @@ class Cdiscount
   CB_PAYMENT_SUBMIT = 'Accéder au paiement'
   PAYMENT_SUBMIT = '//*[@id="cphMainArea_ctl01_ValidateButton"]'
   BILLING_TEXT = '//*[@id="orderInfos"]'
+  
+  VISA_CARD_RADIO = '//*[@id="cphMainArea_ctl01_optCardTypeVisa"]'
+  CREDIT_CARD_HOLDER = '//*[@id="cphMainArea_ctl01_txtCardOwner"]'
+  CREDIT_CARD_NUMBER = '//*[@id="cphMainArea_ctl01_txtCardNumber"]'
+  CREDIT_CARD_EXP_MONTH = '//*[@id="cphMainArea_ctl01_ddlMonth"]'
+  CREDIT_CARD_EXP_YEAR = '//*[@id="cphMainArea_ctl01_ddlYear"]'
+  CREDIT_CARD_CVV = '//*[@id="cphMainArea_ctl01_txtSecurityNumber"]'
+  CREDIT_CARD_SUBMIT = '//*[@id="cphMainArea_ctl01_ValidateButton"]'
+
+  THANK_YOU_HEADER = ''
   
   attr_accessor :context, :robot
   
@@ -148,7 +158,6 @@ class Cdiscount
       
       step('build final billing') do
         prices = PRICES_IN_TEXT.(get_text BILLING_TEXT)
-        puts prices.inspect
         self.billing = { product:prices[0], shipping:prices[1], total:prices[2] }
       end
       
@@ -179,11 +188,51 @@ class Cdiscount
         wait_for([VALIDATE_SHIPMENT_TYPE])
         click_on COLISSIMO_RADIO
         click_on VALIDATE_SHIPMENT_TYPE
-        puts "HERE"
-        click_on_button_with_name CB_PAYMENT_SUBMIT
-        #wait_for([PAYMENT_SUBMIT])
+        click_on_button_with_text CB_PAYMENT_SUBMIT
         run_step('build final billing')
         assess
+      end
+      
+      step('payment') do
+        answer = answers.last
+        action = questions[answers.last.question_id]
+        
+        if eval(action)
+          message :validate_order, :next_step => 'validate order'
+        else
+          message :cancel_order, :next_step => 'cancel order'
+        end
+      end
+      
+      step('cancel') do
+        terminate_on_cancel
+      end
+      
+      step('cancel order') do
+        open_url URL
+        run_step('empty cart', next_step:'cancel')
+      end
+      
+      step('validate order') do
+        click_on VISA_CARD_RADIO
+        fill CREDIT_CARD_NUMBER, with:order.credentials.number
+        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
+        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
+        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
+        fill CREDIT_CARD_CVV, with:order.credentials.cvv
+        click_on CREDIT_CARD_SUBMIT
+        
+        # wait_for([THANK_YOU_HEADER]) do
+        #   terminate_on_error(:order_validation_failed)
+        # end
+        
+        # thanks = get_text THANK_YOU_HEADER
+        # if thanks =~ /Merci\s+pour\s+votre\s+commande/
+        #   terminate({ billing:self.billing})
+        # else
+        #   terminate_on_error(:order_validation_failed)
+        # end
+        
       end
       
     end 

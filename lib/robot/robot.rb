@@ -208,6 +208,11 @@ class Robot
     @driver.click_on button
   end
   
+  def click_on_button_with_text text
+    button = find_elements_by_attribute("button", "text()", text).first
+    @driver.click_on button
+  end
+  
   def wait_for_button_with_name name
     @driver.find_input_with_value(name)
   end
