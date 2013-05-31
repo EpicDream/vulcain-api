@@ -12,7 +12,7 @@ class Fnac
   LOGIN_EMAIL = '//*[@id="logonControl_txtEmail"]'
   LOGIN_PASSWORD = '//*[@id="logonControl_txtPassword"]'
   LOGIN_SUBMIT = '//*[@id="logonControl_btnPoursuivre"]'
-  PAYMENTS_PAGE = 'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx'
+  PAYMENTS_PAGE_URL = 'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx'
   
   REGISTER_EMAIL = '//*[@id="RegistrationControl_txtEmail"]'
   REGISTER_PASSWORD = '//*[@id="RegistrationControl_txtPassword1"]'
@@ -141,7 +141,7 @@ class Fnac
       end
       
       step('remove credit card') do
-        open_url PAYMENTS_PAGE
+        open_url PAYMENTS_PAGE_URL
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password
         click_on LOGIN_SUBMIT
@@ -269,17 +269,19 @@ class Fnac
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        wait_for([THANK_YOU_HEADER]) do
+        page = wait_for([THANK_YOU_HEADER]) do
           terminate_on_error(:order_validation_failed)
         end
         
-        thanks = get_text THANK_YOU_HEADER
-        if thanks =~ /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i
-          run_step('remove credit card')
-          terminate({ billing:self.billing})
-        else
-          run_step('remove credit card')
-          terminate_on_error(:order_validation_failed)
+        if page
+          thanks = get_text THANK_YOU_HEADER
+          if thanks =~ /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i
+            run_step('remove credit card')
+            terminate({ billing:self.billing})
+          else
+            run_step('remove credit card')
+            terminate_on_error(:order_validation_failed)
+          end
         end
         
       end

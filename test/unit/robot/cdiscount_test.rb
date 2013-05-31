@@ -42,13 +42,13 @@ class CdiscountTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
   
   test "account creation" do
-    #skip "Can' create account each time!"
+    skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
     
@@ -79,7 +79,7 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "add to cart and empty cart" do
-    @message.expects(:message).times(10)
+    @message.expects(:message).times(11)
     
     robot.run_step('login')
     robot.run_step('add to cart')
@@ -88,6 +88,12 @@ class CdiscountTest < ActiveSupport::TestCase
 
     robot.expects(:message).with(:cart_emptied, :next_step => 'add to cart')
     robot.run_step('empty cart')
+  end
+  
+  test "remove credit card" do
+    @message.expects(:message).times(4)
+    robot.run_step('login')
+    robot.run_step('remove credit card')
   end
   
   test "add to cart when vendors choices" do
@@ -101,7 +107,7 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "add to cart and finalize order" do
-    @message.expects(:message).times(13)
+    @message.expects(:message).times(20)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

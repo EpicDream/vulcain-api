@@ -4,6 +4,8 @@ class Cdiscount
   HOME_URL = 'https://clients.cdiscount.com/Account/Home.aspx'
   LOGIN_URL = 'https://clients.cdiscount.com/'
   CREATE_ACCOUNT_URL = 'https://clients.cdiscount.com/Account/RegistrationForm.aspx'
+  PAYMENTS_PAGE_URL = 'https://clients.cdiscount.com/Account/CustomerPaymentMode.aspx'
+  
   BIRTHDATE_AS_STRING = lambda do |birthdate|
     [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
   end
@@ -65,7 +67,7 @@ class Cdiscount
   CREDIT_CARD_EXP_YEAR = '//*[@id="cphMainArea_ctl01_ddlYear"]'
   CREDIT_CARD_CVV = '//*[@id="cphMainArea_ctl01_txtSecurityNumber"]'
   CREDIT_CARD_SUBMIT = '//*[@id="cphMainArea_ctl01_ValidateButton"]'
-
+  CREDIT_CARD_REMOVE = '//*[@id="mainCz"]//input[@title="Supprimer"]'
   THANK_YOU_HEADER = '//*[@id="mainContainer"]'
   
   attr_accessor :context, :robot
@@ -84,6 +86,13 @@ class Cdiscount
         else
           message :expect, :next_step => 'renew login'
         end
+      end
+      
+      step('remove credit card') do
+        open_url PAYMENTS_PAGE_URL
+        wait_for(['//*[@id="page"]'])
+        click_on_if_exists CREDIT_CARD_REMOVE
+        wait_ajax
       end
       
       step('create account') do
@@ -122,11 +131,13 @@ class Cdiscount
       
       step('renew login') do
         run_step('logout')
+        order.products_urls.inspect
         open_url order.products_urls[0]
         run_step('login')
       end
       
       step('empty cart') do |args|
+        run_step('remove credit card')
         open_url CART_URL
         wait_for [CART_STEPS]
         click_on_all([CART_REMOVE_ITEM]) do |element|
@@ -235,15 +246,19 @@ class Cdiscount
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        wait_for([THANK_YOU_HEADER]) do
+        page = wait_for([THANK_YOU_HEADER]) do
           terminate_on_error(:order_validation_failed)
         end
         
-        thanks = get_text THANK_YOU_HEADER
-        if thanks =~ /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
-          terminate({ billing:self.billing})
-        else
-          terminate_on_error(:order_validation_failed)
+        if page
+          thanks = get_text THANK_YOU_HEADER
+          if thanks =~ /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
+            run_step('remove credit card')
+            terminate({ billing:self.billing})
+          else
+            run_step('remove credit card')
+            terminate_on_error(:order_validation_failed)
+          end
         end
         
       end
