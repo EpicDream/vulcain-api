@@ -12,8 +12,8 @@ class Fnac
   LOGIN_EMAIL = '//*[@id="logonControl_txtEmail"]'
   LOGIN_PASSWORD = '//*[@id="logonControl_txtPassword"]'
   LOGIN_SUBMIT = '//*[@id="logonControl_btnPoursuivre"]'
-  LOGIN_ERROR = ""
-
+  PAYMENTS_PAGE = 'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx'
+  
   REGISTER_EMAIL = '//*[@id="RegistrationControl_txtEmail"]'
   REGISTER_PASSWORD = '//*[@id="RegistrationControl_txtPassword1"]'
   REGISTER_PASSWORD_CONFIRMATION = '//*[@id="RegistrationControl_txtPassword2"]'
@@ -65,8 +65,10 @@ class Fnac
   CREDIT_CARD_CVV = '//*[@id="Ecom_Payment_Card_Verification"]'
   CREDIT_CARD_SUBMIT = '//*[@id="submit3"]'
   CREDIT_CARD_CANCEL = '//*[@id="ncol_cancel"]'
-
-  THANK_YOU_HEADER = ''
+  CREDIT_CARD_REMOVE = '//*[@id="AccountPaymentBook"]/section/ul/li/div/a'
+  PAYMENTS_MODES = '//*[@id="AccountPaymentBook"]'
+  
+  THANK_YOU_HEADER = '//*[@id="thank-you"]'
   
   attr_accessor :context, :robot
   
@@ -138,6 +140,15 @@ class Fnac
       step('logout') do
       end
       
+      step('remove credit card') do
+        open_url PAYMENTS_PAGE
+        fill LOGIN_EMAIL, with:account.login
+        fill LOGIN_PASSWORD, with:account.password
+        click_on LOGIN_SUBMIT
+        wait_for [PAYMENTS_MODES]
+        click_on_if_exists CREDIT_CARD_REMOVE
+      end
+      
       step('build product') do
         product = Hash.new
         product['price_text'] = get_text PRICE_TEXT
@@ -151,6 +162,7 @@ class Fnac
       end
       
       step('empty cart') do |args|
+        run_step('remove credit card')
         open_url CART_URL
         wait_for [HEAD_FNAC_LINK]
         wait_ajax
@@ -257,15 +269,16 @@ class Fnac
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        
         wait_for([THANK_YOU_HEADER]) do
           terminate_on_error(:order_validation_failed)
         end
         
         thanks = get_text THANK_YOU_HEADER
-        if thanks =~ /Merci\s+pour\s+votre\s+commande/
+        if thanks =~ /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i
+          run_step('remove credit card')
           terminate({ billing:self.billing})
         else
+          run_step('remove credit card')
           terminate_on_error(:order_validation_failed)
         end
         
