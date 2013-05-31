@@ -55,14 +55,19 @@ module Dispatcher
     end
     
     def reload_vulcains_code
-      @pool.pool.each do |vulcain|
-        vulcain.stale = true
-        session = {'uuid' => 'RELOAD', 'callback_url' => ''}
-        next unless vulcain = @pool.pull(session)
-        @pool.stale(vulcain)
-        Dispatcher.output(:reload_vulcain, :vulcain => vulcain)
-        @pool.reload(vulcain)
+      @pool.busy_vulcains do |vulcains|
+        vulcains.each { |vulcain| @pool.stale(vulcain)}
       end
+      
+      @pool.idle_vulcains do |vulcains|
+        vulcains.each  do |vulcain| 
+          @pool.stale(vulcain)
+          session = {'uuid' => 'RELOAD', 'callback_url' => ''}
+          Dispatcher.output(:reload_vulcain, :vulcain => vulcain)
+          @pool.reload(vulcain)
+        end
+      end
+      
     end
     
     def check_timeouts
