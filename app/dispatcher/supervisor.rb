@@ -63,7 +63,7 @@ module Dispatcher
         vulcains.each  do |vulcain| 
           @pool.stale(vulcain)
           session = {'uuid' => 'RELOAD', 'callback_url' => ''}
-          Dispatcher.output(:reload_vulcain, :vulcain => vulcain)
+          Log.output(:reload_vulcain, :vulcain => vulcain)
           @pool.reload(vulcain)
         end
       end
@@ -80,7 +80,7 @@ module Dispatcher
     end
     
     def abort_worker e=nil
-      Dispatcher.output(:abort)
+      Log.output(:abort)
       Log.create({ dispatcher_crash: "#{e.inspect}\n #{e.backtrace.join("\n")}" }) if e
       unbind_queues
       send_crash_messages

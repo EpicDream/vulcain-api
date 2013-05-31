@@ -52,7 +52,7 @@ module Dispatcher
     def pop id
       return unless vulcain = vulcain_with_id(id)
       @pool.delete vulcain
-      Dispatcher.output(:removed_vulcain, vulcain:vulcain)
+      Log.output(:removed_vulcain, vulcain:vulcain)
     end
     
     def fetch session
@@ -67,7 +67,7 @@ module Dispatcher
 
       @pool << vulcain
       reload(vulcain)
-      Dispatcher.output(:new_vulcain, vulcain:vulcain)
+      Log.output(:new_vulcain, vulcain:vulcain)
     end
     
     def idle id
@@ -77,7 +77,7 @@ module Dispatcher
         reload(vulcain)
       else
         vulcain.reset
-        Dispatcher.output(:idle, vulcain:vulcain)
+        Log.output(:idle, vulcain:vulcain)
       end
     end
     
@@ -93,10 +93,10 @@ module Dispatcher
     end
     
     def restore
-      Dispatcher.output(:restoring_pool)
+      Log.output(:restoring_pool)
       
       unless File.exists?(DUMP_FILE_PATH)
-        Dispatcher.output(:running, pool_size:@pool.size)
+        Log.output(:running, pool_size:@pool.size)
         return
       end
       
@@ -114,7 +114,7 @@ module Dispatcher
         @pool.each {|vulcain| @pool.delete(vulcain) unless vulcain.ack_ping}
         Log.create({:pool_after_ping => @pool.map(&:id)})
         @pool.each {|vulcain| reload(vulcain) }
-        Dispatcher.output(:running, pool_size:@pool.size)
+        Log.output(:running, pool_size:@pool.size)
       end
       @pool
     end
@@ -138,7 +138,7 @@ module Dispatcher
       EM.add_timer(PING_LAP_TIME) {
         @pool.each do |vulcain|
           vulcain.ack_ping = false
-          Dispatcher.output(:ping, vulcain:vulcain) if opt[:verbose]
+          Log.output(:ping, vulcain:vulcain) if opt[:verbose]
           ping(vulcain)
         end
       }

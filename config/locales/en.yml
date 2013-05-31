@@ -2,4 +2,12 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+  new_vulcain: "Vulcain %{id} is running"
+  removed_vulcain: "Vulcain %{id} killed : Ouch! a serial killer has killed me, life is short !"
+  ack_ping: "Vulcain %{id} acknowledged ping - Status : %{status}"
+  idle: "Vulcain %{id} : Status => idle"
+  ping: "Ping Vulcain %{id}"
+  running: "Running on %{host} - Total of vulcains : %{pool_size}"
+  restoring_pool: "Searching for my boys, wait ..."
+  reload_vulcain: "Reload Vulcain : %{id}"
+  abort: "Saving my boys before i die , life is short ...\n\n"
