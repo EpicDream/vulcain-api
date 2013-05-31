@@ -32,6 +32,8 @@ class Cdiscount
   
   CART_URL = 'http://www.cdiscount.com/Basket.html'
   ADD_TO_CART = '//*[@id="fpAddToBasket"]'
+  VENDORS_OFFERS = '//*[@id="AjaxOfferTable"]'
+  ADD_TO_CART_VENDORS = /AddToBasketButtonOffer/
   CART_STEPS = '//*[@id="masterCart"]'
   CART_REMOVE_ITEM = '//button[@class="deleteProduct"]'
   EMPTY_CART_MESSAGE = '//div[@class="emptyBasket"]'
@@ -64,7 +66,7 @@ class Cdiscount
   CREDIT_CARD_CVV = '//*[@id="cphMainArea_ctl01_txtSecurityNumber"]'
   CREDIT_CARD_SUBMIT = '//*[@id="cphMainArea_ctl01_ValidateButton"]'
 
-  THANK_YOU_HEADER = ''
+  THANK_YOU_HEADER = '//*[@id="mainContainer"]'
   
   attr_accessor :context, :robot
   
@@ -141,7 +143,16 @@ class Cdiscount
       
       step('add to cart') do
         open_url next_product_url
-        click_on ADD_TO_CART
+        wait_for([ADD_TO_CART, VENDORS_OFFERS])
+        if exists? ADD_TO_CART
+          click_on ADD_TO_CART
+        else #fuck this site made by daft dump developers
+          button = find_element_by_attribute_matching("button", "id", ADD_TO_CART_VENDORS)
+          script = button.attribute("onclick").gsub(/return/, '')
+          @driver.driver.execute_script(script)
+          # click_on_button_with_attribute_matching("button", "id", ADD_TO_CART_VENDORS)
+        end
+        wait_ajax 4
         message :cart_filled, :next_step => 'finalize order'
       end
       
@@ -186,7 +197,9 @@ class Cdiscount
           run_step('submit address')
         end
         wait_for([VALIDATE_SHIPMENT_TYPE])
-        click_on COLISSIMO_RADIO
+        if exists? COLISSIMO_RADIO
+          click_on COLISSIMO_RADIO
+        end
         click_on VALIDATE_SHIPMENT_TYPE
         click_on_button_with_text CB_PAYMENT_SUBMIT
         run_step('build final billing')
@@ -222,16 +235,16 @@ class Cdiscount
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        # wait_for([THANK_YOU_HEADER]) do
-        #   terminate_on_error(:order_validation_failed)
-        # end
+        wait_for([THANK_YOU_HEADER]) do
+          terminate_on_error(:order_validation_failed)
+        end
         
-        # thanks = get_text THANK_YOU_HEADER
-        # if thanks =~ /Merci\s+pour\s+votre\s+commande/
-        #   terminate({ billing:self.billing})
-        # else
-        #   terminate_on_error(:order_validation_failed)
-        # end
+        thanks = get_text THANK_YOU_HEADER
+        if thanks =~ /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
+          terminate({ billing:self.billing})
+        else
+          terminate_on_error(:order_validation_failed)
+        end
         
       end
       

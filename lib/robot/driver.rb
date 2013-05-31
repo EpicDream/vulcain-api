@@ -45,7 +45,7 @@ class Driver
   def options_of_select select
     select.find_elements(:tag_name, "option")
   end
-  
+
   def click_on element
     element.click
   end

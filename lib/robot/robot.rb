@@ -263,6 +263,15 @@ class Robot
     input.send_key args[:with]
   end
   
+  def click_on_button_with_attribute_matching tag, attribute, regexp
+    button = @driver.find_by_attribute_matching(tag, attribute, regexp)
+    click_on button
+  end
+  
+  def find_element_by_attribute_matching tag, attribute, regexp
+    @driver.find_by_attribute_matching(tag, attribute, regexp)
+  end
+  
   def fill_all xpath, args={}
     inputs = @driver.find_elements(xpath)
     inputs.each do |input|

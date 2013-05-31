@@ -6,6 +6,7 @@ require_robot 'cdiscount'
 class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_1 = 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'
   PRODUCT_URL_2 = 'http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html'
+  PRODUCT_URL_3 = 'http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'
   
   attr_accessor :robot
   
@@ -89,6 +90,16 @@ class CdiscountTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
   end
   
+  test "add to cart when vendors choices" do
+    @message.expects(:message).times(6)
+    
+    @context["order"]["products_urls"] = [PRODUCT_URL_3]
+    robot.context = @context
+    
+    robot.run_step('login')
+    robot.run_step('add to cart')
+  end
+  
   test "add to cart and finalize order" do
     @message.expects(:message).times(13)
     robot.run_step('login')
@@ -108,40 +119,40 @@ class CdiscountTest < ActiveSupport::TestCase
     robot.run_step('validate order')
   end
   
-  test "with REAL PAYMENT MODE" do
-    @message.expects(:message).times(20)
-
-    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
-                     'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                     'order' => {'products_urls' => ['http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'],
-                                 'credentials' => {
-                                   'holder' => 'M ERICE LARCHEVEQUE', 
-                                   'number' => '4561003435926735', 
-                                   'exp_month' => 5,
-                                   'exp_year' => 2013,
-                                   'cvv' => 200}},
-                     'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                                'mobile_phone' => '0659497434',
-                                'land_phone' => '0959497434',
-                                'first_name' => 'Eric',
-                                'gender' => 1,
-                                'last_name' => 'Larcheveque',
-                                'address' => { 'address_1' => '14 boulevard du Chateau',
-                                               'address_2' => '',
-                                               'additionnal_address' => '',
-                                               'zip' => '92200',
-                                               'city' => ' Neuilly sur Seine',
-                                               'country' => 'France'}
-                               }
-                     }
-
-    robot.context = @context
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.run_step('finalize order')
-#    robot.run_step('validate order')
-    end
+  # test "with REAL PAYMENT MODE" do
+  #    @message.expects(:message).times(20)
+  # 
+  #    @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},
+  #                     'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+  #                     'order' => {'products_urls' => ['http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'],
+  #                                 'credentials' => {
+  #                                   'holder' => 'M ERICE LARCHEVEQUE', 
+  #                                   'number' => '4561003435926735', 
+  #                                   'exp_month' => 5,
+  #                                   'exp_year' => 2015,
+  #                                   'cvv' => 642}},
+  #                     'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+  #                                'mobile_phone' => '0659497434',
+  #                                'land_phone' => '0959497434',
+  #                                'first_name' => 'Eric',
+  #                                'gender' => 1,
+  #                                'last_name' => 'Larcheveque',
+  #                                'address' => { 'address_1' => '14 boulevard du Chateau',
+  #                                               'address_2' => '',
+  #                                               'additionnal_address' => '',
+  #                                               'zip' => '92200',
+  #                                               'city' => ' Neuilly sur Seine',
+  #                                               'country' => 'France'}
+  #                               }
+  #                     }
+  # 
+  #      robot.context = @context
+  #      robot.run_step('login')
+  #      robot.run_step('empty cart')
+  #      robot.run_step('add to cart')
+  #      robot.run_step('finalize order')
+  #      robot.run_step('validate order')
+  #  end
   
   
 end  
