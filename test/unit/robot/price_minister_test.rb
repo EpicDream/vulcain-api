@@ -7,7 +7,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'marie_rose_18@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'marie_rose_19@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_1_URL],
                             'credentials' => {
@@ -99,7 +99,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    robot.run_step('validate order')
+   # robot.run_step('validate order')
   end
   
 end

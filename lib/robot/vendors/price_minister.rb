@@ -83,13 +83,17 @@ class PriceMinister
       end
       
       step('fill shipping form') do
+        fill '//input[@id="user_adress1"]', with:user.address.address_1
+        fill '//input[@id="user_cp"]', with:user.address.zip
+        fill '//input[@id="user_city"]', with:user.address.city
+        fill '//input[@id="user_fixe"]', with:user.land_phone
       end
       
       step('finalize order') do
         open_url "http://www.priceminister.com/cart"
         open_url "https://www.priceminister.com/checkout/address"
-        
         wait_for(['//div[@class="pm_action"]'])
+        run_step('fill shipping form')
         move_to_and_click_on '//div[@class="pm_action"]/div'
         run_step('submit credit card')
       end
@@ -119,7 +123,8 @@ class PriceMinister
           run_step('validate order')
         else
           open_url URL
-          run_step('empty cart', next_step:'cancel')
+          terminate_on_cancel
+          # run_step('empty cart', next_step:'cancel')
         end
       end
       
