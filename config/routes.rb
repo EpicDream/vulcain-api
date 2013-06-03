@@ -1,4 +1,4 @@
-Vulcain::Application.routes.draw do
+VulcainApi::Application.routes.draw do
   # PLUGIN
   get "plugin/strategies/actions"
   post "plugin/strategies/create"

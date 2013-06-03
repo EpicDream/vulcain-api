@@ -1,13 +1,15 @@
-<% @states.each do |state| %>
-	<% running = !state["idle"] && !state["blocked"] %>
-	<tr class="<%= "success" if running %> <%= "error" if state["blocked"] %>">
-		<td><%= state["host"]%></td>
-		<td><%= state["id"].split("|")[1]%></td>
-		<td><%= state["uuid"]%></td>
-		<td><%= state["idle"]%></td>
-		<td><%= state["ack_ping"]%></td>
-		<td><%= l(Time.parse(state["run_since"])) if  state["run_since"]%></td>
-		<td><%= state["callback_url"]%></td>
-		<td><%= state["blocked"]%></td>
+<% @pool.each do |vulcain| %>
+	<% running = !vulcain.idle && !vulcain.blocked %>
+	<tr class="<%= "success" if running %> <%= "error" if vulcain.blocked %>">
+		<td><%= vulcain.host %></td>
+		<td><%= vulcain.id .split("|")[1]%></td>
+		<td><%= vulcain.uuid %></td>
+		<td><%= vulcain.idle %></td>
+		<td><%= vulcain.ack_ping %></td>
+		<td><%= l(vulcain.run_since) if  vulcain.run_since %></td>
+		<td><%= vulcain.callback_url %></td>
+		<td><%= vulcain.blocked %></td>
+		<td><%= vulcain.stale %></td>
 	</tr>
 <% end %>
+

@@ -9,7 +9,7 @@
 	</thead>
 	<tbody>
 		<% @logs.each do |log| %>
-		  <% next if log.verb == 'page_source' || log.verb.nil? %>
+		  <% next if !log.respond_to?(:verb) || log.verb == 'page_source' || log.verb.nil? %>
 			<tr>
 				<td>
 					<%= log.created_at.strftime("%m/%d/%Y at %I:%M%p") %>

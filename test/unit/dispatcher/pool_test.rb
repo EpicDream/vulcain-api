@@ -38,16 +38,17 @@ class PoolTest <  ActiveSupport::TestCase
   end
   
   test "push vulcain with a given id in pool" do
-    expected_vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", nil, true)
-    
-    pool.expects(:load_robots_on_vulcain).with(expected_vulcain)
+    vulcain = Vulcain.new(exchange:@io_stub, id:"127.0.0.1|210123", idle:false, host:"127.0.0.1", ack_ping:true)
+    Vulcain.expects(:new).with(exchange:@io_stub, id:"127.0.0.1|210123", idle:false, host:"127.0.0.1", ack_ping:true).returns(vulcain)
+   
+    pool.expects(:reload).with(vulcain)
     pool.push("127.0.0.1|210123")
     
-    assert_equal [expected_vulcain], pool.pool
+    assert_equal [vulcain], pool.pool
   end
   
   test "idle a given vulcain" do
-    vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", "99", true)
+    vulcain = Vulcain.new(exchange:@io_stub, id:"127.0.0.1|210123", idle:false, host:"127.0.0.1", uuid:"99", ack_ping:true)
     pool.pool = [vulcain]
     
     pool.idle(vulcain.id)
@@ -58,7 +59,8 @@ class PoolTest <  ActiveSupport::TestCase
   end
   
   test "ping vulcain should publish ping message on its queue" do
-    vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", "99", true)
+    vulcain = Vulcain.new(exchange:@io_stub, id:"127.0.0.1|210123", idle:false, host:"127.0.0.1", uuid:"99", ack_ping:true)
+    
     message = { verb:Dispatcher::Message::MESSAGES_VERBS[:ping] }.to_json
     headers = { :queue => Dispatcher::VULCAIN_QUEUE.(vulcain.id)}
     
@@ -68,7 +70,7 @@ class PoolTest <  ActiveSupport::TestCase
   end
   
   test "acknowledge of ping from vulcain should set vulcain.ack_ping to true" do
-    vulcain = Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|210123", false, "127.0.0.1", "99", false)
+    vulcain = Vulcain.new(exchange:@io_stub, id:"127.0.0.1|210123", idle:false, host:"127.0.0.1", uuid:"99", ack_ping:false)
     pool.pool = [vulcain]
     
     pool.ack_ping(vulcain.id)
@@ -86,7 +88,13 @@ class PoolTest <  ActiveSupport::TestCase
     pool.stubs(:ping_vulcains)
     pool.restore
     
-    assert_equal [vulcain], pool.pool
+    restored_vulcain = pool.pool.first
+
+    assert_equal vulcain.host, restored_vulcain.host
+    assert_equal vulcain.id, restored_vulcain.id
+    assert_equal @io_stub, restored_vulcain.exchange
+    assert !restored_vulcain.idle
+    assert !restored_vulcain.ack_ping
   end
   
   test "when vulcain is pull for running, its start time should be set to checkout times out" do
@@ -114,11 +122,20 @@ class PoolTest <  ActiveSupport::TestCase
     assert_equal "http://www.shopelia.com/9000", vulcain.callback_url
   end
   
+  test "a stale vulcain must not be idle" do
+    pool.pool = vulcains 
+    vulcain = pool.pool.first
+    pool.stale(vulcain)
+    
+    assert !vulcain.idle
+    assert vulcain.stale
+  end
+  
   private
   
   def vulcains
     (1..3).map do |n|
-      Dispatcher::Pool::Vulcain.new(@io_stub, "127.0.0.1|#{n}", true, "127.0.0.1", nil, false, 0)
+      Vulcain.new(exchange:@io_stub, id:"127.0.0.1|#{n}", idle:true, host:"127.0.0.1", ack_ping:false)
     end
   end
   

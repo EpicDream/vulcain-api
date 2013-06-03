@@ -4,7 +4,8 @@ module Dispatcher
       no_idle:'no_idle', 
       order_timeout:'order_timeout', 
       dispatcher_crash:'dispatcher_crash',
-      no_dispatcher_running: 'no_dispatcher_running'
+      no_dispatcher_running: 'no_dispatcher_running',
+      session_not_found: 'session_not_found'
     }
     
     MESSAGES_VERBS = { 
@@ -19,26 +20,26 @@ module Dispatcher
       aborted:'aborted', 
       failure:'failure',
       terminated:'terminated',
-      ack_ping:'ack_ping'
+      ack_ping:'ack_ping',
+      ping:'ping'
     }
     
     attr_accessor :message
     attr_reader :session
     
     def initialize verb=nil
-      case verb
-      when :no_idle 
-        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :no_idle, message:MESSAGES[:no_idle] } }
-      when :ping
-        @message = { verb:MESSAGES_VERBS[:ping] }
-      when :reload
-        @message = { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new(STRATEGIES).code}
-      when :order_timeout
-        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :order_timeout, message:MESSAGES[:order_timeout] }}
-      when :dispatcher_crash
-        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :dispatcher_crash, message:MESSAGES[:dispatcher_crash] }}
-      when :no_dispatcher_running
-        @message = { verb:MESSAGES_VERBS[:failure], content:{ status: :no_dispatcher_running, message:MESSAGES[:no_dispatcher_running] }}
+      @message = new_message(verb)
+    end
+    
+    def new_message verb
+      if verb == :reload
+        return { verb:MESSAGES_VERBS[:reload], code:Robots::Loader.new(CONFIG[:strategies]).code}
+      end
+      
+      if verb == :ping
+        { verb: verb.to_s }
+      else
+        { verb: MESSAGES_VERBS[:failure], content:{ status: verb, message:MESSAGES[verb] } }
       end
     end
     
@@ -63,13 +64,12 @@ module Dispatcher
       @message[:session] = session
       self
     end
-    
+        
     private
-    
+
     def request url, data
       Log.create({request:url, data:data})
       uri = URI.parse(url)
-      
       http = Net::HTTP.new(uri.host, uri.port)
       if uri.scheme == "https"
         http.use_ssl = true
@@ -81,7 +81,7 @@ module Dispatcher
       request.add_field "Accept", "application/json"
       http.request(request)
     rescue => e
-      Log.create({message:"#{data} could not have been send to shopelia #{url}"})
+      Log.create({verb:'message', message:"#{data} could not have been send to shopelia #{url}"})
     end
     
   end

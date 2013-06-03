@@ -19,9 +19,10 @@ class MessageTest <  ActiveSupport::TestCase
   
   test "reload message" do
     message = Dispatcher::Message.new(:reload)
+    vendors = Dispatcher::CONFIG[:strategies]
     
     assert_equal "reload", message.message[:verb]
-    assert_equal Robots::Loader.new("AmazonFrance").code, message.message[:code]
+    assert_equal Robots::Loader.new(vendors).code, message.message[:code]
   end
   
   test "forward set message and session" do
@@ -46,7 +47,7 @@ class MessageTest <  ActiveSupport::TestCase
   test "to consumer vulcain" do
     exchange = stub()
     _message = {'verb' =>'answer', 'context' => {'session' => {'uuid' => '9090', 'callback_url' => 'http://...'}}}
-    vulcain = Dispatcher::Pool::Vulcain.new(exchange, "127.0.0.1|1", true, "127.0.0.1", nil, false)
+    vulcain = Vulcain.new(exchange:exchange, id:"127.0.0.1|1", idle:true, host:"127.0.0.1", uuid:nil, ack_ping:false)
     message = Dispatcher::Message.new
     
     expected_message = _message.dup

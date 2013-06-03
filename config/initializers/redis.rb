@@ -1,2 +1,2 @@
-$redis = Redis.new(Vulcain::Application.config.redis_config)
+$redis = Redis.new(VulcainApi::Application.config.redis_config)
 

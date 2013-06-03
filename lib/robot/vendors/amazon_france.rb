@@ -72,6 +72,10 @@ class AmazonFrance
   PAYMENTS_PAGE_HOME_LINK = '/html/body/table[1]/tbody/tr/td/b/nobr[1]/a | /html/body/table/tbody/tr/td/b/nobr[1]/a'
   REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
   VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
+
+  CAPTCHA = '//*[@id="ap_captcha_img"]'
+  CAPTCHA_IMAGE = '//*[@id="ap_captcha_img"]/img'
+  CAPTCHA_INPUT = '//*[@id="ap_captcha_guess"]'
   
   attr_accessor :context, :robot
   
@@ -112,13 +116,22 @@ class AmazonFrance
         if exists? REGISTER_FAILURE
           terminate_on_error(:account_creation_failed)
         else
-          message :account_created, :timer => 5, :next_step => 'renew login'
+          message :account_created, :next_step => 'renew login'
+        end
+      end
+      
+      step('decaptchatize') do
+        if exists? CAPTCHA
+          image_url = find_element(CAPTCHA_IMAGE)
+          text = resolve_captcha(image_url)
+          fill CAPTCHA_INPUT, with:text
         end
       end
       
       step('login') do
         open_url URL
         wait_ajax
+        run_step('decaptchatize')
         click_on LOGIN_LINK
         fill LOGIN_EMAIL, with:account.login
         fill LOGIN_PASSWORD, with:account.password

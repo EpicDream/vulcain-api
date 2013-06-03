@@ -43,7 +43,11 @@ module Dispatcher
       
       with_queue(@queues[ANSWER_API_QUEUE]) do |message, session|
         vulcain = @pool.fetch(session)
-        Message.new.forward(message).to(vulcain)
+        unless vulcain
+          Message.new(:session_not_found).for(session).to(:shopelia)
+        else
+          Message.new.forward(message).to(vulcain)
+        end
       end
       
       with_queue(@queues[ADMIN_QUEUE]) do |message, session|
@@ -55,6 +59,7 @@ module Dispatcher
         when Message::ADMIN_MESSAGES_STATUSES[:aborted] then @pool.pop vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:terminated] then @pool.idle vulcain_id
+        when Message::ADMIN_MESSAGES_STATUSES[:ping] then @pool.ping_from vulcain_id
         end
       end
       

@@ -208,6 +208,11 @@ class Robot
     @driver.click_on button
   end
   
+  def click_on_button_with_text text
+    button = find_elements_by_attribute("button", "text()", text).first
+    @driver.click_on button
+  end
+  
   def wait_for_button_with_name name
     @driver.find_input_with_value(name)
   end
@@ -252,10 +257,42 @@ class Robot
     input.send_key args[:with]
   end
   
+  def fill_element_with_attribute_matching tag, attribute, regexp, args={}
+    input = @driver.find_by_attribute_matching tag, attribute, regexp
+    input.clear
+    input.send_key args[:with]
+  end
+  
+  def click_on_button_with_attribute_matching tag, attribute, regexp
+    button = @driver.find_by_attribute_matching(tag, attribute, regexp)
+    click_on button
+  end
+  
+  def find_element_by_attribute_matching tag, attribute, regexp
+    @driver.find_by_attribute_matching(tag, attribute, regexp)
+  end
+  
+  def fill_all xpath, args={}
+    inputs = @driver.find_elements(xpath)
+    inputs.each do |input|
+      input.clear
+      input.send_key args[:with]
+    end
+  end
+  
   def select_option xpath, value
     select = @driver.find_element(xpath)
     value = value[:with] if value.kind_of?(Hash)
     @driver.select_option(select, value.to_s)
+  end
+  
+  def select_options xpath, value, &block
+    count = @driver.find_elements(xpath).count
+    count.times do
+      select = @driver.find_element(xpath)
+      @driver.select_option(select, value.to_s)
+      block.call(select) if block_given?
+    end
   end
   
   def options_of_select xpath
@@ -283,12 +320,14 @@ class Robot
     end
   end
   
-  def alert?
-    @driver.alert?
-  end
-  
   def accept_alert
     @driver.accept_alert
+  end
+  
+  def resolve_captcha image_url
+    client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
+    response = client.decode image_url
+    response['text']
   end
   
 end
