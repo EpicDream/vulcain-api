@@ -296,7 +296,8 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
-    input.send_key(value)
+    puts value
+    input.send_keys(value)
   end
 
   # Select option.
