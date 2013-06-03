@@ -5,6 +5,7 @@ function highElements(xpath, color) {
     var tmpColor = e.css("background-color");
     var tmpPad = e.css("padding");
     e.animate({backgroundColor: color, padding: 1},100).delay(400).animate({backgroundColor: tmpColor, padding: tmpPad},100);
+    return e;
 }
 
 function onBodyClick(event) {
@@ -19,6 +20,8 @@ function onBodyClick(event) {
     }
     var msg = {dest: 'plugin', action: 'newMap'};
     msg.context = hu.getElementContext(e);
+    msg.merged = false;
+    msg.xpath = msg.context.xpath;
     chrome.extension.sendMessage(msg);
   }
 };
@@ -31,7 +34,7 @@ function buildExtension() {
   var extension_id = chrome.i18n.getMessage("@@extension_id");
   plugin.iframe = document.createElement('iframe');
   plugin.iframe.id = "shopeliaFrame";
-  plugin.iframe.src = "chrome-extension://" + extension_id + "/shopelia_mapper.html";
+  plugin.iframe.src = "chrome-extension://" + extension_id + "/view/shopelia_mapper2.html";
   body.appendChild(plugin.iframe);
 
   plugin.link = document.createElement('link');
@@ -58,17 +61,19 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     return;
 
   if (msg.action == "show") {
-    highElements(msg.xpath, "#00dd00");
+    e = highElements(msg.xpath, "#00dd00");
+    console.log("Elements matched :", e);
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
   } else if (msg.action == "getPageInfos") {
     msg.action = "setPageInfos"
     msg.host = location.host;
     msg.path = location.pathname;
-    msg.userAgent = navigator.userAgent;
+    msg.mobile = plugin.mobile;
     msg.dest = 'plugin';
     chrome.extension.sendMessage(msg);
   } else if (msg.action == "start") {
+    plugin.mobile = msg.mobile;
     buildExtension();
   } else if (msg.action == "stop") {
     removeExtension();
@@ -79,8 +84,8 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.dest = 'plugin';
     msg.action = 'newMap';
     msg.merged = true;
+    msg.xpath = xpath;
     msg.context = msg.new_context;
-    msg.context.xpath = xpath;
     chrome.extension.sendMessage(msg);
   }
 });

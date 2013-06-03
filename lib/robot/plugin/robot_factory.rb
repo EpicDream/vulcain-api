@@ -4,9 +4,9 @@ require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
   CONTEXT = { options: {profile_dir: "config/chromium/Default"},
-              'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
+              'account' => {'email' => 'timmy81@yopmail.com', 'login' => "timmy811", 'password' => 'paterson', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
+              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/137889934/breaking-bad-saison-3-de-bryan-cranston.html",
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
@@ -39,37 +39,35 @@ class Plugin::RobotFactory
   end
 
   def self.make_rb_file(host)
-    strategies = getStrategyHash(host)
+    strategy = getStrategyHash(host)
     vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
     File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8"
 
 class Plugin::#{vendor.camelize}
-  URL = "http://#{host.gsub(/_mobile/,"")}"
-
   attr_accessor :context, :robot
 
   def initialize context
     @context = context
+    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if #{host =~ /_mobile/}
     @robot = instanciate_robot
   end
 
   def instanciate_robot
-    Plugin::IRobot.new(@context) do
+    r = Plugin::IRobot.new(@context) do
 INIT
-      for s in strategies
-        f.puts "\t\t\tstep('#{s[:id]}') do"
-        for field in s[:fields]
-          f.puts "\t\t\t\t#{field[:id]} = #{field[:xpath].inspect}"
+      for step in strategy[:steps]
+        f.puts "\t\t\tstep('#{step[:id]}') do"
+        for action in step[:actions]
+          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\n\t\t\t\t").rstrip) + "\n"
         end
-        f.puts
-        f.puts s[:value].prepend("\t\t\t\t").gsub("<\\n>","\n\t\t\t\t").rstrip
         f.puts "\t\t\tend"
-        f.puts
       end
       f.puts "\t\tend"
       f.puts "\tend"
+      f.puts "\tr.shop_base_url = #{"http://#{host.gsub(/_mobile/,"")}".inspect}"
+      f.puts "\treturn r"
       f.puts "end"
     end
   end
@@ -97,20 +95,27 @@ INIT
   end
 
   def self.test_strategy(strategy)
-    robot = Plugin::IRobot.new(CONTEXT) {}
-
-    # On supprime le click sur le bouton 'Valider création compte'
-    # On vérifie juste qu'il est présent.
-    actions = strategy.first[:value].strip.split("\n")
-    if actions[-1] =~ /pl_click_on!/
-      actions[-1] = actions[-1].sub(/pl_click_on!/, "link!")
-      strategy.first[:value] = actions.join("\n")
+    isNewAccount = strategy[:steps].first[:actions].length > 0
+    if isNewAccount
+      # On supprime le click sur le bouton 'Valider création compte'
+      # On vérifie juste qu'il est présent.
+      # action = strategy[:steps].first[:actions][-1]
+      # if action[:code] =~ /pl_click_on!/
+      #   action[:code] = action[:code].sub(/pl_click_on!/, "link!")
+      # end
+      CONTEXT['account'][:new_account] = true
     end
+    CONTEXT[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if strategy['mobility']
+    CONTEXT[:options][:profile_dir] = nil if strategy['mobility']
 
+    robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
     return {}
   rescue Plugin::IRobot::StrategyError => err
     return err.to_h
+  ensure
+    CONTEXT['account'][:new_account] = false
+    CONTEXT[:options][:user_agent] = nil
   end
 end

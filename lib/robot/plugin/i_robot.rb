@@ -6,17 +6,23 @@ require "robot/core_extensions"
 
 class Plugin::IRobot < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
+  MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
     attr_reader :step, :action
+    attr_accessor :source, :screenshot
     def initialize(msg,args={})
       super(msg)
       @step = args[:step]
       @action = args[:action]
       @line = args[:line]
+      @source = @screenshot = nil
+    end
+    def add(key, value)
+
     end
     def to_h
-      return {step: @step, action: @action, line: @line, msg: self.message}
+      return {step: @step, action: @action, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
     end
     def message
       return super+" in step '#{@step}'"
@@ -27,7 +33,8 @@ class Plugin::IRobot < Robot
     def method_missing(meth, *args, &block)
       return self
     end
-    def message(meth, *args, &block)
+    def message(*args, &block)
+      p args
       return nil
     end
   end
@@ -40,19 +47,28 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
-    {id: 'pl_click_on_while', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
-    {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
+    {id: 'pl_check', desc: "Vérifier la présence", args: {xpath: true}},
     {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
-    {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {}}
+    {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
     # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
     # {id: 'wait_ajax', desc: "Attendre"},
     # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
     # {id: 'message', desc: "Envoyer un message", has_arg: true}
   ]
+  for a in ACTION_METHODS
+    a[:method] ||= a[:id]
+    a[:argsTxt] ||= if a[:args][:current_url]
+      "(plarg_url)"
+    elsif a[:args][:xpath]
+      "(plarg_xpath" + (a[:args][:default_arg] ? ", plarg_argument" : "") + ")"
+    end
+  end
 
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
@@ -80,7 +96,8 @@ class Plugin::IRobot < Robot
     {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
 
-  attr_accessor :pl_driver
+  attr_accessor :pl_driver, :shop_base_url
+
   def initialize(context, &block)
     super(context, &block)
     @pl_driver = @driver.driver
@@ -88,9 +105,11 @@ class Plugin::IRobot < Robot
 
     self.instance_eval do
       step('run') do
+        pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
           run_step('unlog')
+          pl_open_url @shop_base_url
         end
         run_step('login')
         message :logged, :next_step => 'run_empty_cart'
@@ -103,7 +122,7 @@ class Plugin::IRobot < Robot
 
       step('run_fill_cart') do
         order.products_urls.each do |url|
-          pl_open_url url
+          pl_open_url! url
           @pl_current_product = {}
           @pl_current_product['url'] = url
           run_step('add_to_cart')
@@ -128,6 +147,41 @@ class Plugin::IRobot < Robot
       step('run_terminate') do
         terminate
       end
+
+      step('run_test') do
+        continue = true
+        pl_open_url! @shop_base_url
+        if account.new_account
+          run_step('account_creation')
+        else
+          continue = false if ! @steps['login']
+          run_step('login') if continue
+        end
+        continue = false if ! @steps['unlog']
+        run_step('unlog') if continue
+        continue = false if ! @steps['login']
+        run_step('login') if continue
+        continue = false if ! @steps['empty_cart']
+        run_step('empty_cart') if continue
+        continue = false if ! @steps['add_to_cart']
+        order.products_urls.each do |url|
+          pl_open_url! url
+          @pl_current_product = {}
+          run_step('add_to_cart')
+        end if continue
+        run_step('empty_cart') if continue
+        order.products_urls.each do |url|
+          pl_open_url! url
+          @pl_current_product = {}
+          @pl_current_product['url'] = url
+          run_step('add_to_cart')
+          products << @pl_current_product
+        end if continue
+        continue = false if ! @steps['finalize_order']
+        run_step('finalize_order') if continue
+        continue = false if ! @steps['payment']
+        run_step('payment') if continue
+      end
     end
   end
 
@@ -142,36 +196,34 @@ class Plugin::IRobot < Robot
   def pl_fake_run
     @messager = FakeMessenger.new
     @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
-
-    run_step('account_creation')
-    run_step('unlog') if @steps['unlog']
-    run_step('run') if @steps['login']
-    run_step('run_empty_cart') if @steps['empty_cart']
-  ensure
+    run_step('run_test')
     @pl_driver.quit
+  rescue StrategyError => err
+    err.source = @driver.page_source
+    err.screenshot = @driver.screenshot
+    raise err
   end
 
   def pl_add_strategy(strategy)
-    strategy.each { |s| pl_add_step(s) unless s[:value].blank? }
+    @shop_base_url = "http://"+strategy[:host]+"/"
+    strategy[:steps].each { |s|
+      pl_add_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
+    }
   end
 
   def pl_add_step(step)
     # Get new context
     step_binding = Kernel.binding
-    # Create local variables for xpathes, etc
-    step[:fields].each { |field|
-      step_binding.eval "#{field[:id]} = #{field[:context][:xpath].inspect}" if field[:context] && field[:context][:xpath]
-    }
-    # Split and format actions to do
-    actions = step[:value].split(/<\\n>|\n/).map(&:strip)
     # Create callable step
     step(step[:id]) do
+      puts "Running #{step[:id]} :"
       # Eval each action
-      for act in actions
+      for act in step[:actions]
         begin
-          step_binding.eval act
+          puts act[:code]
+          step_binding.eval act[:code]
         rescue => err
-          raise StrategyError.new(err, {step: step[:id], action: act, line: actions.index(act)})
+          raise StrategyError.new(err, {step: step[:id], action: act[:code].inspect, line: step[:actions].index(act)})
         end
       end
     end
@@ -195,7 +247,7 @@ class Plugin::IRobot < Robot
     end
   end
 
-  def pl_open_url(url)
+  def pl_open_url!(url)
     @pl_driver.get(url)
   end
 
@@ -213,14 +265,20 @@ class Plugin::IRobot < Robot
   # Click on all links/buttons matching xpath.
   # WARNING : May not work if page reload !
   def pl_click_on_all!(xpath)
-    pl_click_on_while(xpath)
+    pl_click_on_while!(xpath)
   end
   # Click on all links/buttons while some match xpath.
   # WARNING : wait links to disappear when clicked !
   def pl_click_on_while!(xpath)
     i = 0
-    while i < 100 && l = links(xpath).last
-      l.click
+    while i < 100
+      lnks = links(xpath).select { |l| l.displayed? }
+      if lnks.empty?
+        sleep(1)
+        lnks = links(xpath)
+        break if lnks.empty?
+      end
+      lnks.last.click
       i += 1
     end
     raise "Infinite loop !" if i == 100
@@ -238,7 +296,8 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
-    input.send_key(value)
+    puts value
+    input.send_keys(value)
   end
 
   # Select option.
@@ -291,6 +350,11 @@ class Plugin::IRobot < Robot
     end
   end
 
+  #
+  def pl_check!(xpath)
+    raise NoSuchElementError if find(xpath).empty?
+  end
+
   # Search for radio buttons in xpath,
   # and send message to present them to the user.
   def pl_present_radio_choices(xpath, question)
@@ -329,13 +393,25 @@ class Plugin::IRobot < Robot
   end
 
   def pl_set_product_price!(xpath)
-    @pl_current_product['price_text'] = get_text(xpath)
-    @pl_current_product['price_product'] = get_price(@pl_current_product['price_text'])
+    text = get_text(xpath)
+    @pl_current_product['price_text'] = text
+    @pl_current_product['price_product'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
   def pl_set_product_delivery_price!(xpath)
-    @pl_current_product['delivery_text'] = get_text(xpath)
-    @pl_current_product['price_delivery'] = get_price(@pl_current_product['delivery_text'])
+    text = get_text(xpath)
+    @pl_current_product['delivery_text'] = text
+    @pl_current_product['price_delivery'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
   def pl_binding
@@ -519,3 +595,19 @@ class Plugin::IRobot < Robot
       self
     end
 end
+
+__END__
+
+# Brouillon / Roadmap / Todo / Etc
+14:53
+
+Ajouter bouton continuer partout
+Confirmer email, mot de passe, etc
+Popup pour indiquer le nombre d'éléments matché
+Gérer le bouton retour du navigateur (fait de la merde)
+
+Intégrer 
+contains(concat(' ', @class, ' '), ' Test ')
+[contains(concat(' ', @class, ' '), ' ui-page-active ')]
+
+//*[@id="page_92c356dfa2d0418cad62c40bda03e305"]/div/section/header/div/a
