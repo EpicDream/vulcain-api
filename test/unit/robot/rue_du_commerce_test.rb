@@ -19,8 +19,6 @@ class RueDuCommerceTest < ActiveSupport::TestCase
                               'exp_year' => 2014,
                               'cvv' => 123}},
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0134562345',
-                           'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
                            'gender' => 1,
                            'last_name' => 'Legrand',
@@ -29,6 +27,8 @@ class RueDuCommerceTest < ActiveSupport::TestCase
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
+                                          'mobile_phone' => '0134562345',
+                                          'land_phone' => '0134562345',
                                           'country' => 'France'}
                           }
                 }
@@ -39,7 +39,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-    #@robot.driver.quit
+    @robot.driver.quit
   end
   
   test "account creation" do
