@@ -208,7 +208,7 @@ class AmazonFrance
         fill SHIPMENT_FORM_ADDITIONAL, with:user.address.additionnal_address
         fill SHIPMENT_FORM_CITY, with:user.address.city
         fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
-        fill SHIPMENT_FORM_PHONE, with:(user.mobile_phone || user.land_phone)
+        fill SHIPMENT_FORM_PHONE, with:(user.address.mobile_phone || user.address.land_phone)
         click_on SHIPMENT_FORM_SUBMIT
         wait_for [SHIPMENT_OPTIONS_SUBMIT, SHIPMENT_ADDRESS_CONFIRM_SUBMIT]
         

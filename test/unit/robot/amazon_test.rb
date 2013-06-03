@@ -23,8 +23,6 @@ class AmazonTest < ActiveSupport::TestCase
                               'exp_year' => 2014,
                               'cvv' => 123}},
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0134562345',
-                           'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
                            'gender' => 1,
                            'last_name' => 'Legrand',
@@ -33,6 +31,8 @@ class AmazonTest < ActiveSupport::TestCase
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
+                                          'mobile_phone' => '0634562345',
+                                          'land_phone' => '0134562345',
                                           'country' => 'France'}
                           }
                 }
@@ -44,7 +44,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -79,14 +79,14 @@ class AmazonTest < ActiveSupport::TestCase
     @context['account']['password'] = "badpassword"
     robot.context = @context
     
-    @message.expects(:message).times(1)
+    @message.expects(:message).times(2)
     robot.expects(:terminate_on_error).with(:login_failed)
     
     robot.run_step('login')
   end
   
   test "logout whithout beeing logged" do
-    @message.expects(:message).times(2)
+    @message.expects(:message).times(1)
     
     robot.run_step('logout')
   end
@@ -101,7 +101,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "remove credit card" do
-    @message.expects(:message).times(6)
+    @message.expects(:message).times(5)
     
     robot.run_step('login')
     robot.run_step('remove credit card')
@@ -142,7 +142,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "order with shipment address fill" do
-     @message.expects(:message).times(17)
+     @message.expects(:message).times(17..18)
      robot.run_step('login')
      robot.run_step('empty cart')
      robot.run_step('add to cart')
