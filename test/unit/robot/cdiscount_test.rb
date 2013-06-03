@@ -11,7 +11,7 @@ class CdiscountTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_01@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_02@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1],
                             'credentials' => {
@@ -21,8 +21,6 @@ class CdiscountTest < ActiveSupport::TestCase
                               'exp_year' => 2014,
                               'cvv' => 123}},
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0634562345',
-                           'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
                            'gender' => 1,
                            'last_name' => 'Legrand',
@@ -31,6 +29,8 @@ class CdiscountTest < ActiveSupport::TestCase
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
+                                          'mobile_phone' => '0634562345',
+                                          'land_phone' => '0134562345',
                                           'country' => 'France'}
                           }
                 }
@@ -48,7 +48,7 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "account creation" do
-    skip "Can' create account each time!"
+    #skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
     

@@ -161,7 +161,6 @@ class Cdiscount
           button = find_element_by_attribute_matching("button", "id", ADD_TO_CART_VENDORS)
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
-          # click_on_button_with_attribute_matching("button", "id", ADD_TO_CART_VENDORS)
         end
         wait_ajax 4
         message :cart_filled, :next_step => 'finalize order'
@@ -184,8 +183,8 @@ class Cdiscount
       end
       
       step('submit address') do
-        land_phone = user.land_phone || "04" + user.mobile_phone[2..-1]
-        mobile_phone = user.mobile_phone || "06" + user.land_phone[2..-1]
+        land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
+        mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
         
         fill_element_with_attribute_matching("input", "id", SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1)
         fill_element_with_attribute_matching("input", "id", SHIPMENT_FORM_ADDITIONNAL_ADDRESS, with:user.address.additionnal_address)
