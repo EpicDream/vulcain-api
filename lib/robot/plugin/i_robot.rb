@@ -108,6 +108,7 @@ class Plugin::IRobot < Robot
         pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
+          message :expect, :next_step => 'create account'
           run_step('unlog')
           pl_open_url @shop_base_url
         end
@@ -138,14 +139,14 @@ class Plugin::IRobot < Robot
 
       step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment', next_step:'run_terminate')
+          run_step('payment')
+          message :validate_order
+          terminate
         else
-          run_step('empty cart', next_step:'run_terminate')
+          run_step('empty cart')
+          message :cancel_order
+          terminate_on_cancel
         end
-      end
-
-      step('run_terminate') do
-        terminate
       end
 
       step('run_test') do
@@ -186,10 +187,10 @@ class Plugin::IRobot < Robot
   end
 
   def pl_assess(args)
-    if products.all? { |p| p['price_product'].kind_of?(Fixnum) && p['price_delivery'].kind_of?(Fixnum) }
+    if products.all? { |p| p['price_product'].kind_of?(Numeric) && p['price_delivery'].kind_of?(Numeric) }
       assess(args)
     else
-      raise StrategyError.new("Impossible de faire un résumé : il manque des informations sur les prix de certains produits.")
+      raise StrategyError.new("Impossible de faire un résumé : il manque des informations sur les prix de certains produits.\n#{products}")
     end
   end
 
@@ -296,7 +297,6 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
-    puts value
     input.send_keys(value)
   end
 
@@ -542,7 +542,7 @@ class Plugin::IRobot < Robot
         return []
         # raise "Can not find label (id=#{id.inspect})."
       end
-      return elems
+      return elems.select { |e| e.displayed? }
     end
     def link!(xpath)
       elems = links(xpath)
@@ -611,3 +611,33 @@ contains(concat(' ', @class, ' '), ' Test ')
 [contains(concat(' ', @class, ' '), ' ui-page-active ')]
 
 //*[@id="page_92c356dfa2d0418cad62c40bda03e305"]/div/section/header/div/a
+
+
+elenium::WebDriver::Error::StaleElementReferenceError: stale element reference: element is not attached to the page document
+  (Session info: chrome=27.0.1453.93)
+  (Driver info: chromedriver=0.9,platform=Linux 3.5.0-17-generic x86_64)
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/response.rb:51:in `assert_ok'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/response.rb:15:in `initialize'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:59:in `new'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:59:in `create_response'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/default.rb:66:in `request'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:40:in `call'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:629:in `raw_execute'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:607:in `execute'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:518:in `getElementText'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/common/element.rb:108:in `text'
+  from lib/robot/plugin/i_robot.rb:564:in `get_text'
+  from lib/robot/plugin/i_robot.rb:396:in `pl_set_product_price!'
+  from lib/robot/vendors/priceminister_mobile.rb:150:in `block (2 levels) in instanciate_robot'
+  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `call'
+  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `run_step'
+  from lib/robot/plugin/i_robot.rb:128:in `block (3 levels) in initialize'
+  from lib/robot/plugin/i_robot.rb:124:in `each'
+  from lib/robot/plugin/i_robot.rb:124:in `block (2 levels) in initialize'
+  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `call'
+  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `run_step'
+  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:34:in `next_step'
+  from (irb):181
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands/console.rb:47:in `start'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands/console.rb:8:in `start'
+  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands.rb:41:in `<top (required)>'
