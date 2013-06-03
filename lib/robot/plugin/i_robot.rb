@@ -96,7 +96,8 @@ class Plugin::IRobot < Robot
     {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
 
-  attr_accessor :pl_driver
+  attr_accessor :pl_driver, :shop_base_url
+
   def initialize(context, &block)
     super(context, &block)
     @pl_driver = @driver.driver
@@ -271,13 +272,12 @@ class Plugin::IRobot < Robot
   def pl_click_on_while!(xpath)
     i = 0
     while i < 100
-      lnks = links(xpath)
+      lnks = links(xpath).select { |l| l.displayed? }
       if lnks.empty?
         sleep(1)
         lnks = links(xpath)
         break if lnks.empty?
       end
-      puts lnks.size
       lnks.last.click
       i += 1
     end

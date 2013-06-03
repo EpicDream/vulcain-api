@@ -46,8 +46,6 @@ class Plugin::RobotFactory
 # encoding: utf-8"
 
 class Plugin::#{vendor.camelize}
-  URL = "http://#{host.gsub(/_mobile/,"")}"
-
   attr_accessor :context, :robot
 
   def initialize context
@@ -57,61 +55,19 @@ class Plugin::#{vendor.camelize}
   end
 
   def instanciate_robot
-    Plugin::IRobot.new(@context) do
-      step('run') do
-        pl_open_url! @shop_base_url
-        if account.new_account
-          run_step('account_creation')
-          run_step('unlog')
-          pl_open_url @shop_base_url
-        end
-        run_step('login')
-        message :logged, :next_step => 'run_empty_cart'
-      end
-
-      step('run_empty_cart') do
-        run_step('empty_cart')
-        message :cart_emptied, :next_step => 'run_fill_cart'
-      end
-
-      step('run_fill_cart') do
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
-          run_step('add_to_cart')
-          products << @pl_current_product
-        end
-        message :cart_filled, :next_step => 'run_finalize'
-      end
-
-      step('run_finalize') do
-        run_step('finalize_order')
-        pl_assess next_step:'run_waitAck'
-      end
-
-      step('run_waitAck') do
-        if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment', next_step:'run_terminate')
-        else
-          run_step('empty cart', next_step:'run_terminate')
-        end
-      end
-
-      step('run_terminate') do
-        terminate
-      end
-
+    r = Plugin::IRobot.new(@context) do
 INIT
       for step in strategy[:steps]
         f.puts "\t\t\tstep('#{step[:id]}') do"
         for action in step[:actions]
-          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\t\t\t\t\n").rstrip) + "\n"
+          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\n\t\t\t\t").rstrip) + "\n"
         end
         f.puts "\t\t\tend"
       end
       f.puts "\t\tend"
       f.puts "\tend"
+      f.puts "\tr.shop_base_url = #{"http://#{host.gsub(/_mobile/,"")}".inspect}"
+      f.puts "\treturn r"
       f.puts "end"
     end
   end
