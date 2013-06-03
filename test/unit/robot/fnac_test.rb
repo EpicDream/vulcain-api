@@ -19,8 +19,6 @@ class FnacTest < ActiveSupport::TestCase
                               'exp_year' => 2014,
                               'cvv' => 123}},
                 'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'mobile_phone' => '0634562345',
-                           'land_phone' => '0134562345',
                            'first_name' => 'Pierre',
                            'gender' => 1,
                            'last_name' => 'Legrand',
@@ -29,6 +27,8 @@ class FnacTest < ActiveSupport::TestCase
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
+                                          'mobile_phone' => '0634562345',
+                                          'land_phone' => '0134562345',
                                           'country' => 'France'}
                           }
                 }
@@ -39,7 +39,10 @@ class FnacTest < ActiveSupport::TestCase
   end
   
   teardown do
-    #@robot.driver.quit
+    begin
+      @robot.driver.quit
+    rescue
+    end
   end
   
   test "account creation" do
@@ -81,7 +84,7 @@ class FnacTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(12)
+    @message.expects(:message).times(13)
     @message.expects(:message).with(:message, {message: :cart_emptied})
 
     robot.run_step('login')
@@ -101,12 +104,12 @@ class FnacTest < ActiveSupport::TestCase
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-     @message.expects(:message).times(17)
-     robot.run_step('login')
-     robot.run_step('empty cart')
-     robot.run_step('add to cart')
-     robot.run_step('finalize order')
-     robot.run_step('validate order')
+    @message.expects(:message).times(22)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+    robot.run_step('validate order')
   end
   
 end

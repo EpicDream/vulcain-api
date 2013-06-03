@@ -108,7 +108,7 @@ class Fnac
         select_option REGISTER_BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
-        fill REGISTER_MOBILE_PHONE, with:user.mobile_phone
+        fill REGISTER_MOBILE_PHONE, with:user.address.mobile_phone
         click_on REGISTER_ADDRESS_SUBMIT
         
         wait_for [HEAD_MENU_BUTTON, REGISTER_ADDRESS_SUBMIT]
@@ -217,8 +217,8 @@ class Fnac
           fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
           fill SHIPMENT_FORM_CITY, with:user.address.city
           fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
-          fill SHIPMENT_FORM_LAND_PHONE, with:user.land_phone
-          fill SHIPMENT_FORM_MOBILE_PHONE, with:user.mobile_phone
+          fill SHIPMENT_FORM_LAND_PHONE, with:user.address.land_phone
+          fill SHIPMENT_FORM_MOBILE_PHONE, with:user.address.mobile_phone
           click_on SHIPMENT_FORM_SUBMIT
         else
           click_on SELECT_THIS_ADDRESS
@@ -270,6 +270,7 @@ class Fnac
         click_on CREDIT_CARD_SUBMIT
         
         page = wait_for([THANK_YOU_HEADER]) do
+          accept_alert
           terminate_on_error(:order_validation_failed)
         end
         
