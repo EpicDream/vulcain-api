@@ -80,8 +80,6 @@ class RueDuCommerceTest < ActiveSupport::TestCase
                                    'exp_year' => 2015,
                                    'cvv' => 642}},#642
                      'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                                'mobile_phone' => '0659497434',
-                                'land_phone' => '0959497434',
                                 'first_name' => 'Eric',
                                 'gender' => 1,
                                 'last_name' => 'Larcheveque',
@@ -90,7 +88,11 @@ class RueDuCommerceTest < ActiveSupport::TestCase
                                                'additionnal_address' => '',
                                                'zip' => '92200',
                                                'city' => ' Neuilly sur Seine',
-                                               'country' => 'France'}
+                                               'country' => 'France',
+                                               'mobile_phone' => '0659497434',
+                                               'land_phone' => '0959497434'
+                                               
+                                               }
                                }
                      }
     
