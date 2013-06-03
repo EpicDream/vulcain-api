@@ -10,14 +10,19 @@ class Plugin::IRobot < Robot
 
   class StrategyError < StandardError
     attr_reader :step, :action
+    attr_accessor :source, :screenshot
     def initialize(msg,args={})
       super(msg)
       @step = args[:step]
       @action = args[:action]
       @line = args[:line]
+      @source = @screenshot = nil
+    end
+    def add(key, value)
+
     end
     def to_h
-      return {step: @step, action: @action, line: @line, msg: self.message}
+      return {step: @step, action: @action, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
     end
     def message
       return super+" in step '#{@step}'"
@@ -43,11 +48,12 @@ class Plugin::IRobot < Robot
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
     {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
-    {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_check', desc: "Vérifier la présence", args: {xpath: true}},
     {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
     # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
@@ -190,8 +196,11 @@ class Plugin::IRobot < Robot
     @messager = FakeMessenger.new
     @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
     run_step('run_test')
-  ensure
     @pl_driver.quit
+  rescue StrategyError => err
+    err.source = @driver.page_source
+    err.screenshot = @driver.screenshot
+    raise err
   end
 
   def pl_add_strategy(strategy)
@@ -255,14 +264,21 @@ class Plugin::IRobot < Robot
   # Click on all links/buttons matching xpath.
   # WARNING : May not work if page reload !
   def pl_click_on_all!(xpath)
-    pl_click_on_while(xpath)
+    pl_click_on_while!(xpath)
   end
   # Click on all links/buttons while some match xpath.
   # WARNING : wait links to disappear when clicked !
   def pl_click_on_while!(xpath)
     i = 0
-    while i < 100 && l = links(xpath).last
-      l.click
+    while i < 100
+      lnks = links(xpath)
+      if lnks.empty?
+        sleep(1)
+        lnks = links(xpath)
+        break if lnks.empty?
+      end
+      puts lnks.size
+      lnks.last.click
       i += 1
     end
     raise "Infinite loop !" if i == 100
@@ -333,6 +349,11 @@ class Plugin::IRobot < Robot
     end
   end
 
+  #
+  def pl_check!(xpath)
+    raise NoSuchElementError if find(xpath).empty?
+  end
+
   # Search for radio buttons in xpath,
   # and send message to present them to the user.
   def pl_present_radio_choices(xpath, question)
@@ -371,13 +392,25 @@ class Plugin::IRobot < Robot
   end
 
   def pl_set_product_price!(xpath)
-    @pl_current_product['price_text'] = get_text(xpath)
-    @pl_current_product['price_product'] = get_price(@pl_current_product['price_text'])
+    text = get_text(xpath)
+    @pl_current_product['price_text'] = text
+    @pl_current_product['price_product'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
   def pl_set_product_delivery_price!(xpath)
-    @pl_current_product['delivery_text'] = get_text(xpath)
-    @pl_current_product['price_delivery'] = get_price(@pl_current_product['delivery_text'])
+    text = get_text(xpath)
+    @pl_current_product['delivery_text'] = text
+    @pl_current_product['price_delivery'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
   def pl_binding
@@ -561,3 +594,19 @@ class Plugin::IRobot < Robot
       self
     end
 end
+
+__END__
+
+# Brouillon / Roadmap / Todo / Etc
+14:53
+
+Ajouter bouton continuer partout
+Confirmer email, mot de passe, etc
+Popup pour indiquer le nombre d'éléments matché
+Gérer le bouton retour du navigateur (fait de la merde)
+
+Intégrer 
+contains(concat(' ', @class, ' '), ' Test ')
+[contains(concat(' ', @class, ' '), ' ui-page-active ')]
+
+//*[@id="page_92c356dfa2d0418cad62c40bda03e305"]/div/section/header/div/a

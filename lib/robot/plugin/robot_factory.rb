@@ -4,9 +4,9 @@ require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
   CONTEXT = { options: {profile_dir: "config/chromium/Default"},
-              'account' => {'email' => 'timmy78@yopmail.com', 'login' => "timmy781", 'password' => 'paterson', new_account: false},
+              'account' => {'email' => 'timmy81@yopmail.com', 'login' => "timmy811", 'password' => 'paterson', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
+              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/137889934/breaking-bad-saison-3-de-bryan-cranston.html",
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
@@ -52,15 +52,60 @@ class Plugin::#{vendor.camelize}
 
   def initialize context
     @context = context
+    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if #{host =~ /_mobile/}
     @robot = instanciate_robot
   end
 
   def instanciate_robot
     Plugin::IRobot.new(@context) do
+      step('run') do
+        pl_open_url! @shop_base_url
+        if account.new_account
+          run_step('account_creation')
+          run_step('unlog')
+          pl_open_url @shop_base_url
+        end
+        run_step('login')
+        message :logged, :next_step => 'run_empty_cart'
+      end
+
+      step('run_empty_cart') do
+        run_step('empty_cart')
+        message :cart_emptied, :next_step => 'run_fill_cart'
+      end
+
+      step('run_fill_cart') do
+        order.products_urls.each do |url|
+          pl_open_url! url
+          @pl_current_product = {}
+          @pl_current_product['url'] = url
+          run_step('add_to_cart')
+          products << @pl_current_product
+        end
+        message :cart_filled, :next_step => 'run_finalize'
+      end
+
+      step('run_finalize') do
+        run_step('finalize_order')
+        pl_assess next_step:'run_waitAck'
+      end
+
+      step('run_waitAck') do
+        if answers.last.answer == Robot::YES_ANSWER
+          run_step('payment', next_step:'run_terminate')
+        else
+          run_step('empty cart', next_step:'run_terminate')
+        end
+      end
+
+      step('run_terminate') do
+        terminate
+      end
+
 INIT
-      for s in strategy[:steps]
-        f.puts "\t\t\tstep('#{s[:id]}') do"
-        for action in s[:actions]
+      for step in strategy[:steps]
+        f.puts "\t\t\tstep('#{step[:id]}') do"
+        for action in step[:actions]
           f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\t\t\t\t\n").rstrip) + "\n"
         end
         f.puts "\t\t\tend"

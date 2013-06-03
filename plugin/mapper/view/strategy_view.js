@@ -100,10 +100,12 @@ var StrategyView = function(_strategy) {
       data: JSON.stringify(s)
     }).done(function(hash) {
       $.mobile.loading('hide');
+      if (hash.msg)
+        console.log("Test result :", hash);
       if (hash.action)
-        popupText.text("Erreur pour la ligne :\n"+hash.action+" :\n"+hash.msg);
+        popupText.html("Erreur pour la ligne :<br>"+hash.action+" :<br>"+hash.msg);
       else if (hash.msg)
-        popupText.text("Une erreur c'est produite :\n"+hash.msg);
+        popupText.html("Une erreur c'est produite :<br>"+hash.msg);
       else
         popupText.text("Aucune erreur détecté :-)");
       popupText.parent().popup("open");

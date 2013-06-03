@@ -5,6 +5,7 @@ function highElements(xpath, color) {
     var tmpColor = e.css("background-color");
     var tmpPad = e.css("padding");
     e.animate({backgroundColor: color, padding: 1},100).delay(400).animate({backgroundColor: tmpColor, padding: tmpPad},100);
+    return e;
 }
 
 function onBodyClick(event) {
@@ -60,7 +61,8 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     return;
 
   if (msg.action == "show") {
-    highElements(msg.xpath, "#00dd00");
+    e = highElements(msg.xpath, "#00dd00");
+    console.log("Elements matched :", e);
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
   } else if (msg.action == "getPageInfos") {
