@@ -86,7 +86,7 @@ class PriceMinister
         fill '//input[@id="user_adress1"]', with:user.address.address_1
         fill '//input[@id="user_cp"]', with:user.address.zip
         fill '//input[@id="user_city"]', with:user.address.city
-        fill '//input[@id="user_fixe"]', with:user.address.land_phone
+        fill '//input[@id="user_fixe"]', with:(user.address.land_phone || user.address.mobile_phone)
       end
       
       step('finalize order') do
