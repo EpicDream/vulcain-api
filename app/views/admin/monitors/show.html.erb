@@ -1,6 +1,6 @@
 <% @pool.each do |vulcain| %>
 	<% running = !vulcain.idle && !vulcain.blocked %>
-	<tr class="<%= "success" if running %> <%= "error" if vulcain.blocked %>">
+	<tr class="<%= "running" if running %> <%= "blocked" if vulcain.blocked %>">
 		<td><%= vulcain.host %></td>
 		<td><%= vulcain.id .split("|")[1]%></td>
 		<td><%= vulcain.uuid %></td>
