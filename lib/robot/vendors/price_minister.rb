@@ -3,11 +3,8 @@ class PriceMinister
   PRICES_IN_TEXT = lambda do |text| 
     text.scan(/[\d,]+\s*€/).flatten.map { |price| price.gsub(',', '.').to_f }
   end
-  
   URL = 'http://www.priceminister.com'
-  
   LOGIN_URL = 'https://www.priceminister.com/connect'
-  ADD_TO_CART = '//*[@id="advert_585244223"]/ul/li[5]/form/div/input'
   
   
   attr_accessor :context, :robot
@@ -30,7 +27,7 @@ class PriceMinister
       
       step('renew login') do
         run_step('logout')
-        open_url order.products_urls[0] #affiliation cookie
+        open_url order.products_urls[0] #for cookie affiliation
         run_step('login')
       end
       
