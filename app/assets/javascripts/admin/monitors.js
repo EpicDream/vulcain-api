@@ -50,7 +50,7 @@ var Refresh = {
 			status.text(dispatcher.touchtime);
 			
 			if (dispatcher.down) {
-				document.getElementById("sound-alarm").play();
+				//document.getElementById("sound-alarm").play();
 				status.toggleClass("down", true)
 			}
 			else{

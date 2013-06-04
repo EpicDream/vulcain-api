@@ -17,3 +17,10 @@
 #dispatcher-state span.down{
 	background:#BD0D09;
 }
+
+tr.running {
+	background: #839962 !important;
+}
+tr.blocked {
+	background: #C24247;
+}
