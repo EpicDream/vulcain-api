@@ -219,6 +219,9 @@ class RueDuCommerce
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
+        screenshot
+        page_source
+        
         wait_for([THANK_YOU_HEADER])
         thanks = get_text THANK_YOU_HEADER
         if thanks =~ /Merci\s+pour\s+votre\s+commande/

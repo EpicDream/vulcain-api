@@ -278,10 +278,10 @@ class AmazonFrance
       end
       
       step('validate order') do
-        screenshot
         page_source
         click_on VALIDATE_ORDER_SUBMIT
         wait_for([THANK_YOU_HEADER])
+        screenshot
         if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
           self.billing.merge!({:shipping_info => get_text(SHIPPING_DATE_PROMISE)})
           run_step('remove credit card')

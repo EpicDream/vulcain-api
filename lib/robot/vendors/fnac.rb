@@ -269,6 +269,9 @@ class Fnac
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
+        screenshot
+        page_source
+        
         page = wait_for([THANK_YOU_HEADER]) do
           accept_alert
           terminate_on_error(:order_validation_failed)
