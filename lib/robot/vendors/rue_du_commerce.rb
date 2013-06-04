@@ -107,8 +107,8 @@ class RueDuCommerce
       step('create account') do
         open_url CREATE_ACCOUNT_URL
         click_on_radio user.gender, {0 => CIVILITY_M, 1 =>  CIVILITY_MME, 2 =>  CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.first_name
-        fill REGISTER_LAST_NAME, with:user.last_name
+        fill REGISTER_FIRST_NAME, with:user.address.first_name
+        fill REGISTER_LAST_NAME, with:user.address.last_name
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_PASSWORD, with:account.password
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password

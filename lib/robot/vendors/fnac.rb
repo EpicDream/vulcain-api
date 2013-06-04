@@ -102,9 +102,9 @@ class Fnac
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
         click_on REGISTER_SUBMIT
         click_on_radio user.gender, {0 => REGISTER_CIVILITY_M, 1 =>  REGISTER_CIVILITY_MME, 2 =>  REGISTER_CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.first_name
-        fill REGISTER_LAST_NAME, with:user.last_name
-        fill REGISTER_FIRST_NAME, with:user.first_name
+        fill REGISTER_FIRST_NAME, with:user.address.first_name
+        fill REGISTER_LAST_NAME, with:user.address.last_name
+        fill REGISTER_FIRST_NAME, with:user.address.first_name
         select_option REGISTER_BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
@@ -211,8 +211,8 @@ class Fnac
         unless exists? SELECT_THIS_ADDRESS
           click_on ADD_ADDRESS
           wait_for([SHIPMENT_FORM_FIRST_NAME])
-          fill SHIPMENT_FORM_FIRST_NAME, with:"#{user.first_name}"
-          fill SHIPMENT_FORM_LAST_NAME, with:"#{user.last_name}"
+          fill SHIPMENT_FORM_FIRST_NAME, with:"#{user.address.first_name}"
+          fill SHIPMENT_FORM_LAST_NAME, with:"#{user.address.last_name}"
           fill SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1
           fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
           fill SHIPMENT_FORM_CITY, with:user.address.city

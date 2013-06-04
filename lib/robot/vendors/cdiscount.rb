@@ -98,8 +98,8 @@ class Cdiscount
       step('create account') do
         open_url CREATE_ACCOUNT_URL
         click_on_radio user.gender, {0 => REGISTER_CIVILITY_M, 1 =>  REGISTER_CIVILITY_MME, 2 =>  REGISTER_CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.first_name
-        fill REGISTER_LAST_NAME, with:user.last_name
+        fill REGISTER_FIRST_NAME, with:user.address.first_name
+        fill REGISTER_LAST_NAME, with:user.address.last_name
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_EMAIL_CONFIRMATION, with:account.login
         fill REGISTER_PASSWORD, with:account.password
