@@ -86,13 +86,13 @@ class Robot
   end
   
   def terminate_on_cancel
-    messager.dispatcher.message(:failure, {message: :order_canceled})
+    messager.dispatcher.message(:failure, {status: :order_canceled})
     messager.admin.message(:failure)
     @driver.quit
   end
   
   def terminate_on_error error_type
-    messager.dispatcher.message(:failure, {message:error_type})
+    messager.dispatcher.message(:failure, {status:error_type})
     messager.admin.message(:failure)
     messager.logging.message(:failure, {error_message:error_type})
     screenshot
