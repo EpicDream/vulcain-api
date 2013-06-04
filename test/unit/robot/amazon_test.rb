@@ -57,7 +57,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('create account')
   end
   
-  test "account creation with failure" do
+  test "account creation with failure with bad email/password" do
     @context['account']['login'] = "bademail"
     @context['account']['password'] = ""
     robot.context = @context
@@ -67,6 +67,17 @@ class AmazonTest < ActiveSupport::TestCase
     
     robot.run_step('create account')
   end
+  
+  test "account creation with existing email" do
+    @message.expects(:message).times(1)
+    @context['account']['password'] = "toto"
+    robot.context = @context
+    
+    robot.expects(:terminate_on_error).with(:account_creation_failed)
+    
+    robot.run_step('create account')
+  end
+  
   
   test "login" do
     @message.expects(:message).times(2)

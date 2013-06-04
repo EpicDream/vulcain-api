@@ -28,7 +28,7 @@ class AmazonFrance
   REGISTER_PASSWORD = '//*[@id="ap_password"]'
   REGISTER_PASSWORD_CONFIRMATION = '//*[@id="ap_password_check"]'
   REGISTER_SUBMIT = '//*[@id="continue-input"]'
-  REGISTER_FAILURE = '//*[@id="mobile-message-box-slot"]/div[@class="message error"]'
+  REGISTER_FAILURE = '//div[@class="message error"] | //div[@class="message warning"]'
   ADD_TO_CART = '//*[@id="add-to-cart-button"]/span'
   PRICE_TEXT = '//*[@id="price"]'
   PRODUCT_TITLE = '//*[@id="udp"]/div[1]/h1'
