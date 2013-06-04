@@ -5,8 +5,11 @@ class Admin::MonitorsController < ApplicationController
   end
   
   def show
-    if params[:id] == 1.to_s
+    case params[:id]
+    when "1"
       render :json => VulcainsMonitor.idles.to_json
+    when "2"
+      render :json => VulcainsMonitor.dispatcher.to_json
     else
       @pool = VulcainsMonitor.pool
       render 'show'

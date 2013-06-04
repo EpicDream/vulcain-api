@@ -44,6 +44,21 @@ var Refresh = {
 		$.get("/admin/monitors/1", function(samples) {
 			Graph.refresh(samples);
 		});
+		
+		$.get("/admin/monitors/2", function(dispatcher) {
+			var status = $("#dispatcher-state span")
+			status.text(dispatcher.touchtime);
+			
+			if (dispatcher.down) {
+				document.getElementById("sound-alarm").play();
+				status.toggleClass("down", true)
+			}
+			else{
+				status.toggleClass("down", false)
+				document.getElementById("sound-alarm").pause();
+			}
+		});
+		
 	},
 	
 	fun: function() {
