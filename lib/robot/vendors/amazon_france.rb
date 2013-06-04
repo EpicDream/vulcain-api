@@ -106,7 +106,7 @@ class AmazonFrance
         wait_ajax
         open_url(MY_ACCOUNT_HREF)
         click_on REGISTER_LINK
-        fill REGISTER_NAME, with:"#{user.first_name} #{user.last_name}"
+        fill REGISTER_NAME, with:"#{user.address.first_name} #{user.address.last_name}"
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_PASSWORD, with:account.password
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
@@ -202,7 +202,7 @@ class AmazonFrance
       end
       
       step('fill shipping form') do
-        fill SHIPMENT_FORM_NAME, with:"#{user.first_name} #{user.last_name}"
+        fill SHIPMENT_FORM_NAME, with:"#{user.address.first_name} #{user.address.last_name}"
         fill SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1
         fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
         fill SHIPMENT_FORM_ADDITIONAL, with:user.address.additionnal_address
