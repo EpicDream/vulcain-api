@@ -68,6 +68,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end  
   
   test "with REAL PAYMENT MODE" do
+    skip
     @message.expects(:message).times(22)
     
     @context = {'account' => {'login' => 'elarch.gmail.com@shopelia.fr', 'password' => '625f508b'},

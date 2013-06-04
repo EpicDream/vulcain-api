@@ -113,7 +113,6 @@ module Dispatcher
         Log.create({:pool_before_ping => @pool.map(&:id)})
         @pool.each {|vulcain| @pool.delete(vulcain) unless vulcain.ack_ping}
         Log.create({:pool_after_ping => @pool.map(&:id)})
-        @pool.each {|vulcain| reload(vulcain) }
         Log.output(:running, pool_size:@pool.size)
       end
       @pool
