@@ -1,8 +1,8 @@
 # encoding: utf-8
 module Dispatcher
   class Supervisor
-    DUMP_VULCAIN_STATES_FILE_PATH = "#{Rails.root}/tmp/vulcains_states.json"
     DUMP_IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
+    DISPATCHER_TOUCH_FILE_PATH = "/var/run/vulcain-dispatcher/vulcain-dispatcher"
     
     def initialize connection, exchange, queues, pool
       @pool = pool
@@ -88,6 +88,10 @@ module Dispatcher
       EventMachine.add_timer(1){ @connection.close { EventMachine.stop { exit }} }
     end
     
+    def touch_dispatcher_running
+      Proc.new { FileUtils.touch(DISPATCHER_TOUCH_FILE_PATH) }
+    end
+    
     private
     
     def instanciate_periodic_timers
@@ -96,6 +100,7 @@ module Dispatcher
       EM.add_periodic_timer(CONFIG[:mount_new_vulcains_interval], check_mount_new_vulcains)
       EM.add_periodic_timer(CONFIG[:ping_vulcain_interval], ping_vulcains)
       EM.add_periodic_timer(CONFIG[:idle_vulcains_sample_interval], check_unmount_vulcains)
+      EM.add_periodic_timer(CONFIG[:dispatcher_touch_running_interval], touch_dispatcher_running)
     end
     
     def unbind_queues

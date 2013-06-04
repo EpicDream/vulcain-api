@@ -69,6 +69,7 @@ module VulcainApi
     config.dispatcher = {
       strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceMinister"],
       running_timeout: 180.seconds,
+      dispatcher_touch_running_interval: 30.seconds,
       check_timeouts_interval: 10.seconds,
       monitoring_interval: 3.seconds,
       mount_new_vulcains_interval: 60.seconds,

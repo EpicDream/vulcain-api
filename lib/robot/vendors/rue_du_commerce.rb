@@ -107,8 +107,8 @@ class RueDuCommerce
       step('create account') do
         open_url CREATE_ACCOUNT_URL
         click_on_radio user.gender, {0 => CIVILITY_M, 1 =>  CIVILITY_MME, 2 =>  CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.first_name
-        fill REGISTER_LAST_NAME, with:user.last_name
+        fill REGISTER_FIRST_NAME, with:user.address.first_name
+        fill REGISTER_LAST_NAME, with:user.address.last_name
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_PASSWORD, with:account.password
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
@@ -218,6 +218,9 @@ class RueDuCommerce
         select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s[2..3]
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
+        
+        screenshot
+        page_source
         
         wait_for([THANK_YOU_HEADER])
         thanks = get_text THANK_YOU_HEADER

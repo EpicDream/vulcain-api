@@ -80,8 +80,6 @@ class Robot
   def terminate content=nil
     messager.dispatcher.message(:terminate, content)
     messager.admin.message(:terminated)
-    screenshot
-    page_source
     @driver.quit
   end
   
