@@ -72,14 +72,14 @@ module VulcainApi
       dispatcher_touch_running_interval: 30.seconds,
       check_timeouts_interval: 10.seconds,
       monitoring_interval: 3.seconds,
-      mount_new_vulcains_interval: 20.seconds,
+      mount_new_vulcains_interval: 30.seconds,
       min_idle_vulcains: 5,
-      max_new_vulcains_at_start: 3.seconds,
+      max_new_vulcains_at_start: 3,
       ping_vulcain_interval: 30.seconds,
       idle_vulcains_sample_interval: 10.seconds,
       unmount_interval: 1.hours,
       unmount_use_limit: 50, # %
-      unmount_keep:  1
+      unmount_keep: 1
     }
 
   end

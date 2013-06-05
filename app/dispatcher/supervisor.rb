@@ -16,7 +16,7 @@ module Dispatcher
     
     def check_mount_new_vulcains
       Proc.new do
-        if @pool.idle_vulcains.count <= CONFIG[:min_idle_vulcains]
+        if @pool.idle_vulcains.count < CONFIG[:min_idle_vulcains]
           CONFIG[:min_idle_vulcains].times { Vulcain.mount_new_instance }
         end
       end
@@ -140,7 +140,7 @@ module Dispatcher
     
     def unmount_vulcains
       count = @pool.idle_vulcains.count
-      (count - CONFIG[:unmount_keep]).times do
+      (count - CONFIG[:min_idle_vulcains] - CONFIG[:unmount_keep]).times do
         session = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
         next unless vulcain = @pool.pull(session)
         Vulcain.unmout_instance(vulcain.pid)
