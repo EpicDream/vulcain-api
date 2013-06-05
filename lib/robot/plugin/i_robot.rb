@@ -4,6 +4,17 @@ require "robot/robot"
 require "robot/plugin/selenium_extensions"
 require "robot/core_extensions"
 
+if Object.const_defined?(:Plugin)
+  Object.send(:remove_const, :Plugin)
+end
+
+module Plugin
+end
+
+if Plugin.const_defined?(:IRobot)
+  Plugin.send(:remove_const, :IRobot)
+end
+
 class Plugin::IRobot < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
@@ -54,6 +65,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
     # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
     # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
@@ -79,8 +91,8 @@ class Plugin::IRobot < Robot
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
     {id: 'birthdate_month', desc:"Mois de naissance", value:"user.birthdate.month"},
     {id: 'birthdate_year', desc:"Année de naissance", value:"user.birthdate.year"},
-    {id: 'mobile_phone', desc:"Téléphone portable", value:"user.mobile_phone"},
-    {id: 'land_phone', desc:"Téléphone fixe", value:"user.land_phone"},
+    {id: 'mobile_phone', desc:"Téléphone portable", value:"user.address.mobile_phone"},
+    {id: 'land_phone', desc:"Téléphone fixe", value:"user.address.land_phone"},
     {id: 'gender', desc:"Genre", value:"{0=>/^(mr?\.?|monsieur|mister|homme)$/i,1=>/^(mme|madame|femme)$/i,2=>'Mlle'}[user.gender]"},
     {id: 'address_1', desc:"Adresse 1", value:"user.address.address_1"},
     {id: 'address_2', desc:"Adresse 2", value:"user.address.address_2"},
@@ -105,15 +117,23 @@ class Plugin::IRobot < Robot
 
     self.instance_eval do
       step('run') do
-        pl_open_url! @shop_base_url
-        if account.new_account
-          run_step('account_creation')
-          message :expect, :next_step => 'create account'
-          run_step('unlog')
-          pl_open_url @shop_base_url
+        begin
+          pl_open_url! @shop_base_url
+          if account.new_account
+            begin
+              run_step('account_creation')
+            rescue NoSuchElementError
+              terminate_on_error :account_creation_failed
+            end
+            message :expect, :next_step => 'create account'
+            run_step('unlog')
+            pl_open_url @shop_base_url
+          end
+          run_step('login')
+          message :logged, :next_step => 'run_empty_cart'
+        rescue NoSuchElementError
+          terminate_on_error :login_failed
         end
-        run_step('login')
-        message :logged, :next_step => 'run_empty_cart'
       end
 
       step('run_empty_cart') do
@@ -139,7 +159,11 @@ class Plugin::IRobot < Robot
 
       step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment')
+          begin
+            run_step('payment')
+          rescue NoSuchElementError
+            terminate_on_error :order_validation_failed
+          end
           message :validate_order
           terminate
         else
@@ -273,10 +297,11 @@ class Plugin::IRobot < Robot
   def pl_click_on_while!(xpath)
     i = 0
     while i < 100
+      sleep(1)
       lnks = links(xpath).select { |l| l.displayed? }
       if lnks.empty?
         sleep(1)
-        lnks = links(xpath)
+        lnks = links(xpath).select { |l| l.displayed? }
         break if lnks.empty?
       end
       lnks.last.click
@@ -419,9 +444,12 @@ class Plugin::IRobot < Robot
   end
 
   # private
-    # Return element matching xpath
-    def find(xpath)
-      return @pl_driver.find_elements(xpath: xpath)
+    # Return element matching xpath if arg is a string.
+    # Else arg is a Hash with :css or :xpath as key
+    def find(arg)
+      sleep(0.5)
+      return @pl_driver.find_elements(xpath: arg) if arg.kind_of?(String)
+      return @pl_driver.find_elements(arg)
     end
 
     # Return only inputs, selects and textareas.
@@ -529,7 +557,7 @@ class Plugin::IRobot < Robot
       elems = find(xpath)
       elems = elems.select { |e| e.link? }
       if elems.empty?
-        elems = find("#{xpath}//a | #{xpath}//button | #{xpath}//input[@type='submit']")
+        elems = find(xpath).flat_map { |elem| elem.find_elements(xpath: ".//a | .//button | .//input[@type='submit']") }
       end
       if elems.empty?
         e = find(xpath).first
@@ -566,8 +594,8 @@ class Plugin::IRobot < Robot
 
     def images xpath
       elems = find(xpath)
-      elems.select { |e| e.tag_name != "img" }.each { |c| elems += c.find_elements("#{xpath}//img") }
-      return elems
+      elems.select { |e| e.tag_name != "img" }.each { |c| elems += c.find_elements(".//img") }
+      return elems.select { |e| e.tag_name == "img" }
     end
 
     def image_url xpath
@@ -595,49 +623,3 @@ class Plugin::IRobot < Robot
       self
     end
 end
-
-__END__
-
-# Brouillon / Roadmap / Todo / Etc
-14:53
-
-Ajouter bouton continuer partout
-Confirmer email, mot de passe, etc
-Popup pour indiquer le nombre d'éléments matché
-Gérer le bouton retour du navigateur (fait de la merde)
-
-Intégrer 
-contains(concat(' ', @class, ' '), ' Test ')
-[contains(concat(' ', @class, ' '), ' ui-page-active ')]
-
-//*[@id="page_92c356dfa2d0418cad62c40bda03e305"]/div/section/header/div/a
-
-
-elenium::WebDriver::Error::StaleElementReferenceError: stale element reference: element is not attached to the page document
-  (Session info: chrome=27.0.1453.93)
-  (Driver info: chromedriver=0.9,platform=Linux 3.5.0-17-generic x86_64)
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/response.rb:51:in `assert_ok'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/response.rb:15:in `initialize'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:59:in `new'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:59:in `create_response'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/default.rb:66:in `request'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/http/common.rb:40:in `call'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:629:in `raw_execute'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:607:in `execute'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/remote/bridge.rb:518:in `getElementText'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/selenium-webdriver-2.33.0/lib/selenium/webdriver/common/element.rb:108:in `text'
-  from lib/robot/plugin/i_robot.rb:564:in `get_text'
-  from lib/robot/plugin/i_robot.rb:396:in `pl_set_product_price!'
-  from lib/robot/vendors/priceminister_mobile.rb:150:in `block (2 levels) in instanciate_robot'
-  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `call'
-  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `run_step'
-  from lib/robot/plugin/i_robot.rb:128:in `block (3 levels) in initialize'
-  from lib/robot/plugin/i_robot.rb:124:in `each'
-  from lib/robot/plugin/i_robot.rb:124:in `block (2 levels) in initialize'
-  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `call'
-  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:43:in `run_step'
-  from /home/barbu/Travail/vulcain-api/lib/robot/robot.rb:34:in `next_step'
-  from (irb):181
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands/console.rb:47:in `start'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands/console.rb:8:in `start'
-  from /home/barbu/.rvm/gems/ruby-1.9.3-p429/gems/railties-3.2.13/lib/rails/commands.rb:41:in `<top (required)>'

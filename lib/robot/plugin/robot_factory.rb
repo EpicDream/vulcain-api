@@ -3,7 +3,7 @@
 require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
-  CONTEXT = { options: {profile_dir: "config/chromium/Default"},
+  CONTEXT = { options: {},
               'account' => {'email' => 'timmy81@yopmail.com', 'login' => "timmy811", 'password' => 'paterson', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
               'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/137889934/breaking-bad-saison-3-de-bryan-cranston.html",
@@ -15,8 +15,6 @@ class Plugin::RobotFactory
                             'exp_year' => 2014,
                             'cvv' => 123}},
               'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                         'mobile_phone' => '0634562345',
-                         'land_phone' => '0134562345',
                          'first_name' => 'Timmy',
                          'gender' => 0,
                          'last_name' => 'Dupont',
@@ -25,6 +23,8 @@ class Plugin::RobotFactory
                                         'additionnal_address' => '',
                                         'zip' => '35111',
                                         'city' => 'Lillemer',
+                                        'mobile_phone' => '0634562345',
+                                        'land_phone' => '0134562345',
                                         'country' => 'France'}
             }
   }
@@ -43,13 +43,18 @@ class Plugin::RobotFactory
     vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
     File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |f|
       f.puts <<-INIT
-# encoding: utf-8"
+# encoding: utf-8
 
-class Plugin::#{vendor.camelize}
+if Object.const_defined?(:#{vendor_camel})
+  Object.send(:remove_const, :#{vendor_camel})
+end
+
+class #{vendor.camelize}
   attr_accessor :context, :robot
 
   def initialize context
     @context = context
+    @context[:options] ||= {}
     @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if #{host =~ /_mobile/}
     @robot = instanciate_robot
   end
@@ -86,7 +91,7 @@ class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
   end
 
   def test(create_account=false)
-    strategy = lugin::RobotFactory.getStrategyHash(#{host})
+    strategy = Plugin::RobotFactory.getStrategyHash(#{host})
     Plugin::RobotFactory.test_strategy(strategy)
   end
 end
@@ -117,5 +122,14 @@ INIT
   ensure
     CONTEXT['account'][:new_account] = false
     CONTEXT[:options][:user_agent] = nil
+  end
+
+  def self.merge_files(host, strategy, others)
+    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
+    File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |file|
+      file.puts others.map { |other| File.read(other).gsub(/require\s+['"][\w_\/]+['"]/, '') }.join("\n")
+      file.puts strategy
+      file.puts
+    end
   end
 end
