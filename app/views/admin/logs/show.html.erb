@@ -28,15 +28,11 @@
 				<td>
 					<% if log.verb == 'screenshot'%>
 						<img src="data:image/jpeg;base64,<%=log.content%>" class='screenshot'></img>
-          <% elsif log.verb == 'stack_trace' %>
-            <% log.content.split("\n").each do |l| %>
-              <%= l %><br>
-            <% end %>
 					<% else %>
 						<% if log.content.is_a?(Hash) %>
-							<pre><%= JSON.pretty_generate(log.content).strip%></pre>
+							<pre><%= JSON.pretty_generate(log.content).strip %></pre>
 						<% else%>
-							<%= "#{log.content}" %>
+							<pre><%= "#{log.content}" %></pre>
 						<% end %>
 					<% end %>
 				</td>
