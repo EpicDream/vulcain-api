@@ -67,7 +67,7 @@ module VulcainApi
     }
     
     config.dispatcher = {
-      strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceMinister"],
+      strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceMinister", "PriceministerMobile"],
       running_timeout: 180.seconds,
       dispatcher_touch_running_interval: 30.seconds,
       check_timeouts_interval: 10.seconds,
