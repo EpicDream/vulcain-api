@@ -15,11 +15,9 @@ module Dispatcher
     end
     
     def check_mount_new_vulcains
-      Proc.new do |n=1|
+      Proc.new do
         if @pool.idle_vulcains.count <= CONFIG[:min_idle_vulcains]
-          n.times do
-            #mount new vulcain instance
-          end
+          CONFIG[:min_idle_vulcains].times { Vulcain.mount_new_instance }
         end
       end
     end
@@ -28,6 +26,7 @@ module Dispatcher
       Proc.new do
         if @pool.pool.size > 0
           push_idle_sample and dump_idle_sample
+          unmount_vulcains
           if @idle_samples.count > (CONFIG[:unmount_interval] / CONFIG[:idle_vulcains_sample_interval])
             averages = @idle_samples.map { |sample| sample[:idle].to_f / sample[:total] }
             average = averages.sum / averages.count
@@ -140,11 +139,11 @@ module Dispatcher
     end
     
     def unmount_vulcains
-      count = @pool.idle_vulcains
+      count = @pool.idle_vulcains.count
       (count - CONFIG[:unmount_keep]).times do
         session = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
         next unless vulcain = @pool.pull(session)
-        #unmount vulcain
+        Vulcain.unmout_instance(vulcain.pid)
       end
     end
     

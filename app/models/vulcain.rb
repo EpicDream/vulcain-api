@@ -36,4 +36,18 @@ class Vulcain
     @stale = staled
   end
   
+  def pid
+    @id.split('|')[1]
+  end
+  
+  def self.mount_new_instance
+    status = system("daemon #{Rails.root}/../vulcain/bin/run.sh &")
+    Log.output(:new_vulcain_mounted)
+  end
+  
+  def self.unmout_instance pid
+    status = system("kill -s TERM #{pid}")
+    Log.output("Unmount vulcain with pid : #{pid}. Succeed : #{status}")
+  end
+  
 end

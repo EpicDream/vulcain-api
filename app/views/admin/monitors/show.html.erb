@@ -2,7 +2,7 @@
 	<% running = !vulcain.idle && !vulcain.blocked %>
 	<tr class="<%= "running" if running %> <%= "blocked" if vulcain.blocked %>">
 		<td><%= vulcain.host %></td>
-		<td><%= vulcain.id .split("|")[1]%></td>
+		<td><%= vulcain.pid %></td>
 		<td><%= vulcain.uuid %></td>
 		<td><%= vulcain.idle %></td>
 		<td><%= vulcain.ack_ping %></td>
