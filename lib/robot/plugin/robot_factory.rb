@@ -10,7 +10,7 @@ class Plugin::RobotFactory
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
-                            'number' => '101290129019201',
+                            'number' => '401290129019201',
                             'exp_month' => 1,
                             'exp_year' => 2014,
                             'cvv' => 123}},
@@ -20,11 +20,11 @@ class Plugin::RobotFactory
                          'first_name' => 'Timmy',
                          'gender' => 0,
                          'last_name' => 'Dupont',
-                         'address' => { 'address_1' => '12 rue des lilas',
+                         'address' => { 'address_1' => '1 rue des lilas',
                                         'address_2' => '',
                                         'additionnal_address' => '',
-                                        'zip' => '75019',
-                                        'city' => 'Paris',
+                                        'zip' => '35111',
+                                        'city' => 'Lillemer',
                                         'country' => 'France'}
             }
   }
