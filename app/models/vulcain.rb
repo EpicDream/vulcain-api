@@ -41,9 +41,9 @@ class Vulcain
   end
   
   def self.mount_new_instance
-    # nohup = Rails.env.production? ? "daemon" : "nohup"
-    # mounted = system("#{nohup} #{Rails.root}/../vulcain/bin/run.sh &", :out => "/dev/null")
-    # Log.output(:new_vulcain_mounted) if mounted
+    nohup = Rails.env.production? ? "daemon" : "nohup"
+    mounted = system("#{nohup} #{Rails.root}/../vulcain/bin/run.sh &", :out => "/dev/null")
+    Log.output(:new_vulcain_mounted) if mounted
   end
   
   def self.unmout_instance pid
