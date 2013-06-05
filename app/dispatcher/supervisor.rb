@@ -24,15 +24,16 @@ module Dispatcher
     
     def check_unmount_vulcains
       Proc.new do
-        if @pool.pool.size > 0
-          push_idle_sample and dump_idle_sample
-          unmount_vulcains
-          if @idle_samples.count > (CONFIG[:unmount_interval] / CONFIG[:idle_vulcains_sample_interval])
-            averages = @idle_samples.map { |sample| sample[:idle].to_f / sample[:total] }
-            average = averages.sum / averages.count
-            @idle_samples = []
-            unmount_vulcains if average > CONFIG[:unmount_use_limit]
-          end
+        push_idle_sample and dump_idle_sample
+        unmount_vulcains
+        if @idle_samples.count > (CONFIG[:unmount_interval] / CONFIG[:idle_vulcains_sample_interval])
+          averages = @idle_samples.map do |sample| 
+            next if sample[:total].zero?
+            sample[:idle].to_f / sample[:total]
+          end.compact
+          average = averages.sum / averages.count
+          @idle_samples = []
+          unmount_vulcains if average > CONFIG[:unmount_use_limit]
         end
       end
     end
