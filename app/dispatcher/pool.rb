@@ -111,13 +111,14 @@ module Dispatcher
       
       ping_vulcains do 
         Log.create({ :pool_before_ping => @pool.map(&:id) })
-        @pool.each do |vulcain| 
-          @pool.delete(vulcain) and next unless vulcain.ack_ping
+        @pool.delete_if { |vulcain| !vulcain.ack_ping }
+        @pool.each do |vulcain|
           vulcain.idle = vulcain.run_since.nil? && !vulcain.blocked
         end
-        Log.create({ :pool_after_ping => @pool.map(&:id) })
+        Log.create({ pool_after_ping: @pool.map(&:id) })
         Log.output(:running, pool_size:@pool.size)
       end
+      
       @pool
     end
 

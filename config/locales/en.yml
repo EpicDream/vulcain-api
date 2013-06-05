@@ -11,3 +11,5 @@ en:
   restoring_pool: "Searching for my boys, wait ..."
   reload_vulcain: "Reload Vulcain : %{id}"
   abort: "Saving my boys before i die , life is short ...\n\n"
+  new_vulcain_mounted: "New Vulcain mounted"
+  vulcain_unmounted: "Unmount Vulcain with pid : %{pid}"

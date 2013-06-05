@@ -41,13 +41,14 @@ class Vulcain
   end
   
   def self.mount_new_instance
-    status = system("daemon #{Rails.root}/../vulcain/bin/run.sh &")
-    Log.output(:new_vulcain_mounted)
+    # nohup = Rails.env.production? ? "daemon" : "nohup"
+    # mounted = system("#{nohup} #{Rails.root}/../vulcain/bin/run.sh &", :out => "/dev/null")
+    # Log.output(:new_vulcain_mounted) if mounted
   end
   
   def self.unmout_instance pid
-    status = system("kill -s TERM #{pid}")
-    Log.output("Unmount vulcain with pid : #{pid}. Succeed : #{status}")
+    unmouted = system("kill -s TERM #{pid}")
+    Log.output(:vulcain_unmounted, pid:pid) if unmouted
   end
   
 end

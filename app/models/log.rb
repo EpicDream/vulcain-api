@@ -31,7 +31,8 @@ class Log
     id = vulcain.id if vulcain
     head = CR
     head += RUNNING_MESSAGE if console && msg == :running
-    log = I18n.t(msg, id:id, status:status, pool_size:args[:pool_size], host:Dispatcher::CONFIG['host'])
+    args.merge!({id:id, status:status, host:Dispatcher::CONFIG['host']})
+    log = I18n.t(msg, args)
     console ? head + log : log
   end
   
