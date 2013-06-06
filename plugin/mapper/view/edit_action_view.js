@@ -236,6 +236,11 @@ var EditActionView = function() {
       });
   };
 
+  // elements is an Array of elements' completeXPath.
+  function _onMatchedElements(elements) {
+    _nbElementsMatchedBtn.text(elements.length);
+  };
+
   for (var f in this) {
     if (typeof(this[f]) == "function")
       this[f] = this[f].bind(this);
