@@ -62,7 +62,12 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
 
   if (msg.action == "show") {
     e = highElements(msg.xpath, "#00dd00");
-    console.log("Elements matched :", e);
+    var xpathes = []
+    for (var i = 0 ; i < e.length ; i++)
+      xpathes.push(hu.getElementCompleteXPath(e[i][0]));
+    if (e.length > 1)
+      console.log("Elements matched :", e, ", ", xpathes);
+    chrome.extension.sendMessage({dest: 'plugin', action: 'match', elements: xpathes});
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
   } else if (msg.action == "getPageInfos") {

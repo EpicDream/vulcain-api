@@ -12,6 +12,7 @@ var EditActionView = function() {
   var _backBtn = _page.find("div[data-role='header'] a[data-rel='back']");
   var _saveBtn = _page.find("#editSaveBtn");
   var _deleteBtn = _page.find("#editDeleteBtn");
+  var _nbElementsMatchedBtn = _page.find("#nbElementsMatchedBtn").button().find("span:not(:has(*))");
   var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
   var _currentAction = null,
      _currentContext = null;
@@ -32,10 +33,13 @@ var EditActionView = function() {
     _xpathField.change(_that.generateCode);
 
     chrome.extension.onMessage.addListener(function(msg, sender) {
-      if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
+      if (msg.dest != 'plugin' || $.mobile.activePage[0] != _page[0])
         return;
 
-      _onNewMapping(msg);
+      if (msg.action == 'newMap')
+        _onNewMapping(msg);
+      else if (msg.action == 'match')
+        _onMatchedElements(msg.elements);
     }.bind(_that));
   };
 
@@ -172,6 +176,7 @@ var EditActionView = function() {
     _xpathField.prop("disabled", true).val("");
     _codeField.val("");
     _codeField.css("height", "100%").keyup();
+    _nbElementsMatchedBtn.html("&nbsp;");
   };
 
   this.generateCode = function() {
@@ -214,6 +219,11 @@ var EditActionView = function() {
     _xpathField.val(msg.xpath).change();
     _currentContext = msg.context;
     chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
+  };
+
+  // elements is an Array of elements' completeXPath.
+  function _onMatchedElements(elements) {
+    _nbElementsMatchedBtn.text(elements.length);
   };
 
   for (var f in this) {
