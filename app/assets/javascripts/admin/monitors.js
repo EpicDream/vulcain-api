@@ -74,7 +74,20 @@ var Refresh = {
 	
 }
 
+var Vulcains = {
+	init: function() {
+		$("body").on("click", "input[name^=vulcain]", function() {
+			var vulcainId = this.name.replace("vulcain-","");
+			if (confirm("Libérer ce Vulcain ?")) {
+				$.post("/admin/monitors", { vulcain_id:vulcainId })
+			};
+		})
+	},
+	
+}
+
 $(document).ready(function() {
 	Refresh.run();
 	Graph.init();
+	Vulcains.init();
 });

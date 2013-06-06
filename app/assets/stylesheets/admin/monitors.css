@@ -24,3 +24,6 @@ tr.running {
 tr.blocked {
 	background: #C24247;
 }
+input[name^=vulcain]{
+	float:right;
+}
