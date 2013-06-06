@@ -4,14 +4,7 @@ require "robot/robot"
 require "robot/plugin/selenium_extensions"
 require "robot/core_extensions"
 
-if Object.const_defined?(:Plugin)
-  Object.send(:remove_const, :Plugin)
-end
-
-module Plugin
-end
-
-if Plugin.const_defined?(:IRobot)
+if Object.const_defined?(:Plugin) && Plugin.const_defined?(:IRobot)
   Plugin.send(:remove_const, :IRobot)
 end
 

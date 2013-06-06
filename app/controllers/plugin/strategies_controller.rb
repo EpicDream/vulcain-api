@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require "ostruct"
+require "robot/plugin/i_robot"
 
 class Plugin::StrategiesController < ApplicationController
   MAX_BACKUP = 5
