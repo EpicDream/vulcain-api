@@ -84,6 +84,8 @@ INIT
       f.puts <<-INIT
 # encoding: utf-8
 
+require "robot/vendors/#{vendor}.rb"
+
 class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
   setup do
     @message = stub(message: true)
