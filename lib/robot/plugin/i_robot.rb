@@ -93,7 +93,7 @@ class Plugin::IRobot < Robot
     {id: 'zip', desc:"Code Postal", value:"user.address.zip"},
     {id: 'city', desc:"Ville", value:"user.address.city"},
     {id: 'country', desc:"Pays", value:"user.address.country"},
-    {id: 'card_type', desc:"Type de carte", value:"/visa/i"},
+    {id: 'card_type', desc:"Type de carte", value:"(order.credentials.number[0] == '4' ? 'VISA' : 'MASTERCARD')"},
     {id: 'holder', desc:"Nom du porteur", value:"order.credentials.holder"},
     {id: 'card_number', desc:"Numéro de la carte", value:"order.credentials.number"},
     {id: 'exp_month', desc:"Mois d'expiration", value:"order.credentials.exp_month"},
@@ -147,6 +147,15 @@ class Plugin::IRobot < Robot
 
       step('run_finalize') do
         run_step('finalize_order')
+
+        # Billing
+        if @billing.nil?
+          products_price = products.map { |p| p['price_product'] }.sum
+          shippings_price = products.map { |p| p['price_delivery'] }.sum
+          total_price = products_price + shippings_price
+          @billing = { product:products_price, shipping:shippings_price, total:total_price }
+        end
+
         pl_assess next_step:'run_waitAck'
       end
 
