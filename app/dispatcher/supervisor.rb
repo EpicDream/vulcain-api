@@ -3,6 +3,7 @@ module Dispatcher
   class Supervisor
     DUMP_IDLE_SAMPLES_FILE_PATH = "#{Rails.root}/tmp/idle_samples.yml"
     DISPATCHER_TOUCH_FILE_PATH = "/var/run/vulcain-dispatcher/vulcain-dispatcher"
+    UNMOUNT_SESSION = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
     
     def initialize connection, exchange, queues, pool
       @pool = pool
@@ -14,40 +15,46 @@ module Dispatcher
       instanciate_periodic_timers
     end
     
-    def check_mount_new_vulcains
-      Proc.new do
-        if @pool.idle_vulcains.count < CONFIG[:min_idle_vulcains]
-          CONFIG[:min_idle_vulcains].times { Vulcain.mount_new_instance }
-        end
-      end
+    def ensure_min_idle_vulcains
+      Proc.new {
+        delta = CONFIG[:min_idle_vulcains] - @pool.idle_vulcains.count
+        delta.times { Vulcain.mount_new_instance }
+      }
     end
     
-    def check_unmount_vulcains
-      Proc.new do
-        push_idle_sample and dump_idle_sample
-        unmount_vulcains
-        if @idle_samples.count > (CONFIG[:unmount_interval] / CONFIG[:idle_vulcains_sample_interval])
-          averages = @idle_samples.map do |sample| 
-            next if sample[:total].zero?
-            sample[:idle].to_f / sample[:total]
-          end.compact
-          average = averages.sum / averages.count
+    def dump_idles_samples
+      Proc.new {
+        idle, total = [@pool.idle_vulcains.count, @pool.pool.size]
+        ratio = total > 0 ? idle.to_f * 100 / total : 0
+        @idle_samples << { idle:idle, total:total, ratio:ratio }
+      
+        samples = YAML.load_file(DUMP_IDLE_SAMPLES_FILE_PATH)
+        samples = [] if samples.count > 360 * 24 * 5 #5 days of samples
+        samples << @idle_samples.last
+        File.open(DUMP_IDLE_SAMPLES_FILE_PATH, "w+") { |f| YAML.dump(samples, f) }
+      }
+    end
+    
+    def ensure_max_idle_vulcains
+      Proc.new {
+        min_samples = CONFIG[:ensure_max_idle_vulcains_every] / CONFIG[:dump_idles_samples_every]
+        if @idle_samples.count >= min_samples
+          average = @idle_samples.sum { |sample| sample[:ratio]  } / @idle_samples.count.to_f
           @idle_samples = []
-          unmount_vulcains if average > CONFIG[:unmount_use_limit]
+          total_to_unmount = @pool.idle_vulcains.count - CONFIG[:min_idle_vulcains]
+          unmout_vulcains(total_to_unmount) if average > CONFIG[:max_idle_average]
         end
-      end
+      }
     end
     
     def ping_vulcains
-      Proc.new do
+      Proc.new {
         @pool.ping_vulcains do
           @pool.idle_vulcains do |vulcains| 
-            vulcains.each do |vulcain|
-              vulcain.blocked = !vulcain.ack_ping
-            end
+            vulcains.each { |vulcain| vulcain.blocked = !vulcain.ack_ping }
           end
         end
-      end
+      }
     end
     
     def dump_vulcains
@@ -95,11 +102,12 @@ module Dispatcher
     private
     
     def instanciate_periodic_timers
+      EM.add_periodic_timer(CONFIG[:ensure_min_idle_vulcains_every], ensure_min_idle_vulcains)
+      EM.add_periodic_timer(CONFIG[:dump_idles_samples_every], dump_idles_samples)
+      EM.add_periodic_timer(CONFIG[:ensure_max_idle_vulcains_every], ensure_max_idle_vulcains)
       EM.add_periodic_timer(CONFIG[:check_timeouts_interval], check_timeouts)
       EM.add_periodic_timer(CONFIG[:monitoring_interval], dump_vulcains)
-      EM.add_periodic_timer(CONFIG[:mount_new_vulcains_interval], check_mount_new_vulcains)
       EM.add_periodic_timer(CONFIG[:ping_vulcain_interval], ping_vulcains)
-      EM.add_periodic_timer(CONFIG[:idle_vulcains_sample_interval], check_unmount_vulcains)
       EM.add_periodic_timer(CONFIG[:dispatcher_touch_running_interval], touch_dispatcher_running)
     end
     
@@ -128,22 +136,9 @@ module Dispatcher
       end
     end
     
-    def push_idle_sample
-      @idle_samples << {idle:@pool.idle_vulcains.count, total:@pool.pool.size}
-    end
-    
-    def dump_idle_sample
-      samples = YAML.load_file(DUMP_IDLE_SAMPLES_FILE_PATH)
-      samples = [] if samples.count > 360 * 24 * 5 #5 days of samples
-      samples << @idle_samples.last
-      File.open(DUMP_IDLE_SAMPLES_FILE_PATH, "w+") { |f| YAML.dump(samples, f) }
-    end
-    
-    def unmount_vulcains
-      count = @pool.idle_vulcains.count
-      (count - CONFIG[:min_idle_vulcains] - CONFIG[:unmount_keep]).times do
-        session = {'uuid' => 'UNMOUNT', 'callback_url' => ''}
-        next unless vulcain = @pool.pull(session)
+    def unmout_vulcains total
+      total.times do
+        next unless vulcain = @pool.pull(UNMOUNT_SESSION)
         Vulcain.unmout_instance(vulcain.pid)
       end
     end

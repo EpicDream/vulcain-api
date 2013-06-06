@@ -36,9 +36,6 @@ module Dispatcher
         channel = AMQP::Channel.new(connection)
         exchange = channel.headers("amqp.headers")
         msg = JSON.parse(message)
-        queue_name = msg['verb'].upcase
-        queue_name += '_API' unless queue_name =~ /admin/i 
-        queue = "Dispatcher::#{queue_name}_QUEUE".constantize
         
         exchange.on_return do |basic_return, metadata, payload|
           session = msg['context']['session']
@@ -46,11 +43,17 @@ module Dispatcher
         end
         
         EventMachine.add_timer(0.3) {
-          exchange.publish(message, :headers => {:queue => queue}, :mandatory => true) {
+          exchange.publish(message, :headers => {:queue => queue_for_message(msg)}, :mandatory => true) {
             connection.close { EventMachine.stop }
           }
         }
       end
+    end
+    
+    def self.queue_for_message message
+      queue_name = message['verb'].upcase
+      queue_name += '_API' unless queue_name =~ /admin/i 
+      "Dispatcher::#{queue_name}_QUEUE".constantize
     end
     
     def self.configuration
