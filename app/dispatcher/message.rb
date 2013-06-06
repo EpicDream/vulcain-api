@@ -5,7 +5,8 @@ module Dispatcher
       order_timeout:'order_timeout', 
       dispatcher_crash:'dispatcher_crash',
       no_dispatcher_running: 'no_dispatcher_running',
-      session_not_found: 'session_not_found'
+      session_not_found: 'session_not_found',
+      uuid_conflict: 'A sesssion with this uuid is alreay running'
     }
     
     MESSAGES_VERBS = { 

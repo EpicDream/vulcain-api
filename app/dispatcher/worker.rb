@@ -33,11 +33,14 @@ module Dispatcher
     
     def mount_queues_handlers
       with_queue(@queues[RUN_API_QUEUE]) do |message, session|
-        vulcain = @pool.pull(session)
-        unless vulcain
-          Message.new(:no_idle).for(session).to(:shopelia)
+        if @pool.uuid_conflict?(session)
+          Message.new(:uuid_conflict).for(session).to(:shopelia)
         else
-          Message.new.forward(message).to(vulcain)
+          unless vulcain = @pool.pull(session)
+            Message.new(:no_idle).for(session).to(:shopelia)
+          else
+            Message.new.forward(message).to(vulcain)
+          end
         end
       end
       
