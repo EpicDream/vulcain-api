@@ -1,9 +1,11 @@
 <% content_for :head do %>
 	<%= javascript_include_tag "admin/monitors" %>
 <% end %>
+
 <p id="dispatcher-state">
   <span class="running"></span>
 </p>
+
 <table class="table table-bordered ">
 	<thead>
 		<th>Host</th>
@@ -18,23 +20,14 @@
 	</thead>
 	<tbody id="vulcains-states">
 	</tbody>
-	
-	<audio id="sound-naissance">
-    <source src="/naissance.mp3" type='audio/mpeg; codecs="mp3"'>
-  </audio>
-  
-  <audio id="sound-agonie">
-    <source src="/agonie.mp3" type='audio/mpeg; codecs="mp3"'>
-  </audio>
-  
-  <audio id="sound-alarm">
-    <source src="/alarm.wav" type='audio/x-wav'>
-  </audio>
-  
-  <audio id="sound-dog">
-    <source src="/dog.mp3" type='audio/x-wav'>
-  </audio>
-	
 </table>
+
+<audio id="sound-alarm">
+  <source src="/alarm.wav" type='audio/x-wav'>
+</audio>
+
+<audio id="sound-dog">
+  <source src="/dog.mp3" type='audio/x-wav'>
+</audio>
 
 <figure id="idleGraph"></figure>

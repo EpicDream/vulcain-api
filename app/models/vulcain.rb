@@ -29,6 +29,7 @@ class Vulcain
     @callback_url = nil
     @run_since = nil
     @uuid = nil
+    @blocked = false
   end
   
   def stale=staled

@@ -32,7 +32,7 @@ class OrdersController < ApplicationController
   end
   
   def message
-    { :verb => :run, 
+    { :verb => :run_api, 
       :vendor => @vendor,
       :context => @context
     }.to_json

@@ -16,4 +16,9 @@ class Admin::MonitorsController < ApplicationController
     end
   end
   
+  def create #idle vulcains action only , for now
+    message = { verb: :admin, status: :terminated, session: { vulcain_id:params[:vulcain_id] } }.to_json
+    Dispatcher::AMQPController.request(message)
+  end
+  
 end

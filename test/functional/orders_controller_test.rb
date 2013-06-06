@@ -46,7 +46,7 @@ class OrdersControllerTest < ActionController::TestCase
   end
   
   def dispatcher_message
-    { :verb => :run, 
+    { :verb => :run_api, 
       :vendor => "RueDuCommerce",
       :context => request_body['context']
     }

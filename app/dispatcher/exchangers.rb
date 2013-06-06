@@ -36,7 +36,7 @@ module Dispatcher
         channel = AMQP::Channel.new(connection)
         exchange = channel.headers("amqp.headers")
         msg = JSON.parse(message)
-        queue = "Dispatcher::#{msg['verb'].upcase}_API_QUEUE".constantize
+        queue = "Dispatcher::#{msg['verb'].upcase}_QUEUE".constantize
         
         exchange.on_return do |basic_return, metadata, payload|
           session = msg['context']['session']
