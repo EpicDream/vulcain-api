@@ -57,7 +57,7 @@ module Dispatcher
       }
     end
     
-    def dump_vulcains
+    def dump_pool
       Proc.new { @pool.dump }
     end
     
@@ -81,7 +81,7 @@ module Dispatcher
       Proc.new do 
         @pool.pool.each do |vulcain|
           next unless @pool.can_check_timeout_of?(vulcain)
-          timeout(vulcain) if Time.now - vulcain.run_since > CONFIG[:running_timeout]        
+          timeout(vulcain) if Time.now - vulcain.run_since > CONFIG[:running_timeout_after]        
         end
       end
     end
@@ -105,10 +105,10 @@ module Dispatcher
       EM.add_periodic_timer(CONFIG[:ensure_min_idle_vulcains_every], ensure_min_idle_vulcains)
       EM.add_periodic_timer(CONFIG[:dump_idles_samples_every], dump_idles_samples)
       EM.add_periodic_timer(CONFIG[:ensure_max_idle_vulcains_every], ensure_max_idle_vulcains)
-      EM.add_periodic_timer(CONFIG[:check_timeouts_interval], check_timeouts)
-      EM.add_periodic_timer(CONFIG[:monitoring_interval], dump_vulcains)
-      EM.add_periodic_timer(CONFIG[:ping_vulcain_interval], ping_vulcains)
-      EM.add_periodic_timer(CONFIG[:dispatcher_touch_running_interval], touch_dispatcher_running)
+      EM.add_periodic_timer(CONFIG[:check_timeouts_every], check_timeouts)
+      EM.add_periodic_timer(CONFIG[:dump_pool_every], dump_pool)
+      EM.add_periodic_timer(CONFIG[:ping_vulcains_every], ping_vulcains)
+      EM.add_periodic_timer(CONFIG[:touch_dispatcher_running_every], touch_dispatcher_running)
     end
     
     def unbind_queues

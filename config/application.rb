@@ -69,17 +69,15 @@ module VulcainApi
     config.dispatcher = {
       strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceMinister", "PriceministerMobile"],
       min_idle_vulcains: 5,
+      max_idle_average: 50, # %
+      running_timeout_after: 3.minutes,      
       ensure_min_idle_vulcains_every: 30.seconds,
       dump_idles_samples_every: 10.seconds,
       ensure_max_idle_vulcains_every: 1.hour,
-      max_idle_average: 50, # %
-      
-      running_timeout: 3.minutes,
-      dispatcher_touch_running_interval: 30.seconds,
-      check_timeouts_interval: 10.seconds,
-      monitoring_interval: 3.seconds,
-      max_new_vulcains_at_start: 3,
-      ping_vulcain_interval: 30.seconds,
+      check_timeouts_every: 10.seconds,
+      ping_vulcains_every: 30.seconds,
+      dump_pool_every: 3.seconds,
+      touch_dispatcher_running_every: 30.seconds,
     }
 
   end
