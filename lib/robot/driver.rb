@@ -15,10 +15,6 @@ class Driver
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
     @driver.manage.delete_all_cookies
-  rescue => e
-    puts e.inspect
-    puts e.backtrace.join("\n")
-    raise
   end
   
   def quit

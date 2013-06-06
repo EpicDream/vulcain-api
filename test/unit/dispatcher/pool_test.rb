@@ -131,6 +131,15 @@ class PoolTest <  ActiveSupport::TestCase
     assert vulcain.stale
   end
   
+  test "uuid conflict : only one vulcain can be run with a given uuid" do
+    pool.pool = vulcains 
+    vulcain = pool.pool.first
+    vulcain.uuid = "123"
+    
+    assert pool.uuid_conflict?({'uuid' => "123", 'callback_url' => "http://www.shopelia.com/9000"})
+    assert !pool.uuid_conflict?({'uuid' => "12", 'callback_url' => "http://www.shopelia.com/9000"})
+  end
+  
   private
   
   def vulcains

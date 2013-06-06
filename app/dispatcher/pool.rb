@@ -24,6 +24,10 @@ module Dispatcher
       vulcain
     end
     
+    def uuid_conflict? session
+      @pool.detect { |vulcain| vulcain.uuid == session["uuid"] }
+    end
+    
     def idle_vulcains &block
       @mutex.synchronize {
         vulcains = @pool.select { |vulcain| vulcain.available? }
