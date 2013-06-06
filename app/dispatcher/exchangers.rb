@@ -36,7 +36,9 @@ module Dispatcher
         channel = AMQP::Channel.new(connection)
         exchange = channel.headers("amqp.headers")
         msg = JSON.parse(message)
-        queue = "Dispatcher::#{msg['verb'].upcase}_QUEUE".constantize
+        queue_name = msg['verb'].upcase
+        queue_name += '_API' unless queue_name =~ /admin/i 
+        queue = "Dispatcher::#{queue_name}_QUEUE".constantize
         
         exchange.on_return do |basic_return, metadata, payload|
           session = msg['context']['session']

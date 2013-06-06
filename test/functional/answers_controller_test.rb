@@ -31,7 +31,7 @@ class AnswersControllerTest < ActionController::TestCase
   end
   
   def dispatcher_message
-    { :verb => :answer_api, 
+    { :verb => :answer, 
       :context => request_body['context']
     }.to_json
   end

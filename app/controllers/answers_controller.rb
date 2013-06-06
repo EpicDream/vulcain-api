@@ -29,7 +29,7 @@ class AnswersController < ApplicationController
   end
   
   def message
-    { :verb => :answer_api, 
+    { :verb => :answer, 
       :context => @context
     }.to_json
   end
