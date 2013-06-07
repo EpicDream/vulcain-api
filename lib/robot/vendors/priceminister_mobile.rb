@@ -140,7 +140,7 @@ class IRobot < Robot
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
     {id: 'password', desc:"Mot de passe", value:"account.password"},
-    {id: 'email', desc:"Email", value:"account.email"},
+    {id: 'email', desc:"Email", value:"account.login"},
     {id: 'last_name', desc:"Nom", value:"user.last_name"},
     {id: 'first_name', desc:"Prénom", value:"user.first_name"},
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
@@ -162,6 +162,11 @@ class IRobot < Robot
     {id: 'exp_year', desc:"Année d'expiration", value:"order.credentials.exp_year"},
     {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
+
+  def self.randomString(n)
+    chars = ('a'..'z').to_a+('A'..'Z').to_a+('0'..'9').to_a
+    (0...n).map{ chars.sample }.join
+  end
 
   attr_accessor :pl_driver, :shop_base_url
 
@@ -226,6 +231,8 @@ class IRobot < Robot
           begin
             run_step('payment')
           rescue NoSuchElementError
+            terminate_on_error :order_validation_failed
+          rescue Errno::ECONNREFUSED
             terminate_on_error :order_validation_failed
           end
           message :validate_order
@@ -721,18 +728,18 @@ class PriceministerMobile
 				pl_click_on!(plarg_xpath)
 				# E-mail
 				plarg_xpath = '//input[@id="usr_email"]'
-				plarg_argument = account.email
+				plarg_argument = account.login
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Cliquer sur continuer
 				plarg_xpath = '//button[@id="submit_register"]'
 				pl_click_on!(plarg_xpath)
 				# Confirmer l'Email
 				plarg_xpath = '//input[@id="e_mail2"]'
-				plarg_argument = account.email
+				plarg_argument = account.login
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Pseudo
 				plarg_xpath = '//input[@id="login"]'
-				plarg_argument = account.login
+				plarg_argument = IRobot.randomString(12)
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Mot de passe
 				plarg_xpath = '//input[@id="password"]'
@@ -789,12 +796,9 @@ class PriceministerMobile
 				pl_click_on!(plarg_xpath)
 			end
 			step('login') do
-				# Aller sur le site mobile
-				plarg_xpath = '//div[@id]/div[1]/div[3]/a'
-				pl_click_on(plarg_xpath)
 				# Mon Compte
-				plarg_xpath = '//div[@id]/footer/nav[2]/ul/li[3]/div/div/a'
-				pl_click_on!(plarg_xpath)
+        plarg_url = 'https://www.priceminister.com/connect'
+        pl_open_url!(plarg_url)
 				# Login
 				plarg_xpath = '//div[@id]/div/section/form/fieldset[1]/div'
 				plarg_argument = account.login
@@ -813,7 +817,7 @@ class PriceministerMobile
 			step('unlog') do
 				# Bouton déconnexion
 				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/footer/p[1]/a'
-				pl_click_on!(plarg_xpath)
+				pl_click_on(plarg_xpath)
 			end
 			step('empty_cart') do
 				# Aller sur la page du panier
