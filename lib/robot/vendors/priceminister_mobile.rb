@@ -193,15 +193,6 @@ class IRobot < Robot
 
       step('run_empty_cart') do
         run_step('empty_cart')
-        
-        # Billing
-        if @billing.nil?
-          products_price = products.map { |p| p['price_product'] }.sum
-          shippings_price = products.map { |p| p['price_delivery'] }.sum
-          total_price = products_price + shippings_price
-          @billing = { product:products_price, shipping:shippings_price, total:total_price }
-        end
-
         message :cart_emptied, :next_step => 'run_fill_cart'
       end
 
@@ -218,6 +209,15 @@ class IRobot < Robot
 
       step('run_finalize') do
         run_step('finalize_order')
+
+        # Billing
+        if @billing.nil?
+          products_price = products.map { |p| p['price_product'] }.sum
+          shippings_price = products.map { |p| p['price_delivery'] }.sum
+          total_price = products_price + shippings_price
+          @billing = { product:products_price, shipping:shippings_price, total:total_price }
+        end
+
         pl_assess next_step:'run_waitAck'
       end
 
@@ -229,7 +229,7 @@ class IRobot < Robot
             terminate_on_error :order_validation_failed
           end
           message :validate_order
-          terminate
+          terminate({ billing: @billing})
         else
           run_step('empty_cart')
           message :cancel_order
@@ -910,6 +910,7 @@ class PriceministerMobile
 				plarg_xpath = '//div[@id]/div/button'
 				pl_click_on!(plarg_xpath)
         # Validate
+        wait_ajax(3)
         pl_check!('//div[@class="notification success"]')
 			end
 		end
