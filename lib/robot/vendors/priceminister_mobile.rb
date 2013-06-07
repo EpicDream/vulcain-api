@@ -212,8 +212,8 @@ class IRobot < Robot
 
         # Billing
         if @billing.nil?
-          products_price = products.map { |p| p['price_product'] }.sum
-          shippings_price = products.map { |p| p['price_delivery'] }.sum
+          products_price = products.map { |p| p['price_product'] }.inject(&:+)
+          shippings_price = products.map { |p| p['price_delivery'] }.inject(&:+)
           total_price = products_price + shippings_price
           @billing = { product:products_price, shipping:shippings_price, total:total_price }
         end
