@@ -214,11 +214,15 @@ class IRobot < Robot
 
       step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment')
+          begin
+            run_step('payment')
+          rescue NoSuchElementError
+            terminate_on_error :order_validation_failed
+          end
           message :validate_order
           terminate
         else
-          run_step('empty cart')
+          run_step('empty_cart')
           message :cancel_order
           terminate_on_cancel
         end
