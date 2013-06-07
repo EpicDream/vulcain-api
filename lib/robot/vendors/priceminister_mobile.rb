@@ -209,16 +209,29 @@ class IRobot < Robot
 
       step('run_finalize') do
         run_step('finalize_order')
+
+        # Billing
+        if @billing.nil?
+          products_price = products.map { |p| p['price_product'] }.inject(&:+)
+          shippings_price = products.map { |p| p['price_delivery'] }.inject(&:+)
+          total_price = products_price + shippings_price
+          @billing = { product:products_price, shipping:shippings_price, total:total_price }
+        end
+
         pl_assess next_step:'run_waitAck'
       end
 
       step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment')
+          begin
+            run_step('payment')
+          rescue NoSuchElementError
+            terminate_on_error :order_validation_failed
+          end
           message :validate_order
-          terminate
+          terminate({ billing: @billing})
         else
-          run_step('empty cart')
+          run_step('empty_cart')
           message :cancel_order
           terminate_on_cancel
         end
@@ -897,6 +910,7 @@ class PriceministerMobile
 				plarg_xpath = '//div[@id]/div/button'
 				pl_click_on!(plarg_xpath)
         # Validate
+        wait_ajax(3)
         pl_check!('//div[@class="notification success"]')
 			end
 		end
