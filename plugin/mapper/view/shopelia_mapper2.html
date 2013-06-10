@@ -124,7 +124,7 @@
 <!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  EDIT  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
   <div data-role="page" data-add-back-btn="true" id="editActionPage">
     <div data-role="header">
-      <h1>Édition de l'action - Action 1</h1>
+      <h1 style="margin-right:20%;margin-left:20%;">Édition de l'action - <span class="actionName">#</span></h1>
     </div>
     <div data-role="content">
       <ul data-role="listview" data-inset="true">
@@ -153,20 +153,74 @@
           <input type="text" id="editUrl" class="url" placeholder="Ex : http://www.shopelia.com/cart" data-clear-btn="true">
         </li>
         <li data-role="fieldcontain">
-            <label for="editXPath">Associer le xpath:</label>
-            <input type="text" id="editXPath" class="xpath" placeholder='Ex : //input[@id="login"]' data-clear-btn="true">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <legend>Chemin:</legend>
+            <textarea class="path" rows="2" style="width:100%;" placeholder='Ex : input#login'></textarea>
+            <div data-role="controlgroup" data-type="horizontal">
+              <a data-role="button" data-icon="search" id="searchXPathBtn">Chercher</a>
+              <a data-role="button" id="nbElementsMatchedBtn">&nbsp;</a>
+              <a data-role="button" href="#editPathPage" data-icon="edit" id="editPathBtn">Editer</a>
+            </div>
+          </fieldset>
         </li>
         <li data-role="fieldcontain">
           <label for="editCode">Code généré:</label>
-          <textarea id="editCode" class="code" cols="3">Ex : pl_fill(xpath, login)</textarea>
+          <textarea id="editCode" class="code" rows="3">Ex : pl_fill(xpath, login)</textarea>
         </li>
       </ul>
       <div data-role="controlgroup" data-type="horizontal">
-        <a data-role="button" data-inline="true" data-icon="back" data-rel="back" id="editCancelBtn">Annuler</a>
-        <a data-role="button" data-inline="true" data-icon="check" data-rel="back" id="editSaveBtn">Save</a>
-        <a data-role="button" data-inline="true" data-icon="delete" data-rel="back" id="editDeleteBtn">Del</a>
-        <a data-role="button" data-inline="true" data-icon="search" id="searchXPathBtn">Search</a>
-        <a data-role="button" data-inline="true" id="nbElementsMatchedBtn">&nbsp;</a>
+        <a data-role="button" data-icon="back" data-rel="back" id="editCancelBtn">Annuler</a>
+        <a data-role="button" data-icon="check" data-rel="back" id="editSaveBtn">Save</a>
+        <a data-role="button" data-icon="delete" data-rel="back" id="editDeleteBtn">Del</a>
+      </div>
+    </div><!-- content -->
+  </div><!-- page -->
+
+<!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  PATH  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
+  <div data-role="page" data-add-back-btn="true" id="editPathPage">
+    <div data-role="header">
+      <h1>Édition du chemin</h1>
+    </div>
+    <div data-role="content">
+      <ul data-role="listview" data-inset="true">
+        <li data-role="fieldcontain">
+          <fieldset data-role="controlgroup" data-type="horizontal" class="context">
+            <legend>Contexte n°:</legend>
+          </fieldset>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="xpath">XPath:</label>
+          <textarea id="xpath" readonly></textarea>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="fullXPath">XPath complet:</label>
+          <textarea id="fullXPath" readonly></textarea>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="css">CSS:</label>
+          <textarea id="css" readonly></textarea>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="fullCSS">CSS complet:</label>
+          <textarea id="fullCSS" readonly></textarea>
+        </li>
+      </ul>
+      <ul data-role="listview" data-inset="true">
+        <li data-role="fieldcontain">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <legend>Chemin final:</legend>
+            <textarea id="finalPath" rows="3" style="width:100%;"></textarea>
+            <div data-role="controlgroup" data-type="horizontal">
+              <a data-role="button" data-inline="true" data-icon="search" id="pathSearchPathBtn" title="Cherche les éléments correspondant.">Chercher</a>
+              <a data-role="button" data-inline="true" id="pathNbElementsMatchedBtn" title="Nombre d'éléments trouvés">&nbsp;</a>
+              <a data-role="button" data-inline="true" data-icon="gear" id="pathMergeBtn" title="Fusionne le contexte actuel (*) avec l'ancien contexte sélectionné.">Fusion</a>
+            </div>
+          </fieldset>
+        </li>
+      </ul>
+      <div data-role="controlgroup" data-type="horizontal">
+        <a data-role="button" data-inline="true" data-icon="back" data-rel="back" class="pathCancelBtn">Annuler</a>
+        <a data-role="button" data-inline="true" data-icon="check" data-rel="back" id="pathOkBtn">Ok</a>
       </div>
     </div><!-- content -->
   </div><!-- page -->

@@ -1,7 +1,10 @@
 var plugin = {};
 
-function highElements(xpath, color) {
-    var e = $(hu.getElementsByXPath(xpath));
+function highElements(path, color) {
+    if (hu.isXpath(path))
+      var e = $(hu.getElementsByXPath(path));
+    else
+      var e = hu.getElementsByCSS(path);
     var tmpColor = e.css("background-color");
     var tmpPad = e.css("padding");
     e.animate({backgroundColor: color, padding: 1},100).delay(400).animate({backgroundColor: tmpColor, padding: tmpPad},100);
@@ -21,7 +24,7 @@ function onBodyClick(event) {
     var msg = {dest: 'plugin', action: 'newMap'};
     msg.context = hu.getElementContext(e);
     msg.merged = false;
-    msg.xpath = msg.context.xpath;
+    msg.path = msg.context.css;
     chrome.extension.sendMessage(msg);
   }
 };
@@ -61,13 +64,10 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     return;
 
   if (msg.action == "show") {
-    e = highElements(msg.xpath, "#00dd00");
-    var xpathes = []
-    for (var i = 0 ; i < e.length ; i++)
-      xpathes.push(hu.getElementCompleteXPath(e[i][0]));
+    e = highElements(msg.path, "#00dd00");
     if (e.length > 1)
-      console.log("Elements matched :", e, ", ", xpathes);
-    chrome.extension.sendMessage({dest: 'plugin', action: 'match', elements: xpathes});
+      console.log("Elements matched : ", "\n", e);
+    chrome.extension.sendMessage({dest: 'plugin', action: 'match', nbElements: e.length});
   } else if (msg.action == "reset") {
     highElements(msg.xpath, "#dd0000");
   } else if (msg.action == "getPageInfos") {
@@ -83,14 +83,11 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   } else if (msg.action == "stop") {
     removeExtension();
   } else if (msg.action == "merge") {
-    var xpath = xu.merge(msg.old_context, msg.new_context);
-    if (! xpath)
+    var path = xu.merge(msg.old_context, msg.new_context);
+    if (! path)
       return;
     msg.dest = 'plugin';
-    msg.action = 'newMap';
-    msg.merged = true;
-    msg.xpath = xpath;
-    msg.context = msg.new_context;
+    msg.path = path;
     chrome.extension.sendMessage(msg);
   }
 });
