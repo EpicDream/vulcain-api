@@ -1,6 +1,7 @@
 
 include("new_action_view.js");
 include("edit_action_view.js");
+include("edit_path_view.js");
 include("step_view.js");
 include("action_view.js");
 
@@ -52,7 +53,7 @@ var StrategyView = function(_strategy) {
     }
 
     var lastPageId = localStorage[_strategy.id+"_lastPage"];
-    if (lastPageId && lastPageId != "newActionPage" && lastPageId != "editActionPage")
+    if (lastPageId && lastPageId != "newActionPage" && lastPageId != "editActionPage" && lastPageId != "editPathPage")
       $.mobile.changePage("#"+lastPageId);
   };
 

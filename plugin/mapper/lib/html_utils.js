@@ -5,7 +5,7 @@ hu.getElementXPath = function(element) {
   var xpath = '';
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var id = $(element).attr("id");
-    if (id) {
+    if (id && (id.length < 15 || ! hu.isRandom(id))) {
       xpath = '//'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
       break;
     } else {
@@ -24,7 +24,7 @@ hu.getElementCompleteXPath = function(element) {
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var broAndSis = $(element.parentNode).children(element.tagName);
     var id = $(element).attr("id");
-    if (id) {
+    if (id && (id.length < 15 || ! hu.isRandom(id))) {
       xpath = '/'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
     } else if (broAndSis.size() > 1)
       xpath = '/'+element.tagName.toLowerCase()+'['+(broAndSis.index(element)+1)+']' + xpath;
@@ -37,27 +37,6 @@ hu.getElementCompleteXPath = function(element) {
   return xpath;
 };
 
-// "//elem[@class='a_class an_other']" is 
-// Return 
-// ex : classes
-hu.classesToXpath = function(classes) {
-
-};
-
-
-// Rewind e to get the most general element for it.
-hu.getSameTextAncestor = function(e, stopIfId) {
-  var txt = e.innerText.replace(/\W/g,"").toLowerCase();
-  var parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
-  while (parentTxt == txt) {
-    if (stopIfId && e.attributes["id"])
-      break;
-    e = e.parentElement;
-    parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
-  }
-  return e;
-};
-
 hu.getElementsByXPath = function(xpath) { 
   var aResult = new Array();
   try {
@@ -68,6 +47,68 @@ hu.getElementsByXPath = function(xpath) {
     console.error("for", xpath);
     console.error(err);
   }
+};
+
+hu.isXpath = function(path) {
+  return path[0] == '/' || path[0] == '(';
+}
+
+function getClasses(jelem) {
+  return (jelem.attr("class") ? _.compact(jelem.attr("class").split(/\s+/)).sort() : []);
+};
+
+function fromParentSelector(jelement, complete) {
+  var tag = jelement[0].tagName;
+  var res = tag.toLowerCase();
+  // On indique l'id
+  var id = jelement.attr("id");
+  if (id && (id.length < 15 || ! hu.isRandom(id)))
+    res += "#"+id;
+  // Si il n'y a qu'un élément de ce type en enfant, on s'arrête
+  var sameTagSiblings = jelement.siblings().filter(function(index) { return this.tagName == tag; });
+  if (! complete && sameTagSiblings.length == 0)
+    return res;
+  // Sinon, on ajoute les class uniques
+  var elementClasses = getClasses(jelement);
+  if (! complete) {
+    var siblingsClasses = _.map(sameTagSiblings.filter("*[class]"), function(sibling) { return getClasses($(sibling)); });
+    // var classes = [], diff = [];
+    // for (var j in siblingsClasses) {
+    //   diff = _.difference(elementClasses, siblingsClasses[j]);
+    //   if (diff.length == 0)
+    //     break;
+    //   classes.concat(diff);
+    //   elementClasses = _.without(elementClasses, diff);
+    //   if (elementClasses.length == 0)
+    //     break;
+    // }
+    var classes = _.difference(elementClasses, [].concat(_.flatten(siblingsClasses)));
+    res += _.map(classes, function(c){return "."+c;}).join('');
+    // if (diff.length > 0 && elementClasses.length > 0 && classes.length > 0)
+    if (classes.length > 0)
+      return res;
+  } else {
+    res += _.map(elementClasses, function(c){return "."+c;}).join('');
+  }
+  // Si pas suffisent, on ajoute la position
+  var pos = jelement.index() + 1;
+  res += ":nth-child(" + pos + ")";
+  return res;
+};
+
+hu.getElementCSSSelectors = function(jelement, complete) {
+  var css = '';
+  for ( ; jelement && jelement[0].nodeType == 1 ; jelement = jelement.parent() ) {
+    css = fromParentSelector(jelement, complete) + " " + css;
+    if (jelement[0].tagName.toLowerCase() == 'body' || (! complete && jelement.attr("id")))
+      break;
+  }
+  return css.trim();
+};
+
+// Return an Array of jQuery elements.
+hu.getElementsByCSS = function(css) {
+  return $(css);
 };
 
 // Does this xpath lead to a single element.
@@ -87,7 +128,7 @@ hu.setXPathUniq = function(xpath, e) {
   return xpath;
 };
 
-hu.askIfRandom = function(value) {
+hu.isRandom = function(value) {
   return confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
 };
 
@@ -119,7 +160,9 @@ hu.getFormAttrs = function(e) {
 
 // Return a HashMap h.
 // h.xpath
-// h.completeXPath
+// h.fullXPath
+// h.css
+// h.fullCSS
 // h.attrs : element's attrs. See hu.getElementAttrs().
 // h.siblings an Array of siblings' attrs. See hu.getElementAttrs().
 // h.parent : parent's attrs. See hu.getElementAttrs().
@@ -130,7 +173,9 @@ hu.getFormAttrs = function(e) {
 hu.getElementContext = function(e) {
   var context = {};
   context.xpath = hu.getElementXPath(e);
-  context.completeXPath = hu.getElementCompleteXPath(e);
+  context.fullXPath = hu.getElementCompleteXPath(e);
+  context.css = hu.getElementCSSSelectors($(e));
+  context.fullCSS = hu.getElementCSSSelectors($(e), true);
   context.attrs = hu.getElementAttrs(e);
   context.parent = hu.getElementAttrs(e.parentElement);
   context.siblings = [];
@@ -158,8 +203,8 @@ hu.getInputsLabel = function(e) {
       return l;
     else if (! l.getAttribute("for")) {
       var xpathResult = document.evaluate(".//input | .//textarea | .//select", l, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-      for ( var i = 0 ; i < xpathResult.snapshotLength ; i++ )
-        if (xpathResult.snapshotItem(i) == e)
+      for ( var j = 0 ; j < xpathResult.snapshotLength ; j++ )
+        if (xpathResult.snapshotItem(j) == e)
           return l;
     }
   }

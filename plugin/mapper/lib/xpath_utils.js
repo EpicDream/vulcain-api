@@ -8,33 +8,20 @@ xu.merge = function(old_context, new_context) {
   
   // Try to merge with xpath.
   var xpath = xu.intersect(old_context.xpath, new_context.xpath);
-  console.log("xpath intersect =", xpath);// Usefull
+  console.log("xpath intersect =", xpath);// Usefull to user
   var elems = hu.getElementsByXPath(xpath+"//"+tagName);
   if (_.isEqual(elems, new_elems))
     return xpath;
-  console.log(new_elems, "!=", elems);// Usefull
+  console.log(new_elems, "!=", elems);// Usefull to user
 
-  // Try to merge with completeXPath.
-  xpath = xu.intersect(old_context.completeXPath, new_context.completeXPath);
-  console.log("completeXPath intersect =", xpath);// Usefull
+  // Try to merge with fullXPath.
+  xpath = xu.intersect(old_context.fullXPath, new_context.fullXPath);
+  console.log("fullXPath intersect =", xpath);// Usefull
   elems = hu.getElementsByXPath(xpath+"//"+tagName);
-  if (_.isEqual(elems, new_elems))
-    return xpath;
-  console.log(new_elems, "!=", elems);// Usefull
+  if (! _.isEqual(elems, new_elems))
+    console.log(new_elems, "!=", elems);// Usefull to user
 
-  // Ask user to merge them.
-  while (true) {
-    xpath = prompt("Fail to merge xpathes. Merge them yourself !\nold_cxpath ="+old_context.completeXPath+"\nnew_cxpath ="+new_context.completeXPath, xpath);
-    if (! xpath)
-      break;
-    elems = hu.getElementsByXPath(xpath);
-    if (_.isEqual(elems, new_elems))
-      return xpath;
-    console.log(new_elems, "!=", elems); // Usefull
-    if(confirm("Matched elements are differents, continuer quand même ?"))
-      return xpath;
-  }
-  return null;
+  return xpath;
 };
 
 // "/html/body/div[1]/div/ul/li/div[2]/input[@type='radio'][@id='dfsff']", 
