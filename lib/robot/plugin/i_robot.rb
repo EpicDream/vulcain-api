@@ -450,8 +450,15 @@ class Plugin::IRobot < Robot
     # Else arg is a Hash with :css or :xpath as key
     def find(arg)
       sleep(0.5)
-      return @pl_driver.find_elements(xpath: arg) if arg.kind_of?(String)
-      return @pl_driver.find_elements(arg)
+      if arg.kind_of?(String) && (arg[0] == '/' || arg[0] == '(')
+        return @pl_driver.find_elements(xpath: arg)
+      elsif arg.kind_of?(String)
+        return @pl_driver.find_elements(css: arg)
+      elsif arg.kind_of?(Hash)
+        return @pl_driver.find_elements(arg)
+      else
+        raise NoSuchElementError, "Cannot find #{arg.inspect} : wait a String or a Hash."
+      end
     end
 
     # Return only inputs, selects and textareas.
@@ -541,8 +548,9 @@ class Plugin::IRobot < Robot
     def get_input_for_value!(inputs, value)
       values = inputs.map { |e,_| [e, e.value] }
       i = values.find { |e,v| v == value }.first
+      return i unless i.nil?
       labels = inputs.map { |e,_| [e, get_input_label(e).text] }
-      i = labels.find { |e,v| v == value }.first if i.nil?
+      i = labels.find { |e,v| v == value }.first
       raise NoSuchElementError, "Can not find #{value.inspect} in values #{values.map(&:last).inspect} nor labels #{labels.map(&:last).inspect}." if i.nil?
       return i
     end

@@ -7,11 +7,11 @@ var Action = function(args) {
 
     that.desc = args.desc || "";
     // To delete
-    if (args.context && ! args.context instanceof Array)
-      that.context = [args.context];
+    if (args.contexts && ! args.contexts instanceof Array)
+      that.contexts = [args.contexts];
     else
-      that.context = args.context || [];
-    that.xpath = args.xpath || (that.context ? that.context.xpath : null);
+      that.contexts = args.contexts || [];
+    that.xpath = args.xpath || (that.contexts ? that.contexts.xpath : null);
     that.type = or(args.type, null);
     that.arg = or(args.arg, null);
     that.argument = or(args.argument, null);
@@ -25,8 +25,8 @@ var Action = function(args) {
     var res = {};
     res.desc = this.desc;
     res.xpath = this.xpath;
-    if (! args || ! args.noContext)
-      res.context = this.context;
+    if (! args || ! args.noContexts)
+      res.contexts = this.contexts;
     res.type = this.type;
     res.arg = this.arg;
     res.argument = this.argument;
@@ -41,9 +41,9 @@ var Action = function(args) {
     this.desc = or(action.desc, this.desc);
     this.xpath = or(action.xpath, this.xpath);
     if (action.context) {
-      this.context.push(action.context);
-      if (action.context.length > 5)
-        this.context.shift();
+      this.contexts.push(action.context);
+      if (this.contexts.length > 5)
+        this.contexts.shift();
     }
     this.type = or(action.type, this.type);
     this.argument = or(action.argument, this.argument);
