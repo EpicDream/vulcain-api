@@ -236,9 +236,13 @@ var EditActionView = function() {
       });
   };
 
-  // elements is an Array of elements' completeXPath.
-  function _onMatchedElements(elements) {
-    _nbElementsMatchedBtn.text(elements.length);
+  function _onEditPathClicked() {
+    _editPathView.load(_currentAction, _pathField.val(), _currentContext,
+      function() {
+        var res = _editPathView.get();
+        _pathField.val(res.finalPath);
+        _currentContext = res.context;
+      });
   };
 
   for (var f in this) {
