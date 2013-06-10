@@ -141,8 +141,8 @@ class IRobot < Robot
     {id: 'login', desc:"Login", value:"account.login"},
     {id: 'password', desc:"Mot de passe", value:"account.password"},
     {id: 'email', desc:"Email", value:"account.login"},
-    {id: 'last_name', desc:"Nom", value:"user.last_name"},
-    {id: 'first_name', desc:"Prénom", value:"user.first_name"},
+    {id: 'last_name', desc:"Nom", value:"user.address.last_name"},
+    {id: 'first_name', desc:"Prénom", value:"user.address.first_name"},
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
     {id: 'birthdate_month', desc:"Mois de naissance", value:"user.birthdate.month"},
     {id: 'birthdate_year', desc:"Année de naissance", value:"user.birthdate.year"},
@@ -755,11 +755,11 @@ class PriceministerMobile
 				pl_select_option!(plarg_xpath, plarg_argument)
 				# Nom
 				plarg_xpath = '//input[@id="last_name"]'
-				plarg_argument = user.last_name
+				plarg_argument = user.address.last_name
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Prénom
 				plarg_xpath = '//input[@id="first_name"]'
-				plarg_argument = user.first_name
+				plarg_argument = user.address.first_name
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Jour de Naissance
 				plarg_xpath = '//select[@id="birth_day"]'
