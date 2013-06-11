@@ -14,7 +14,7 @@ class Driver
     if options[:profile_dir]
       switches << "--user-data-dir=#{options[:profile_dir]}"
     else
-      @profile_path = "./.config/google-chrome/#{Process.pid}/"
+      @profile_path = "/tmp/google-chrome-profiles/#{Process.pid}/"
       FileUtils.mkdir_p(@profile_path)
       FileUtils.cp_r(PROFILE_PATH, @profile_path)
       switches << "--user-data-dir=#{@profile_path}"
