@@ -41,7 +41,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-   # @robot.driver.quit
+    @robot.driver.quit
   end
   
   test "account creation" do
