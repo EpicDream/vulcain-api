@@ -22,9 +22,7 @@ function include(fileName){
 
 function wait(ms) { ms += new Date().getTime(); while (new Date() < ms){} };
 
-// Return v if v != undefined, or d;
-// May return null and "".
-function or(v,d) { return (v === undefined && d || v); };
+function or(value, defaut) { return value !== undefined ? value : defaut; };
 // May return null and "".
 function orNull(v) { return or(v, null); };
 
