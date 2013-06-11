@@ -130,13 +130,14 @@ class RueDuCommerce
         end
       end
       
-      step('empty cart') do
+      step('empty cart') do |args|
+        args ||= {}
         open_url CART_URL
         click_on_all [REMOVE_ITEM] do |remove_link|
           wait_for(['//*[@id="header"]/a[2]'])
           !remove_link.nil?
         end
-        message :cart_emptied, :next_step => 'add to cart'
+        message :cart_emptied, :next_step => args[:next_step] || 'add to cart'
       end
       
       step('delete product options') do
