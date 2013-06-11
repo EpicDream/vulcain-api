@@ -30,6 +30,7 @@ var Step = function(args) {
   this.newAction = function(action) {
     var a = new Action(action);
     this.actions.push(a);
+    model.setModified();
     return a;
   };
 
@@ -37,17 +38,20 @@ var Step = function(args) {
     var oldIdx = this.actions.indexOf(a);
     this.actions.splice(oldIdx, 1);
     this.actions.splice(newIdx, 0, a);
+    model.setModified();
     return this;
   };
 
   this.deleteAction = function(action) {
     var idx = this.actions.indexOf(action);
     this.actions.splice(idx, 1);
+    model.setModified();
     return action;
   };
 
   this.setClassified = function(action) {
     action.edit({classified: true});
+    model.setModified();
   };
 
   for (var f in this) {

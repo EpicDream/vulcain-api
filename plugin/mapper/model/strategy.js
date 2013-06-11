@@ -4,7 +4,8 @@ include("../model/step.js");
 include("../model/bdd.js");
 
 var Strategy = function(host, mobile) {
-  var that = this;
+  var that = this,
+      _modified = false;
 
   function init() {
     that.bdd = new BDD();
@@ -39,6 +40,7 @@ var Strategy = function(host, mobile) {
   this.setMobility = function(mobility) {
     that.mobility = mobility;
     that.id = host+(mobility ? "_mobile" : "");
+    that.setModified();
   };
 
   // PLUGIN
@@ -52,6 +54,7 @@ var Strategy = function(host, mobile) {
         var s = hash.steps[i];
         this.steps.push(new Step(s));
       }
+      _modified = false;
       onLoad();
     }.bind(this), function() {
       alert("WARNING : Unable to load remotly or localy ! Set default steps.");
@@ -60,9 +63,10 @@ var Strategy = function(host, mobile) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
-    if (this.steps.length == 0 || this.steps[0].actions.length == 0)
+    if (! _modified || this.steps.length == 0 || this.steps[0].actions.length == 0)
       return;
     this.bdd.save(this.toHash(), onFail, onDone);
+    _modified = false;
   };
   this.setDefault = function() {
     this.steps = [
@@ -75,9 +79,18 @@ var Strategy = function(host, mobile) {
       new Step({id: 'payment', desc: "Payement", value: "", actions: []})
     ];
   };
+  this.setModified = function() {
+    _modified = true;
+  };
+  this.modified = function() {
+    return _modified;
+  };
 
   this.clearCache = function() { this.bdd.clearCache(this); };
-  this.reset = function() { this.setDefault(); };
+  this.reset = function() {
+    this.setDefault();
+    _modified = false;
+  };
 
   for (var f in this) {
     if (typeof(this[f]) == "function")
