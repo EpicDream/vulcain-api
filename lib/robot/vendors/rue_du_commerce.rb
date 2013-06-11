@@ -113,37 +113,47 @@ class RueDuCommerce
         fill REGISTER_PASSWORD, with:account.password
         fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
         click_on REGISTER_SUBMIT
-        fill ADDRESS_1, with:user.address.address_1
-        fill ADDRESS_2, with:user.address.address_2
-        fill ADDITIONNAL_ADDRESS, with:user.address.additionnal_address
-        fill CITY, with:user.address.city
-        fill ZIPCODE, with:user.address.zip
-        select_option BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
-        select_option BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
-        select_option BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
-        click_on ADDRESS_SUBMIT
-        message :account_created, :next_step => 'renew login'
+        wait_for [ADDRESS_SUBMIT, REGISTER_SUBMIT]
+        if exists? REGISTER_SUBMIT
+          terminate_on_error(:account_creation_failed)
+        else
+          fill ADDRESS_1, with:user.address.address_1
+          fill ADDRESS_2, with:user.address.address_2
+          fill ADDITIONNAL_ADDRESS, with:user.address.additionnal_address
+          fill CITY, with:user.address.city
+          fill ZIPCODE, with:user.address.zip
+          select_option BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
+          select_option BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
+          select_option BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
+          click_on ADDRESS_SUBMIT
+          message :account_created, :next_step => 'renew login'
+        end
       end
       
-      step('empty cart') do
+      step('empty cart') do |args|
+        args ||= {}
         open_url CART_URL
         click_on_all [REMOVE_ITEM] do |remove_link|
           wait_for(['//*[@id="header"]/a[2]'])
           !remove_link.nil?
         end
-        message :cart_emptied, :next_step => 'add to cart'
+        message :cart_emptied, :next_step => args[:next_step] || 'add to cart'
       end
       
       step('delete product options') do
+        wait_for [REMOVE_ITEM]
         begin
-          wait_for [REMOVE_ITEM]
           element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
-          wait_ajax(5)
+          wait_ajax(8) if element
         end while element
       end
       
       step('add to cart') do
-        open_url next_product_url
+        url = next_product_url
+        open_url url
+        if url =~ /www\.rueducommerce\.fr|ad\.zanox\.com/
+          execute_script("redirect('http://m.rueducommerce.fr/fiche-produit/' + window.offer_reference)")
+        end
         click_on_link_with_text(ADD_TO_CART)
         wait_ajax
         message :cart_filled, :next_step => 'finalize order'

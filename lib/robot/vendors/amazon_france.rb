@@ -97,6 +97,7 @@ class AmazonFrance
       
       step('renew login') do
         run_step('logout')
+	puts order.inspect
         open_url order.products_urls[0]
         run_step('login')
       end

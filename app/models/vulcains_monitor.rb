@@ -20,7 +20,7 @@ class VulcainsMonitor
   
   def self.dispatcher
     touch_time = File.atime(Dispatcher::Supervisor::DISPATCHER_TOUCH_FILE_PATH)
-    touch_interval = Dispatcher::CONFIG[:dispatcher_touch_running_interval] + 2.seconds
+    touch_interval = Dispatcher::CONFIG[:touch_dispatcher_running_every] + 2.seconds
     {"touchtime" => I18n.l(touch_time), "down" => (Time.now - touch_time) > touch_interval }
   end
   

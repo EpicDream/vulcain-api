@@ -322,6 +322,10 @@ class Robot
     @driver.accept_alert
   end
   
+  def execute_script script
+    @driver.execute_script(script)
+  end
+  
   def resolve_captcha image_url
     client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
     response = client.decode image_url

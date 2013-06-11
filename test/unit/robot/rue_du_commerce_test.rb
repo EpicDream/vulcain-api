@@ -5,6 +5,8 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   PRODUCT_1_URL = "http://m.rueducommerce.fr/fiche-produit/KVR16S11S8%252F4"
   PRODUCT_2_URL = "http://m.rueducommerce.fr/fiche-produit/MO-67C48M5606091"
   PRODUCT_3_URL = "http://m.rueducommerce.fr/fiche-produit/PENDRIVE-USB2-4GO"
+  PRODUCT_4_URL = "http://www.rueducommerce.fr/TV-Hifi-Home-Cinema/showdetl.cfm?product_id=4872804#xtor=AL-67-75%5Blien_catalogue%5D-120001%5Bzanox%5D-%5B1532882"
+  PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
   
   attr_accessor :robot
   
@@ -39,7 +41,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-    @robot.driver.quit
+   # @robot.driver.quit
   end
   
   test "account creation" do
@@ -48,6 +50,14 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     robot.run_step('create account')
   end
   
+  test "account creation failure should send account_creation_failure message" do
+    @message.expects(:message).times(1)
+    @context['account']['login'] = 'marie_rose_18@yopmail.com'
+    @robot.context = @context
+    robot.expects(:terminate_on_error).with(:account_creation_failed)
+    robot.run_step('create account')
+  end
+
   test "login" do
     @message.expects(:message).times(1)
     robot.expects(:message).with(:logged, :next_step => 'empty cart')
@@ -74,41 +84,43 @@ class RueDuCommerceTest < ActiveSupport::TestCase
       robot.stubs(:next_product_url).returns(url)
       robot.run_step('add to cart')
     end
-    
     robot.run_step('empty cart')
-    
     assert !(robot.exists? RueDuCommerce::REMOVE_ITEM)
   end
   
   test "delete product options" do
     @message.expects(:message).times(10)
+    @context['order']['products_urls'] = [PRODUCT_4_URL]
+    @robot.context = @context
+    
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
+    robot.open_url RueDuCommerce::CART_URL
     robot.run_step('delete product options')
     
     assert_equal 1, robot.find_elements(RueDuCommerce::REMOVE_ITEM).count
   end
   
   test "add to cart and finalize order" do
-    @message.expects(:message).times(15)
+    @message.expects(:message).times(14)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
 
     products = [{'price_text' => "28€99\nquantité : 1\ncoût total : 28€99", 'product_title' => "KINGSTON\nBarrettes mémoire portable Kingston So-DIMM DDR3 PC3-12800 - 4 Go - 1600 MHz - CAS 11", 'product_image_url' => 'http://s3.static69.com/composant/images/produits/info/small/KVR400X64SC3A_256__new.jpg', 'price_product' => 31.28, 'price_delivery' => 5.9, 'url' => 'http://m.rueducommerce.fr/fiche-produit/KVR16S11S8%252F4'}]
-    billing = {:product => 31.28, :shipping => 5.9, :total => 37.18, :shipping_info => 'Date de livraison estimée : entre le 25/05/2013 et le 28/05/2013 par Colissimo suivi'}
+    billing = {:product => 31.28, :shipping => 5.9, :total => 37.18, :shipping_info => "Date de livraison estimée : entre le 13/06/2013 et le 15/06/2013 par Colissimo suivi"}
     questions = [{:text => nil, :id => '1', :options => nil}]
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     
     robot.run_step('finalize order')
-    
+
     assert_equal products, robot.products
     assert_equal billing, robot.billing
   end
   
   test "validate order with bank info completion" do
-    @message.expects(:message).times(16)
+    @message.expects(:message).times(18)
 
     robot.run_step('login')
     robot.run_step('empty cart')

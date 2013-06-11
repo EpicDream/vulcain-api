@@ -61,7 +61,7 @@ var Refresh = {
 			status.text(dispatcher.touchtime);
 			
 			if (dispatcher.down) {
-				Alert.alarm().play();
+				//Alert.alarm().play();
 				status.toggleClass("down", true);
 			}
 			else{
