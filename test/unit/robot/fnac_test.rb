@@ -5,7 +5,7 @@ class FnacTest < ActiveSupport::TestCase
   PRODUCT_1_URL = "http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"
   PRODUCT_2_URL = "http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"
   PRODUCT_3_URL = "http://musique.fnac.com/a5267711/Saez-Miami-CD-album"
-  PRODUCT_4_URL = "http://ad.zanox.com/ppc/?19054231C2048768278&ULP=%5B%5Blivre.fnac.com/a1169151/Georges-Hilaire-Gallet-Des-fleurs-pour-Algernon%5D%5D#fnac.com"
+  PRODUCT_4_URL = "http://ad.zanox.com/ppc/?19054231C2048768278&ULP=[[livre.fnac.com/a1169151/Georges-Hilaire-Gallet-Des-fleurs-pour-Algernon]]#fnac.com"
 
   attr_accessor :robot
   
