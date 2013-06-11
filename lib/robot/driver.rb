@@ -2,6 +2,7 @@ require "selenium-webdriver"
 
 class Driver
   USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17"
+  PROFILE_PATH = Dir.home+"/.config/google-chrome/Default"
   TIMEOUT = 20
   MAX_ATTEMPTS_ON_RAISE = 20
   
@@ -10,7 +11,15 @@ class Driver
   def initialize options={}
     switches = []
     switches << "--user-agent=#{options[:user_agent] || USER_AGENT}"
-    switches << "--user-data-dir=#{options[:profile_dir]}" if options[:profile_dir]
+    if options[:profile_dir]
+      switches << "--user-data-dir=#{options[:profile_dir]}"
+    else
+      @profile_path = "./.config/google-chrome/#{Process.pid}/"
+      FileUtils.mkdir_p(@profile_path)
+      FileUtils.cp_r(PROFILE_PATH, @profile_path)
+      switches << "--user-data-dir=#{@profile_path}"
+    end
+
     @driver = Selenium::WebDriver.for :chrome, switches: switches
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
@@ -19,6 +28,7 @@ class Driver
   
   def quit
     @driver.quit
+    FileUtils.rm_rf(@profile_path) if @profile_path
   end
   
   def get url
