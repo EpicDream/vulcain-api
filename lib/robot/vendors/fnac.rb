@@ -234,6 +234,7 @@ class Fnac
         click_on ORDER_LOGIN_SUBMIT
         run_step('submit address')
         click_on ORDER_CONTINUE
+        click_on '//*[@id="magicalGNIIIII"]/div[1]/a[1]'
         click_on '//*[@id="divNewCard"]/div[2]/div[1]/label/span'
         click_on '//*[@id="divNewCard"]/div[3]/div'
         click_on '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'

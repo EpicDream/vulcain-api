@@ -5,7 +5,8 @@ class FnacTest < ActiveSupport::TestCase
   PRODUCT_1_URL = "http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"
   PRODUCT_2_URL = "http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"
   PRODUCT_3_URL = "http://musique.fnac.com/a5267711/Saez-Miami-CD-album"
-  
+  PRODUCT_4_URL = "http://ad.zanox.com/ppc/?19054231C2048768278&ULP=%5B%5Blivre.fnac.com/a1169151/Georges-Hilaire-Gallet-Des-fleurs-pour-Algernon%5D%5D#fnac.com"
+
   attr_accessor :robot
   
   setup do
@@ -40,7 +41,7 @@ class FnacTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      @robot.driver.quit
+      #@robot.driver.quit
     rescue
     end
   end
@@ -110,6 +111,17 @@ class FnacTest < ActiveSupport::TestCase
     robot.run_step('add to cart')
     robot.run_step('finalize order')
     robot.run_step('validate order')
+  end
+  
+  test "ensure cb payment if tab with fnac card payment mode" do
+    @context["order"]["products_urls"] = [PRODUCT_4_URL]
+    robot.context = @context
+    
+    @message.expects(:message).times(16)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
   end
   
 end
