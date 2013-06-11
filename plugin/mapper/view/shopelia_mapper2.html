@@ -23,6 +23,9 @@
     .bad {
       color: red;
     }
+    .actionsList {
+      padding: 5px; /* to handle empty list*/
+    }
   </style>
 </head>
 
@@ -82,6 +85,8 @@
       </div>
       <h3>Liste des actions à réaliser :</h3>
       <ul data-role="listview" class="actionsList" data-inset="true">
+        <li data-role="list-divider" class="actionDivider classifiedDivider">Actions classées :</li>
+        <li data-role="list-divider" class="actionDivider toClassifyDivider">Actions à classer :</li>
       </ul>
     </div><!-- content -->
   </div><!-- page -->

@@ -19,6 +19,7 @@ var Action = function(args) {
     that.option = or(args.option, null);
     that.pass = args.pass || false;
     that.code = args.code || "";
+    that.classified = args.classified || false;
   };
 
   this.toHash = function(args) {
@@ -34,6 +35,7 @@ var Action = function(args) {
     res.option = this.option;
     res.pass = this.pass;
     res.code = this.code;
+    res.classified = this.classified;
     return res;
   };
 
@@ -52,6 +54,7 @@ var Action = function(args) {
     this.option = or(action.option, this.option);
     this.pass = or(action.pass, this.pass);
     this.code = or(action.code, this.code);
+    this.classified = or(action.classified, this.classified);
     return this;
   };
 

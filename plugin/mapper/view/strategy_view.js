@@ -122,7 +122,7 @@ var StrategyView = function(_strategy) {
     return _currentStepPage()[0].view;
   };
   function _strategyToTest() {
-    var s = _strategy.toHash({noContext: true});
+    var s = _strategy.toHash({noContexts: true});
     var view = _currentStepView();
     // Delete next steps actions
     var idx = _strategy.steps.indexOf(view.model);
@@ -134,9 +134,12 @@ var StrategyView = function(_strategy) {
       s.steps[0].actions.length = 0;
     // raise on empty actions
     var actions = s.steps[idx].actions;
-    for (var i = actions.length-1 ; i >= 0 ; i--)
-      if (! actions[i].code)
+    for (var i = actions.length-1 ; i >= 0 ; i--) {
+      if (actions[i].classified && ! actions[i].code)
         actions[i].code = 'raise "Action '+actions[i].desc+' not set"';
+      else if (! actions[i].classified)
+        actions.splice(i, 1);
+    }
     return s;
   };
   function _onSwitchMobility() {
