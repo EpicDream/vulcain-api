@@ -140,10 +140,10 @@ class RueDuCommerce
       end
       
       step('delete product options') do
+        wait_for [REMOVE_ITEM]
         begin
-          wait_for [REMOVE_ITEM]
           element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
-          wait_ajax(5)
+          wait_ajax(8) if element
         end while element
       end
       
