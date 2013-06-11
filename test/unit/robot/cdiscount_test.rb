@@ -7,7 +7,8 @@ class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_1 = 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'
   PRODUCT_URL_2 = 'http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html'
   PRODUCT_URL_3 = 'http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'
-  
+  PRODUCT_URL_4 = 'http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)'
+
   attr_accessor :robot
   
   setup do
@@ -42,7 +43,7 @@ class CdiscountTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -107,13 +108,13 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "add to cart and finalize order" do
-    @message.expects(:message).times(20)
+    @message.expects(:message).times(13)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
 
-    products = [{"price_text"=>"20,83 €\nsoit 17,42 € HT", "product_title"=>"Happy Box Haribo 600 gr. par 5", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg", "price_product"=>20.83, "url"=>"http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html"}]
-    billing = {:product=>20.83, :shipping=>6.99, :total=>27.82}
+    products = [{"price_text"=>"21,35 €\nsoit 17,85 € HT", "product_title"=>"HARIBO Happy Box Haribo 600g (x5)", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg", "price_product"=>21.35, "url"=>"http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html"}]
+    billing = {:product=>21.35, :shipping=>6.99, :total=>28.34}
     questions = [{:text => nil, :id => '1', :options => nil}]
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     
@@ -121,8 +122,26 @@ class CdiscountTest < ActiveSupport::TestCase
 
     assert_equal products, robot.products
     assert_equal billing, robot.billing
-    
-    robot.run_step('validate order')
   end
+  
+  test "add to cart and finalize order with 4x payment option to avoid" do
+    @message.expects(:message).times(13)
+    @context["order"]["products_urls"] = [PRODUCT_URL_4]
+    robot.context = @context
+    
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    
+    products = [{"price_text"=>"214,41 €\n+ Eco Part : 1,01 €\nsoit 180,12 € HT", "product_title"=>"Home cinema 2.1 3D LG BH6220C (USB + Wif...", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/4/1/085x085/lg8808992997504.jpg", "price_product"=>214.41, "url"=>"http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)"}]
+    billing = {:product=>215.42, :shipping=>0.0, :total=>215.42}
+    questions = [{:text => nil, :id => '1', :options => nil}]
+    @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
+    
+    robot.run_step('finalize order')
+    assert_equal products, robot.products
+    assert_equal billing, robot.billing
+  end
+  
   
 end  
