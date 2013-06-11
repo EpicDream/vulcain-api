@@ -14,6 +14,8 @@ var Strategy = function(host, mobile) {
     that.predefined = [];
     that.steps = [];
     that.setMobility(mobile);
+    that.created_at = (new Date()).getTime();
+    that.updated_at = that.created_at;
   };
 
   this.initTypes = function() {
@@ -34,6 +36,8 @@ var Strategy = function(host, mobile) {
     res.steps = [];
     for (var i in this.steps)
       res.steps[i] = this.steps[i].toHash(args);
+    res.created_at = this.created_at;
+    res.updated_at = this.updated_at;
     return res;
   };
 
@@ -54,6 +58,8 @@ var Strategy = function(host, mobile) {
         var s = hash.steps[i];
         this.steps.push(new Step(s));
       }
+      this.created_at = hash.created_at;
+      this.updated_at = hash.updated_at;
       _modified = false;
       onLoad();
     }.bind(this), function() {
@@ -65,6 +71,7 @@ var Strategy = function(host, mobile) {
   this.save = function(onFail, onDone) {
     if (! _modified || this.steps.length == 0 || this.steps[0].actions.length == 0)
       return;
+    this.updated_at = (new Date()).getTime();
     this.bdd.save(this.toHash(), onFail, onDone);
     _modified = false;
   };
@@ -89,6 +96,8 @@ var Strategy = function(host, mobile) {
   this.clearCache = function() { this.bdd.clearCache(this); };
   this.reset = function() {
     this.setDefault();
+    this.created_at = (new Date()).getTime();
+    this.updated_at = this.created_at;
     _modified = false;
   };
 
