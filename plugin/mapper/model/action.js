@@ -55,6 +55,7 @@ var Action = function(args) {
     this.pass = or(action.pass, this.pass);
     this.code = or(action.code, this.code);
     this.classified = or(action.classified, this.classified);
+    model.setModified();
     return this;
   };
 
