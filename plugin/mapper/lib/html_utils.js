@@ -5,7 +5,7 @@ hu.getElementXPath = function(element) {
   var xpath = '';
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var id = $(element).attr("id");
-    if (id && (id.length < 15 || ! hu.isRandom(id))) {
+    if (id && ! hu.isRandom(id)) {
       xpath = '//'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
       break;
     } else {
@@ -128,8 +128,20 @@ hu.setXPathUniq = function(xpath, e) {
   return xpath;
 };
 
+hu.nonRandomId = [];
 hu.isRandom = function(value) {
-  return confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
+  if (value.length < 10)
+    return false;
+  if (value.length > 30)
+    return true;
+  if (value.match(/\d{5,}/))
+    return true;
+  if (hu.nonRandomId.indexOf(value) != -1)
+    return false;
+  var res = confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
+  if (! res)
+    hu.nonRandomId.push(value);
+  return res;
 };
 
 // Return a HashMap h attributes/values.
