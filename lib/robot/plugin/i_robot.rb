@@ -13,23 +13,20 @@ class Plugin::IRobot < Robot
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :step, :action
+    attr_reader :step, :code
     attr_accessor :source, :screenshot
     def initialize(msg,args={})
       super(msg)
       @step = args[:step]
-      @action = args[:action]
+      @code = args[:code]
       @line = args[:line]
       @source = @screenshot = nil
     end
-    def add(key, value)
-
-    end
     def to_h
-      return {step: @step, action: @action, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
+      return {step: @step, code: @code, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
     end
     def message
-      return super+" in step '#{@step}'"
+      return super
     end
   end
 
@@ -78,7 +75,7 @@ class Plugin::IRobot < Robot
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
     {id: 'password', desc:"Mot de passe", value:"account.password"},
-    {id: 'email', desc:"Email", value:"account.email"},
+    {id: 'email', desc:"Email", value:"account.login"},
     {id: 'last_name', desc:"Nom", value:"user.address.last_name"},
     {id: 'first_name', desc:"Prénom", value:"user.address.first_name"},
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
@@ -250,7 +247,7 @@ class Plugin::IRobot < Robot
           puts act[:code]
           step_binding.eval act[:code]
         rescue => err
-          raise StrategyError.new(err, {step: step[:id], action: act[:code].inspect, line: step[:actions].index(act)})
+          raise StrategyError.new(err, {step: step[:id], code: act[:code], line: step[:actions].index(act)})
         end
       end
     end
@@ -439,6 +436,16 @@ class Plugin::IRobot < Robot
     elems = find(xpath)
     puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
     raise
+  end
+
+  def pl_set_tot_products_price
+    # product:products_price, shipping:shippings_price, total:total_price
+  end
+
+  def pl_set_tot_shipping_price
+  end
+
+  def pl_set_total_price
   end
 
   def pl_binding
