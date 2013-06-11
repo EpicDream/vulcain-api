@@ -1,4 +1,5 @@
 
+include("error_view.js");
 include("new_action_view.js");
 include("edit_action_view.js");
 include("edit_path_view.js");
@@ -20,6 +21,7 @@ var StrategyView = function(_strategy) {
   var _isCurrentHostMobile = $("#isCurrentHostMobile").checkboxradio();
   newActionView = new NewActionView();
   editActionView = new EditActionView();
+  var _errorView = new ErrorView(_strategy);
 
   function _init() {
     $('#saveBtn').click(_onSave.bind(_that));
@@ -104,11 +106,7 @@ var StrategyView = function(_strategy) {
     }).done(function(hash) {
       $.mobile.loading('hide');
       if (hash.msg)
-        console.log("Test result :", hash);
-      if (hash.action)
-        popupText.html("Erreur pour la ligne :<br>"+hash.action+" :<br>"+hash.msg);
-      else if (hash.msg)
-        popupText.html("Une erreur c'est produite :<br>"+hash.msg);
+        _errorView.load(hash);
       else
         popupText.text("Aucune erreur détecté :-)");
       popupText.parent().popup("open");
