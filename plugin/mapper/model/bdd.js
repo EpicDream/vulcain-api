@@ -68,7 +68,7 @@ var BDD = function() {
     var localHash = this.localLoad(strategyId);
     if (this.remote)
       this.remoteLoad(strategyId, function(hash) {
-        if (! localHash || (hash && hash.updated_at >= localHash.updated_at) && hash.steps.length != 0) onDone(hash);
+        if (hash && ! localHash || hash.updated_at >= localHash.updated_at) onDone(hash);
         else if (localHash) onDone(localHash);
         else onFail();
       }.bind(this), function() {
@@ -80,7 +80,6 @@ var BDD = function() {
   };
   // Save model data, remotely or in local if remote fail.
   this.save = function(strategy, onFail, onDone) {
-    strategy.update_at = new Date();
     if (this.remote)
       this.remoteSave(strategy, function() {
         this.localSave(strategy);
