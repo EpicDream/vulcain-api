@@ -9,7 +9,7 @@ class Driver
   attr_accessor :driver, :wait
   
   def initialize options={}
-    @profile_path = "./.config/google-chrome/#{Process.pid}/" if Rails.env.production?
+    @profile_path = "/tmp/google-chrome-profiles/#{Process.pid}/" if Rails.env.production?
     @driver = Selenium::WebDriver.for :chrome, switches: switches(options)
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
