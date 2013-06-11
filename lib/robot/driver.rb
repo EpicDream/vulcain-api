@@ -29,6 +29,10 @@ class Driver
     driver.current_url
   end
   
+  def execute_script script
+    @driver.execute_script script
+  end
+  
   def accept_alert
     waiting { @driver.switch_to.alert.accept }
   end
