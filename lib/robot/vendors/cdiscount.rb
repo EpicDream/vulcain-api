@@ -56,7 +56,7 @@ class Cdiscount
 
   COLISSIMO_RADIO = '//*[@id="PointRetrait_pnlpartnercompleted"]/div/input'
   VALIDATE_SHIPMENT_TYPE = '//*[@id="ValidationSubmit"]'
-  CB_PAYMENT_SUBMIT = 'Accéder au paiement'
+  CB_PAYMENT_SUBMIT = '//div[@class="paymentComptant"]//button'
   PAYMENT_SUBMIT = '//*[@id="cphMainArea_ctl01_ValidateButton"]'
   BILLING_TEXT = '//*[@id="orderInfos"]'
   
@@ -211,7 +211,7 @@ class Cdiscount
           click_on COLISSIMO_RADIO
         end
         click_on VALIDATE_SHIPMENT_TYPE
-        click_on_button_with_text CB_PAYMENT_SUBMIT
+        click_on CB_PAYMENT_SUBMIT
         run_step('build final billing')
         assess
       end
