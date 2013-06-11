@@ -59,6 +59,11 @@ class Fnac
   
   ORDER_CONTINUE = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
   
+  BANK_CARD_TAB = '//*[@id="magicalGNIIIII"]/div[1]/a[1]'
+  VISA_CHECKBOX = '//*[@id="divNewCard"]/div[2]/div[1]/label/span'
+  CUG_CHECKBOX = '//*[@id="divNewCard"]/div[3]/div'
+  VALIDATE_ORDER_BUTTON = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
+  
   CREDIT_CARD_NUMBER = '//*[@id="Ecom_Payment_Card_Number"]'
   CREDIT_CARD_EXP_MONTH = '//*[@id="Ecom_Payment_Card_ExpDate_Month"]'
   CREDIT_CARD_EXP_YEAR = '//*[@id="Ecom_Payment_Card_ExpDate_Year"]'
@@ -234,10 +239,10 @@ class Fnac
         click_on ORDER_LOGIN_SUBMIT
         run_step('submit address')
         click_on ORDER_CONTINUE
-        click_on '//*[@id="magicalGNIIIII"]/div[1]/a[1]'
-        click_on '//*[@id="divNewCard"]/div[2]/div[1]/label/span'
-        click_on '//*[@id="divNewCard"]/div[3]/div'
-        click_on '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
+        click_on BANK_CARD_TAB
+        click_on VISA_CHECKBOX
+        click_on CUG_CHECKBOX
+        click_on VALIDATE_ORDER_BUTTON
         assess
       end
       
@@ -270,15 +275,16 @@ class Fnac
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        screenshot
-        page_source
-        
         page = wait_for([THANK_YOU_HEADER]) do
           accept_alert
+          screenshot
+          page_source
           terminate_on_error(:order_validation_failed)
         end
         
         if page
+          screenshot
+          page_source
           thanks = get_text THANK_YOU_HEADER
           if thanks =~ /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i
             run_step('remove credit card')
