@@ -231,7 +231,7 @@ var EditActionView = function() {
     _editPathView.load(_currentAction, _pathField.val(), _currentContext,
       function() {
         var res = _editPathView.get();
-        _pathField.val(res.finalPath);
+        _pathField.val(res.finalPath).change();
         _currentContext = res.context;
       });
   };
