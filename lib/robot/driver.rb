@@ -9,7 +9,7 @@ class Driver
   attr_accessor :driver, :wait
   
   def initialize options={}
-    @profile_path = "./.config/google-chrome/#{Process.pid}/"
+    @profile_path = "./.config/google-chrome/#{Process.pid}/" if Rails.env.production?
     @driver = Selenium::WebDriver.for :chrome, switches: switches(options)
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
     @attempts = 0
@@ -125,7 +125,7 @@ class Driver
   private
   
   def switches options
-    mkdir_profile unless options[:profile_dir]
+    mkdir_profile if Rails.env.production? && options[:profile_dir].nil?
     user_agent = options[:user_agent] || USER_AGENT
     user_data_dir = options[:profile_dir] || @profile_path
     ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}"]
