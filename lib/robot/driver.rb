@@ -12,7 +12,6 @@ class Driver
     @profile_path = "/tmp/google-chrome-profiles/#{Process.pid}/" if Rails.env.production?
     @driver = Selenium::WebDriver.for :chrome, switches: switches(options)
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
-    @attempts = 0
     @driver.manage.delete_all_cookies
   end
   
@@ -137,6 +136,7 @@ class Driver
   end
   
   def waiting
+    @attempts = 0
     wait.until do 
       begin
         yield
