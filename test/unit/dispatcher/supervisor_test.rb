@@ -3,8 +3,8 @@ require 'test_helper'
 class SupervisorTest <  ActiveSupport::TestCase
 
   setup do
-    EM.stubs(:add_periodic_timer)
     @pool = Dispatcher::Pool.new
+    Dispatcher::Supervisor.any_instance.stubs(:instanciate_periodic_timers)
     @supervisor = Dispatcher::Supervisor.new(nil, nil, nil, @pool)
     def @pool.ping_vulcains opt={}, &block
       block.call
@@ -77,6 +77,70 @@ class SupervisorTest <  ActiveSupport::TestCase
     @pool.expects(:reload).with(vulcain).once
     @pool.idle(vulcain.id)
   end
+  
+  test "mount new vulcains to get config.min_idle_vulcains idles" do
+    @pool.pool = vulcains
+    
+    Dispatcher::CONFIG[:min_idle_vulcains] = 5
+    Vulcain.expects(:mount_new_instance).twice
+    
+    @supervisor.ensure_min_idle_vulcains.call
+  end
+  
+  test "no mount of new vulcain if idles great than or equal config.min_idle_vulcains" do
+    @pool.pool = vulcains
+    
+    Dispatcher::CONFIG[:min_idle_vulcains] = 3
+    Vulcain.expects(:mount_new_instance).never
+    
+    @supervisor.ensure_min_idle_vulcains.call
+  end
+  
+  test "dump idles samples" do
+    @pool.pool = vulcains
+    
+    YAML.stubs(:load_file).returns([])
+    File.stubs(:open)
+    
+    @supervisor.dump_idles_samples.call
+    
+    samples = @supervisor.instance_variable_get(:@idle_samples)
+    
+    assert_equal 1, samples.count
+    assert_equal 3, samples.first[:idle]
+    assert_equal 3, samples.first[:total]
+  end
+  
+  test "unmount vulcains if average of idles vulcains for last hour samples is gte config.max_idle_average" do
+    @pool.pool = vulcains
+    Dispatcher::CONFIG[:min_idle_vulcains] = 1
+    Dispatcher::CONFIG[:max_idle_average] = 50
+    Dispatcher::CONFIG[:dump_idles_samples_every] = 10
+    Dispatcher::CONFIG[:ensure_max_idle_vulcains_every] = 20
+    
+    samples = (1..100).map { |n|  { idle:3, total:3, ratio:100 } } 
+    @supervisor.instance_variable_set(:@idle_samples, samples)
+    
+    Vulcain.expects(:unmout_instance).twice
+    
+    @supervisor.ensure_max_idle_vulcains.call
+  end
+  
+  test " no unmount vulcains if average of idles vulcains for last hour samples is lt config.max_idle_average" do
+    @pool.pool = vulcains
+    Dispatcher::CONFIG[:min_idle_vulcains] = 1
+    Dispatcher::CONFIG[:max_idle_average] = 51
+    Dispatcher::CONFIG[:dump_idles_samples_every] = 10
+    Dispatcher::CONFIG[:ensure_max_idle_vulcains_every] = 20
+    
+    samples = (1..100).map { |n|  { idle:3, total:3, ratio:50 } } 
+    @supervisor.instance_variable_set(:@idle_samples, samples)
+    
+    Vulcain.expects(:unmout_instance).never
+    
+    @supervisor.ensure_max_idle_vulcains.call
+  end
+  
   
   private
   
