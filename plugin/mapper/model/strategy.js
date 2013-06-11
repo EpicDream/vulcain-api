@@ -60,7 +60,7 @@ var Strategy = function(host, mobile) {
     }.bind(this));
   };
   this.save = function(onFail, onDone) {
-    if (this.steps.length == 0)
+    if (this.steps.length == 0 || this.steps[0].actions.length == 0)
       return;
     this.bdd.save(this.toHash(), onFail, onDone);
   };
