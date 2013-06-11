@@ -4,7 +4,7 @@ require 'robot/plugin/i_robot'
 
 class Plugin::RobotFactory
   CONTEXT = { options: {},
-              'account' => {'email' => 'timmy81@yopmail.com', 'login' => "timmy811", 'password' => 'paterson', new_account: false},
+              'account' => {'login' => 'timmy001@yopmail.com', 'password' => 'shopelia2013', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
               'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/137889934/breaking-bad-saison-3-de-bryan-cranston.html",
                                               "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
@@ -65,7 +65,7 @@ INIT
       for step in strategy[:steps]
         f.puts "\t\t\tstep('#{step[:id]}') do"
         for action in step[:actions]
-          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\n\t\t\t\t").rstrip) + "\n"
+          f.puts "\t\t\t\t" + (action[:code].gsub(/\n/, "\n\t\t\t\t").rstrip) + "\n" if action[:classified]
         end
         f.puts "\t\t\tend"
       end

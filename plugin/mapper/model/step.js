@@ -46,6 +46,10 @@ var Step = function(args) {
     return action;
   };
 
+  this.setClassified = function(action) {
+    action.edit({classified: true});
+  };
+
   for (var f in this) {
     if (typeof(this[f]) == "function")
       this[f] = this[f].bind(this);

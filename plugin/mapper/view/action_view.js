@@ -2,7 +2,7 @@
 var ActionView = function(step, action) {
   this.model = action;
   var a = $("<a>").attr("href","#editActionPage");
-  this.page = $("<li>").append(a);
+  this.page = $("<li>").addClass("action").append(a);
   var _that = this;
 
   this.render = function() {
