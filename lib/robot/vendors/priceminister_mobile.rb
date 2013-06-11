@@ -140,9 +140,9 @@ class IRobot < Robot
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
     {id: 'password', desc:"Mot de passe", value:"account.password"},
-    {id: 'email', desc:"Email", value:"account.email"},
-    {id: 'last_name', desc:"Nom", value:"user.last_name"},
-    {id: 'first_name', desc:"Prénom", value:"user.first_name"},
+    {id: 'email', desc:"Email", value:"account.login"},
+    {id: 'last_name', desc:"Nom", value:"user.address.last_name"},
+    {id: 'first_name', desc:"Prénom", value:"user.address.first_name"},
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
     {id: 'birthdate_month', desc:"Mois de naissance", value:"user.birthdate.month"},
     {id: 'birthdate_year', desc:"Année de naissance", value:"user.birthdate.year"},
@@ -162,6 +162,11 @@ class IRobot < Robot
     {id: 'exp_year', desc:"Année d'expiration", value:"order.credentials.exp_year"},
     {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
+
+  def self.randomString(n)
+    chars = ('a'..'z').to_a+('A'..'Z').to_a+('0'..'9').to_a
+    (0...n).map{ chars.sample }.join
+  end
 
   attr_accessor :pl_driver, :shop_base_url
 
@@ -209,16 +214,31 @@ class IRobot < Robot
 
       step('run_finalize') do
         run_step('finalize_order')
+
+        # Billing
+        if @billing.nil?
+          products_price = products.map { |p| p['price_product'] }.inject(&:+)
+          shippings_price = products.map { |p| p['price_delivery'] }.inject(&:+)
+          total_price = products_price + shippings_price
+          @billing = { product:products_price, shipping:shippings_price, total:total_price }
+        end
+
         pl_assess next_step:'run_waitAck'
       end
 
       step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
-          run_step('payment')
+          begin
+            run_step('payment')
+          rescue NoSuchElementError
+            terminate_on_error :order_validation_failed
+          rescue Errno::ECONNREFUSED
+            terminate_on_error :order_validation_failed
+          end
           message :validate_order
-          terminate
+          terminate({ billing: @billing})
         else
-          run_step('empty cart')
+          run_step('empty_cart')
           message :cancel_order
           terminate_on_cancel
         end
@@ -708,18 +728,18 @@ class PriceministerMobile
 				pl_click_on!(plarg_xpath)
 				# E-mail
 				plarg_xpath = '//input[@id="usr_email"]'
-				plarg_argument = account.email
+				plarg_argument = account.login
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Cliquer sur continuer
 				plarg_xpath = '//button[@id="submit_register"]'
 				pl_click_on!(plarg_xpath)
 				# Confirmer l'Email
 				plarg_xpath = '//input[@id="e_mail2"]'
-				plarg_argument = account.email
+				plarg_argument = account.login
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Pseudo
 				plarg_xpath = '//input[@id="login"]'
-				plarg_argument = account.login
+				plarg_argument = IRobot.randomString(12)
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Mot de passe
 				plarg_xpath = '//input[@id="password"]'
@@ -735,11 +755,11 @@ class PriceministerMobile
 				pl_select_option!(plarg_xpath, plarg_argument)
 				# Nom
 				plarg_xpath = '//input[@id="last_name"]'
-				plarg_argument = user.last_name
+				plarg_argument = user.address.last_name
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Prénom
 				plarg_xpath = '//input[@id="first_name"]'
-				plarg_argument = user.first_name
+				plarg_argument = user.address.first_name
 				pl_fill_text!(plarg_xpath, plarg_argument)
 				# Jour de Naissance
 				plarg_xpath = '//select[@id="birth_day"]'
@@ -776,12 +796,9 @@ class PriceministerMobile
 				pl_click_on!(plarg_xpath)
 			end
 			step('login') do
-				# Aller sur le site mobile
-				plarg_xpath = '//div[@id]/div[1]/div[3]/a'
-				pl_click_on(plarg_xpath)
 				# Mon Compte
-				plarg_xpath = '//div[@id]/footer/nav[2]/ul/li[3]/div/div/a'
-				pl_click_on!(plarg_xpath)
+        plarg_url = 'https://www.priceminister.com/connect'
+        pl_open_url!(plarg_url)
 				# Login
 				plarg_xpath = '//div[@id]/div/section/form/fieldset[1]/div'
 				plarg_argument = account.login
@@ -800,7 +817,7 @@ class PriceministerMobile
 			step('unlog') do
 				# Bouton déconnexion
 				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/footer/p[1]/a'
-				pl_click_on!(plarg_xpath)
+				pl_click_on(plarg_xpath)
 			end
 			step('empty_cart') do
 				# Aller sur la page du panier
@@ -897,6 +914,7 @@ class PriceministerMobile
 				plarg_xpath = '//div[@id]/div/button'
 				pl_click_on!(plarg_xpath)
         # Validate
+        wait_ajax(3)
         pl_check!('//div[@class="notification success"]')
 			end
 		end
