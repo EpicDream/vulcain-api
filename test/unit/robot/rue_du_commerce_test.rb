@@ -5,7 +5,9 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   PRODUCT_1_URL = "http://m.rueducommerce.fr/fiche-produit/KVR16S11S8%252F4"
   PRODUCT_2_URL = "http://m.rueducommerce.fr/fiche-produit/MO-67C48M5606091"
   PRODUCT_3_URL = "http://m.rueducommerce.fr/fiche-produit/PENDRIVE-USB2-4GO"
-# http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr  
+  PRODUCT_4_URL = "http://www.rueducommerce.fr/TV-Hifi-Home-Cinema/showdetl.cfm?product_id=4872804#xtor=AL-67-75%5Blien_catalogue%5D-120001%5Bzanox%5D-%5B1532882"
+  PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
+  
   attr_accessor :robot
   
   setup do
@@ -88,9 +90,13 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   
   test "delete product options" do
     @message.expects(:message).times(10)
+    @context['order']['products_urls'] = [PRODUCT_4_URL]
+    @robot.context = @context
+    
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
+    robot.open_url RueDuCommerce::CART_URL
     robot.run_step('delete product options')
     
     assert_equal 1, robot.find_elements(RueDuCommerce::REMOVE_ITEM).count
