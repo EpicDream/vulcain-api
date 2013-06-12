@@ -3,6 +3,9 @@ class RueDuCommerce
   PRICES_IN_TEXT = lambda do |text| 
     text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
   end
+  WEB_PRICES_IN_TEXT = lambda do |text|
+    text.scan(/(\d+[,\.\d+]*)\s*€/).flatten.map { |price| price.gsub('€', '').gsub(',', '.').to_f }
+  end
   
   URL = 'http://m.rueducommerce.fr'
   CREATE_ACCOUNT_URL = 'http://m.rueducommerce.fr/creation-compte'
@@ -63,6 +66,16 @@ class RueDuCommerce
 
   THANK_YOU_HEADER = '/html/body/div/div[2]/div/div[3]'
   
+  CRAWLING = {
+    title:'//*[@itemprop="name"]', 
+    price:'//div[@class="prices"] | //div[@id="zm_prices_information"]',
+    image_url:'//img[@itemprop="image"]',
+    shipping_info: '//div[@class="trsp"]/div[@class="desc"] | //*[@id="zm_shipments_information"]',
+    available:'//div[@id="zm_availability"] | //div[@id="dispo"]',
+    options_keys:'//dl[@class="attMenu"]//dt',
+    options_values:'//dl[@class="attMenu"]//dd'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -84,10 +97,24 @@ class RueDuCommerce
       
       step('crawl') do
         open_url @context['url']
-        
-        title = get_text '//*[@id="page"]/div[2]/div/div[1]/div[3]/div[1]/h1'
-        puts title.inspect
-        terminate({product_title:"Crème glaçée", product_price:3.12})
+        @crawled_page = Nokogiri::HTML.parse @driver.page_source
+        product = Hash.new
+        product[:product_title] =  scrap_text CRAWLING[:title]
+        product[:product_price] = WEB_PRICES_IN_TEXT.(scrap_text CRAWLING[:price]).last
+        product[:product_image_url] = @crawled_page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_info] = scrap_text CRAWLING[:shipping_info] 
+        product[:shipping_price] = WEB_PRICES_IN_TEXT.(product[:shipping_info]).first
+        product[:available] = !!(scrap_text(CRAWLING[:available]) =~ /en\s+stock/i)
+        product[:options] = {}
+        keys = @crawled_page.xpath(CRAWLING[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
+        values = @crawled_page.xpath(CRAWLING[:options_values]).map do |dd|
+          dd.xpath(".//li").map(&:text)
+        end
+        keys.each_with_index do |key, index|
+          product[:options][key] = values[index]
+        end
+        puts product.inspect
+        terminate(product.to_hash)
       end
       
       step('renew login') do

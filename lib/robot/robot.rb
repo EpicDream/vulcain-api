@@ -336,4 +336,8 @@ class Robot
     response['text']
   end
   
+  def scrap_text xpath
+    @crawled_page.xpath(xpath).text
+  end
+  
 end
