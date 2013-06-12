@@ -245,14 +245,17 @@ class Cdiscount
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
         
-        screenshot
-        page_source
-        
         page = wait_for([THANK_YOU_HEADER]) do
+          screenshot
+          page_source
+          
           terminate_on_error(:order_validation_failed)
         end
         
         if page
+          screenshot
+          page_source
+          
           thanks = get_text THANK_YOU_HEADER
           if thanks =~ /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
             run_step('remove credit card')
