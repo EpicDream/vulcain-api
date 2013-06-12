@@ -154,7 +154,12 @@ class Cdiscount
       
       step('add to cart') do
         open_url next_product_url
-        wait_for([ADD_TO_CART, VENDORS_OFFERS])
+        extra = '//div[@id="fpBlocPrice"]//span[@class="href underline"]'
+        wait_for([ADD_TO_CART, VENDORS_OFFERS, extra])
+        if exists? extra
+          click_on extra
+          wait_for([ADD_TO_CART, VENDORS_OFFERS])
+        end
         if exists? ADD_TO_CART
           click_on ADD_TO_CART
         else #fuck this site made by daft dump developers

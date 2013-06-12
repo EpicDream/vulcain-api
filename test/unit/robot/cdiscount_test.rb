@@ -8,6 +8,7 @@ class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_2 = 'http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html'
   PRODUCT_URL_3 = 'http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'
   PRODUCT_URL_4 = 'http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)'
+  PRODUCT_URL_5 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-schtroumpfs-xxl-60-pieces/f-1270102-harischtrouxxl.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
 
   attr_accessor :robot
   
@@ -43,7 +44,7 @@ class CdiscountTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -141,6 +142,18 @@ class CdiscountTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
     assert_equal products, robot.products
     assert_equal billing, robot.billing
+  end
+  
+  test "something interesting" do
+    @message.expects(:message).times(20)
+    @context["order"]["products_urls"] = [PRODUCT_URL_5]
+    robot.context = @context
+    
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    
+    robot.run_step('finalize order')
   end
   
   
