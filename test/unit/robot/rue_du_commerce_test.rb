@@ -7,7 +7,8 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   PRODUCT_3_URL = "http://m.rueducommerce.fr/fiche-produit/PENDRIVE-USB2-4GO"
   PRODUCT_4_URL = "http://www.rueducommerce.fr/TV-Hifi-Home-Cinema/showdetl.cfm?product_id=4872804#xtor=AL-67-75%5Blien_catalogue%5D-120001%5Bzanox%5D-%5B1532882"
   PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
-  
+  PRODUCT_6_URL = "http://www.rueducommerce.fr/m/ps/mpid:MP-42926M4841177#moid:MO-42926M7413106"
+
   attr_accessor :robot
   
   setup do
@@ -41,7 +42,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-    @robot.driver.quit
+    #@robot.driver.quit
   end
   
   test "account creation" do
@@ -143,6 +144,16 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     robot.run_step('add to cart')
     robot.run_step('finalize order')
     robot.run_step('cancel order')
+  end
+  
+  test "crawl url product url 5" do
+    @context = {'url' => PRODUCT_5_URL }
+    @robot.context = @context
+    
+    @message.expects(:message).times(10)
+    robot.expects(:terminate)
+    
+    robot.run_step('crawl')
   end
   
 end

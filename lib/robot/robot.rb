@@ -38,6 +38,10 @@ class Robot
     run_step('run')
   end
   
+  def crawl
+    run_step('crawl')
+  end
+  
   def run_step name, args=nil
     messager.logging.message(:step, "#{name}")
     @steps[name].call(args)

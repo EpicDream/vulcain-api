@@ -9,7 +9,7 @@ module Dispatcher
           @channel = AMQP::Channel.new(connection)
           @channel.on_error(&channel_error_handler)
           @exchange = @channel.headers("amqp.headers")
-          @queues = [VULCAINS_QUEUE, LOGGING_QUEUE, ADMIN_QUEUE, RUN_API_QUEUE, ANSWER_API_QUEUE].inject({}) do |h, name|
+          @queues = [VULCAINS_QUEUE, LOGGING_QUEUE, ADMIN_QUEUE, RUN_API_QUEUE, ANSWER_API_QUEUE, INFORMATION_API_QUEUE].inject({}) do |h, name|
             queue = @channel.queue.bind(@exchange, arguments:{'x-match' => 'all', queue:name})
             h.merge!({name => queue})
           end
@@ -32,6 +32,7 @@ module Dispatcher
     private
     
     def mount_queues_handlers
+      
       with_queue(@queues[RUN_API_QUEUE]) do |message, session|
         if @pool.uuid_conflict?(session)
           Message.new(:uuid_conflict).for(session).to(:shopelia)
@@ -67,10 +68,23 @@ module Dispatcher
       end
       
       with_queue(@queues[VULCAINS_QUEUE]) do |message, session|
-        Message.new.forward(message).to(:shopelia)
+        case session["callback_url"]
+        when "product_informations"
+          Message.new.forward(message).to(:api_controller)
+        else
+          Message.new.forward(message).to(:shopelia)
+        end
       end
 
       with_queue(@queues[LOGGING_QUEUE])
+      
+      with_queue(@queues[INFORMATION_API_QUEUE]) do |message, session|
+        unless vulcain = @pool.pull(session)
+          Message.new(:no_idle).for(session).to(:api_controller)
+        else
+          Message.new.forward(message).to(vulcain)
+        end
+      end
     end
     
     def configuration

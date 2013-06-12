@@ -11,6 +11,8 @@ module Dispatcher
   ADMIN_QUEUE = "admin-queue"
   RUN_API_QUEUE = "run-api-queue"
   ANSWER_API_QUEUE = "answer-api-queue"
+  INFORMATION_API_QUEUE = "information-api-queue"
+  INFORMATION_API_CLIENT_QUEUE = "information-api-client-queue"
   VULCAIN_QUEUE = lambda { |vulcain_id| "vulcain-#{vulcain_id}" }
 end
 

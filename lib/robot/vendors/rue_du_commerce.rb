@@ -82,6 +82,14 @@ class RueDuCommerce
         end
       end
       
+      step('crawl') do
+        open_url @context['url']
+        
+        title = get_text '//*[@id="page"]/div[2]/div/div[1]/div[3]/div[1]/h1'
+        puts title.inspect
+        terminate({product_title:"Crème glaçée", product_price:3.12})
+      end
+      
       step('renew login') do
         run_step('logout')
         open_url order.products_urls[0] #affiliation cookie
