@@ -125,7 +125,7 @@ class Plugin::IRobot < Robot
             rescue NoSuchElementError
               terminate_on_error :account_creation_failed
             end
-            message :expect, :next_step => 'create account'
+            message :account_created
             run_step('unlog')
             pl_open_url @shop_base_url
           end
