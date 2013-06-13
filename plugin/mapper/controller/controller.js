@@ -25,3 +25,5 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     console.error("fail to load types for host", glob.host);
   });
 });
+
+window.history.replaceState({hash:"#startPage"},'',"#startPage");
