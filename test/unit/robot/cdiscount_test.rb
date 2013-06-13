@@ -13,7 +13,7 @@ class CdiscountTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_02@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_03@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1],
                             'credentials' => {
@@ -50,7 +50,7 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "account creation" do
-    skip "Can' create account each time!"
+    #skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
     
@@ -123,6 +123,18 @@ class CdiscountTest < ActiveSupport::TestCase
 
     assert_equal products, robot.products
     assert_equal billing, robot.billing
+  end
+  
+  test "add to cart and finalize order with confirmation of address" do
+    @context["user"]["address"]["address_1"] = "32781 rue de nulle part ailleurs"
+    robot.context = @context
+    
+    @message.expects(:message).times(14)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+
   end
   
   test "add to cart and finalize order with 4x payment option to avoid" do

@@ -200,6 +200,11 @@ class Cdiscount
         click_on SHIPMENT_SAME_BILLING_ADDRESS
         wait_ajax
         click_on SHIPMENT_FORM_SUBMIT
+        wait_for [VALIDATE_SHIPMENT_TYPE, SHIPMENT_FORM_SUBMIT]
+        if exists? '//*[@id="deliveryAddressChoice_2"]'
+          click_on '//*[@id="deliveryAddressChoice_2"]'
+          click_on SHIPMENT_FORM_SUBMIT
+        end
       end
       
       step('finalize order') do
@@ -211,14 +216,14 @@ class Cdiscount
         if exists? SHIPMENT_FORM_SUBMIT
           run_step('submit address')
         end
-        wait_for([VALIDATE_SHIPMENT_TYPE])
-        if exists? COLISSIMO_RADIO
-          click_on COLISSIMO_RADIO
-        end
-        click_on VALIDATE_SHIPMENT_TYPE
-        click_on CB_PAYMENT_SUBMIT
-        run_step('build final billing')
-        assess
+        # wait_for([VALIDATE_SHIPMENT_TYPE])
+        # if exists? COLISSIMO_RADIO
+        #   click_on COLISSIMO_RADIO
+        # end
+        # click_on VALIDATE_SHIPMENT_TYPE
+        # click_on CB_PAYMENT_SUBMIT
+        # run_step('build final billing')
+        # assess
       end
       
       step('payment') do
