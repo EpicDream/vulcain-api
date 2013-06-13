@@ -29,6 +29,10 @@ class Fnac
   REGISTER_MOBILE_PHONE = '//*[@id="RegistrationMemberId_registrationContainer_cellPhone_txtCellPhone"]'
   REGISTER_ADDRESS_SUBMIT = '//*[@id="RegistrationMemberId_submitButton"]'
   
+  MPOFFER = '//span[@class="mpoffer"]/a'
+  MPOFFER_FIRST_OFFER = '//*[@id="offers_list"]/ul/li[1]'
+  MPOFFER_FIRST_OFFER_ADD_TO_CART = '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a'
+  MPOFFER_FIRST_OFFER_PRICE_TEXT = '//*[@id="offers_list"]/ul/li[1]//div[@class="offer-pricer"]'
   ADD_TO_CART = '//div[@class="addbasket"]'
   PRICE_TEXT = '//div[@class="buybox"]/fieldset'
   PRODUCT_TITLE = '//*[@id="content"]/div/section[1]/div[1]'
@@ -166,6 +170,14 @@ class Fnac
         products << product
       end
       
+      step('update product') do
+        product = products.last
+        product['price_text'] = get_text MPOFFER_FIRST_OFFER_PRICE_TEXT
+        prices = PRICES_IN_TEXT.(product['price_text'])
+        product['price_product'] = prices[0]
+        product['price_delivery'] = prices[1]
+      end
+      
       step('empty cart') do |args|
         run_step('remove credit card')
         open_url CART_URL
@@ -184,20 +196,37 @@ class Fnac
         end
       end
       
+      step('add to cart product new and lowest price') do
+        click_on MPOFFER
+        if click_on_link_with_attribute("@title", "Neuf")
+          click_on MPOFFER_FIRST_OFFER
+          run_step('update product')
+          click_on MPOFFER_FIRST_OFFER_ADD_TO_CART
+        else
+          terminate_on_error(:out_of_stock)
+        end
+      end
+      
       step('add to cart') do
         if url = next_product_url
           open_url url
           wait_ajax
+          
           found = wait_for [ADD_TO_CART] do
-            raise
             message :no_product_available
             terminate_on_error(:no_product_available) 
           end
+          
           if found
             run_step('build product')
-            click_on ADD_TO_CART
+            if exists? MPOFFER
+              run_step('add to cart product new and lowest price')
+            else
+              click_on ADD_TO_CART
+            end
             run_step 'add to cart'
           end
+          
         else
           wait_ajax(3)
           message :cart_filled, :next_step => 'finalize order'
