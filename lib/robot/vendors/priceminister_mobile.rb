@@ -182,10 +182,11 @@ class IRobot < Robot
           if account.new_account
             begin
               run_step('account_creation')
+
             rescue NoSuchElementError
               terminate_on_error :account_creation_failed
             end
-            message :expect, :next_step => 'create account'
+            message :account_created
             run_step('unlog')
             pl_open_url @shop_base_url
           end
