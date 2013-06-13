@@ -49,8 +49,8 @@ var Step = function(args) {
     return action;
   };
 
-  this.setClassified = function(action) {
-    action.edit({classified: true});
+  this.setClassified = function(action, classified) {
+    action.edit({classified: or(classified, true)});
     model.setModified();
   };
 

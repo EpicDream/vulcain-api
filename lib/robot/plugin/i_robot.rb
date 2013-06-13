@@ -262,9 +262,9 @@ class Plugin::IRobot < Robot
     meth_name = methSym.to_s+'!'
     if self.respond_to?(meth_name)
       begin
-        return self.send(meth_name, *args, &block)
+        return self.send(meth_name, *args, &block) || true
       rescue NoSuchElementError
-        return nil
+        return false
       end
     else
       return super(methSym, *args, &block)

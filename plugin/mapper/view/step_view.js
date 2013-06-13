@@ -86,8 +86,7 @@ var StepView = function(step, patternPage, predefined) {
     var actionView = ui.item[0].view;
     var idx = $.inArray(ui.item[0], _actionsList.find("li.action"));
     step.moveAction(actionView.model, idx);
-    if ($(ui.item[0]).index() < _toClassifyDivider.index())
-      step.setClassified(actionView.model)
+    step.setClassified(actionView.model, $(ui.item[0]).index() < _toClassifyDivider.index());
   };
 
   function _onNewActionClicked(event) {
