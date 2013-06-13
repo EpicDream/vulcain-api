@@ -138,9 +138,11 @@ class Plugin::StrategiesController < ApplicationController
               {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
               {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
               {id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
-              {id: "adresse_field", desc: "Adresse", option: "", type: "pl_fill_text","arg"=>"address_1"},
+              {id: "adresse1_field", desc: "Adresse 1", option: "", type: "pl_fill_text","arg"=>"address_1"},
+              {id: "adresse2_field", desc: "Adresse 2", option: "", type: "pl_fill_text","arg"=>"address_2"},
               {id: "codepostal_field", desc: "Code Postal", option: "", type: "pl_fill_text","arg"=>"zip"},
               {id: "ville_field", desc: "Ville", option: "", type: "pl_fill_text","arg"=>"city"},
+              {id: "pays_field", desc: "Pays", option: "", type: "pl_fill_text","arg"=>"country"},
               {id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
               {id: "telephoneMobile_field", desc: "Téléphone mobile", option: "", type: "pl_fill_text","arg"=>"mobile_phone"},
               {id: "continuer_btn", desc: "Bouton continuer", option: "", type: "pl_click_on"}

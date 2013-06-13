@@ -322,6 +322,20 @@ class Plugin::IRobot < Robot
     input = inputs.first
     input.clear
     input.send_keys(value)
+    return if input.value == value
+    message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+
+    5.times do |i|
+      input.clear
+      value.split('').each do |c|
+        input.send_keys(c)
+        sleep(0.1 * (i+1))
+      end
+      break if input.value == value
+      message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+    end
+    return if input.value == value
+    raise StrategyError, "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
   end
 
   # Select option.
