@@ -6,8 +6,8 @@ class Plugin::RobotFactory
   CONTEXT = { options: {},
               'account' => {'login' => 'timmy001@yopmail.com', 'password' => 'shopelia2013', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-              'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/137889934/breaking-bad-saison-3-de-bryan-cranston.html",
-                                              "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
+              'order' => {'products_urls' => ["http://m.zalando.fr/polo-ralph-lauren-polo-jaune-po222d02u-202.html",
+                              "http://m.zalando.fr/polo-ralph-lauren-hanford-baskets-basses-jaune-po212a02g-212.html"],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
                             'number' => '401290129019201',
@@ -118,7 +118,7 @@ INIT
     robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
-    return {}
+    return {products: robot.products, biling: robot.billing}
   rescue Plugin::IRobot::StrategyError => err
     return err.to_h
   ensure

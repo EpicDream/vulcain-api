@@ -133,7 +133,7 @@ class Plugin::StrategiesController < ApplicationController
               {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
               {id: "set_tot_products_price", desc: "Indiquer le prix total des produits", option: "", type: "pl_set_tot_products_price"},
               {id: "set_tot_shipping_price", desc: "Indiquer le prix de livraison total", option: "", type: "pl_set_tot_shipping_price"},
-              {id: "set_total_price", desc: "Indiquer le prix total", option: "", type: "pl_set_total_price"},
+              {id: "set_total_price", desc: "Indiquer le prix total", option: "", type: "pl_set_tot_price"},
               {id: "finalize_btn", desc: "Bouton finalisation", option: "", type: "pl_click_on"},
               {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
               {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},

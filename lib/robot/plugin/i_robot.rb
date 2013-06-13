@@ -54,6 +54,9 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
+    {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
+    {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
@@ -104,6 +107,7 @@ class Plugin::IRobot < Robot
     super(context, &block)
     @pl_driver = @driver.driver
     @pl_current_product = {}
+    @billing = {}
 
     self.instance_eval do
       step('run') do
@@ -145,13 +149,9 @@ class Plugin::IRobot < Robot
       step('run_finalize') do
         run_step('finalize_order')
 
-        # Billing
-        if @billing.nil?
-          products_price = products.map { |p| p['price_product'] }.sum
-          shippings_price = products.map { |p| p['price_delivery'] }.sum
-          total_price = products_price + shippings_price
-          @billing = { product:products_price, shipping:shippings_price, total:total_price }
-        end
+        @billing[:product] = products.map { |p| p['price_product'] }.sum if @billing[:product].nil?
+        @billing[:shipping] = products.map { |p| p['price_delivery'] }.sum if @billing[:shipping].nil?
+        @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
 
         pl_assess next_step:'run_waitAck'
       end
@@ -438,14 +438,34 @@ class Plugin::IRobot < Robot
     raise
   end
 
-  def pl_set_tot_products_price
-    # product:products_price, shipping:shippings_price, total:total_price
+  def pl_set_tot_products_price!(xpath)
+    text = get_text(xpath)
+    @billing[:product] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
-  def pl_set_tot_shipping_price
+  def pl_set_tot_shipping_price!(xpath)
+    text = get_text(xpath)
+    @billing[:shipping] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
-  def pl_set_total_price
+  def pl_set_tot_price!(xpath)
+    text = get_text(xpath)
+    @billing[:total] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
   end
 
   def pl_binding

@@ -107,8 +107,10 @@ var StrategyView = function(_strategy) {
       $.mobile.loading('hide');
       if (hash.msg)
         _errorView.load(hash);
-      else
+      else {
+        console.log(hash);
         popupText.text("Aucune erreur détecté :-)");
+      }
       popupText.parent().popup("open");
     }).fail(function() {
       $.mobile.loading('hide');
