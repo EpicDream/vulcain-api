@@ -9,6 +9,7 @@ class Log
   scope :since, ->(since) { where(:created_at.gte => since) }
   
   def self.create data
+    return if skip?(data)
     super data
     syslog data
   end
@@ -38,6 +39,10 @@ class Log
   
   def self.syslog data
     File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{data}\n") }
+  end
+  
+  def self.skip? data
+    data && data["status"] =~ /ping/
   end
   
 end

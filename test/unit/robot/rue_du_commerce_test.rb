@@ -2,7 +2,6 @@ require 'test_helper'
 require_robot 'rue_du_commerce'
 
 class RueDuCommerceTest < ActiveSupport::TestCase
-  Driver::TIMEOUT = 5
   PRODUCT_1_URL = "http://m.rueducommerce.fr/fiche-produit/KVR16S11S8%252F4"
   PRODUCT_2_URL = "http://m.rueducommerce.fr/fiche-produit/MO-67C48M5606091"
   PRODUCT_3_URL = "http://m.rueducommerce.fr/fiche-produit/PENDRIVE-USB2-4GO"
