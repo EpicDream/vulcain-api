@@ -4,7 +4,7 @@ class RueDuCommerce
     text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
   end
   WEB_PRICES_IN_TEXT = lambda do |text|
-    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub('€', '').gsub(',', '.').to_f }
+    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub(',', '.').to_f }
   end
   
   URL = 'http://m.rueducommerce.fr'
@@ -108,6 +108,7 @@ class RueDuCommerce
         keys = @page.xpath(CRAWLING[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
         values = @page.xpath(CRAWLING[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
         keys.each_with_index { |key, index| product[:options][key] = values[index]}
+
         terminate(product)
       end
       
