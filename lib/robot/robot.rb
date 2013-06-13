@@ -38,6 +38,10 @@ class Robot
     run_step('run')
   end
   
+  def crawl
+    run_step('crawl')
+  end
+  
   def run_step name, args=nil
     messager.logging.message(:step, "#{name}")
     @steps[name].call(args)
@@ -330,6 +334,10 @@ class Robot
     client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
     response = client.decode image_url
     response['text']
+  end
+  
+  def scraped_text xpath
+    HtmlToPlainText.plain_text @page.xpath(xpath).to_s
   end
   
 end

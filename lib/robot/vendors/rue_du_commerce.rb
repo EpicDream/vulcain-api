@@ -3,6 +3,9 @@ class RueDuCommerce
   PRICES_IN_TEXT = lambda do |text| 
     text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
   end
+  WEB_PRICES_IN_TEXT = lambda do |text|
+    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub(',', '.').to_f }
+  end
   
   URL = 'http://m.rueducommerce.fr'
   CREATE_ACCOUNT_URL = 'http://m.rueducommerce.fr/creation-compte'
@@ -63,6 +66,16 @@ class RueDuCommerce
 
   THANK_YOU_HEADER = '/html/body/div/div[2]/div/div[3]'
   
+  CRAWLING = {
+    title:'//*[@itemprop="name"]', 
+    price:'//div[@class="prices"]//td[@class="px_ctc"] | //div[@id="zm_prices_information"]',
+    image_url:'//img[@itemprop="image"]',
+    shipping_info: '//div[@class="trsp"]/div[@class="desc"]/ul/li[1] | //*[@id="zm_shipments_information"]',
+    available:'//div[@id="zm_availability"] | //div[@id="dispo"]',
+    options_keys:'//dl[@class="attMenu"]//dt',
+    options_values:'//dl[@class="attMenu"]//dd'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -80,6 +93,23 @@ class RueDuCommerce
         else
           run_step 'renew login'
         end
+      end
+      
+      step('crawl') do
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+        product = {:options => {}}
+        product[:product_title] =  scraped_text CRAWLING[:title]
+        product[:product_price] = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).first
+        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_info] = scraped_text CRAWLING[:shipping_info] 
+        product[:shipping_price] = WEB_PRICES_IN_TEXT.(product[:shipping_info]).first
+        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
+        keys = @page.xpath(CRAWLING[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
+        values = @page.xpath(CRAWLING[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
+        keys.each_with_index { |key, index| product[:options][key] = values[index]}
+
+        terminate(product)
       end
       
       step('renew login') do
