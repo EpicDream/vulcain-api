@@ -13,7 +13,6 @@ class Cdiscount
     text.scan(/(\d+(?:,\d+)?\s*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
   end
   
-  
   REGISTER_CIVILITY_M = '//*[@id="cphMainArea_UserRegistrationCtl_optM"]'
   REGISTER_CIVILITY_MME = '//*[@id="cphMainArea_UserRegistrationCtl_optMme"]'
   REGISTER_CIVILITY_MLLE = '//*[@id="cphMainArea_UserRegistrationCtl_optMlle"]'
