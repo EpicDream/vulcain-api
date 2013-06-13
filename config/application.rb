@@ -68,7 +68,7 @@ module VulcainApi
     
     config.dispatcher = {
       strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceMinister", "PriceministerMobile"],
-      min_idle_vulcains: 0,
+      min_idle_vulcains: 5,
       max_idle_average: 50, # %
       running_timeout_after: 3.minutes,      
       ensure_min_idle_vulcains_every: 30.seconds,
