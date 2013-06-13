@@ -44,13 +44,13 @@ class CdiscountTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
   
   test "account creation" do
-    #skip "Can' create account each time!"
+    skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
     
