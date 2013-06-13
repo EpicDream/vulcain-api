@@ -89,5 +89,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.dest = 'plugin';
     msg.path = path;
     chrome.extension.sendMessage(msg);
+  } else if (msg.action == "clearCookies") {
+    hu.cookies.removeAll();
   }
 });

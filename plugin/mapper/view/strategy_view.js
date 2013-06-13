@@ -155,6 +155,7 @@ var StrategyView = function(_strategy) {
     }
   };
   function _onClear(event) {
+    chrome.extension.sendMessage({'dest':'contentscript','action':'clearCookies'});
     if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) {
       _strategy.clearCache();
     }
