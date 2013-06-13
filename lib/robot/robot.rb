@@ -1,5 +1,7 @@
 # encoding: utf-8
 require "ostruct"
+require "nokogiri"
+require "html_to_plain_text"
 
 class Robot
 

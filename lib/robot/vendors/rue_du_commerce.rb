@@ -98,6 +98,7 @@ class RueDuCommerce
       step('crawl') do
         open_url @context['url']
         @page = Nokogiri::HTML.parse @driver.page_source
+        
         product = {:options => {}}
         product[:product_title] =  scraped_text CRAWLING[:title]
         product[:product_price] = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).first
