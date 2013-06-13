@@ -18,6 +18,7 @@ var StepView = function(step, patternPage, predefined) {
     _page.find(".newActionButton").click(_onNewActionClicked.bind(_that));
     _page.find(".newActionSelect").change(_onNewActionSelected.bind(_that));
     _page.find(".testPopup").popup();
+    _page.find(".help").attr("href","#help_"+step.id);
 
     _actionsList.on("sortupdate", _onActionsSorted.bind(_that));
     _actionsList.sortable({cancel: "li.actionDivider"});

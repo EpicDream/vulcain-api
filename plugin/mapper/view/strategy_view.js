@@ -83,7 +83,7 @@ var StrategyView = function(_strategy) {
     }.bind(this));
   };
   function _onUnload(event) {
-    localStorage[_strategy.id+"_lastPage"] = $("div[data-role='page']:visible").attr("id");
+    localStorage[_strategy.id+"_lastPage"] = $("div[data-role='page'].stepPage:visible").attr("id");
     if (_strategy.modified()) {
       _strategy.save();
       wait(200);/*send ajax*/

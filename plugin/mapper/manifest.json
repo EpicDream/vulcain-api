@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Shopelia Mapper",
-  "version": "0.41.0",
+  "version": "0.42.3",
   "description": "Permet de récupérer le XPath d'éléments d'un site.",
   "background": {
     "scripts": ["background.js"],
