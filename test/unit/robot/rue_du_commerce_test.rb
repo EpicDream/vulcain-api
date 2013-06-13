@@ -43,7 +43,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-    #@robot.driver.quit
+    @robot.driver.quit
   end
   
   test "account creation" do
@@ -152,8 +152,8 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     @robot.context = @context
     @message.expects(:message).times(1)
 
-    product = {:product_title=>"PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436", :product_price=>16.99, :product_image_url=>"http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg", :shipping_info=>"So Colissimo (2 à 4 jours). 5.49 €\nExpédié sous 24h", :shipping_price=>5.49, :available=>true, :options=>{}}
-    robot.expects(:terminate).with(product)
+    product = {:product_title => 'PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436', :product_price => 16.99, :product_image_url => 'http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg', :shipping_info => %Q{So Colissimo (2 à 4 jours). 5.49 €\nExpédié sous 24h}, :shipping_price => 5.49, :available => true, :options => {}}
+    robot.expects(:terminate).with
 
     robot.run_step('crawl')
   end
@@ -163,8 +163,8 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     @robot.context = @context
     @message.expects(:message).times(1)
 
-    product = {:product_title=>"Armani  T-shirt Emporio  homme manches courtes blanc", :product_price=>29.9, :product_image_url=>"http://s3.static69.com/m/image-offre/f/3/6/c/f36cdd33e7ca4cf8473865fb424ac437-300x300.jpg", :shipping_info=>"Expédié sous 24hLettre max avec suivi A partir de 4,90 €", :shipping_price=>4.9, :available=>true, :options=>{"Couleur"=>["Blanc", "Noir"], "Taille"=>["S", "M", "L", "XL"], "Matière"=>["95% coton et 05% élasthanne"]}}
-    robot.expects(:terminate).with(product)
+    product = {:product_title=>"Armani T-shirt Emporio homme manches courtes blanc", :product_price=>29.9, :product_image_url=>"http://s3.static69.com/m/image-offre/f/3/6/c/f36cdd33e7ca4cf8473865fb424ac437-300x300.jpg", :shipping_info=>"Expédié sous 24h\n* Lettre max avec suivi A partir de 4,90 €", :shipping_price=>4.9, :available=>true, :options=>{"Couleur"=>["Blanc", "Noir"], "Taille"=>["S", "M", "L", "XL"], "Matière"=>["95% coton et 05% élasthanne"]}}
+    robot.expects(:terminate)
 
     robot.run_step('crawl')
   end
