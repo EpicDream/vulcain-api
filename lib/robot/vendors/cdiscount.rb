@@ -216,14 +216,14 @@ class Cdiscount
         if exists? SHIPMENT_FORM_SUBMIT
           run_step('submit address')
         end
-        # wait_for([VALIDATE_SHIPMENT_TYPE])
-        # if exists? COLISSIMO_RADIO
-        #   click_on COLISSIMO_RADIO
-        # end
-        # click_on VALIDATE_SHIPMENT_TYPE
-        # click_on CB_PAYMENT_SUBMIT
-        # run_step('build final billing')
-        # assess
+        wait_for([VALIDATE_SHIPMENT_TYPE])
+        if exists? COLISSIMO_RADIO
+          click_on COLISSIMO_RADIO
+        end
+        click_on VALIDATE_SHIPMENT_TYPE
+        click_on CB_PAYMENT_SUBMIT
+        run_step('build final billing')
+        assess
       end
       
       step('payment') do
