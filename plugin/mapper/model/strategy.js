@@ -16,6 +16,7 @@ var Strategy = function(host, mobile) {
     that.setMobility(mobile);
     that.created_at = (new Date()).getTime();
     that.updated_at = that.created_at;
+    that.productsUrl = [];
   };
 
   this.initTypes = function() {
@@ -38,6 +39,7 @@ var Strategy = function(host, mobile) {
       res.steps[i] = this.steps[i].toHash(args);
     res.created_at = this.created_at;
     res.updated_at = this.updated_at;
+    res.productsUrl = this.productsUrl;
     return res;
   };
 
@@ -60,6 +62,7 @@ var Strategy = function(host, mobile) {
       }
       this.created_at = hash.created_at;
       this.updated_at = hash.updated_at;
+      this.productsUrl = hash.productsUrl;
       _modified = false;
       onLoad();
     }.bind(this), function() {
@@ -92,12 +95,17 @@ var Strategy = function(host, mobile) {
   this.modified = function() {
     return _modified;
   };
+  this.addProductUrl = function(url) {
+    this.productsUrl.push(url);
+    this.setModified();
+  };
 
   this.clearCache = function() { this.bdd.clearCache(this); };
   this.reset = function() {
     this.setDefault();
     this.created_at = (new Date()).getTime();
     this.updated_at = this.created_at;
+    this.productsUrl = [];
     _modified = false;
   };
 

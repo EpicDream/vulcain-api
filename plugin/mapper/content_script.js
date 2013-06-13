@@ -74,6 +74,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.action = "setPageInfos"
     msg.host = location.host;
     msg.path = location.pathname;
+    msg.href = location.href;
     msg.mobile = plugin.mobile;
     msg.dest = 'plugin';
     chrome.extension.sendMessage(msg);

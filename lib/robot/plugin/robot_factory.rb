@@ -6,8 +6,7 @@ class Plugin::RobotFactory
   CONTEXT = { options: {},
               'account' => {'login' => 'timmy001@yopmail.com', 'password' => 'shopelia2013', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-              'order' => {'products_urls' => ["http://m.zalando.fr/polo-ralph-lauren-polo-jaune-po222d02u-202.html",
-                              "http://m.zalando.fr/polo-ralph-lauren-hanford-baskets-basses-jaune-po212a02g-212.html"],
+              'order' => {'products_urls' => [],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
                             'number' => '401290129019201',
@@ -16,13 +15,13 @@ class Plugin::RobotFactory
                             'cvv' => 123}},
               'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
                          'gender' => 0,
-                         'address' => { 'address_1' => '1 rue des lilas',
+                         'address' => { 'address_1' => '12 rue des lilas',
                                         'address_2' => '',
                                         'first_name' => 'Timmy',
                                         'last_name' => 'Dupont',
                                         'additionnal_address' => '',
-                                        'zip' => '35111',
-                                        'city' => 'Lillemer',
+                                        'zip' => '75019',
+                                        'city' => 'Paris',
                                         'mobile_phone' => '0634562345',
                                         'land_phone' => '0134562345',
                                         'country' => 'France'}
@@ -114,6 +113,8 @@ INIT
     end
     CONTEXT[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if strategy['mobility']
     CONTEXT[:options][:profile_dir] = nil if strategy['mobility']
+
+    CONTEXT['order']['products_urls'] = strategy[:productsUrl].sample(2)
 
     robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)

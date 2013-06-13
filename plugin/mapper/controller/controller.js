@@ -11,6 +11,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
 
   glob.host = msg.host;
   glob.path = msg.path;
+  glob.href = msg.href;
 
   model = new Strategy(msg.host, msg.mobile);
   view = new StrategyView(model);

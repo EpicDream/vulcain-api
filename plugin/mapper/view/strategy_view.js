@@ -28,6 +28,7 @@ var StrategyView = function(_strategy) {
     $('#importBtn').click(_onLoad.bind(_that));
     $('#newBtn').click(_onReset.bind(_that));
     $('#clearBtn').click(_onClear.bind(_that));
+    $("#addProductUrl").click(_onAddProductUrl.bind(_that));
     _currentHostSpan.text(glob.host);
     _isCurrentHostMobile.change(_onSwitchMobility.bind(_that));
     window.addEventListener("beforeunload", _onUnload.bind(_that));
@@ -161,6 +162,9 @@ var StrategyView = function(_strategy) {
     if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) {
       _strategy.clearCache();
     }
+  };
+  function _onAddProductUrl(event) {
+    _strategy.addProductUrl(glob.href);
   };
 
 
