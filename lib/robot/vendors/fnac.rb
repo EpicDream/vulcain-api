@@ -101,6 +101,7 @@ class Fnac
       
       step('create account') do
         open_url LOGIN_URL
+        mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
         
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_PASSWORD, with:account.password
@@ -113,7 +114,7 @@ class Fnac
         select_option REGISTER_BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
-        fill REGISTER_MOBILE_PHONE, with:user.address.mobile_phone
+        fill REGISTER_MOBILE_PHONE, with:mobile_phone
         click_on REGISTER_ADDRESS_SUBMIT
         
         wait_for [HEAD_MENU_BUTTON, REGISTER_ADDRESS_SUBMIT]
@@ -123,7 +124,6 @@ class Fnac
         else
           message :account_created, :next_step => 'renew login'
         end
-        
       end
       
       step('login') do
