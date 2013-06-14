@@ -9,7 +9,8 @@ class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_3 = 'http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'
   PRODUCT_URL_4 = 'http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)'
   PRODUCT_URL_5 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-schtroumpfs-xxl-60-pieces/f-1270102-harischtrouxxl.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
-
+  PRODUCT_URL_6 = 'http://www.cdiscount.com/pret-a-porter/vetements-femme/l-amie-de-paris-t-shirt-femme-bleu/f-11302173234-s303bleu.html'
+  
   attr_accessor :robot
   
   setup do
@@ -158,17 +159,26 @@ class CdiscountTest < ActiveSupport::TestCase
     assert_equal billing, robot.billing
   end
   
-  test "something interesting" do
-    @message.expects(:message).times(20)
-    @context["order"]["products_urls"] = [PRODUCT_URL_5]
-    robot.context = @context
-    
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    
-    robot.run_step('finalize order')
+  test "crawl url of product with no options" do
+    @context = {'url' => PRODUCT_URL_5}
+    @robot.context = @context
+    @message.expects(:message).times(1)
+
+    product = {:options=>{}, :product_title=>"HARIBO Schtroumpfs XXL 60 pièces (x1)", :product_price=>9.99, :shipping_info=>"Chez vous entre le 01/01/0001 et le 01/01/0001", :product_image_url=>"http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg", :shipping_price=>nil, :available=>true}
+    robot.expects(:terminate).with(product)
+
+    robot.run_step('crawl')
   end
   
+  test "crawl url of product with options" do
+    @context = {'url' => PRODUCT_URL_6 }
+    @robot.context = @context
+    @message.expects(:message).times(1)
+
+    product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
+    robot.expects(:terminate).with(product)
+
+    robot.run_step('crawl')
+  end
   
 end  
