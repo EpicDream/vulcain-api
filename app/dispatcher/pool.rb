@@ -74,6 +74,11 @@ module Dispatcher
       Log.output(:new_vulcain, vulcain:vulcain)
     end
     
+    def unstale id
+      vulcain = vulcain_with_id(id)
+      vulcain.reset
+    end
+    
     def idle id
       vulcain = vulcain_with_id(id)
       if vulcain.stale

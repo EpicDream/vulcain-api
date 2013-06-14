@@ -59,7 +59,7 @@ module Dispatcher
         case message['status']
         when Message::ADMIN_MESSAGES_STATUSES[:ack_ping] then @pool.ack_ping vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:started] then @pool.push vulcain_id
-        when Message::ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.idle vulcain_id
+        when Message::ADMIN_MESSAGES_STATUSES[:reloaded] then @pool.unstale vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:aborted] then @pool.pop vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:failure] then @pool.idle vulcain_id
         when Message::ADMIN_MESSAGES_STATUSES[:terminated] then @pool.idle vulcain_id
