@@ -150,7 +150,7 @@ class FnacTest < ActiveSupport::TestCase
     robot.run_step('crawl')
   end
   
-  test "crawl url of product with options" do
+  test "crawl url of product with shipping price" do
     @context = {'url' => PRODUCT_6_URL }
     @robot.context = @context
     @message.expects(:message).times(1)
