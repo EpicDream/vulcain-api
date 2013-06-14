@@ -7,6 +7,8 @@ VulcainApi::Application.routes.draw do
 
   resource :orders, :only => [:create]
   resource :answers, :only => [:create]
+  resource :product_informations, :only => [:create]
+  
   namespace :admin do
     resources :monitors, :only => [:index, :show, :create]
     resources :logs, :only => [:show, :index]

@@ -54,6 +54,9 @@ module Dispatcher
       case consumer
       when :shopelia
         request(@session['callback_url'], @message)
+      when :api_controller
+        exchange = ApiControllerExchanger.new.exchange
+        exchange.publish(@message.to_json, headers: { queue:Dispatcher::INFORMATION_API_CLIENT_QUEUE })
       else
         @message['context']['session']['vulcain_id'] = consumer.id if @message['context']
         consumer.exchange.publish(@message.to_json, headers: { queue:VULCAIN_QUEUE.(consumer.id) })

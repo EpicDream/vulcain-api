@@ -1,5 +1,7 @@
 # encoding: utf-8
 require "ostruct"
+require "nokogiri"
+require "html_to_plain_text"
 
 class Robot
 
@@ -36,6 +38,10 @@ class Robot
 
   def run
     run_step('run')
+  end
+  
+  def crawl
+    run_step('crawl')
   end
   
   def run_step name, args=nil
@@ -330,6 +336,10 @@ class Robot
     client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
     response = client.decode image_url
     response['text']
+  end
+  
+  def scraped_text xpath
+    HtmlToPlainText.plain_text @page.xpath(xpath).to_s
   end
   
 end

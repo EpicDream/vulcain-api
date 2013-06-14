@@ -4,6 +4,9 @@ class Fnac
   PRICES_IN_TEXT = lambda do |text| 
     text.scan(/(\d+(?:,\d+)?\s*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
   end
+  WEB_PRICES_IN_TEXT = lambda do |text|
+    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub(',', '.').to_f }
+  end
   
   HEAD_MENU_BUTTON = '//*[@id="header"]/nav/a[2]/span/span'
   HEAD_FNAC_LINK = '//*[@id="header"]/nav/a'
@@ -29,6 +32,10 @@ class Fnac
   REGISTER_MOBILE_PHONE = '//*[@id="RegistrationMemberId_registrationContainer_cellPhone_txtCellPhone"]'
   REGISTER_ADDRESS_SUBMIT = '//*[@id="RegistrationMemberId_submitButton"]'
   
+  MPOFFER = '//span[@class="mpoffer"]/a'
+  MPOFFER_FIRST_OFFER = '//*[@id="offers_list"]/ul/li[1]'
+  MPOFFER_FIRST_OFFER_ADD_TO_CART = '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a'
+  MPOFFER_FIRST_OFFER_PRICE_TEXT = '//*[@id="offers_list"]/ul/li[1]//div[@class="offer-pricer"]'
   ADD_TO_CART = '//div[@class="addbasket"]'
   PRICE_TEXT = '//div[@class="buybox"]/fieldset'
   PRODUCT_TITLE = '//*[@id="content"]/div/section[1]/div[1]'
@@ -75,6 +82,14 @@ class Fnac
   
   THANK_YOU_HEADER = '//*[@id="thank-you"]'
   
+  CRAWLING = {
+    title:'//*[@id="content"]//div/h1', 
+    price:'//div[@class="ui-block-b"]',
+    image_url:'//div[@class="visuel"]//img',
+    shipping_info: '//span[@class="shippinginfo"]',
+    available:'//div[@class="availability"]'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -93,6 +108,22 @@ class Fnac
         end
       end
       
+      step('crawl') do
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+        
+        product = {:options => {}}
+        product[:product_title] =  scraped_text CRAWLING[:title]
+        prices = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
+        product[:product_price] = prices[0]
+        product[:shipping_price] = prices[1] || 0
+        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_info] = scraped_text CRAWLING[:shipping_info] 
+        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
+
+        terminate(product)
+      end
+      
       step('renew login') do
         run_step('logout')
         open_url order.products_urls[0]
@@ -101,6 +132,7 @@ class Fnac
       
       step('create account') do
         open_url LOGIN_URL
+        mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
         
         fill REGISTER_EMAIL, with:account.login
         fill REGISTER_PASSWORD, with:account.password
@@ -113,7 +145,7 @@ class Fnac
         select_option REGISTER_BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
         select_option REGISTER_BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
-        fill REGISTER_MOBILE_PHONE, with:user.address.mobile_phone
+        fill REGISTER_MOBILE_PHONE, with:mobile_phone
         click_on REGISTER_ADDRESS_SUBMIT
         
         wait_for [HEAD_MENU_BUTTON, REGISTER_ADDRESS_SUBMIT]
@@ -123,7 +155,6 @@ class Fnac
         else
           message :account_created, :next_step => 'renew login'
         end
-        
       end
       
       step('login') do
@@ -166,6 +197,14 @@ class Fnac
         products << product
       end
       
+      step('update product') do
+        product = products.last
+        product['price_text'] = get_text MPOFFER_FIRST_OFFER_PRICE_TEXT
+        prices = PRICES_IN_TEXT.(product['price_text'])
+        product['price_product'] = prices[0]
+        product['price_delivery'] = prices[1]
+      end
+      
       step('empty cart') do |args|
         run_step('remove credit card')
         open_url CART_URL
@@ -184,20 +223,37 @@ class Fnac
         end
       end
       
+      step('add to cart product new and lowest price') do
+        click_on MPOFFER
+        if click_on_link_with_attribute("@title", "Neuf")
+          click_on MPOFFER_FIRST_OFFER
+          run_step('update product')
+          click_on MPOFFER_FIRST_OFFER_ADD_TO_CART
+        else
+          terminate_on_error(:out_of_stock)
+        end
+      end
+      
       step('add to cart') do
         if url = next_product_url
           open_url url
           wait_ajax
+          
           found = wait_for [ADD_TO_CART] do
-            raise
             message :no_product_available
             terminate_on_error(:no_product_available) 
           end
+          
           if found
             run_step('build product')
-            click_on ADD_TO_CART
+            if exists? MPOFFER
+              run_step('add to cart product new and lowest price')
+            else
+              click_on ADD_TO_CART
+            end
             run_step 'add to cart'
           end
+          
         else
           wait_ajax(3)
           message :cart_filled, :next_step => 'finalize order'

@@ -1,5 +1,7 @@
 # encoding: utf-8
 class Cdiscount
+  USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
+  
   URL = 'http://www.cdiscount.com/'
   HOME_URL = 'https://clients.cdiscount.com/Account/Home.aspx'
   LOGIN_URL = 'https://clients.cdiscount.com/'
@@ -9,8 +11,13 @@ class Cdiscount
   BIRTHDATE_AS_STRING = lambda do |birthdate|
     [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
   end
+  
   PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/(\d+(?:,\d+)?\s*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
+    text.scan(/(\d+(?:,\d+)?.*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
+  end
+  
+  MOBILE_PRICES_IN_TEXT = lambda do |text| 
+    text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
   end
   
   
@@ -70,6 +77,15 @@ class Cdiscount
   CREDIT_CARD_REMOVE = '//*[@id="mainCz"]//input[@title="Supprimer"]'
   THANK_YOU_HEADER = '//*[@id="mainContainer"]'
   
+  CRAWLING = {
+    title:'//h1[@class="productTitle"]', 
+    price:'//div[@class="tab"]',
+    image_url:'//div[@id="main"]//a[2]/img',
+    shipping_info: '//div[@class="livraison"]',
+    available:'//div[@id="main"]',
+    options:'//div[@id="main"]//select'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -86,6 +102,25 @@ class Cdiscount
         else
           message :expect, :next_step => 'renew login'
         end
+      end
+      
+      step('crawl') do
+        @driver.quit
+        @driver = Driver.new(user_agent:USER_AGENT)
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+
+        product = {:options => {}}
+        product[:product_title] =  scraped_text CRAWLING[:title]
+        product[:product_price] = MOBILE_PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).last
+        product[:shipping_info] = scraped_text CRAWLING[:shipping_info]
+        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_price] = nil
+        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /disponible/i)
+        options = @page.xpath(CRAWLING[:options]).map {|e| e.xpath(".//option").map(&:text) }
+        options.each {|option| product[:options].merge!({option[0] => option[1..-1]})}
+
+        terminate(product)
       end
       
       step('remove credit card') do
@@ -152,7 +187,8 @@ class Cdiscount
         end
       end
       
-      step('add to cart') do
+      step('add to cart') do |args={}|
+        args ||= {}
         open_url next_product_url
         extra = '//div[@id="fpBlocPrice"]//span[@class="href underline"]'
         wait_for([ADD_TO_CART, VENDORS_OFFERS, extra])
@@ -168,7 +204,7 @@ class Cdiscount
           @driver.driver.execute_script(script)
         end
         wait_ajax 4
-        message :cart_filled, :next_step => 'finalize order'
+        message :cart_filled, :next_step => 'finalize order' unless args[:skip_message]
       end
       
       step('build product') do
@@ -200,6 +236,11 @@ class Cdiscount
         click_on SHIPMENT_SAME_BILLING_ADDRESS
         wait_ajax
         click_on SHIPMENT_FORM_SUBMIT
+        wait_for [VALIDATE_SHIPMENT_TYPE, SHIPMENT_FORM_SUBMIT]
+        if exists? '//*[@id="deliveryAddressChoice_2"]'
+          click_on '//*[@id="deliveryAddressChoice_2"]'
+          click_on SHIPMENT_FORM_SUBMIT
+        end
       end
       
       step('finalize order') do
@@ -253,7 +294,6 @@ class Cdiscount
         page = wait_for([THANK_YOU_HEADER]) do
           screenshot
           page_source
-          
           terminate_on_error(:order_validation_failed)
         end
         

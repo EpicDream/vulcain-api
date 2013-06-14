@@ -178,4 +178,27 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
   end
   
+  test "crawl url of product with no options" do
+    @context = {'url' => PRODUCT_URL_4}
+    @robot.context = @context
+    @message.expects(:message).times(1)
+
+    product = {:options=>{}, :product_title=>"Lampe frontale TIKKA² Gris", :product_price=>39.99, :product_image_url=>"http://ecx.images-amazon.com/images/I/81hxtcySPYL._SX150_.jpg", :shipping_price=>nil, :shipping_info=>"|  | Livraison gratuite (en savoir plus)  |", :available=>true}
+    robot.expects(:terminate).with(product)
+
+    robot.run_step('crawl')
+  end
+  
+  test "crawl url of product with shipping price" do
+    @context = {'url' => PRODUCT_URL_3 }
+    @robot.context = @context
+    @message.expects(:message).times(1)
+
+    product = {:options=>{"Sélectionner Taille"=>["FR : 28 (Taille Fabricant : 1)", "28", "30", "32", "34", "38", "40"], "Sélectionner Couleur"=>["FR : 28 (Taille Fabricant : 1) - New KhakiEUR 39,95Seulement 1 en stock", "FR : 28 (Taille Fabricant : 1) - Stone GrayEUR 39,95Seulement 1 en stock"]}, :product_title=>"Oakley Represent Short homme", :product_price=>39.95, :product_image_url=>"http://ecx.images-amazon.com/images/I/81E%2B2Jr80TL._SY180_.jpg", :shipping_price=>nil, :shipping_info=>""}
+    robot.expects(:terminate).with(product)
+
+    robot.run_step('crawl')
+  end
+  
+  
 end
