@@ -43,7 +43,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
   function(details) {
-    if (! mobileHost[getHost(details.url)])
+    var host = getHost(details.url);
+    if (! activeHost[host] || ! mobileHost[host])
       return;
 
     for (var i = 0; i < details.requestHeaders.length; ++i) {
