@@ -77,6 +77,15 @@ class AmazonFrance
   CAPTCHA_IMAGE = '//*[@id="ap_captcha_img"]/img'
   CAPTCHA_INPUT = '//*[@id="ap_captcha_guess"]'
   
+  CRAWLING = {
+    title:'//*[@id="main"]//h1', 
+    price:'//*[@id="prices"]',
+    image_url:'//div[@id="main-image"]/img',
+    shipping_info: '//*[@id="prices"]/tbody/tr[2]',
+    available:'//*[@id="twister-availability-features"]',
+    options:'//*[@id="variation-glance"]'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -93,6 +102,44 @@ class AmazonFrance
         else
           message :expect, :steps => 7, :next_step => 'renew login'
         end
+      end
+      
+      step('crawl') do
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+        
+        product = {:options => {}}
+        options = @page.xpath(CRAWLING[:options])
+        
+        if options.any?
+          click_on CRAWLING[:options]
+          wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
+          @page = Nokogiri::HTML.parse @driver.page_source
+          option = @page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
+          options = @page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
+          product[:options][option] = options
+          click_on "//ul/li[1]"
+          wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
+          @page = Nokogiri::HTML.parse @driver.page_source
+          option = @page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
+          options = @page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
+          product[:options][option] = options
+        end
+        
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+        product[:product_title] =  scraped_text CRAWLING[:title]
+        prices = PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
+        product[:product_price] = prices[0]
+        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_price] = nil
+        product[:shipping_info] = scraped_text CRAWLING[:shipping_info]
+        
+        if product[:options].empty?
+          product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
+        end
+
+        terminate(product)
       end
       
       step('renew login') do
