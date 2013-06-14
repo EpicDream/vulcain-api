@@ -152,7 +152,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
     @message.expects(:message).times(1)
 
     product = {:product_title => 'PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436', :product_price => 16.99, :product_image_url => 'http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg', :shipping_info => %Q{So Colissimo (2 à 4 jours). 5.49 €\nExpédié sous 24h}, :shipping_price => 5.49, :available => true, :options => {}}
-    robot.expects(:terminate).with
+    robot.expects(:terminate)
 
     robot.run_step('crawl')
   end

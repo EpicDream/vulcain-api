@@ -4,6 +4,9 @@ class Fnac
   PRICES_IN_TEXT = lambda do |text| 
     text.scan(/(\d+(?:,\d+)?\s*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
   end
+  WEB_PRICES_IN_TEXT = lambda do |text|
+    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub(',', '.').to_f }
+  end
   
   HEAD_MENU_BUTTON = '//*[@id="header"]/nav/a[2]/span/span'
   HEAD_FNAC_LINK = '//*[@id="header"]/nav/a'
@@ -79,6 +82,14 @@ class Fnac
   
   THANK_YOU_HEADER = '//*[@id="thank-you"]'
   
+  CRAWLING = {
+    title:'//*[@id="content"]//div/h1', 
+    price:'//div[@class="ui-block-b"]',
+    image_url:'//div[@class="visuel"]//img',
+    shipping_info: '//span[@class="shippinginfo"]',
+    available:'//div[@class="availability"]'
+  }
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -95,6 +106,22 @@ class Fnac
         else
           message :expect, :steps => 7, :next_step => 'renew login'
         end
+      end
+      
+      step('crawl') do
+        open_url @context['url']
+        @page = Nokogiri::HTML.parse @driver.page_source
+        
+        product = {:options => {}}
+        product[:product_title] =  scraped_text CRAWLING[:title]
+        prices = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
+        product[:product_price] = prices[0]
+        product[:shipping_price] = prices[1] || 0
+        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
+        product[:shipping_info] = scraped_text CRAWLING[:shipping_info] 
+        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
+
+        terminate(product)
       end
       
       step('renew login') do

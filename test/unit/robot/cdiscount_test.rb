@@ -127,6 +127,8 @@ class CdiscountTest < ActiveSupport::TestCase
   
   test "add to cart and finalize order with confirmation of address" do
     @context["user"]["address"]["address_1"] = "32781 rue de nulle part ailleurs"
+    @context["order"]["products_urls"] = ["http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(755939365)ttid(5)url(http://www.cdiscount.com/dp.asp?sku=5051889024712&refer=*)"]
+    
     robot.context = @context
     
     @message.expects(:message).times(14)

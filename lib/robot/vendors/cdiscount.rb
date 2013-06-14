@@ -257,7 +257,6 @@ class Cdiscount
         page = wait_for([THANK_YOU_HEADER]) do
           screenshot
           page_source
-          
           terminate_on_error(:order_validation_failed)
         end
         
