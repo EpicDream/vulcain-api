@@ -38,7 +38,7 @@ class Log
   end
   
   def self.syslog data
-    File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{data}\n") }
+    File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{Time.now} #{data}\n") }
   end
   
   def self.skip? data
