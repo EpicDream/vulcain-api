@@ -4,7 +4,10 @@ require "robot/robot"
 require "robot/plugin/selenium_extensions"
 require "robot/core_extensions"
 
-if Object.const_defined?(:Plugin) && Plugin.const_defined?(:IRobot)
+module Plugin
+end
+
+if Plugin.const_defined?(:IRobot)
   Plugin.send(:remove_const, :IRobot)
 end
 
@@ -149,8 +152,8 @@ class Plugin::IRobot < Robot
       step('run_finalize') do
         run_step('finalize_order')
 
-        @billing[:product] = products.map { |p| p['price_product'] }.sum if @billing[:product].nil?
-        @billing[:shipping] = products.map { |p| p['price_delivery'] }.sum if @billing[:shipping].nil?
+        @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
+        @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
         @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
 
         pl_assess next_step:'run_waitAck'
@@ -164,9 +167,9 @@ class Plugin::IRobot < Robot
             terminate_on_error :order_validation_failed
           end
           message :validate_order
-          terminate
+          terminate({billing: @billing})
         else
-          run_step('empty cart')
+          run_step('empty_cart')
           message :cancel_order
           terminate_on_cancel
         end
@@ -182,18 +185,18 @@ class Plugin::IRobot < Robot
           run_step('login') if continue
         end
         continue = false if ! @steps['unlog']
-        run_step('unlog') if continue
+        run_step('unlog') if continue && ! @steps['empty_cart']
         continue = false if ! @steps['login']
-        run_step('login') if continue
+        run_step('login') if continue && ! @steps['empty_cart']
         continue = false if ! @steps['empty_cart']
-        run_step('empty_cart') if continue
+        run_step('empty_cart') if continue && ! @steps['finalize_order']
         continue = false if ! @steps['add_to_cart']
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
           run_step('add_to_cart')
-        end if continue
-        run_step('empty_cart') if continue
+        end if continue && ! @steps['finalize_order']
+        run_step('empty_cart') if continue && ! @steps['finalize_order']
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
@@ -321,6 +324,7 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
+    value = value.to_s
     input.send_keys(value)
     return if input.value == value
     message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
