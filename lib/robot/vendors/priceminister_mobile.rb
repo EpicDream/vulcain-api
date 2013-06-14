@@ -60,38 +60,33 @@ class Selenium::WebDriver::Support::Select
     return nil
   end
 end
-# encoding: utf-8
 
-
-
-
-
-if defined?(IRobot)
-  Object.send(:remove_const, :IRobot)
+module Plugin
 end
 
-class IRobot < Robot
+if Plugin.const_defined?(:IRobot)
+  Plugin.send(:remove_const, :IRobot)
+end
+
+class Plugin::IRobot < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :step, :action
+    attr_reader :step, :code
     attr_accessor :source, :screenshot
     def initialize(msg,args={})
       super(msg)
       @step = args[:step]
-      @action = args[:action]
+      @code = args[:code]
       @line = args[:line]
       @source = @screenshot = nil
     end
-    def add(key, value)
-
-    end
     def to_h
-      return {step: @step, action: @action, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
+      return {step: @step, code: @code, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
     end
     def message
-      return super+" in step '#{@step}'"
+      return super
     end
   end
 
@@ -110,7 +105,7 @@ class IRobot < Robot
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
     {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
-    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
+    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true, default_arg: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
     {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
@@ -119,6 +114,9 @@ class IRobot < Robot
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
+    {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
+    {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
@@ -155,7 +153,7 @@ class IRobot < Robot
     {id: 'zip', desc:"Code Postal", value:"user.address.zip"},
     {id: 'city', desc:"Ville", value:"user.address.city"},
     {id: 'country', desc:"Pays", value:"user.address.country"},
-    {id: 'card_type', desc:"Type de carte", value:"/visa/i"},
+    {id: 'card_type', desc:"Type de carte", value:"(order.credentials.number[0] == '4' ? 'VISA' : 'MASTERCARD')"},
     {id: 'holder', desc:"Nom du porteur", value:"order.credentials.holder"},
     {id: 'card_number', desc:"Numéro de la carte", value:"order.credentials.number"},
     {id: 'exp_month', desc:"Mois d'expiration", value:"order.credentials.exp_month"},
@@ -163,17 +161,13 @@ class IRobot < Robot
     {id: 'cvv', desc:"Code CVV", value:"order.credentials.cvv"}
   ]
 
-  def self.randomString(n)
-    chars = ('a'..'z').to_a+('A'..'Z').to_a+('0'..'9').to_a
-    (0...n).map{ chars.sample }.join
-  end
-
   attr_accessor :pl_driver, :shop_base_url
 
   def initialize(context, &block)
     super(context, &block)
     @pl_driver = @driver.driver
     @pl_current_product = {}
+    @billing = {}
 
     self.instance_eval do
       step('run') do
@@ -182,7 +176,6 @@ class IRobot < Robot
           if account.new_account
             begin
               run_step('account_creation')
-
             rescue NoSuchElementError
               terminate_on_error :account_creation_failed
             end
@@ -216,13 +209,9 @@ class IRobot < Robot
       step('run_finalize') do
         run_step('finalize_order')
 
-        # Billing
-        if @billing.nil?
-          products_price = products.map { |p| p['price_product'] }.inject(&:+)
-          shippings_price = products.map { |p| p['price_delivery'] }.inject(&:+)
-          total_price = products_price + shippings_price
-          @billing = { product:products_price, shipping:shippings_price, total:total_price }
-        end
+        @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
+        @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
+        @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
 
         pl_assess next_step:'run_waitAck'
       end
@@ -233,11 +222,9 @@ class IRobot < Robot
             run_step('payment')
           rescue NoSuchElementError
             terminate_on_error :order_validation_failed
-          rescue Errno::ECONNREFUSED
-            terminate_on_error :order_validation_failed
           end
           message :validate_order
-          terminate({ billing: @billing})
+          terminate({billing: @billing})
         else
           run_step('empty_cart')
           message :cancel_order
@@ -255,18 +242,18 @@ class IRobot < Robot
           run_step('login') if continue
         end
         continue = false if ! @steps['unlog']
-        run_step('unlog') if continue
+        run_step('unlog') if continue && ! @steps['empty_cart']
         continue = false if ! @steps['login']
-        run_step('login') if continue
+        run_step('login') if continue && ! @steps['empty_cart']
         continue = false if ! @steps['empty_cart']
-        run_step('empty_cart') if continue
+        run_step('empty_cart') if continue && ! @steps['finalize_order']
         continue = false if ! @steps['add_to_cart']
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
           run_step('add_to_cart')
-        end if continue
-        run_step('empty_cart') if continue
+        end if continue && ! @steps['finalize_order']
+        run_step('empty_cart') if continue && ! @steps['finalize_order']
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
@@ -320,7 +307,7 @@ class IRobot < Robot
           puts act[:code]
           step_binding.eval act[:code]
         rescue => err
-          raise StrategyError.new(err, {step: step[:id], action: act[:code].inspect, line: step[:actions].index(act)})
+          raise StrategyError.new(err, {step: step[:id], code: act[:code], line: step[:actions].index(act)})
         end
       end
     end
@@ -335,9 +322,9 @@ class IRobot < Robot
     meth_name = methSym.to_s+'!'
     if self.respond_to?(meth_name)
       begin
-        return self.send(meth_name, *args, &block)
+        return self.send(meth_name, *args, &block) || true
       rescue NoSuchElementError
-        return nil
+        return false
       end
     else
       return super(methSym, *args, &block)
@@ -394,7 +381,22 @@ class IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
+    value = value.to_s
     input.send_keys(value)
+    return if input.value == value
+    message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+
+    5.times do |i|
+      input.clear
+      value.split('').each do |c|
+        input.send_keys(c)
+        sleep(0.1 * (i+1))
+      end
+      break if input.value == value
+      message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+    end
+    return if input.value == value
+    raise StrategyError, "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
   end
 
   # Select option.
@@ -511,6 +513,36 @@ class IRobot < Robot
     raise
   end
 
+  def pl_set_tot_products_price!(xpath)
+    text = get_text(xpath)
+    @billing[:product] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_tot_shipping_price!(xpath)
+    text = get_text(xpath)
+    @billing[:shipping] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_tot_price!(xpath)
+    text = get_text(xpath)
+    @billing[:total] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
   def pl_binding
     return binding
   end
@@ -520,8 +552,15 @@ class IRobot < Robot
     # Else arg is a Hash with :css or :xpath as key
     def find(arg)
       sleep(0.5)
-      return @pl_driver.find_elements(xpath: arg) if arg.kind_of?(String)
-      return @pl_driver.find_elements(arg)
+      if arg.kind_of?(String) && (arg[0] == '/' || arg[0] == '(')
+        return @pl_driver.find_elements(xpath: arg)
+      elsif arg.kind_of?(String)
+        return @pl_driver.find_elements(css: arg)
+      elsif arg.kind_of?(Hash)
+        return @pl_driver.find_elements(arg)
+      else
+        raise NoSuchElementError, "Cannot find #{arg.inspect} : wait a String or a Hash."
+      end
     end
 
     # Return only inputs, selects and textareas.
@@ -611,8 +650,9 @@ class IRobot < Robot
     def get_input_for_value!(inputs, value)
       values = inputs.map { |e,_| [e, e.value] }
       i = values.find { |e,v| v == value }.first
+      return i unless i.nil?
       labels = inputs.map { |e,_| [e, get_input_label(e).text] }
-      i = labels.find { |e,v| v == value }.first if i.nil?
+      i = labels.find { |e,v| v == value }.first
       raise NoSuchElementError, "Can not find #{value.inspect} in values #{values.map(&:last).inspect} nor labels #{labels.map(&:last).inspect}." if i.nil?
       return i
     end
@@ -696,9 +736,6 @@ class IRobot < Robot
     end
 end
 
-# encoding: utf-8
-
-
 
 if defined?(PriceministerMobile)
   Object.send(:remove_const, :PriceministerMobile)
@@ -711,217 +748,242 @@ class PriceministerMobile
   def initialize context
     @context = context
     @context[:options] ||= {}
-    @context[:options][:user_agent] = IRobot::MOBILE_USER_AGENT
+    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT
     @robot = instanciate_robot
   end
 
+  def self.generatePseudo(base, i=-1)
+    i = (i == -1 ? '' : i.to_s)
+    return base[0...(12-i.size)].gsub(/[^\w\.-]/, '')+i
+  end
+
   def instanciate_robot
-    r = IRobot.new(@context) do
-			step('account_creation') do
-				# Aller sur le site mobile
-				plarg_xpath = '//div[@id]/div[1]/div[3]/a'
-				pl_click_on(plarg_xpath)
-				# Aller sur la version desktop
-				plarg_xpath = '//div[@id]/footer/nav[2]/ul/li[5]/div/div/a'
-				pl_click_on!(plarg_xpath)
-				# Mon Compte
-				plarg_xpath = '//li[@id="account_access_container"]/a'
-				pl_click_on!(plarg_xpath)
-				# E-mail
-				plarg_xpath = '//input[@id="usr_email"]'
-				plarg_argument = account.login
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Cliquer sur continuer
-				plarg_xpath = '//button[@id="submit_register"]'
-				pl_click_on!(plarg_xpath)
-				# Confirmer l'Email
-				plarg_xpath = '//input[@id="e_mail2"]'
-				plarg_argument = account.login
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Pseudo
-				plarg_xpath = '//input[@id="login"]'
-				plarg_argument = IRobot.randomString(12)
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Mot de passe
-				plarg_xpath = '//input[@id="password"]'
-				plarg_argument = account.password
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Confirmer le mot de passe
-				plarg_xpath = '//input[@id="password2"]'
-				plarg_argument = account.password
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Civilité
-				plarg_xpath = '//select[@id="usr_title"]'
-				plarg_argument = {0=>/^(mr?.?|monsieur|mister|homme)$/i,1=>/^(mme|madame|femme)$/i,2=>'Mlle'}[user.gender]
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Nom
-				plarg_xpath = '//input[@id="last_name"]'
-				plarg_argument = user.address.last_name
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Prénom
-				plarg_xpath = '//input[@id="first_name"]'
-				plarg_argument = user.address.first_name
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Jour de Naissance
-				plarg_xpath = '//select[@id="birth_day"]'
-				plarg_argument = user.birthdate.day
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Mois de naissance
-				plarg_xpath = '//div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[2]/select'
-				plarg_argument = user.birthdate.month
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Année de naissance
-				plarg_xpath = '//div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[3]/select'
-				plarg_argument = user.birthdate.year
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Non à la promo mail
-				plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[1]/div/p/label[2]/span'
-				pl_click_on_radio!(plarg_xpath)
-				# Non à la promo sms
-				plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[2]/div/p/label[2]/span'
-				pl_click_on_radio!(plarg_xpath)
-				# Non à la promo tel
-				plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[3]/div/p/label[2]/span'
-				pl_click_on_radio!(plarg_xpath)
-				# Non à la promo avion
-				plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/div/div/p/label[2]/span'
-				pl_click_on_radio!(plarg_xpath)
-				# Bouton créer le compte
-				plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
-				pl_click_on!(plarg_xpath)
-				# Vérifier connecté
-				plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
-				pl_check!(plarg_xpath)
-				# Retourner sur le site mobile
-				plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
-				pl_click_on!(plarg_xpath)
-			end
-			step('login') do
-				# Mon Compte
+    r = Plugin::IRobot.new(@context) do
+      step('account_creation') do
+        # Aller sur le site mobile
+        plarg_xpath = '//div[@id]/div[1]/div[3]/a'
+        pl_click_on(plarg_xpath)
+        # Aller sur la version desktop
+        plarg_xpath = '//div[@id]/footer/nav[2]/ul/li[5]/div/div/a'
+        pl_click_on!(plarg_xpath)
+        # Mon Compte
+        plarg_xpath = '//li[@id="account_access_container"]/a'
+        pl_click_on!(plarg_xpath)
+        # E-mail
+        plarg_xpath = '//input[@id="usr_email"]'
+        plarg_argument = account.login
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Cliquer sur continuer
+        plarg_xpath = '//button[@id="submit_register"]'
+        pl_click_on!(plarg_xpath)
+        # Confirmer l'Email
+        plarg_xpath = '//input[@id="e_mail2"]'
+        plarg_argument = account.login
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Pseudo
+        plarg_xpath = '//input[@id="login"]'
+        plarg_argument = PriceministerMobile.generatePseudo(account.login.gsub(/@(\w+\.)+\w+$/, ''))
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Mot de passe
+        plarg_xpath = '//input[@id="password"]'
+        plarg_argument = account.password
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Confirmer le mot de passe
+        plarg_xpath = '//input[@id="password2"]'
+        plarg_argument = account.password
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Civilité
+        plarg_xpath = '//select[@id="usr_title"]'
+        plarg_argument = {0=>/^(mr?.?|monsieur|mister|homme)$/i,1=>/^(mme|madame|femme)$/i,2=>'Mlle'}[user.gender]
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Nom
+        plarg_xpath = '//input[@id="last_name"]'
+        plarg_argument = user.address.last_name
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Prénom
+        plarg_xpath = '//input[@id="first_name"]'
+        plarg_argument = user.address.first_name
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Jour de Naissance
+        plarg_xpath = '//select[@id="birth_day"]'
+        plarg_argument = user.birthdate.day
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Mois de naissance
+        plarg_xpath = '//div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[2]/select'
+        plarg_argument = user.birthdate.month
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Année de naissance
+        plarg_xpath = '//div[@id="user_block"]/fieldset/div[2]/div[9]/div/p[3]/select'
+        plarg_argument = user.birthdate.year
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Non à la promo mail
+        plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[1]/div/p/label[2]/span'
+        pl_click_on_radio!(plarg_xpath)
+        # Non à la promo sms
+        plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[2]/div/p/label[2]/span'
+        pl_click_on_radio!(plarg_xpath)
+        # Non à la promo tel
+        plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/fieldset/div[3]/div/p/label[2]/span'
+        pl_click_on_radio!(plarg_xpath)
+        # Non à la promo avion
+        plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/div/div/p/label[2]/span'
+        pl_click_on_radio!(plarg_xpath)
+        # Bouton créer le compte
+        plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
+        pl_click_on!(plarg_xpath)
+        # Vérifier pas de problème de pseudo
+        15.times do |i|
+          elems = find("div.error.notification p")
+          if elems.size == 0
+            break
+          elsif elems.size == 1 && elems.first.text =~ /pseudo/
+            # Pseudo
+            plarg_xpath = '//input[@id="login"]'
+            plarg_argument = i < 10 ? PriceministerMobile.generatePseudo(account.login.gsub(/@(\w+\.)+\w+$/, ''), i) :
+                                      PriceministerMobile.generatePseudo('user-', rand(10**6...10**7))
+            pl_fill_text!(plarg_xpath, plarg_argument)
+
+            # Bouton créer le compte
+            plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
+            pl_click_on!(plarg_xpath)
+          else
+            e = StrategyError.new("Notification d'erreurs non gérés : "+elems.text.inspect)
+            raise e
+          end
+        end
+        # Vérifier connecté
+        plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
+        pl_check!(plarg_xpath)
+        # Retourner sur le site mobile
+        plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
+        pl_click_on!(plarg_xpath)
+      end
+      step('login') do
+        # Mon Compte
         plarg_url = 'https://www.priceminister.com/connect'
         pl_open_url!(plarg_url)
-				# Login
-				plarg_xpath = '//div[@id]/div/section/form/fieldset[1]/div'
-				plarg_argument = account.login
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Mot de passe
-				plarg_xpath = '//div[@id]/div/section/form/fieldset[2]/div/div'
-				plarg_argument = account.password
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Bouton continuer
-				plarg_xpath = '//div[@id]/div/section/form/div/div/button'
-				pl_click_on!(plarg_xpath)
-				# Vérifier qu'on est connecté
-				plarg_xpath = '//div[@id]/footer/p[1]/a'
-				pl_check!(plarg_xpath)
-			end
-			step('unlog') do
-				# Bouton déconnexion
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/footer/p[1]/a'
-				pl_click_on(plarg_xpath)
-			end
-			step('empty_cart') do
-				# Aller sur la page du panier
-				plarg_url = 'http://www.priceminister.com/cart'
-				pl_open_url!(plarg_url)
-				# Bouton supprimer produit du panier
-				plarg_xpath = "//div[contains(concat(' ', @class, ' '), ' ui-page-active ')]//section/div[@id]/ul/li/p[2]/a"
+        # Login
+        plarg_xpath = '//div[@id]/div/section/form/fieldset[1]/div'
+        plarg_argument = account.login
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Mot de passe
+        plarg_xpath = '//div[@id]/div/section/form/fieldset[2]/div/div'
+        plarg_argument = account.password
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Bouton continuer
+        plarg_xpath = '//div[@id]/div/section/form/div/div/button'
+        pl_click_on!(plarg_xpath)
+        # Vérifier qu'on est connecté
+        plarg_xpath = '//div[@id]/footer/p[1]/a'
+        pl_check!(plarg_xpath)
+      end
+      step('unlog') do
+        # Bouton déconnexion
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/footer/p[1]/a'
+        pl_click_on(plarg_xpath)
+      end
+      step('empty_cart') do
+        # Aller sur la page du panier
+        plarg_url = 'http://www.priceminister.com/cart'
+        pl_open_url!(plarg_url)
+        # Bouton supprimer produit du panier
+        plarg_xpath = "//div[contains(concat(' ', @class, ' '), ' ui-page-active ')]//section/div[@id]/ul/li/p[2]/a"
         plarg_css = {css: 'div.ui-page-active ul.seller_package li p.pm_action a.remove_item'}
         pl_click_on_all!(plarg_xpath)
-			end
-			step('add_to_cart') do
-				# Aller sur les produits neufs
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
-				pl_click_on!(plarg_xpath)
+      end
+      step('add_to_cart') do
+        # Aller sur les produits neufs
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
+        pl_click_on!(plarg_xpath)
         wait_ajax(2)
-				# Indiquer le titre de l'article
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
-				pl_set_product_title!(plarg_xpath)
-				# Indiquer l'url de l'image de l'article
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
-				pl_set_product_image_url!(plarg_xpath)
-				# Indiquer le prix de l'article
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
-				pl_set_product_price!(plarg_xpath)
-				# Indiquer le prix de livraison de l'article
-				plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
-				pl_set_product_delivery_price!(plarg_xpath)
-				# Bouton ajouter au panier
-				plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[1]/form/div'
+        # Indiquer le titre de l'article
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
+        pl_set_product_title!(plarg_xpath)
+        # Indiquer l'url de l'image de l'article
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
+        pl_set_product_image_url!(plarg_xpath)
+        # Indiquer le prix de l'article
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
+        pl_set_product_price!(plarg_xpath)
+        # Indiquer le prix de livraison de l'article
+        plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
+        pl_set_product_delivery_price!(plarg_xpath)
+        # Bouton ajouter au panier
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[1]/form/div'
         plarg_css = {css: 'div.adv_list article:nth-child(1) li.add_to_cart form.pm_frm div.ui-btn'}
-				pl_click_on_exact!(plarg_css)
+        pl_click_on_exact!(plarg_css)
         wait_ajax(3)
-			end
-			step('finalize_order') do
-				# Aller sur la page principale
-				plarg_url = 'http://www.priceminister.com/cart'
-				pl_open_url!(plarg_url)
-				# Bouton finalisation
-				plarg_xpath = '//div[@id]/div/section/header/div/a/span/span'
-				pl_click_on!(plarg_xpath)
-				# Adresse
-				plarg_xpath = '//input[@id="user_adress1"]'
-				plarg_argument = user.address.address_1
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Adresse 2
-				plarg_xpath = '//input[@id="user_adress2"]'
-				plarg_argument = user.address.address_2
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Code Postal
-				plarg_xpath = '//input[@id="user_cp"]'
-				plarg_argument = user.address.zip
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Ville
-				plarg_xpath = '//input[@id="user_city"]'
-				plarg_argument = user.address.city
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Télephone fixe
-				plarg_xpath = '//input[@id="user_fixe"]'
-				plarg_argument = user.address.land_phone
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Téléphone mobile
-				plarg_xpath = '//input[@id="user_mobile"]'
-				plarg_argument = user.address.mobile_phone
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Bouton continuer
-				plarg_xpath = '//div[@id]/div/section/form/div/div/button'
-				pl_click_on!(plarg_xpath)
-			end
-			step('payment') do
-				# Type de carte
-				plarg_xpath = '//select[@name="cardType"]'
+      end
+      step('finalize_order') do
+        # Aller sur la page principale
+        plarg_url = 'http://www.priceminister.com/cart'
+        pl_open_url!(plarg_url)
+        # Bouton finalisation
+        plarg_xpath = '//div[@id]/div/section/header/div/a/span/span'
+        pl_click_on!(plarg_xpath)
+        # Adresse
+        plarg_xpath = '//input[@id="user_adress1"]'
+        plarg_argument = user.address.address_1
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Adresse 2
+        plarg_xpath = '//input[@id="user_adress2"]'
+        plarg_argument = user.address.address_2
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Code Postal
+        plarg_xpath = '//input[@id="user_cp"]'
+        plarg_argument = user.address.zip
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Ville
+        plarg_xpath = '//input[@id="user_city"]'
+        plarg_argument = user.address.city
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Télephone fixe
+        plarg_xpath = '//input[@id="user_fixe"]'
+        plarg_argument = user.address.land_phone
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Téléphone mobile
+        plarg_xpath = '//input[@id="user_mobile"]'
+        plarg_argument = user.address.mobile_phone
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Bouton continuer
+        plarg_xpath = '//div[@id]/div/section/form/div/div/button'
+        pl_click_on!(plarg_xpath)
+      end
+      step('payment') do
+        # Type de carte
+        plarg_xpath = '//select[@name="cardType"]'
         plarg_argument = (order.credentials.number[0] == '4' ? "VISA" : "MASTERCARD")
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Numéro de la carte
-				plarg_xpath = '//input[@id="cardNumber"]'
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Numéro de la carte
+        plarg_xpath = '//input[@id="cardNumber"]'
         plarg_argument = order.credentials.number
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# CVC
-				plarg_xpath = '//input[@id="securityCode"]'
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # CVC
+        plarg_xpath = '//input[@id="securityCode"]'
         plarg_argument = order.credentials.cvv
-				pl_fill_text!(plarg_xpath, plarg_argument)
-				# Mois d'expiration
-				plarg_xpath = '//select[@name="expMonth"]'
+        pl_fill_text!(plarg_xpath, plarg_argument)
+        # Mois d'expiration
+        plarg_xpath = '//select[@name="expMonth"]'
         plarg_argument = order.credentials.exp_month
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Année d'expiration
-				plarg_xpath = '//select[@id="expYear"]'
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Année d'expiration
+        plarg_xpath = '//select[@id="expYear"]'
         plarg_argument = order.credentials.exp_year
-				pl_select_option!(plarg_xpath, plarg_argument)
-				# Décocher sauvegarder la carte
-				plarg_xpath = '//div[@id]/div/label/span/span[1]'
+        pl_select_option!(plarg_xpath, plarg_argument)
+        # Décocher sauvegarder la carte
+        plarg_xpath = '//div[@id]/div/label/span/span[1]'
         pl_click_on_exact!(plarg_xpath)
-				# Bouton valider et payer
-				plarg_xpath = '//div[@id]/div/button'
-				pl_click_on!(plarg_xpath)
+        # Bouton valider et payer
+        plarg_xpath = '//div[@id]/div/button'
+        pl_click_on!(plarg_xpath)
         # Validate
         wait_ajax(3)
         pl_check!('//div[@class="notification success"]')
-			end
-		end
+      end
+    end
     r.shop_base_url = "http://www.priceminister.com"
     return r
-	end
+  end
 end
 
 
