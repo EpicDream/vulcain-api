@@ -45,7 +45,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
     {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
-    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
+    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true, default_arg: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
     {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
