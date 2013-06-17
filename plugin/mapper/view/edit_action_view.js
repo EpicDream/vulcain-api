@@ -10,7 +10,7 @@ var EditActionView = function() {
       _urlField = _page.find("input.url").textinput(),
       _pathField = _page.find("textarea.path"),
       _codeField = _page.find("textarea.code"),
-      _backBtn = _page.find("div[data-role='header'] a[data-rel='back']"),
+      _backBtn = _page.find("div[data-role='header'] .backButton"),
       _saveBtn = _page.find("#editSaveBtn"),
       _deleteBtn = _page.find("#editDeleteBtn"),
       _nbElementsMatchedBtn = _page.find("#nbElementsMatchedBtn").find("span:not(:has(*))"),
@@ -94,7 +94,7 @@ var EditActionView = function() {
       _pathField.textinput('enable');
   };
 
-  this.load = function(action, onSave, onDel) {
+  this.load = function(action) {
     _currentAction = action;
     _actionName.text(action.desc);
     // Types
@@ -135,16 +135,18 @@ var EditActionView = function() {
     else
       this.generateCode();
     _codeField.css("height", "100%").keyup();
+    if (!action.view)
+      return;
     _backBtn[0].onclick = function() {
-      onSave();
+      action.view.save(this.get());
       this.clear();
     }.bind(this);
     _saveBtn[0].onclick = function() {
-      onSave();
+      action.view.save(this.get());
       this.clear();
     }.bind(this);
     _deleteBtn[0].onclick = function() {
-      onDel();
+      action.view.delete();
       this.clear();
     }.bind(this);
   };
@@ -172,7 +174,6 @@ var EditActionView = function() {
     _currentContext = null;
     _saveBtn[0].onclick = null;
     _deleteBtn[0].onclick = null;
-    _currentAction = null;
     _typesField[0].selectedIndex = 0;
     _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
     _passField.prop('checked', false).checkboxradio( "refresh" );
@@ -217,6 +218,44 @@ var EditActionView = function() {
     return code;
   };
 
+  this.getState = function() {
+    var res = {};
+    res.stepIdx = _currentAction.step.index();
+    res.actionIdx = _currentAction.index();
+    res.context = _currentContext;
+    res.values = this.get();
+    if ($.mobile.activePage.attr('id') == "editPathPage")
+      res.editPaths = _editPathView.getState();
+    return res;
+  };
+  this.restoreState = function(state) {
+    this.load(state.values);
+    _currentAction = model.steps[state.stepIdx].actions[state.actionIdx];
+    _backBtn[0].onclick = function() {
+      _currentAction.view.save(this.get());
+      this.clear();
+    }.bind(this);
+    _saveBtn[0].onclick = function() {
+      _currentAction.view.save(this.get());
+      this.clear();
+    }.bind(this);
+    _deleteBtn[0].onclick = function() {
+      _currentAction.view.delete();
+      this.clear();
+    }.bind(this);
+    _currentContext = state.context;
+    glob.history.push('#'+_currentAction.step.id+'Page');
+    if (state.editPaths) {
+      _editPathView.load(_currentAction, _pathField.val(), _currentContext,
+        function() {
+          var res = _editPathView.get();
+          _pathField.val(res.finalPath).change();
+          _currentContext = res.context;
+        });
+      _editPathView.restoreState(state.editPaths);
+    }
+  };
+
   function _onNewMapping(msg) {
     _pathField.val(msg.path).change();
     _currentContext = msg.context;
@@ -232,15 +271,6 @@ var EditActionView = function() {
       function() {
         var res = _editPathView.get();
         _pathField.val(res.finalPath).change();
-        _currentContext = res.context;
-      });
-  };
-
-  function _onEditPathClicked() {
-    _editPathView.load(_currentAction, _pathField.val(), _currentContext,
-      function() {
-        var res = _editPathView.get();
-        _pathField.val(res.finalPath);
         _currentContext = res.context;
       });
   };

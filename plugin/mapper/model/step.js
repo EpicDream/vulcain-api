@@ -1,6 +1,7 @@
 
-var Step = function(args) {
+var Step = function(_strategy, args) {
   var that = this;
+  this.strategy = _strategy;
 
   function init() {
     if (! args || typeof(args) != "object") throw "'args' must be set as an object."
@@ -10,10 +11,7 @@ var Step = function(args) {
     that.actions = [];
     for (var i in args.actions) {
       var a = args.actions[i];
-      if (a instanceof Action)
-        that.actions.push(a);
-      else
-        that.actions.push(new Action(a));
+      that.actions.push(new Action(that, a));
     }
   };
 
@@ -28,7 +26,7 @@ var Step = function(args) {
   };
 
   this.newAction = function(action) {
-    var a = new Action(action);
+    var a = new Action(this, action);
     this.actions.push(a);
     model.setModified();
     return a;
@@ -52,6 +50,10 @@ var Step = function(args) {
   this.setClassified = function(action, classified) {
     action.edit({classified: or(classified, true)});
     model.setModified();
+  };
+
+  this.index = function() {
+    return _strategy.steps.indexOf(this);
   };
 
   for (var f in this) {

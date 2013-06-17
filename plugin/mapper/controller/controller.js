@@ -1,7 +1,42 @@
 
+///////////////////////
+// VARIABLES GLOBALES
+///////////////////////
+
 var glob = {},
   model = null,
   view = null;
+
+/////////////////////////////////////
+// GESTION MANUELLE DE L'HISTORIQUE
+/////////////////////////////////////
+
+$.mobile.changePage.defaults.changeHash = false;
+
+// Historique manuel des pages visités.
+glob.history = [];
+
+// On charge la derrière entrée de l'historique.
+glob.goBack = function() {
+  var url = glob.history.pop() || "#startPage";
+  $.mobile.changePage(url, {isBack: true});
+};
+
+// On ajoute la page active à l'historique avant de changer,
+// et si on ne fait pas un back.
+$(document).on("pagebeforechange", function(event, data) {
+  if (data.toPage instanceof Object || data.options.isBack || data.options.dontRemeberCurrentPage)
+    return;
+  glob.history.push('#'+$.mobile.activePage.attr("id"));
+});
+
+$(".backButton").click(function() { glob.goBack(); });
+
+//window.history.replaceState({hash:"#startPage"},'',"#startPage");
+
+//////////////////////////////////////////
+// INITIALISATION DU MODELE ET DE LA VUE
+//////////////////////////////////////////
 
 chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
 
@@ -27,4 +62,3 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
   });
 });
 
-window.history.replaceState({hash:"#startPage"},'',"#startPage");

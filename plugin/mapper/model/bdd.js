@@ -92,7 +92,6 @@ var BDD = function() {
   };
   // Clear data saved in localStorage.
   this.clearCache = function(strategy) {
-    delete localStorage['types'];
     delete localStorage[strategy.id];
   };
 };

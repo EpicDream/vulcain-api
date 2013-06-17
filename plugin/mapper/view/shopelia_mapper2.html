@@ -88,7 +88,7 @@
         <a data-role="button" data-icon="info" data-iconpos="notext" href="#help" class="help">Aide</a>
         <a data-role="button" data-icon="gear" data-iconpos="notext" class="testBtn">Tester la strategy</a>
         <div data-role="popup" class="testPopup ui-content" data-theme="e">
-          <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+          <a data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right backButton">Close</a>
           <p class="popupText"></p>
         </div>
         <a data-role="button" data-icon="arrow-r" data-iconpos="notext" class="nextStepButton">Next</a>
@@ -111,8 +111,10 @@
   </div><!-- page -->
 
 <!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  NEW  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
-  <div data-role="page" data-add-back-btn="true" id="newActionPage">
+  <div data-role="page" id="newActionPage">
+
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Ajout d'une nouvelle action</h1>
     </div>
     <div data-role="content">
@@ -139,15 +141,16 @@
         </li>
       </ul>
       <div>
-        <a data-role="button" data-inline="true" data-rel="back">Annuler</a>
+        <a data-role="button" data-inline="true" class="backButton">Annuler</a>
         <a data-role="button" data-inline="true" id="newAddBtn">Ajouter</a>
       </div>
     </div><!-- content -->
   </div><!-- page -->
 
 <!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  EDIT  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
-  <div data-role="page" data-add-back-btn="true" id="editActionPage">
+  <div data-role="page" id="editActionPage">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1 style="margin-right:20%;margin-left:20%;">Édition de l'action - <span class="actionName">#</span></h1>
       <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
         <a data-role="button" data-icon="info" data-iconpos="notext" href="#helpActions" class="help">Aide</a>
@@ -196,16 +199,17 @@
         </li>
       </ul>
       <div data-role="controlgroup" data-type="horizontal">
-        <a data-role="button" data-icon="back" data-rel="back" id="editCancelBtn">Annuler</a>
-        <a data-role="button" data-icon="check" data-rel="back" id="editSaveBtn">Save</a>
-        <a data-role="button" data-icon="delete" data-rel="back" id="editDeleteBtn">Del</a>
+        <a data-role="button" data-icon="back" class="backButton" id="editCancelBtn">Annuler</a>
+        <a data-role="button" data-icon="check" class="backButton" id="editSaveBtn">Save</a>
+        <a data-role="button" data-icon="delete" class="backButton" id="editDeleteBtn">Del</a>
       </div>
     </div><!-- content -->
   </div><!-- page -->
 
 <!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  PATH  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
-  <div data-role="page" data-add-back-btn="true" id="editPathPage">
+  <div data-role="page" id="editPathPage">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Édition du chemin</h1>
       <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
         <a data-role="button" data-icon="info" data-iconpos="notext" href="#helpContextes" class="help">Aide</a>
@@ -249,15 +253,16 @@
         </li>
       </ul>
       <div data-role="controlgroup" data-type="horizontal">
-        <a data-role="button" data-inline="true" data-icon="back" data-rel="back" class="pathCancelBtn">Annuler</a>
-        <a data-role="button" data-inline="true" data-icon="check" data-rel="back" id="pathOkBtn">Ok</a>
+        <a data-role="button" data-inline="true" data-icon="back" class="backButton" id="pathCancelBtn">Annuler</a>
+        <a data-role="button" data-inline="true" data-icon="check" class="backButton" id="pathOkBtn">Ok</a>
       </div>
     </div><!-- content -->
   </div><!-- page -->
 
 <!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  ERROR  ~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
-  <div data-role="page" data-add-back-btn="true" id="errorPage">
+  <div data-role="page" id="errorPage">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Erreur</h1>
       <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
         <a data-role="button" data-icon="info" data-iconpos="notext" href="#helpErrors" class="help">Aide</a>
@@ -270,12 +275,13 @@
       <p><b>Code : </b></p>
       <code id="errCode">Lorem ipsum dolor sit amet,<br>consectetur adipisicing elit,<br>sed do eiusmod tempor incididunt ut labore<br>et dolore magna aliqua.<br>Ut enim ad minim veniam.</code>
       <h4>Screenshot : </h4>
-      <p><img id="errScreenshot" src="http://lorempixel.com/output/technics-q-c-360-320-6.jpg"></p>
+      <p><img id="errScreenshot" src=""></p>
     </div><!-- content -->
   </div><!-- page -->
 
-  <div data-role="page" data-add-back-btn="true" id="helpStrategies">
+  <div data-role="page" id="helpStrategies">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les stratégies</h1>
     </div>
     <div data-role="content">
@@ -291,8 +297,9 @@
     </div><!-- content -->
   </div><!-- page -->
 
-  <div data-role="page" data-add-back-btn="true" id="helpSteps">
+  <div data-role="page" id="helpSteps">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les étapes</h1>
     </div>
     <div data-role="content">
@@ -322,8 +329,9 @@
     </div><!-- content -->
   </div><!-- page -->
 
-  <div data-role="page" data-add-back-btn="true" id="help_account_creation">
+  <div data-role="page" id="help_account_creation">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - L'inscription</h1>
     </div>
     <div data-role="content">
@@ -338,8 +346,9 @@
     </div><!-- content -->
   </div><!-- page -->
 
-  <div data-role="page" data-add-back-btn="true" id="help_login">
+  <div data-role="page" id="help_login">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - La connexion</h1>
     </div>
     <div data-role="content">
@@ -352,8 +361,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="help_unlog">
+  <div data-role="page" id="help_unlog">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - La déconnexion</h1>
     </div>
     <div data-role="content">
@@ -361,8 +371,9 @@
     </div><!-- content -->
   </div><!-- page -->
 
-  <div data-role="page" data-add-back-btn="true" id="help_empty_cart">
+  <div data-role="page" id="help_empty_cart">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Le vidage du panier</h1>
     </div>
     <div data-role="content">
@@ -374,8 +385,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="help_add_to_cart">
+  <div data-role="page" id="help_add_to_cart">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - L'ajout d'un produit</h1>
     </div>
     <div data-role="content">
@@ -388,8 +400,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="help_finalize_order">
+  <div data-role="page" id="help_finalize_order">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - La finalisation</h1>
     </div>
     <div data-role="content">
@@ -406,8 +419,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="help_payment">
+  <div data-role="page" id="help_payment">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Le payement</h1>
     </div>
     <div data-role="content">
@@ -419,8 +433,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpActions">
+  <div data-role="page" id="helpActions">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les actions</h1>
     </div>
     <div data-role="content">
@@ -449,8 +464,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpTypes">
+  <div data-role="page" id="helpTypes">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les types</h1>
     </div>
     <div data-role="content">
@@ -466,8 +482,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpArguments">
+  <div data-role="page" id="helpArguments">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les arguments</h1>
     </div>
     <div data-role="content">
@@ -476,8 +493,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpPaths">
+  <div data-role="page" id="helpPaths">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les chemins</h1>
     </div>
     <div data-role="content">
@@ -522,8 +540,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpContextes">
+  <div data-role="page" id="helpContextes">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les contextes</h1>
     </div>
     <div data-role="content">
@@ -543,8 +562,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpCode">
+  <div data-role="page" id="helpCode">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Le code</h1>
     </div>
     <div data-role="content">
@@ -561,8 +581,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpTest">
+  <div data-role="page" id="helpTest">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Le test</h1>
     </div>
     <div data-role="content">
@@ -577,8 +598,9 @@
   </div><!-- page -->
 
 
-  <div data-role="page" data-add-back-btn="true" id="helpErrors">
+  <div data-role="page" id="helpErrors">
     <div data-role="header">
+      <a data-role="button" data-icon="back" data-direction="reverse" class="ui-btn-left backButton">Retour</a>
       <h1>Aide - Les erreurs</h1>
     </div>
     <div data-role="content">

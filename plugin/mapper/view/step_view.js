@@ -93,14 +93,14 @@ var StepView = function(step, patternPage, predefined) {
     newActionView.onAdd(function() {
       var a = step.newAction(newActionView.get());
       _that.addAction(a).edit();
-      $.mobile.changePage("#editActionPage", {changeHash: false});
+      $.mobile.changePage("#editActionPage", {dontRemeberCurrentPage: true});
     }.bind(_that));
   };
 
   function _onNewActionSelected(event) {
     var optionVal = $(event.target).find("option:selected").val();
     if (optionVal == "") return;
-    _predefinedActionSelect.find("option[value='']").prop('selected',true)
+    _predefinedActionSelect.find("option[value='']").prop('selected',true);
     _predefinedActionSelect.selectmenu('refresh');
     var aModel = step.newAction(_predefinedActionsH[optionVal]);
     var aView = _that.addAction(aModel).edit();

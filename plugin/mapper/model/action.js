@@ -1,7 +1,9 @@
 
-var Action = function(args) {
+var Action = function(_step, args) {
   
   var that = this;
+  this.step = _step;
+
   function init() {
     if (! args || typeof(args) != "object") throw "'args' must be set as an object."
 
@@ -57,6 +59,10 @@ var Action = function(args) {
     this.classified = or(action.classified, this.classified);
     model.setModified();
     return this;
+  };
+
+  this.index = function() {
+    return _step.actions.indexOf(this);
   };
 
   for (var f in this) {

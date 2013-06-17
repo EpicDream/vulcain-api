@@ -55,9 +55,7 @@ var StrategyView = function(_strategy) {
       this.addStep(steps[i], previousStepId, nextStepId);
     }
 
-    var lastPageId = localStorage[_strategy.id+"_lastPage"];
-    if (lastPageId && lastPageId != "newActionPage" && lastPageId != "editActionPage" && lastPageId != "editPathPage")
-      $.mobile.changePage("#"+lastPageId);
+    _restoreCurrentState();
   };
 
   this.addStep = function(step, previousStepId, nextStepId) {
@@ -84,7 +82,7 @@ var StrategyView = function(_strategy) {
     }.bind(this));
   };
   function _onUnload(event) {
-    localStorage[_strategy.id+"_lastPage"] = $("div[data-role='page'].stepPage:visible").attr("id");
+    _saveCurrentState();
     if (_strategy.modified()) {
       _strategy.save();
       wait(200);/*send ajax*/
@@ -159,12 +157,36 @@ var StrategyView = function(_strategy) {
   };
   function _onClear(event) {
     chrome.extension.sendMessage({'dest':'contentscript','action':'clearCookies'});
+    delete localStorage[_strategy.id+"_lastPage"];
     if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) {
       _strategy.clearCache();
     }
   };
   function _onAddProductUrl(event) {
     _strategy.addProductUrl(glob.href);
+  };
+
+  // Save current page id, and current step/action if necessary.
+  function _saveCurrentState() {
+    var lastPage = {id: $.mobile.activePage.attr("id")};
+    if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
+      lastPage.editActionViewState = editActionView.getState();
+    localStorage[_strategy.id+"_lastPage"] = JSON.stringify(lastPage);
+  };
+  // Load previous page, when plugin exit last time.
+  function _restoreCurrentState() {
+    var lastPage = JSON.parse(localStorage[_strategy.id+"_lastPage"] || "null");
+    if (! lastPage)
+      return;
+
+    if (lastPage.stepIdx) {
+      var step = _strategy.steps[lastPage.stepIdx];
+      glob.history.push('#'+step.id+'Page');
+    }
+
+    if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
+      editActionView.restoreState(lastPage.editActionViewState);
+    $.mobile.changePage("#"+lastPage.id, {dontRemeberCurrentPage: true});
   };
 
 

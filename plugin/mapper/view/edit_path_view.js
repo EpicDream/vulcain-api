@@ -2,7 +2,7 @@
 var EditPathView = function() {
   var _that = this,
       _page = $("#editPathPage").page(),
-      _backBtn = _page.find("div[data-role='header'] a[data-rel='back']"),
+      _backBtn = _page.find("div[data-role='header'] .backButton"),
       _contextsFieldset = _page.find(".context .ui-controlgroup-controls"),
       _xpathField = _page.find("#xpath"),
       _fullXPathField = _page.find("#fullXPath"),
@@ -17,7 +17,7 @@ var EditPathView = function() {
       _currentContext = null;;
 
   function _init() {
-    _page.find(".pathCancelBtn").click(_that.clear);
+    _page.find("#pathCancelBtn").click(_that.clear);
     // _okBtn.click(_that.clear);
     // _backBtn.click(_that.clear);
 
@@ -41,8 +41,8 @@ var EditPathView = function() {
 
   this.load = function(action, currentPath, currentContext, onOk) {
     _currentAction = action;
-    _backBtn[0].onclick = function() { onOk(); _that.clear(); }
-    _okBtn[0].onclick = function() { onOk(); _that.clear(); }
+    _backBtn[0].onclick = function() { onOk(); _that.clear(); };
+    _okBtn[0].onclick = function() { onOk(); _that.clear(); };
 
     _finalPathField.val(currentPath);
     _finalPathField.css("height", "100%").keyup();
@@ -81,6 +81,17 @@ var EditPathView = function() {
     if (_contextsFieldset.find("input:checked").val() == "")
       res.context = _currentContext;
     return res;
+  };
+
+
+  this.getState = function() {
+    return this.get();
+  };
+  this.restoreState = function(state) {
+    _currentContext = state.context;
+    _finalPathField.val(state.finalPath);
+    _finalPathField.css("height", "100%").keyup();
+    glob.history.push('#editActionPage');
   };
 
   function _onNewMapping(msg) {
