@@ -176,13 +176,14 @@ class Plugin::IRobot < Robot
           if account.new_account
             begin
               run_step('account_creation')
+              message :account_created
+              run_step('unlog')
             rescue NoSuchElementError
               terminate_on_error :account_creation_failed
+              next
             end
-            message :account_created
-            run_step('unlog')
-            pl_open_url @shop_base_url
           end
+          pl_open_url @shop_base_url
           run_step('login')
           message :logged, :next_step => 'run_empty_cart'
         rescue NoSuchElementError
@@ -220,11 +221,11 @@ class Plugin::IRobot < Robot
         if answers.last.answer == Robot::YES_ANSWER
           begin
             run_step('payment')
+            message :validate_order
+            terminate({billing: @billing})
           rescue NoSuchElementError
             terminate_on_error :order_validation_failed
           end
-          message :validate_order
-          terminate({billing: @billing})
         else
           run_step('empty_cart')
           message :cancel_order
