@@ -57,40 +57,35 @@ function getClasses(jelem) {
   return (jelem.attr("class") ? _.compact(jelem.attr("class").split(/\s+/)).sort() : []);
 };
 
+// Get CSS Selector for this element : tagname, id, classes, child position.
+// If complete is false, stop when an id is found, or when discriminant classes are found and add only these.
 function fromParentSelector(jelement, complete) {
   var tag = jelement[0].tagName;
+  // TAGNAME
   var res = tag.toLowerCase();
-  // On indique l'id
+  // ID
   var id = jelement.attr("id");
-  if (id && (id.length < 15 || ! hu.isRandom(id)))
+  if (id && (id.length < 15 || ! hu.isRandom(id))) {
     res += "#"+id;
+    if (! complete)
+      return res;
+  }
   // Si il n'y a qu'un élément de ce type en enfant, on s'arrête
   var sameTagSiblings = jelement.siblings().filter(function(index) { return this.tagName == tag; });
   if (! complete && sameTagSiblings.length == 0)
     return res;
-  // Sinon, on ajoute les class uniques
+  // CLASSES
   var elementClasses = getClasses(jelement);
   if (! complete) {
     var siblingsClasses = _.map(sameTagSiblings.filter("*[class]"), function(sibling) { return getClasses($(sibling)); });
-    // var classes = [], diff = [];
-    // for (var j in siblingsClasses) {
-    //   diff = _.difference(elementClasses, siblingsClasses[j]);
-    //   if (diff.length == 0)
-    //     break;
-    //   classes.concat(diff);
-    //   elementClasses = _.without(elementClasses, diff);
-    //   if (elementClasses.length == 0)
-    //     break;
-    // }
     var classes = _.difference(elementClasses, [].concat(_.flatten(siblingsClasses)));
     res += _.map(classes, function(c){return "."+c;}).join('');
-    // if (diff.length > 0 && elementClasses.length > 0 && classes.length > 0)
     if (classes.length > 0)
       return res;
   } else {
     res += _.map(elementClasses, function(c){return "."+c;}).join('');
   }
-  // Si pas suffisent, on ajoute la position
+  // POSITION
   var pos = jelement.index() + 1;
   res += ":nth-child(" + pos + ")";
   return res;
@@ -99,8 +94,9 @@ function fromParentSelector(jelement, complete) {
 hu.getElementCSSSelectors = function(jelement, complete) {
   var css = '';
   for ( ; jelement && jelement[0].nodeType == 1 ; jelement = jelement.parent() ) {
-    css = fromParentSelector(jelement, complete) + " " + css;
-    if (jelement[0].tagName.toLowerCase() == 'body' || (! complete && jelement.attr("id")))
+    elem_selector = fromParentSelector(jelement, complete);
+    css = elem_selector + " " + css;
+    if (jelement[0].tagName.toLowerCase() == 'body' || (! complete && elem_selector.match(/#/)))
       break;
   }
   return css.trim();
