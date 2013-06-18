@@ -52,7 +52,7 @@ class Plugin::StrategiesController < ApplicationController
     end
 
     def backup(filename)
-      backs = Dir["#{filename}.back*"].sort
+      backs = Dir["#{filename}.back*"].sort { |filename| filename =~ /\.back(\d+)$/ ; $~[1].to_i }
       if backs.empty?
         cpt = 1
       else
