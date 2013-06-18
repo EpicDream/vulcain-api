@@ -278,7 +278,7 @@ class AmazonFrance
         unless click_on_link_with_text_if_exists(SHIPMENT_SEND_TO_THIS_ADDRESS)
           run_step 'fill shipping form'
         end
-        1.upto(products.count) { click_on SHIPMENT_OPTIONS_SUBMIT }
+        click_on SHIPMENT_OPTIONS_SUBMIT
         run_step('submit credit card')
       end
       
@@ -289,8 +289,11 @@ class AmazonFrance
         select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
-        
         wait_ajax
+        run_step('submit order')
+      end
+      
+      step('submit order') do
         click_on CONTINUE_TO_PAYMENT
         wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
         if exists? INVOICE_ADDRESS_SUBMIT

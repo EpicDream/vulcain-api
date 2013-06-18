@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require_robot 'fnac'
 
@@ -103,11 +104,11 @@ class FnacTest < ActiveSupport::TestCase
     assert !robot.exists?(Fnac::CREDIT_CARD_REMOVE)
   end
   
-  test "order with shipment address fill" do
+  test "complete order process" do
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-    @message.expects(:message).times(22)
+    @message.expects(:message).times(22..30)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
