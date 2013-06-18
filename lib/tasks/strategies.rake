@@ -43,10 +43,11 @@ class StrategiesTestsReport
   end
   
   def report
-    $stdout.puts TITLE
-    $stdout.puts "All right Dude !" if @success
-    XSTR.(@failures, "Failure")
-    XSTR.(@errors, "Error")
+    unless @success
+      $stdout.puts TITLE
+      XSTR.(@failures, "Failure")
+      XSTR.(@errors, "Error")
+    end
   end
   
 end

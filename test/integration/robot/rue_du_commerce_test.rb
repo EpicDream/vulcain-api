@@ -122,15 +122,11 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-    @message.expects(:message).times(18)
+    @message.expects(:message).times(15)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    robot.expects(:wait_for).with([RueDuCommerce::THANK_YOU_HEADER])
-    robot.expects(:get_text).with(RueDuCommerce::THANK_YOU_HEADER).returns("")
-    robot.expects(:terminate_on_error)
-    robot.run_step('validate order')
   end
   
   test "validate order with bank info completion" do

@@ -142,7 +142,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     steps = robot.instance_variable_get(:@steps)
-    steps['submit order'] = Proc.new {}
+    steps['submit credit card'] = Proc.new {}
      
     robot.run_step('finalize order')
   end

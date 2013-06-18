@@ -108,12 +108,11 @@ class FnacTest < ActiveSupport::TestCase
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-    @message.expects(:message).times(22..30)
+    @message.expects(:message).times(18)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    robot.run_step('validate order')
   end
   
   test "ensure cb payment if tab with fnac card payment mode" do
