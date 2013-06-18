@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 require 'test_helper'
 require_robot 'cdiscount'
 
@@ -126,6 +125,14 @@ class CdiscountTest < ActiveSupport::TestCase
     assert_equal billing, robot.billing
   end
   
+  test "complete order process" do
+    @message.expects(:message).times(14)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+  end
+  
   test "add to cart and finalize order with confirmation of address" do
     @context["user"]["address"]["address_1"] = "32781 rue de nulle part ailleurs"
     @context["order"]["products_urls"] = ["http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(755939365)ttid(5)url(http://www.cdiscount.com/dp.asp?sku=5051889024712&refer=*)"]
@@ -137,7 +144,6 @@ class CdiscountTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-
   end
   
   test "add to cart and finalize order with 4x payment option to avoid" do

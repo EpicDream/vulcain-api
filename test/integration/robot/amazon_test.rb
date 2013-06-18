@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 require 'test_helper'
 require_robot 'amazon_france'
 
@@ -138,14 +137,14 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-     @message.expects(:message).times(17..18)
-     robot.run_step('login')
-     robot.run_step('empty cart')
-     robot.run_step('add to cart')
-     steps = robot.instance_variable_get(:@steps)
-     steps['submit order'] = Proc.new {}
+    @message.expects(:message).times(17..18)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    steps = robot.instance_variable_get(:@steps)
+    steps['submit order'] = Proc.new {}
      
-     robot.run_step('finalize order')
+    robot.run_step('finalize order')
   end
    
   test "shipment fill with ask address confirmation" do
