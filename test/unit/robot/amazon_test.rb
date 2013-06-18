@@ -137,16 +137,16 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
   end
   
-  test "order with shipment address fill" do
+  test "complete order process" do
      @message.expects(:message).times(17..18)
      robot.run_step('login')
      robot.run_step('empty cart')
      robot.run_step('add to cart')
      steps = robot.instance_variable_get(:@steps)
-     steps['submit credit card'] = Proc.new {}
+     steps['submit order'] = Proc.new {}
      
      robot.run_step('finalize order')
-   end
+  end
    
   test "shipment fill with ask address confirmation" do
     @message.expects(:message).times(15..20)
@@ -158,7 +158,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     steps = robot.instance_variable_get(:@steps)
-    steps['submit credit card'] = Proc.new {}
+    steps['submit order'] = Proc.new {}
 
     robot.run_step('finalize order')
   end
