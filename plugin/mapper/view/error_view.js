@@ -6,6 +6,7 @@ var ErrorView = function(model) {
       _stepP = _page.find("#errStep"),
       _actionP = _page.find("#errAction"),
       _codeP = _page.find("#errCode"),
+      _logsP = _page.find("#errLogs"),
       _screenshotImg = _page.find("#errScreenshot");
 
   function _init() {
@@ -19,6 +20,10 @@ var ErrorView = function(model) {
     var action = step.actions[err.line];
     _actionP.text(action.desc);
     _codeP.html(err.code.replace(/\n/g,"<br>\n"));
+    var logs = _.map(err.logs, function(msg) {
+      return msg[0] + " : " + (msg[0] != 'message' ? msg[1] : msg[1].message);
+    });
+    _logsP.html(logs.join("<br>\n"));
     _screenshotImg.attr("src", "data:image/jpeg;base64,"+err.screenshot);
     $.mobile.changePage("#errorPage");
   };

@@ -17,7 +17,7 @@ class Plugin::IRobot < Robot
 
   class StrategyError < StandardError
     attr_reader :step, :code
-    attr_accessor :source, :screenshot
+    attr_accessor :source, :screenshot, :logs
     def initialize(msg,args={})
       super(msg)
       @step = args[:step]
@@ -26,7 +26,7 @@ class Plugin::IRobot < Robot
       @source = @screenshot = nil
     end
     def to_h
-      return {step: @step, code: @code, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
+      return {step: @step, code: @code, line: @line, msg: self.message, source: @source, screenshot: @screenshot, logs: @logs}
     end
     def message
       return super
