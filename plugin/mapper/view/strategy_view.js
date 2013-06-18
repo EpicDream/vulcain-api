@@ -104,6 +104,7 @@ var StrategyView = function(_strategy) {
       data: JSON.stringify(s)
     }).done(function(hash) {
       $.mobile.loading('hide');
+      console.log(hash.logs);
       if (hash.msg)
         _errorView.load(hash);
       else {
