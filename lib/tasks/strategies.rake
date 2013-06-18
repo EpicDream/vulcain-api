@@ -1,5 +1,6 @@
 # encoding: UTF-8
 ENV['TESTOPTS'] = '--name=test_complete_order_process'
+ENV['DISPLAY'] = ':0' if ENV['DISPLAY'].nil?
 
 Rake::TestTask.new('test:strategies') do |t|
   t.libs << "test"
