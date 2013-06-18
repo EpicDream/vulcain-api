@@ -40,9 +40,14 @@ class Plugin::StrategiesController < ApplicationController
 
   private
     def fixed_param
-      s = params
+      s = params.clone
       for step in (s[:steps] || [])
         step[:actions] ||= []
+      end
+      if s["name"]
+        s["name"] = s["name"].unaccent.gsub(/\W/,'_').downcase
+      elsif s["host"] =~ /^(?:www\.|m\.|mobile\.)?([\w\._-]+)\.\w+$/i
+        s["name"] = $~[1].gsub(/\W/,"_")
       end
       return s
     end

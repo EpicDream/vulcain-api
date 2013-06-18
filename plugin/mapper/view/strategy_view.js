@@ -14,8 +14,9 @@ var StrategyView = function(_strategy) {
 
   var _that = this;
   var _patternPage = $(".stepTemplatePage").detach().removeClass("stepTemplatePage").addClass("stepPage").page();
-  var _startPage = $("#startPage").page();
-  var _stepsList = _startPage.find("#stepsList").listview();
+  var _page = $("#startPage").page(),
+      _stepsList = _page.find("#stepsList").listview(),
+      _name =  _page.find("#strategy_name");
   var _noServerPopup = $("#noServerPopup").popup();
   var _currentHostSpan = $("#currentHostSpan");
   var _isCurrentHostMobile = $("#isCurrentHostMobile").checkboxradio();
@@ -29,13 +30,15 @@ var StrategyView = function(_strategy) {
     $('#newBtn').click(_onReset.bind(_that));
     $('#clearBtn').click(_onClear.bind(_that));
     $("#addProductUrl").click(_onAddProductUrl.bind(_that));
-    _currentHostSpan.text(glob.host);
+    _currentHostSpan.val(glob.host);
+    _name.change(_onNameChanged.bind(_that));
     _isCurrentHostMobile.change(_onSwitchMobility.bind(_that));
     window.addEventListener("beforeunload", _onUnload.bind(_that));
   };
 
   this.reset = function() {
     $(".stepPage").remove();
+    _name.val("");
     _stepsList.find("li").remove();
     _stepsList.listview('refresh');
     newActionView.reset();
@@ -44,6 +47,7 @@ var StrategyView = function(_strategy) {
   
   this.render = function() {
     this.reset();
+    _name.val(_strategy.name);
     newActionView.render(_.flatten(_.values(_strategy.predefined)), _strategy.types, _strategy.typesArgs);
     editActionView.render(_strategy.types, _strategy.typesArgs);
     _isCurrentHostMobile.prop("checked", _strategy.mobility).checkboxradio( "refresh" );
@@ -188,6 +192,10 @@ var StrategyView = function(_strategy) {
     if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
       editActionView.restoreState(lastPage.editActionViewState);
     $.mobile.changePage("#"+lastPage.id, {dontRemeberCurrentPage: true});
+  };
+  //
+  function _onNameChanged() {
+    _strategy.setName(_name.val());
   };
 
 

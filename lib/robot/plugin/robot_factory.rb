@@ -39,13 +39,13 @@ class Plugin::RobotFactory
 
   def self.make_rb_file(host)
     strategy = getStrategyHash(host)
-    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
-    File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |f|
+    vendor = strategy[:name]
+    File.open(File.expand_path("../../vendors/"+vendor.underscore+".rb",__FILE__), "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8
 
-if Object.const_defined?(:#{vendor_camel})
-  Object.send(:remove_const, :#{vendor_camel})
+if Object.const_defined?(:#{vendor.camelize})
+  Object.send(:remove_const, :#{vendor.camelize})
 end
 
 class #{vendor.camelize}
@@ -54,7 +54,7 @@ class #{vendor.camelize}
   def initialize context
     @context = context
     @context[:options] ||= {}
-    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if #{host =~ /_mobile/}
+    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if #{strategy['mobility']}
     @robot = instanciate_robot
   end
 
@@ -77,15 +77,15 @@ INIT
   end
 
   def self.make_test_file(host)
-    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
-    vendor_camel = vendor.camelize
-    File.open("test/unit/robot/plugin/vendors/"+vendor+"_test.rb", "w") do |f|
+    strategy = getStrategyHash(host)
+    vendor = strategy[:name]
+    File.open("test/unit/robot/plugin/vendors/"+vendor.underscore+"_test.rb", "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8
 
-require "robot/vendors/#{vendor}.rb"
+require "robot/vendors/#{vendor.underscore}.rb"
 
-class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
+class Plugin::#{vendor.camelize}Test < ActiveSupport::TestCase
   setup do
     @message = stub(message: true)
     @messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
@@ -93,7 +93,8 @@ class Plugin::#{vendor_camel}Test < ActiveSupport::TestCase
 
   def test(create_account=false)
     strategy = Plugin::RobotFactory.getStrategyHash(#{host})
-    Plugin::RobotFactory.test_strategy(strategy)
+    res = Plugin::RobotFactory.test_strategy(strategy)
+    assert_nil res[:msg], "Found error for strategy #{vendore.camelize} !\n#{res.inspect}"
   end
 end
 INIT
@@ -127,9 +128,8 @@ INIT
     CONTEXT[:options][:user_agent] = nil
   end
 
-  def self.merge_files(host, strategy, others)
-    vendor = host.gsub(/www.|.com|.fr/,"").gsub(".","_")
-    File.open(File.expand_path("../../vendors/"+vendor+".rb",__FILE__), "w") do |file|
+  def self.merge_files(vendor, strategy, others)
+    File.open(File.expand_path("../../vendors/"+vendor.underscore+".rb",__FILE__), "w") do |file|
       file.puts others.map { |other| File.read(other).gsub(/require\s+['"][\w_\/]+['"]/, '') }.join("\n")
       file.puts strategy
       file.puts

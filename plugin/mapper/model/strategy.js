@@ -12,6 +12,7 @@ var Strategy = function(host, mobile) {
     that.types = [];
     that.typesArgs = [];
     that.predefined = [];
+    that.name = "";
     that.steps = [];
     that.setMobility(mobile);
     that.created_at = (new Date()).getTime();
@@ -33,6 +34,7 @@ var Strategy = function(host, mobile) {
     var res = {};
     res.id = this.id;
     res.host = host;
+    res.name = this.name;
     res.mobility = this.mobility;
     res.steps = [];
     for (var i in this.steps)
@@ -55,6 +57,7 @@ var Strategy = function(host, mobile) {
     if (! onLoad) throw "'onLoad' must be set."
     this.bdd.load({id: this.id}, function(hash) {
       this.reset();
+      this.name = hash.name;
       this.steps = [];
       for (var i in hash.steps) {
         var s = hash.steps[i];
@@ -95,6 +98,10 @@ var Strategy = function(host, mobile) {
   this.modified = function() {
     return _modified;
   };
+  this.setName = function(name) {
+    this.name = name;
+    this.setModified();
+  };
   this.addProductUrl = function(url) {
     this.productsUrl.push(url);
     this.setModified();
@@ -103,6 +110,7 @@ var Strategy = function(host, mobile) {
   this.clearCache = function() { this.bdd.clearCache(this); };
   this.reset = function() {
     this.setDefault();
+    this.name = "";
     this.created_at = (new Date()).getTime();
     this.updated_at = this.created_at;
     this.productsUrl = [];

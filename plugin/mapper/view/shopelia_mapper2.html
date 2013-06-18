@@ -49,8 +49,11 @@
         <div class="ui-block-c"><a data-role="button" data-icon="plus" id="newBtn">New</a></div>
         <div class="ui-block-d"><a data-role="button" data-icon="delete" id="clearBtn">Clear</a></div>
       </div><!-- /grid-c -->
-      <div>
-        <p>Site actuel : <span id="currentHostSpan"></span></p>
+      <div data-role="fieldcontain">
+        <label for="currentHostSpan">Site actuel :</label>
+        <input type="text" id="currentHostSpan" readonly>
+        <label for="strategy_name" title="En un seul mot, camelizé">Nom :</label>
+        <input type="text" id="strategy_name" placeholder="Ex : PriceMinister">
         <label>
           <input type="checkbox" id="isCurrentHostMobile">
           Version mobile
