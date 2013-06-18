@@ -119,7 +119,7 @@ INIT
     robot = Plugin::IRobot.new(CONTEXT) {}
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
-    return {products: robot.products, biling: robot.billing}
+    return {products: robot.products, biling: robot.billing, logs: robot.messager.logs}
   rescue Plugin::IRobot::StrategyError => err
     return err.to_h
   ensure

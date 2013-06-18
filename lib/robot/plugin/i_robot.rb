@@ -34,11 +34,16 @@ class Plugin::IRobot < Robot
   end
 
   class FakeMessenger
+    attr_reader :logs
+    def initialize
+      @logs = []
+    end
     def method_missing(meth, *args, &block)
       return self
     end
     def message(*args, &block)
       p args
+      @logs << args
       return nil
     end
   end
@@ -177,38 +182,39 @@ class Plugin::IRobot < Robot
       end
 
       step('run_test') do
-        continue = true
         pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
+          message :account_created
         else
-          continue = false if ! @steps['login']
-          run_step('login') if continue
+          next if ! @steps['login']
+          run_step('login')
+          message :logged
         end
-        continue = false if ! @steps['unlog']
-        run_step('unlog') if continue && ! @steps['empty_cart']
-        continue = false if ! @steps['login']
-        run_step('login') if continue && ! @steps['empty_cart']
-        continue = false if ! @steps['empty_cart']
-        run_step('empty_cart') if continue && ! @steps['finalize_order']
-        continue = false if ! @steps['add_to_cart']
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          run_step('add_to_cart')
-        end if continue && ! @steps['finalize_order']
-        run_step('empty_cart') if continue && ! @steps['finalize_order']
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
-          run_step('add_to_cart')
-          products << @pl_current_product
-        end if continue
-        continue = false if ! @steps['finalize_order']
-        run_step('finalize_order') if continue
-        continue = false if ! @steps['payment']
-        run_step('payment') if continue
+
+        next if ! @steps['unlog']
+        if ! @steps['empty_cart']
+          run_step('unlog')
+          next if ! @steps['login']
+          run_step('login')
+        end
+
+        next if ! @steps['empty_cart']
+        run_step('run_empty_cart')
+
+        next if ! @steps['add_to_cart']
+        run_step('run_fill_cart')
+
+        if ! @steps['finalize_order']
+          run_step('run_empty_cart')
+          run_step('run_fill_cart')
+        end
+
+        next if ! @steps['finalize_order']
+        run_step('run_finalize')
+
+        next if ! @steps['payment']
+        pl_assess next_step:'run_waitAck'
       end
     end
   end
@@ -229,6 +235,7 @@ class Plugin::IRobot < Robot
   rescue StrategyError => err
     err.source = @driver.page_source
     err.screenshot = @driver.screenshot
+    err.logs = @messager.logs
     raise err
   end
 
