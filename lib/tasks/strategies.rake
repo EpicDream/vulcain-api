@@ -31,22 +31,30 @@ namespace :strategies do
 end
 
 class StrategiesTestsReport
-  LINE = "\n" + "_"*80 + "\n"
-  TITLE = "#{LINE}Strategies integration tests result#{LINE}"
   GREP = Proc.new { |output, type| output.scan(%r{#{type}:\ntest_complete_order_process\((.*?)\)}).flatten }
-  XSTR = Proc.new { |ivar, disp| ivar.each {|test_klass| $stdout.puts "#{test_klass.gsub(/Test/,'')} : #{disp}"}}
-
+  XSTR = Proc.new { |ivar, disp| ivar.map {|test_klass| "#{test_klass.gsub(/Test/,'')} : #{disp}"}}
+  REPORT_FILE_PATH = "/tmp/strategies_test_report.txt"
+  
   def initialize output
     @failures = GREP.(output, "Failure")
     @errors = GREP.(output, "Error")
     @success = @failures.empty? && @errors.empty?
   end
   
+  def leftronic status
+    point = status == :red ? "100" : "0"
+    `curl -i -X POST -k -d '{"accessKey": "yiOeiGcux3ZuhdsWuVHJ", "streamName": "vulcain_core_status", "point": #{point}}' https://www.leftronic.com/customSend/`
+  end
+  
   def report
     unless @success
-      $stdout.puts TITLE
-      XSTR.(@failures, "Failure")
-      XSTR.(@errors, "Error")
+      leftronic(:red)
+      File.open(REPORT_FILE_PATH, "w") do |file|
+        file.write XSTR.(@failures, "Failure").inspect
+        file.write XSTR.(@errors, "Error").inspect
+      end
+    else
+      leftronic(:green)
     end
   end
   
