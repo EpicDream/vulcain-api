@@ -57,7 +57,7 @@ class Plugin::StrategiesController < ApplicationController
     end
 
     def backup(filename)
-      backs = Dir["#{filename}.back*"].sort { |filename| filename =~ /\.back(\d+)$/ ; $~[1].to_i }
+      backs = Dir["#{filename}.back*"].sort_by { |filename| filename =~ /\.back(\d+)$/ ; $~[1].to_i }
       if backs.empty?
         cpt = 1
       else
@@ -75,94 +75,95 @@ class Plugin::StrategiesController < ApplicationController
             id: "account_creation",
             desc: "Inscription",
             actions: [
-              {id: "go_to_account", desc: "Aller sur la page d'inscription", option: "", type: "pl_open_url"},
-              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
-              {id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
-              {id: "continuerBtn", desc: "Bouton continuer", option: "", type: "pl_click_on"},
-              {id: "confirm_email_field", desc: "Confirmer l'e-mail", option: "", type: "pl_fill_text","arg"=>"email"},
-              {id: "pseudo_field", desc: "Pseudo", option: "", type: "pl_fill_text","arg"=>"login"},
-              {id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
-              {id: "confirm_password_field", desc: "Confirmer le mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
-              {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
-              {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
-              {id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
-              {id: "jourbirth_select", desc: "Jour de Naissance", option: "", type: "pl_select_option","arg"=>"birthdate_day"},
-              {id: "moisbirth_select", desc: "Mois de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_month"},
-              {id: "anneeBirth_select", desc: "Année de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_year"},
-              {id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
+              {id: "check_account_created", desc: "Vérifier que le compte est créé", option: "", type: "pl_check"},
+              {id: "create_btn", desc: "Bouton créer le compte", option: "", type: "pl_create_account"},
               {id: "telephoneMobile_field", desc: "Téléphone mobile", option: "", type: "pl_fill_text","arg"=>"mobile_phone"},
-              {id: "create_btn", desc: "Bouton créer le compte", option: "", type: "pl_click_on"},
-              {id: "check_account_created", desc: "Vérifier que le compte est créé", option: "", type: "pl_check"}
+              {id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
+              {id: "anneeBirth_select", desc: "Année de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_year"},
+              {id: "moisbirth_select", desc: "Mois de naissance", option: "", type: "pl_select_option","arg"=>"birthdate_month"},
+              {id: "jourbirth_select", desc: "Jour de Naissance", option: "", type: "pl_select_option","arg"=>"birthdate_day"},
+              {id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
+              {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
+              {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
+              {id: "confirm_password_field", desc: "Confirmer le mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+              {id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+              {id: "pseudo_field", desc: "Pseudo", option: "", type: "pl_fill_text","arg"=>"login"},
+              {id: "confirm_email_field", desc: "Confirmer l'e-mail", option: "", type: "pl_fill_text","arg"=>"email"},
+              {id: "continuerBtn", desc: "Bouton continuer", option: "", type: "pl_click_on"},
+              {id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
+              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
+              {id: "go_to_account", desc: "Aller sur la page d'inscription", option: "", type: "pl_open_url"}
             ]
           },{
             id: "login",
             desc: "Se Connecter",
             actions: [
-              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
-              {id: "login_field", desc: "Login", option: "", type: "pl_fill_text","arg"=>"login"},
-              {id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
-              {id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+              {id: "check_logged", desc: "Vérifier qu'on est connecté", option: "", type: "pl_check"},
               {id: "continuerBtn", desc: "Bouton continuer", option: "", type: "pl_click_on"},
-              {id: "check_logged", desc: "Vérifier qu'on est connecté", option: "", type: "pl_check"}
+              {id: "password_field", desc: "Mot de passe", option: "", type: "pl_fill_text","arg"=>"password"},
+              {id: "email_field", desc: "E-mail", option: "", type: "pl_fill_text","arg"=>"email"},
+              {id: "login_field", desc: "Login", option: "", type: "pl_fill_text","arg"=>"login"},
+              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"}
             ]
           },{
             id: "unlog",
             desc: "Déconnexion",
             actions: [
-              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"},
-              {id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"}
+              {id: "unconnect_btn", desc: "Bouton déconnexion", option: "", type: "pl_click_on"},
+              {id: "account_btn", desc: "Mon Compte", option: "", type: "pl_click_on"}
             ]
           },{
             id: "empty_cart",
             desc: "Vider panier",
             actions: [
-              {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
-              {id: "empty_btn", desc: "Bouton vider le panier", option: "", type: "pl_click_on"},
+              {id: "check_cart_empty", desc: "Vérifier que le panier est vide", option: "", type: "pl_check"},
               {id: "remove_btn", desc: "Bouton supprimer produit du panier", option: "", type: "pl_click_on_all"},
-              {id: "check_cart_empty", desc: "Vérifier que le panier est vide", option: "", type: "pl_check"}
+              {id: "empty_btn", desc: "Bouton vider le panier", option: "", type: "pl_click_on"},
+              {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"}
             ]
           },{
             id: "add_to_cart",
             desc: "Ajouter Produit",
             actions: [
-              {id: "set_product_title", desc: "Indiquer le titre de l'article", option: "", type: "pl_set_product_title"},
-              {id: "set_product_image_url", desc: "Indiquer l'url de l'image de l'article", option: "", type: "pl_set_product_image_url"},
-              {id: "set_product_price", desc: "Indiquer le prix de l'article", option: "", type: "pl_set_product_price"},
+              {id: "add_to_cart_btn", desc: "Bouton ajouter au panier", option: "", type: "pl_click_on"},
               {id: "set_product_delivery_price", desc: "Indiquer le prix de livraison de l'article", option: "", type: "pl_set_product_delivery_price"},
-              {id: "add_to_cart_btn", desc: "Bouton ajouter au panier", option: "", type: "pl_click_on"}
+              {id: "set_product_price", desc: "Indiquer le prix de l'article", option: "", type: "pl_set_product_price"},
+              {id: "set_product_image_url", desc: "Indiquer l'url de l'image de l'article", option: "", type: "pl_set_product_image_url"},
+              {id: "set_product_title", desc: "Indiquer le titre de l'article", option: "", type: "pl_set_product_title"}
             ]
           },{
             id: "finalize_order",
             desc: "Finalisation",
             actions: [
-              {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"},
-              {id: "set_tot_products_price", desc: "Indiquer le prix total des produits", option: "", type: "pl_set_tot_products_price"},
-              {id: "set_tot_shipping_price", desc: "Indiquer le prix de livraison total", option: "", type: "pl_set_tot_shipping_price"},
-              {id: "set_total_price", desc: "Indiquer le prix total", option: "", type: "pl_set_tot_price"},
-              {id: "finalize_btn", desc: "Bouton finalisation", option: "", type: "pl_click_on"},
-              {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
-              {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
-              {id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
-              {id: "adresse1_field", desc: "Adresse 1", option: "", type: "pl_fill_text","arg"=>"address_1"},
-              {id: "adresse2_field", desc: "Adresse 2", option: "", type: "pl_fill_text","arg"=>"address_2"},
-              {id: "codepostal_field", desc: "Code Postal", option: "", type: "pl_fill_text","arg"=>"zip"},
-              {id: "ville_field", desc: "Ville", option: "", type: "pl_fill_text","arg"=>"city"},
-              {id: "pays_field", desc: "Pays", option: "", type: "pl_fill_text","arg"=>"country"},
-              {id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
+              {id: "continuer_btn", desc: "Bouton continuer", option: "", type: "pl_click_on"},
               {id: "telephoneMobile_field", desc: "Téléphone mobile", option: "", type: "pl_fill_text","arg"=>"mobile_phone"},
-              {id: "continuer_btn", desc: "Bouton continuer", option: "", type: "pl_click_on"}
+              {id: "telephoneFixe_field", desc: "Télephone fixe", option: "", type: "pl_fill_text","arg"=>"land_phone"},
+              {id: "pays_field", desc: "Pays", option: "", type: "pl_fill_text","arg"=>"country"},
+              {id: "ville_field", desc: "Ville", option: "", type: "pl_fill_text","arg"=>"city"},
+              {id: "codepostal_field", desc: "Code Postal", option: "", type: "pl_fill_text","arg"=>"zip"},
+              {id: "adresse2_field", desc: "Adresse 2", option: "", type: "pl_fill_text","arg"=>"address_2"},
+              {id: "adresse1_field", desc: "Adresse 1", option: "", type: "pl_fill_text","arg"=>"address_1"},
+              {id: "prenom_field", desc: "Prénom", option: "", type: "pl_fill_text","arg"=>"first_name"},
+              {id: "name_field", desc: "Nom", option: "", type: "pl_fill_text","arg"=>"last_name"},
+              {id: "civilite_select", desc: "Civilité", option: "", type: "pl_select_option","arg"=>"gender"},
+              {id: "finalize_btn", desc: "Bouton finalisation", option: "", type: "pl_click_on"},
+              {id: "set_total_price", desc: "Indiquer le prix total", option: "", type: "pl_set_tot_price"},
+              {id: "set_tot_shipping_price", desc: "Indiquer le prix de livraison total", option: "", type: "pl_set_tot_shipping_price"},
+              {id: "set_tot_products_price", desc: "Indiquer le prix total des produits", option: "", type: "pl_set_tot_products_price"},
+              {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"}
             ]
           },{
             id: "payment",
             desc: "Payement",
             actions: [
-              {id: "creditcard_type", desc: "Type de carte", option: "", type: "pl_click_on_radio"},
-              {id: "card_number", desc: "Numéro de la carte", option: "", type: "pl_fill_text"},
-              {id: "cvc", desc: "CVC", option: "", type: "pl_fill_text"},
-              {id: "expire_month", desc: "Mois d'expiration", option: "", type: "pl_select_option"},
-              {id: "expire_year", desc: "Année d'expiration", option: "", type: "pl_select_option"},
+              {id: "check_payment", desc: "Vérifier que la transaction est passée", option: "", type: "pl_check"},
+              {id: "payment_btn", desc: "Bouton de validation du payement", option: "", type: "pl_validate_payment"},
               {id: "continuer_btn", desc: "Bouton Continuer", option: "", type: "pl_click_on"},
-              {id: "check_payment", desc: "Vérifier que la transaction est passée", option: "", type: "pl_check"}
+              {id: "expire_year", desc: "Année d'expiration", option: "", type: "pl_select_option"},
+              {id: "expire_month", desc: "Mois d'expiration", option: "", type: "pl_select_option"},
+              {id: "cvc", desc: "CVC", option: "", type: "pl_fill_text"},
+              {id: "card_number", desc: "Numéro de la carte", option: "", type: "pl_fill_text"},
+              {id: "creditcard_type", desc: "Type de carte", option: "", type: "pl_click_on_radio"}
             ]
           }
         ]
