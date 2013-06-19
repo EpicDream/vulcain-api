@@ -9,7 +9,8 @@ class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_4 = 'http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)'
   PRODUCT_URL_5 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-schtroumpfs-xxl-60-pieces/f-1270102-harischtrouxxl.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
   PRODUCT_URL_6 = 'http://www.cdiscount.com/pret-a-porter/vetements-femme/l-amie-de-paris-t-shirt-femme-bleu/f-11302173234-s303bleu.html'
-  
+  PRODUCT_URL_7 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-persica-peche-210-pieces/f-127010208-haribopersica.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
+ 
   attr_accessor :robot
   
   setup do
@@ -123,6 +124,18 @@ class CdiscountTest < ActiveSupport::TestCase
 
     assert_equal products, robot.products
     assert_equal billing, robot.billing
+  end
+  
+  test "handle out of stock (click on 'Passer la commande' has no action even manually)" do
+    @context["order"]["products_urls"] = [PRODUCT_URL_7]
+    robot.context = @context
+    
+    @message.expects(:message).times(12)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.expects(:terminate_on_error).with(:out_of_stock)
+    robot.run_step('finalize order')
   end
   
   test "complete order process" do
