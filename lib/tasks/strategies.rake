@@ -33,7 +33,7 @@ end
 class StrategiesTestsReport
   GREP = Proc.new { |output, type| output.scan(%r{#{type}:\ntest_complete_order_process\((.*?)\)}).flatten }
   XSTR = Proc.new { |ivar, disp| ivar.map {|test_klass| "#{test_klass.gsub(/Test/,'')} : #{disp}"}}
-  REPORT_FILE_PATH = "/tmp/strategies_test_report.txt"
+  REPORT_FILE_PATH = "#{Rails.root}/tmp/strategies_test_report.txt"
   
   def initialize output
     @failures = GREP.(output, "Failure")
