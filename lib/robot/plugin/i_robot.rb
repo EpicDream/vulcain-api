@@ -17,19 +17,29 @@ class Plugin::IRobot < Robot
 
   class StrategyError < StandardError
     attr_reader :step, :code
-    attr_accessor :source, :screenshot, :logs
+    attr_accessor :source, :screenshot, :logs, :stepstrace
     def initialize(msg,args={})
-      super(msg)
+      super("#{err.class}: #{err.to_s}")
       @step = args[:step]
       @code = args[:code]
-      @line = args[:line]
+      @action_name = args[:action_name]
       @source = @screenshot = nil
+      @stepstrace = []
     end
     def to_h
-      return {step: @step, code: @code, line: @line, msg: self.message, source: @source, screenshot: @screenshot, logs: @logs}
+      return {
+        step: @step,
+        code: @code,
+        action_name: @action_name,
+        msg: self.message,
+        source: @source,
+        screenshot: @screenshot,
+        logs: @logs,
+        stepstrace: @stepstrace
+      }
     end
-    def message
-      return super
+    def to_s
+      "StrategyError in step '#{@step}', action '#{@action_name}', for code \n#{@code}\n=> #{message}"
     end
   end
 
@@ -68,11 +78,6 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
-    # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
-    # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
-    # {id: 'wait_ajax', desc: "Attendre"},
-    # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
-    # {id: 'message', desc: "Envoyer un message", has_arg: true}
   ]
   for a in ACTION_METHODS
     a[:method] ||= a[:id]
@@ -118,7 +123,7 @@ class Plugin::IRobot < Robot
     @billing = {}
 
     self.instance_eval do
-      step('run') do
+      pl_step('run') do
         begin
           pl_open_url! @shop_base_url
           if account.new_account
@@ -139,12 +144,12 @@ class Plugin::IRobot < Robot
         end
       end
 
-      step('run_empty_cart') do
+      pl_step('run_empty_cart') do
         run_step('empty_cart')
         message :cart_emptied, :next_step => 'run_fill_cart'
       end
 
-      step('run_fill_cart') do
+      pl_step('run_fill_cart') do
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
@@ -155,7 +160,7 @@ class Plugin::IRobot < Robot
         message :cart_filled, :next_step => 'run_finalize'
       end
 
-      step('run_finalize') do
+      pl_step('run_finalize') do
         run_step('finalize_order')
 
         @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
@@ -165,7 +170,7 @@ class Plugin::IRobot < Robot
         pl_assess next_step:'run_waitAck'
       end
 
-      step('run_waitAck') do
+      pl_step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
           begin
             run_step('payment')
@@ -181,7 +186,7 @@ class Plugin::IRobot < Robot
         end
       end
 
-      step('run_test') do
+      pl_step('run_test') do
         pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
@@ -250,22 +255,35 @@ class Plugin::IRobot < Robot
     # Get new context
     step_binding = Kernel.binding
     # Create callable step
-    step(step[:id]) do
-      puts "Running #{step[:id]} :"
+    pl_step(step[:id]) do
       # Eval each action
       for act in step[:actions]
         begin
-          puts act[:code]
           step_binding.eval act[:code]
         rescue => err
-          raise StrategyError.new(err, {step: step[:id], code: act[:code], line: step[:actions].index(act)})
+          raise StrategyError.new(err, {step: step[:id], code: act[:code], action_name: act[:desc]})
         end
       end
     end
-  rescue StrategyError
-    raise
-  rescue => err
-    raise StrategyError.new(err, {step: step[:id]})
+  end
+
+  # Intercept errors to add steptrace
+  def pl_step(name,&block)
+    step(name) do
+      begin
+        yield block
+      rescue StrategyError => err
+        err.stepstrace << "in step `#{name}'"
+        raise
+      rescue => err
+        e = StrategyError.new(err, {step: name})
+        e.source = @driver.page_source
+        e.screenshot = @driver.screenshot
+        e.logs = @messager.logs
+        e.stepstrace << "in step `#{name}'"
+        raise e
+      end
+    end
   end
 
   # Call without bang method if exist.
