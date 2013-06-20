@@ -755,7 +755,7 @@ class PriceministerMobile
 
   def self.generatePseudo(base, i=-1)
     i = (i == -1 ? '' : i.to_s)
-    return base[0...(12-i.size)].gsub(/[^\w\.-]/, '')+i
+    return base[0...(12-i.size)].gsub(/[^\w_-]/, '')+i
   end
 
   def instanciate_robot
