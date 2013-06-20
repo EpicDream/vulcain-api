@@ -35,7 +35,19 @@ class Driver
   def accept_alert
     waiting { @driver.switch_to.alert.accept }
   end
+  
+  def screenshot
+    driver.screenshot_as(:base64)
+  end
+  
+  def page_source
+    driver.page_source
+  end
 
+  def options_of_select select
+    select.find_elements(:tag_name, "option")
+  end
+  
   def select_option select, value
     options = options_of_select(select)
     options.each do |option|
@@ -44,23 +56,19 @@ class Driver
       break
     end
   end
-  
-  def options_of_select select
-    select.find_elements(:tag_name, "option")
-  end
 
   def click_on element
     element.click
   end
  
   def move_to_and_click_on element
-    @driver.action.move_to(element).click.perform
+    driver.action.move_to(element).click.perform
   end
- 
+  
   def find_element xpath, options={}
-    index = options[:index] || 0
-    return driver.find_elements(:xpath => xpath)[index] if options[:nowait]
-    waiting { driver.find_elements(:xpath => xpath).first }
+    waiting(options[:nowait]) { 
+      driver.find_elements(:xpath => xpath)[options[:index] || 0] 
+    }
   end
   
   def find_elements xpath, options={}
@@ -77,17 +85,10 @@ class Driver
     }
   end
   
-  def find_links_with_text text
-    waiting { driver.find_elements(:link_text => text) }
-  end
-  
-  def find_link_with_href href
-    elements = driver.find_elements(:tag_name => 'a')
-    elements.detect {|element| element.attribute('href') == href }
-  end
-  
-  def find_link_with_text text
-    driver.find_elements(:link_text => text).first
+  def find_links_with_text text, options={}
+    waiting(options[:nowait]) { 
+      driver.find_elements(:link_text => text) || []
+    }
   end
   
   def find_input_with_value value
@@ -98,27 +99,13 @@ class Driver
     driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{value}']")
   end
   
-  def find_by_text label, tag="*"
-    ["text()", "@name", "@value", "@id"].inject(nil) do |element, attribute|
-      element = driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{label}']").first
-      break element if element
-      element
-    end
-  end
-  
-  def find_by_attribute_matching tag, attribute, regexp
+  def find_elements_by_attribute_matching tag, attribute, regexp
     waiting {
-      elements = driver.find_elements(:xpath => "//#{tag}")
-      elements.detect { |element| element.attribute(attribute) =~ regexp }
+      nodes = driver.find_elements(:xpath => "//#{tag}")
+      elements = nodes.select { |node| node.attribute(attribute) =~ regexp }
+      break elements if elements.any?
+      nil
     }
-  end
-  
-  def screenshot
-    driver.screenshot_as(:base64)
-  end
-  
-  def page_source
-    driver.page_source
   end
   
   private
@@ -135,18 +122,22 @@ class Driver
     FileUtils.cp_r(PROFILE_PATH, @profile_path)
   end
   
-  def waiting
+  def waiting nowait=false
     @attempts = 0
-    wait.until do 
-      begin
-        yield
-      rescue => e
-        if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
-          sleep(1) and retry
-        else
-          raise
-        end
-      end  
+    if nowait
+      yield
+    else
+      wait.until do 
+        begin
+          yield
+        rescue => e
+          if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
+            sleep(1) and retry
+          else
+            raise
+          end
+        end  
+      end
     end
   end
   

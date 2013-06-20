@@ -152,7 +152,7 @@ class Robot
   end
   
   def click_on_links_with_text text, &block
-    elements = @driver.find_links_with_text text
+    elements = @driver.find_links_with_text(text, nowait:true)
     return false if elements.none?
     elements.each do |element| 
       @driver.click_on element
@@ -168,12 +168,12 @@ class Robot
   end
   
   def click_on_link_with_text text
-    element = @driver.find_links_with_text(text).first
+    element = @driver.find_links_with_text(text, nowait:true).first
     @driver.click_on element
   end
   
   def click_on_link_with_text_if_exists text
-    return unless element = @driver.find_link_with_text(text)
+    return unless element = @driver.find_links_with_text(text, nowait:true).first
     @driver.click_on(element)
   end
   
@@ -241,11 +241,6 @@ class Robot
     @driver.find_elements xpath
   end
   
-  def click_on_link_with_href href
-    link = @driver.find_link_with_href(href)
-    click_on link
-  end
-  
   def find_element xpath
     find_elements(xpath).first
   end
@@ -262,18 +257,18 @@ class Robot
   end
   
   def fill_element_with_attribute_matching tag, attribute, regexp, args={}
-    input = @driver.find_by_attribute_matching tag, attribute, regexp
+    input = @driver.find_elements_by_attribute_matching(tag, attribute, regexp).first
     input.clear
     input.send_key args[:with]
   end
   
   def click_on_button_with_attribute_matching tag, attribute, regexp
-    button = @driver.find_by_attribute_matching(tag, attribute, regexp)
+    button = @driver.find_elements_by_attribute_matching(tag, attribute, regexp).first
     click_on button
   end
   
   def find_element_by_attribute_matching tag, attribute, regexp
-    @driver.find_by_attribute_matching(tag, attribute, regexp)
+    @driver.find_elements_by_attribute_matching(tag, attribute, regexp).first
   end
   
   def fill_all xpath, args={}

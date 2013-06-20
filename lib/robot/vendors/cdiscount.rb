@@ -199,7 +199,7 @@ class Cdiscount
         if exists? ADD_TO_CART
           click_on ADD_TO_CART
         else #fuck this site made by daft dump developers
-          button = find_element_by_attribute_matching("button", "id", ADD_TO_CART_VENDORS)
+          button = find_elements_by_attribute_matching("button", "id", ADD_TO_CART_VENDORS).first
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
         end
