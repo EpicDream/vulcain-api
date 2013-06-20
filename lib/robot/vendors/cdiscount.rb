@@ -1,12 +1,6 @@
 # encoding: utf-8
-class Cdiscount
+module CdiscountConstants
   USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
-  
-  URL = 'http://www.cdiscount.com/'
-  HOME_URL = 'https://clients.cdiscount.com/Account/Home.aspx'
-  LOGIN_URL = 'https://clients.cdiscount.com/'
-  CREATE_ACCOUNT_URL = 'https://clients.cdiscount.com/Account/RegistrationForm.aspx'
-  PAYMENTS_PAGE_URL = 'https://clients.cdiscount.com/Account/CustomerPaymentMode.aspx'
   
   BIRTHDATE_AS_STRING = lambda do |birthdate|
     [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
@@ -20,24 +14,35 @@ class Cdiscount
     text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
   end
   
+  URLS = {
+    base:'http://www.cdiscount.com/',
+    home:'https://clients.cdiscount.com/Account/Home.aspx',
+    register:'https://clients.cdiscount.com/Account/RegistrationForm.aspx',
+    login:'https://clients.cdiscount.com/',
+    payments:'https://clients.cdiscount.com/Account/CustomerPaymentMode.aspx'
+  }
   
-  REGISTER_CIVILITY_M = '//*[@id="cphMainArea_UserRegistrationCtl_optM"]'
-  REGISTER_CIVILITY_MME = '//*[@id="cphMainArea_UserRegistrationCtl_optMme"]'
-  REGISTER_CIVILITY_MLLE = '//*[@id="cphMainArea_UserRegistrationCtl_optMlle"]'
-  REGISTER_LAST_NAME = '//*[@id="cphMainArea_UserRegistrationCtl_txtName"]'
-  REGISTER_FIRST_NAME = '//*[@id="cphMainArea_UserRegistrationCtl_txtFisrtName"]'
-  REGISTER_BIRTHDATE = '//*[@id="cphMainArea_UserRegistrationCtl_txtBirthDate"]'
-  REGISTER_EMAIL = '//*[@id="cphMainArea_UserRegistrationCtl_txtEmail"]'
-  REGISTER_EMAIL_CONFIRMATION = '//*[@id="cphMainArea_UserRegistrationCtl_txtCheckEmail"]'
-  REGISTER_PASSWORD = '//*[@id="cphMainArea_UserRegistrationCtl_txtPassWord"]'
-  REGISTER_PASSWORD_CONFIRMATION = '//*[@id="cphMainArea_UserRegistrationCtl_txtCheckPassWord"]'
-  REGISTER_CGU = '//*[@id="cphMainArea_UserRegistrationCtl_CheckBoxSellCondition"]'
-  REGISTER_SUBMIT = '//*[@id="cphMainArea_UserRegistrationCtl_btnValidate"]'
+  REGISTER = {
+    mister:'//*[@id="cphMainArea_UserRegistrationCtl_optM"]',
+    madam:'//*[@id="cphMainArea_UserRegistrationCtl_optMme"]',
+    miss:'//*[@id="cphMainArea_UserRegistrationCtl_optMlle"]',
+    last_name:'//*[@id="cphMainArea_UserRegistrationCtl_txtName"]',
+    first_name:'//*[@id="cphMainArea_UserRegistrationCtl_txtFisrtName"]',
+    birthdate:'//*[@id="cphMainArea_UserRegistrationCtl_txtBirthDate"]',
+    email:'//*[@id="cphMainArea_UserRegistrationCtl_txtEmail"]',
+    email_confirmation:'//*[@id="cphMainArea_UserRegistrationCtl_txtCheckEmail"]',
+    password:'//*[@id="cphMainArea_UserRegistrationCtl_txtPassWord"]',
+    password_confirmation:'//*[@id="cphMainArea_UserRegistrationCtl_txtCheckPassWord"]',
+    cgu:'//*[@id="cphMainArea_UserRegistrationCtl_CheckBoxSellCondition"]',
+    submit: '//*[@id="cphMainArea_UserRegistrationCtl_btnValidate"]'
+  }
   
-  LOGIN_EMAIL = '//*[@id="cphMainArea_UCUserConnect_txtMail"]'
-  LOGIN_PASSWORD = '//*[@id="cphMainArea_UCUserConnect_txtPassWord1"]'
-  LOGIN_SUBMIT = '//*[@id="cphMainArea_UCUserConnect_btnValidate"]'
-  LOGOUT_LINK = '//*[@id="cphLeftArea_LeftArea_hlLogOff"]'
+  LOGIN = {
+    email:'//*[@id="cphMainArea_UCUserConnect_txtMail"]',
+    password:'//*[@id="cphMainArea_UCUserConnect_txtPassWord1"]',
+    submit: '//*[@id="cphMainArea_UCUserConnect_btnValidate"]',
+    logout:'//*[@id="cphLeftArea_LeftArea_hlLogOff"]'
+  }
   
   CART_URL = 'http://www.cdiscount.com/Basket.html'
   ADD_TO_CART = '//*[@id="fpAddToBasket"]'
@@ -86,6 +91,11 @@ class Cdiscount
     options:'//div[@id="main"]//select'
   }
   
+end
+
+class Cdiscount
+  include CdiscountConstants
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -97,11 +107,8 @@ class Cdiscount
     Robot.new(@context) do
 
       step('run') do
-        if account.new_account
-          message :expect, :next_step => 'create account'
-        else
-          message :expect, :next_step => 'renew login'
-        end
+        step = account.new_account ? 'create account' : 'renew login'
+        run_step step
       end
       
       step('crawl') do
@@ -124,34 +131,35 @@ class Cdiscount
       end
       
       step('remove credit card') do
-        open_url PAYMENTS_PAGE_URL
+        open_url URLS[:payments]
         wait_for(['//*[@id="page"]'])
         click_on_if_exists CREDIT_CARD_REMOVE
         wait_ajax
       end
       
       step('create account') do
-        open_url CREATE_ACCOUNT_URL
-        click_on_radio user.gender, {0 => REGISTER_CIVILITY_M, 1 =>  REGISTER_CIVILITY_MME, 2 =>  REGISTER_CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.address.first_name
-        fill REGISTER_LAST_NAME, with:user.address.last_name
-        fill REGISTER_EMAIL, with:account.login
-        fill REGISTER_EMAIL_CONFIRMATION, with:account.login
-        fill REGISTER_PASSWORD, with:account.password
-        fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
-        fill REGISTER_BIRTHDATE, with:BIRTHDATE_AS_STRING.(user.birthdate)
-        click_on REGISTER_CGU
-        click_on REGISTER_SUBMIT
+        open_url URLS[:register]
+        click_on_radio user.gender, { 0 => REGISTER[:mister], 1 =>  REGISTER[:madam], 2 =>  REGISTER[:miss] }
+        fill REGISTER[:first_name], with:user.address.first_name
+        fill REGISTER[:last_name], with:user.address.last_name
+        fill REGISTER[:email], with:account.login
+        fill REGISTER[:email_confirmation], with:account.login
+        fill REGISTER[:password], with:account.password
+        fill REGISTER[:password_confirmation], with:account.password
+        fill REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
+        click_on REGISTER[:cgu]
+        click_on REGISTER[:submit]
+        
         message :account_created, :next_step => 'renew login'
       end
       
       step('login') do
-        open_url LOGIN_URL
-        fill LOGIN_EMAIL, with:account.login
-        fill LOGIN_PASSWORD, with:account.password
-        click_on LOGIN_SUBMIT
-        wait_for([LOGOUT_LINK, LOGIN_SUBMIT])
-        if exists? LOGIN_SUBMIT
+        open_url URLS[:login]
+        fill LOGIN[:email], with:account.login
+        fill LOGIN[:password], with:account.password
+        click_on LOGIN[:submit]
+        wait_for([LOGIN[:logout], LOGIN[:submit]])
+        if exists? LOGIN[:submit]
           terminate_on_error :login_failed
         else
           message :logged, :next_step => 'empty cart'
@@ -159,9 +167,9 @@ class Cdiscount
       end
       
       step('logout') do
-        open_url HOME_URL
+        open_url URLS[:home]
         wait_ajax
-        click_on_if_exists LOGOUT_LINK
+        click_on_if_exists LOGIN[:logout]
       end
       
       step('renew login') do
@@ -282,7 +290,7 @@ class Cdiscount
       end
       
       step('cancel order') do
-        open_url URL
+        open_url URLS[:base]
         run_step('empty cart', next_step:'cancel')
       end
       
