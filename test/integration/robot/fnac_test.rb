@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require_robot 'fnac'
 
@@ -103,16 +104,15 @@ class FnacTest < ActiveSupport::TestCase
     assert !robot.exists?(Fnac::CREDIT_CARD_REMOVE)
   end
   
-  test "order with shipment address fill" do
+  test "complete order process" do
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-    @message.expects(:message).times(22)
+    @message.expects(:message).times(18)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    robot.run_step('validate order')
   end
   
   test "ensure cb payment if tab with fnac card payment mode" do

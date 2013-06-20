@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require_robot 'rue_du_commerce'
 
@@ -118,6 +119,14 @@ class RueDuCommerceTest < ActiveSupport::TestCase
 
     assert_equal products, robot.products
     assert_equal billing, robot.billing
+  end
+  
+  test "complete order process" do
+    @message.expects(:message).times(15)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
   end
   
   test "validate order with bank info completion" do

@@ -248,18 +248,22 @@ class Cdiscount
         wait_for [FINALIZE_ORDER]
         run_step('build product')
         click_on FINALIZE_ORDER
-        wait_for [SHIPMENT_FORM_SUBMIT, VALIDATE_SHIPMENT_TYPE]
-        if exists? SHIPMENT_FORM_SUBMIT
-          run_step('submit address')
+        in_stock = wait_for [SHIPMENT_FORM_SUBMIT, VALIDATE_SHIPMENT_TYPE] do
+          terminate_on_error(:out_of_stock)
         end
-        wait_for([VALIDATE_SHIPMENT_TYPE])
-        if exists? COLISSIMO_RADIO
-          click_on COLISSIMO_RADIO
+        if in_stock
+          if exists? SHIPMENT_FORM_SUBMIT
+            run_step('submit address')
+          end
+          wait_for([VALIDATE_SHIPMENT_TYPE])
+          if exists? COLISSIMO_RADIO
+            click_on COLISSIMO_RADIO
+          end
+          click_on VALIDATE_SHIPMENT_TYPE
+          click_on CB_PAYMENT_SUBMIT
+          run_step('build final billing')
+          assess
         end
-        click_on VALIDATE_SHIPMENT_TYPE
-        click_on CB_PAYMENT_SUBMIT
-        run_step('build final billing')
-        assess
       end
       
       step('payment') do

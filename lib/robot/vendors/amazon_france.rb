@@ -29,9 +29,9 @@ class AmazonFrance
   REGISTER_PASSWORD_CONFIRMATION = '//*[@id="ap_password_check"]'
   REGISTER_SUBMIT = '//*[@id="continue-input"]'
   REGISTER_FAILURE = '//div[@class="message error"] | //div[@class="message warning"]'
-  ADD_TO_CART = '//*[@id="add-to-cart-button"]/span'
-  PRICE_TEXT = '//*[@id="price"]'
-  PRODUCT_TITLE = '//*[@id="udp"]/div[1]/h1'
+  ADD_TO_CART = '//*[@id="universal-buy-buttons-box-sequence-features"]//form//button'
+  PRICE_TEXT = '//*[@id="prices"]'
+  PRODUCT_TITLE = '//*[@id="universal-product-title-features"]'
   PRODUCT_IMAGE = '//*[@id="previous-image"]'
   REMOVE_PRODUCT_LINK_NAME = 'Supprimer'
   EMPTIED_CART_MESSAGE = '//*[@id="cart-active-items"]/div[2]/h3'
@@ -278,7 +278,7 @@ class AmazonFrance
         unless click_on_link_with_text_if_exists(SHIPMENT_SEND_TO_THIS_ADDRESS)
           run_step 'fill shipping form'
         end
-        1.upto(products.count) { click_on SHIPMENT_OPTIONS_SUBMIT }
+        click_on SHIPMENT_OPTIONS_SUBMIT
         run_step('submit credit card')
       end
       
@@ -289,8 +289,11 @@ class AmazonFrance
         select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
         fill CREDIT_CARD_CVV, with:order.credentials.cvv
         click_on CREDIT_CARD_SUBMIT
-        
         wait_ajax
+        run_step('submit order')
+      end
+      
+      step('submit order') do
         click_on CONTINUE_TO_PAYMENT
         wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
         if exists? INVOICE_ADDRESS_SUBMIT
