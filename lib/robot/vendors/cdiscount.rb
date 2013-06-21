@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 module CdiscountConstants
   URLS = {
     base:'http://www.cdiscount.com/',
@@ -34,6 +35,7 @@ module CdiscountConstants
   CART = {
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
+    extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_from_vendor: /AddToBasketButtonOffer/,
     steps:'//*[@id="masterCart"]',
     remove_item:'//button[@class="deleteProduct"]',
@@ -120,11 +122,6 @@ class Cdiscount
         terminate(product)
       end
       
-      step('remove credit card') do
-        open_url URLS[:payments]
-        click_on_if_exists PAYMENT[:remove], ajax:true
-      end
-      
       step('create account') do
         register(Cdiscount) do
           fill REGISTER[:birthdate], with:Robot::BIRTHDATE_AS_STRING.(user.birthdate)
@@ -133,70 +130,46 @@ class Cdiscount
       end
       
       step('login') do
-        open_url URLS[:login]
-        
-        fill LOGIN[:email], with:account.login
-        fill LOGIN[:password], with:account.password
-        click_on LOGIN[:submit]
-        
-        if exists? LOGIN[:submit]
-          terminate_on_error :login_failed
-        else
-          message :logged, :next_step => 'empty cart'
-        end
+        login(Cdiscount)
       end
       
       step('logout') do
-        open_url URLS[:home]
-        wait_ajax
-        click_on_if_exists LOGIN[:logout]
+        logout(Cdiscount)
       end
       
-      step('empty cart') do |args|
-        run_step('remove credit card')
-        open_url URLS[:cart]
-        wait_for [CART[:steps]]
-        click_on_all([CART[:remove_item]]) do |element|
-          open_url URLS[:cart]
-          !element.nil?
-        end
-        emptied = wait_for([CART[:empty_message]]) do
-          terminate_on_error(:cart_not_emptied) 
-        end
-        if emptied
-          message :cart_emptied, :next_step => (args && args[:next_step]) || 'add to cart'
-        end
+      step('remove credit card') do
+        remove_credit_card(Cdiscount)
       end
       
-      step('add to cart') do |args|
-        args ||= {}
+      step('add to cart') do 
         open_url next_product_url
-        extra = '//div[@id="fpBlocPrice"]//span[@class="href underline"]'
-        wait_for([CART[:add], CART[:offers], extra])
-        if exists? extra
-          click_on extra
-          wait_for([CART[:add], CART[:offers]])
-        end
+        click_on CART[:extra_offers], check:true
+        wait_for([CART[:add], CART[:offers]])
         if exists? CART[:add]
           click_on CART[:add]
-        else #fuck this site made by daft dump developers
+        else
           button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
         end
         wait_ajax 4
-        message :cart_filled, :next_step => 'finalize order' unless args[:skip_message]
+        message :cart_filled, :next_step => 'finalize order'
       end
       
       step('build product') do
-        product = Hash.new
-        product['price_text'] = get_text PRODUCT[:price_text]
-        product['product_title'] = get_text PRODUCT[:title]
-        product['product_image_url'] = image_url(PRODUCT[:image])
-        prices = Robot::PRICES_IN_TEXT.(product['price_text'])
-        product['price_product'] = prices[0]
-        product['url'] = current_product_url
-        products << product
+        build_product(Cdiscount)
+      end
+      
+      step('empty cart') do |args|
+        remove = Proc.new do 
+          click_on_all([CART[:remove_item]]) do |element|
+            open_url URLS[:cart]
+            !element.nil?
+          end
+        end
+        check = Proc.new { wait_for([CART[:empty_message]]) {return false}}
+        next_step = args && args[:next_step]
+        empty_cart(Cdiscount, remove, check, next_step)
       end
       
       step('build final billing') do

@@ -1,9 +1,5 @@
 # encoding: utf-8
-class AmazonFrance
-  USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
-  PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/EUR\s+(\d+(?:,\d+)?)/).flatten.map { |price| price.gsub(',', '.').to_f }
-  end
+module AmazonFranceConstants
   DELIVERY_PRICE = lambda do |product|
     pattern = /Livraison\s+gratuite\s+dès\s+15\s+euros/
     if product['product_title'] =~ pattern && product['price_product'] < 15.0
@@ -13,31 +9,56 @@ class AmazonFrance
     end
   end
   
-  URL = 'http://www.amazon.fr/'
-  LOGIN_LINK = '//*[@id="who-are-you"]/a'
-  LOGOUT_LINK = '//*[@id="who-are-you"]/span[2]/a'
-  MY_ACCOUNT_HREF = 'https://www.amazon.fr/gp/aw/ya'
-  LOGIN_EMAIL = '//*[@id="ap_email"] | //*[@id="ra-signin-email"]'
-  LOGIN_PASSWORD = '//*[@id="ap_password"] | //*[@id="ra-signin-password"]'
-  LOGIN_SUBMIT = '//*[@id="signInSubmit-input"] | //*[@id="ra-mobile-signin-button"]'
-  LOGIN_ERROR = "//*[@id='mobile-message-box-slot']/div[@class='message error']"
-  CART_BUTTON = '//*[@id="navbar-icon-cart"]'
-  REGISTER_LINK = '//*[@id="ap_register_url"]/a | //*[@id="ra-mobile-new-customer-button"]'
-  REGISTER_NAME = '//*[@id="ap_customer_name"]'
-  REGISTER_EMAIL = '//*[@id="ap_email"]'
-  REGISTER_PASSWORD = '//*[@id="ap_password"]'
-  REGISTER_PASSWORD_CONFIRMATION = '//*[@id="ap_password_check"]'
-  REGISTER_SUBMIT = '//*[@id="continue-input"]'
-  REGISTER_FAILURE = '//div[@class="message error"] | //div[@class="message warning"]'
-  ADD_TO_CART = '//*[@id="universal-buy-buttons-box-sequence-features"]//form//button'
-  PRICE_TEXT = '//*[@id="prices"]'
-  PRODUCT_TITLE = '//*[@id="universal-product-title-features"]'
-  PRODUCT_IMAGE = '//*[@id="previous-image"]'
-  REMOVE_PRODUCT_LINK_NAME = 'Supprimer'
-  EMPTIED_CART_MESSAGE = '//*[@id="cart-active-items"]/div[2]/h3'
-  ORDER_BUTTON_NAME = 'Passer la commande'
-  SHIPMENT_SEND_TO_THIS_ADDRESS = 'Envoyer à cette adresse'
+  URLS = {
+    base:'http://www.amazon.fr/',
+    home:'http://www.amazon.fr/',
+    account:'https://www.amazon.fr/gp/aw/ya',
+    login:'http://www.amazon.fr/',
+    payments:'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments',
+    cart:'http://www.amazon.fr/gp/aw/c/ref=mw_crt'
+  }
   
+  REGISTER = {
+    new_account:'//*[@id="ap_register_url"]/a | //*[@id="ra-mobile-new-customer-button"]',
+    full_name:'//*[@id="ap_customer_name"]',
+    email:'//*[@id="ap_email"]',
+    password:'//*[@id="ap_password"]',
+    password_confirmation:'//*[@id="ap_password_check"]',
+    submit: '//*[@id="continue-input"]'
+  }
+  
+  LOGIN = {
+    link:'//*[@id="who-are-you"]/a',
+    email:'//*[@id="ap_email"] | //*[@id="ra-signin-email"]',
+    password:'//*[@id="ap_password"] | //*[@id="ra-signin-password"]',
+    submit: '//*[@id="signInSubmit-input"] | //*[@id="ra-mobile-signin-button"]',
+    logout:'//*[@id="who-are-you"]/span[2]/a',
+    captcha:'//*[@id="ap_captcha_img"]/img | //*[@id="ra-captcha-img"]/img | /html/body/table/tbody/tr[1]/td/img',
+    captcha_submit:'/html/body/table/tbody/tr[1]/td/form/input[2]',
+    captcha_input:'//*[@id="ap_captcha_guess"] | //*[@id="ra-captcha-guess"] | //*[@id="captchacharacters"]'
+  }
+  
+  CART = {
+    add:'//*[@id="universal-buy-buttons-box-sequence-features"]//form//button',
+    button:'//*[@id="navbar-icon-cart"]',
+    remove_item:'Supprimer',
+    empty_message:'//*[@id="cart-active-items"]/div[2]/h3',
+    empty_message_match:/panier\s+est\s+vide/i,
+    submit: 'Passer la commande'
+  }
+  
+  PRODUCT = {
+    price_text:'//*[@id="prices"]',
+    title:'//*[@id="universal-product-title-features"]',
+    image:'//*[@id="previous-image"]'
+  }
+
+  PAYMENT = {
+    remove: '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
+    remove_confirmation: '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
+  }
+
+  SHIPMENT_SEND_TO_THIS_ADDRESS = 'Envoyer à cette adresse'
   SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
   SHIPMENT_FORM_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
   SHIPMENT_FORM_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
@@ -67,15 +88,7 @@ class AmazonFrance
   THANK_YOU_HEADER = '//*[@id="thank-you-header"]'
   THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/ul/li/div'
   SHIPPING_DATE_PROMISE = '//*[@id="orders-list"]/div/ul/li/div/div[2]'
-  
-  PAYMENTS_PAGE = 'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments'
-  PAYMENTS_PAGE_HOME_LINK = '/html/body/table[1]/tbody/tr/td/b/nobr[1]/a | /html/body/table/tbody/tr/td/b/nobr[1]/a'
-  REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]'
-  VALIDATE_REMOVE_CB = '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
 
-  CAPTCHA = '//*[@id="ap_captcha_img"]'
-  CAPTCHA_IMAGE = '//*[@id="ap_captcha_img"]/img'
-  CAPTCHA_INPUT = '//*[@id="ap_captcha_guess"]'
   
   CRAWLING = {
     title:'//*[@id="main"]//h1', 
@@ -86,23 +99,20 @@ class AmazonFrance
     options:'//*[@id="variation-glance"]'
   }
   
+end
+
+class AmazonFrance
+  include AmazonFranceConstants
+  
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context.merge!({options:{user_agent:USER_AGENT}})
+    @context = context.merge!({options:{user_agent:Driver::MOBILE_USER_AGENT}})
     @robot = instanciate_robot
   end
   
   def instanciate_robot
     Robot.new(@context) do
-
-      step('run') do
-        if account.new_account
-          message :expect, :steps => 8, :next_step => 'create account'
-        else
-          message :expect, :steps => 7, :next_step => 'renew login'
-        end
-      end
       
       step('crawl') do
         open_url @context['url']
@@ -129,7 +139,7 @@ class AmazonFrance
         open_url @context['url']
         @page = Nokogiri::HTML.parse @driver.page_source
         product[:product_title] =  scraped_text CRAWLING[:title]
-        prices = PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
+        prices = Robot::PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
         product[:product_price] = prices[0]
         product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
         product[:shipping_price] = nil
@@ -142,110 +152,39 @@ class AmazonFrance
         terminate(product)
       end
       
-      step('renew login') do
-        run_step('logout')
-        open_url order.products_urls[0]
-        run_step('login')
-      end
-      
       step('create account') do
-        open_url URL
-        wait_ajax
-        open_url(MY_ACCOUNT_HREF)
-        click_on REGISTER_LINK
-        fill REGISTER_NAME, with:"#{user.address.first_name} #{user.address.last_name}"
-        fill REGISTER_EMAIL, with:account.login
-        fill REGISTER_PASSWORD, with:account.password
-        fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
-        click_on REGISTER_SUBMIT
-        wait_for [CART_BUTTON, REGISTER_FAILURE]
+        open_url URLS[:base]
+        open_url URLS[:account]
+        click_on REGISTER[:new_account]
         
-        if exists? REGISTER_FAILURE
-          terminate_on_error(:account_creation_failed)
-        else
-          message :account_created, :next_step => 'renew login'
-        end
-      end
-      
-      step('decaptchatize') do
-        if exists? CAPTCHA
-          image_url = find_element(CAPTCHA_IMAGE)
-          text = resolve_captcha(image_url)
-          fill CAPTCHA_INPUT, with:text
-        end
+        register(AmazonFrance)
       end
       
       step('login') do
-        open_url URL
-        wait_ajax
-        run_step('decaptchatize')
-        click_on LOGIN_LINK
-        fill LOGIN_EMAIL, with:account.login
-        fill LOGIN_PASSWORD, with:account.password
-        click_on LOGIN_SUBMIT
-        wait_for [CART_BUTTON, LOGIN_ERROR]
-        if exists? LOGIN_ERROR
-          terminate_on_error :login_failed
-        else
-          message :logged, :next_step => 'empty cart', :timer => 5
-        end
-      end
-      
-      step('remove credit card') do
-        open_url PAYMENTS_PAGE
-        wait_for([PAYMENTS_PAGE_HOME_LINK])
-        click_on_if_exists REMOVE_CB
-        click_on_if_exists VALIDATE_REMOVE_CB
-        open_url URL
+        login(AmazonFrance)
       end
       
       step('logout') do
-        open_url URL
-        wait_ajax
-        click_on_if_exists LOGOUT_LINK
+        logout(AmazonFrance)
       end
       
-      step('build product') do
-        product = Hash.new
-        product['price_text'] = get_text PRICE_TEXT
-        product['product_title'] = get_text PRODUCT_TITLE
-        product['product_image_url'] = image_url(PRODUCT_IMAGE)
-        prices = PRICES_IN_TEXT.(product['price_text'])
-        product['price_product'] = prices[0]
-        product['price_delivery'] = prices[1] || DELIVERY_PRICE.(product)
-        product['url'] = current_product_url
-        products << product
+      step('remove credit card') do
+        remove_credit_card(AmazonFrance)
       end
       
       step('add to cart') do
-        if url = next_product_url
-          open_url url
-          found = wait_for [ADD_TO_CART] do
-            message :no_product_available
-            terminate_on_error(:no_product_available) 
-          end
-          if found
-            run_step('build product')
-            click_on ADD_TO_CART
-            run_step 'add to cart'
-          end
-        else
-          message :cart_filled, :next_step => 'finalize order', :timer => 15
-        end
+        add_to_cart(AmazonFrance)
+      end
+      
+      step('build product') do
+        build_product(AmazonFrance)
       end
       
       step('empty cart') do |args|
-        run_step('remove credit card')
-        click_on CART_BUTTON
-        click_on_links_with_text(REMOVE_PRODUCT_LINK_NAME) { wait_ajax }
-        click_on CART_BUTTON
-        wait_for([EMPTIED_CART_MESSAGE])
-        products = []
-        unless get_text(EMPTIED_CART_MESSAGE) =~ /panier\s+est\s+vide/i
-          terminate_on_error(:cart_not_emptied) 
-        else
-          message :cart_emptied, :timer => 5, :next_step => (args && args[:next_step]) || 'add to cart'
-        end
+        remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax } }
+        check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }
+        next_step = args && args[:next_step]
+        empty_cart(AmazonFrance, remove, check, next_step)
       end
       
       step('fill shipping form') do
@@ -315,14 +254,14 @@ class AmazonFrance
         if eval(action)
           run_step('validate order')
         else
-          open_url URL
+          open_url URL[:base]
           run_step('empty cart', next_step:'cancel')
         end
       end
       
       step('build final billing') do
         product, shipping, total = [PRODUCT_PRICE_ON_SUBMIT, PRODUCT_SHIPPING_ON_SUBMIT, TOTAL_PRICE_ON_SUBMIT].map do |xpath|
-          PRICES_IN_TEXT.(get_text xpath).first
+          Robot::PRICES_IN_TEXT.(get_text xpath).first
         end  
         self.billing = { product:product, shipping:shipping, total:total}
       end

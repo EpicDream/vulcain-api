@@ -10,8 +10,8 @@ class Robot
   end
   
   PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/(\d+\s*[,\.€]+\s*\d*\s*€*)/).flatten.map do |price| 
-      price.gsub(/\s/, '').gsub(/[,€]/, '.').to_f
+    text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+\s*[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
+      price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
     end
   end
 
@@ -143,15 +143,20 @@ class Robot
   end
   
   def open_url url
+    return unless url
     @driver.get url
+    wait_for ["//body"]
   end
   
   def current_url
     @driver.current_url
   end
   
-  def click_on xpath
+  def click_on xpath, opts={}
+    return unless xpath
+    return if opts[:check] && !exists?(xpath)
     @driver.click_on @driver.find_element(xpath)
+    wait_ajax if opts[:ajax]
     rescue
       sleep(0.5)
       retry #wait element clickable
@@ -263,6 +268,7 @@ class Robot
   end
   
   def fill xpath, args={}
+    return unless xpath
     return if args[:check] && !exists?(xpath)
     input = @driver.find_element(xpath)
     input.clear
@@ -316,6 +322,7 @@ class Robot
   end
   
   def exists? xpath
+    return unless xpath
     wait_for(['//body'])
     element = @driver.find_element(xpath, nowait:true)
     !!element && element.displayed?
@@ -365,11 +372,13 @@ class Robot
   end
   
   def register vendor
-    open_url vendor::URLS[:register]
+    open_url vendor::URLS[:register] if vendor::URLS[:register]
     wait_for(['//body'])
+    
     if exists? vendor::REGISTER[:mister]
       click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
     end
+    fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
     fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
     fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
     fill vendor::REGISTER[:email], with:account.login, check:true
@@ -383,6 +392,87 @@ class Robot
       terminate_on_error(:account_creation_failed)
     else
       message :account_created, :next_step => 'renew login'
+    end
+  end
+  
+  def decaptchatize vendor
+    wait_ajax
+    if exists? vendor::LOGIN[:captcha]
+      element = find_element vendor::LOGIN[:captcha]
+      text = resolve_captcha element.attribute('src')
+      fill vendor::LOGIN[:captcha_input], with:text
+    end
+  end
+  
+  def login vendor
+    open_url vendor::URLS[:login]
+    click_on vendor::LOGIN[:link], check:true
+    
+    decaptchatize(vendor) if vendor::LOGIN[:captcha]
+    click_on vendor::LOGIN[:captcha_submit], check:true
+    decaptchatize(vendor) if vendor::LOGIN[:captcha]
+    
+    fill vendor::LOGIN[:email], with:account.login
+    fill vendor::LOGIN[:password], with:account.password
+    click_on vendor::LOGIN[:submit]
+    
+    if exists? vendor::LOGIN[:submit]
+      terminate_on_error :login_failed
+    else
+      message :logged, :next_step => 'empty cart'
+    end
+  end
+  
+  def logout vendor
+    open_url vendor::URLS[:home]
+    click_on_if_exists vendor::LOGIN[:logout]
+  end
+  
+  def remove_credit_card vendor
+    open_url vendor::URLS[:payments]
+    click_on vendor::PAYMENT[:remove], check:true, ajax:true
+    click_on vendor::PAYMENT[:remove_confirmation], check:true
+    open_url vendor::URLS[:base]
+  end
+  
+  def add_to_cart vendor
+    open_url next_product_url
+    found = wait_for [vendor::CART[:add]] do
+      message :no_product_available
+      terminate_on_error(:no_product_available) 
+    end
+    if found
+      run_step('build product')
+      click_on vendor::CART[:add]
+      message :cart_filled, :next_step => 'finalize order'
+    end
+  end
+  
+  def build_product vendor
+    product = Hash.new
+    product['price_text'] = get_text vendor::PRODUCT[:price_text]
+    product['product_title'] = get_text vendor::PRODUCT[:title]
+    product['product_image_url'] = image_url vendor::PRODUCT[:image]
+    prices = PRICES_IN_TEXT.(product['price_text'])
+    product['price_product'] = prices[0]
+    product['price_delivery'] = prices[1]
+    product['price_delivery'] ||= vendor::DELIVERY_PRICE.(product) if defined?(vendor::DELIVERY_PRICE)
+    product['url'] = current_product_url
+    products << product
+  end
+  
+  def empty_cart vendor, remove, check, next_step=nil
+    run_step('remove credit card')
+    products = []
+    
+    open_url vendor::URLS[:cart] || click_on(vendor::CART[:button], check:true)
+    remove.call
+    open_url vendor::URLS[:cart] || click_on(vendor::CART[:button], check:true)
+    
+    unless check.call
+      terminate_on_error(:cart_not_emptied) 
+    else
+      message :cart_emptied, :next_step => next_step || 'add to cart'
     end
   end
   

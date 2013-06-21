@@ -16,4 +16,8 @@ class RobotTest < ActiveSupport::TestCase
     assert_equal [14.99, 9.99], Robot::PRICES_IN_TEXT.(text)
   end
   
+  test "prices with EUR instead of symbol" do
+    assert_equal [10.20, 10], Robot::PRICES_IN_TEXT.("lorem EUR 10,20 lorem EUR 10")
+  end
+  
 end

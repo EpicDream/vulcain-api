@@ -12,7 +12,7 @@ class AmazonTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'pierre_legrand@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'pierre_legrand_01@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_5, PRODUCT_URL_2],
                             'credentials' => {
@@ -43,13 +43,13 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
   
   test "account creation" do
-    #skip "Can' create account each time!"
+    skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
     
@@ -78,8 +78,8 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "login" do
-    @message.expects(:message).times(2)
-    robot.expects(:message).with(:logged, :next_step => 'empty cart', timer:5)
+    @message.expects(:message).times(1)
+    robot.expects(:message).with(:logged, :next_step => 'empty cart')
 
     robot.run_step('login')
   end
@@ -88,7 +88,7 @@ class AmazonTest < ActiveSupport::TestCase
     @context['account']['password'] = "badpassword"
     robot.context = @context
     
-    @message.expects(:message).times(2)
+    @message.expects(:message).times(1)
     robot.expects(:terminate_on_error).with(:login_failed)
     
     robot.run_step('login')
@@ -106,7 +106,7 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('login')
     robot.run_step('logout')
     
-    assert robot.exists? AmazonFrance::LOGIN_SUBMIT
+    assert robot.exists? AmazonFrance::LOGIN[:submit]
   end
   
   test "remove credit card" do
@@ -117,8 +117,8 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "add to cart - build products" do
-    @message.expects(:message).times(11)
-    expected_products = [{"price_text"=>"Prix: EUR 118,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg", "price_product"=>118.0, "price_delivery"=>0, "url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}, {"price_text"=>"Prix conseillé : EUR 46,70\nPrix: EUR 44,36\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 2,34 (5 %)", "product_title"=>"Poe : Oeuvres en prose (Cuir/luxe)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg", "price_product"=>46.7, "price_delivery"=>44.36, "url"=>"http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}]
+    @message.expects(:message).times(7)
+    expected_products = [{"price_text"=>"Prix: EUR 118,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir","product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg","price_product"=>118.0,"price_delivery"=>0,"url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}]
     
     robot.run_step('login')
     robot.run_step('add to cart')
@@ -127,8 +127,8 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(14)
-    @message.expects(:message).with(:message, {message: :cart_emptied, timer:5})
+    @message.expects(:message).times(10)
+    @message.expects(:message).with(:message, {message: :cart_emptied})
 
     robot.run_step('login')
     robot.run_step('add to cart')
