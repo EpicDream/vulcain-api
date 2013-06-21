@@ -24,6 +24,7 @@ class Plugin::IRobot < Robot
       @step = args[:step]
       @code = args[:code]
       @action_name = args[:action_name]
+      @args = args[:args]
       @source = @screenshot = nil
       @stepstrace = []
     end
@@ -33,10 +34,12 @@ class Plugin::IRobot < Robot
         code: @code,
         action_name: @action_name,
         msg: self.message,
+        args: @args,
         source: @source,
         screenshot: @screenshot,
         logs: @logs,
-        stepstrace: @stepstrace
+        stepstrace: @stepstrace,
+        backtrace: backtrace
       }
     end
     def to_s
@@ -245,39 +248,38 @@ class Plugin::IRobot < Robot
   def pl_add_strategy(strategy)
     @shop_base_url = "http://"+strategy[:host]+"/"
     strategy[:steps].each { |s|
-      pl_add_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
+      pl_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
     }
   end
 
-  def pl_add_step(_step)
-    # Create callable step
-    pl_step(_step[:id]) do
-      @current_step = _step
-      # Get new context
-      context = Kernel.binding
-      # Eval each action
-      for act in _step[:actions]
-        pl_action(act[:desc], act[:code], context)
-      end
-      @current_step = nil
-    end
-  end
-
   # Intercept errors to add steptrace
-  def pl_step(name,&block)
-    step(name) do
+  def pl_step(arg, &block)
+    id, actions = arg.kind_of?(Hash) ? [arg[:id], arg[:actions]] : [arg.to_s, nil]
+
+    step(id) do
       begin
-        yield block
+        if actions
+          context = Kernel.binding
+          for act in actions
+            act[:context] = context
+            act[:step] = arg[:id]
+            pl_action(act)
+          end
+        elsif block_given?
+          yield block
+        else
+          messager.logging.message(:warning, "Nothing to do for step #{id.inspect}")
+        end
       rescue StrategyError => err
-        err.step = name unless err.step
-        err.stepstrace << "in step `#{name}'"
+        err.stepstrace << "in step `#{id}'"
         raise
       rescue => err
-        e = StrategyError.new(err, {step: name})
+        e = StrategyError.new(err, {step: id})
+        e.set_backtrace(err.backtrace)
         e.source = @driver.page_source
         e.screenshot = @driver.screenshot
         e.logs = @messager.logs
-        e.stepstrace << "in step `#{name}'"
+        e.stepstrace << "in step `#{id}'"
         raise e
       end
     end
@@ -285,18 +287,36 @@ class Plugin::IRobot < Robot
 
   # Intercept errors to create StrategyError that contains all usefull informations
   # Execute the given block, or the passed string action within the given context.
-  def pl_action(name, action=nil, context=nil)
+  def pl_action(arg)
+    name, code = arg.kind_of?(Hash) ? [arg[:desc], arg[:code]] : [arg.to_s, nil]
     messager.logging.message(:action, name) if @isTest
-    if block_given?
+    if code
+      eval code, arg[:context]
+    elsif block_given?
       yield
-    elsif action.kind_of?(String)
-      eval action, context
     else
       messager.logging.message(:warning, "No action to do for #{name.inspect}")
     end
   rescue => err
-    puts "#{err.class} : #{err}", err.backtrace[0..10].join("\n") if ! err.kind_of?(NoSuchElementError) || err.kind_of?(StrategyError)
-    e = StrategyError.new(err, {step: @current_step[:id], code: action, action_name: name})
+    err_args = {step: arg[:step], code: code, action_name: name, args: {}}
+    if arg.kind_of?(Hash)
+      err_args[:args][:url] = arg[:url]
+      err_args[:args][:type] = arg[:type]
+      err_args[:args][:pass] = arg[:pass]
+      err_args[:args][:path] = arg[:xpath]
+      elems = (find(plarg_path) rescue [])
+      err_args[:args][:elements_count] = elems.size
+      # err_args[:args][:elements] = elems
+      plarg = USER_INFO.find{|ui| ui[:id] == arg[:arg]}
+      if plarg
+        err_args[:args][:argument] = plarg[:value]
+        err_args[:args][:argument_val] = eval "(#{plarg[:value]}) rescue nil", arg[:context]
+      elsif ! arg[:arg].blank?
+        messager.logging.message(:warning, "Cannot find value of argument of type #{arg[:arg]}")
+      end
+    end
+    e = StrategyError.new(err, err_args)
+    e.set_backtrace(err.backtrace)
     e.source = @driver.page_source
     e.screenshot = @driver.screenshot
     e.logs = @messager.logs

@@ -108,14 +108,13 @@ var StrategyView = function(_strategy) {
       data: JSON.stringify(s)
     }).done(function(hash) {
       $.mobile.loading('hide');
-      console.log(hash.logs);
       if (hash.msg)
         _errorView.load(hash);
       else {
         console.log(hash);
         popupText.text("Aucune erreur détecté :-)");
+        popupText.parent().popup("open");
       }
-      popupText.parent().popup("open");
     }).fail(function() {
       $.mobile.loading('hide');
       popupText.text("Problème de connectivité...").parent().popup("open");
