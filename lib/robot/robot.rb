@@ -29,7 +29,7 @@ class Robot
   end
   
   def next_step?
-    return ! @steps[@next_step].nil?
+    !!@steps[@next_step]
   end
 
   def next_step args=nil

@@ -14,7 +14,7 @@ class CdiscountTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_05@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1],
                             'credentials' => {
@@ -54,6 +54,16 @@ class CdiscountTest < ActiveSupport::TestCase
     skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
+    
+    robot.run_step('create account')
+  end
+  
+  test "account creation failure" do
+    @context["account"]["login"] = "bademail"
+    robot.context = @context
+
+    @message.expects(:message).times(1)
+    robot.expects(:terminate_on_error).with(:account_creation_failed)
     
     robot.run_step('create account')
   end
