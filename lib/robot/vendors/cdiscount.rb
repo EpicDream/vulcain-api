@@ -122,28 +122,13 @@ class Cdiscount
       
       step('remove credit card') do
         open_url URLS[:payments]
-        wait_for(['//*[@id="page"]'])
-        click_on_if_exists PAYMENT[:remove]
-        wait_ajax
+        click_on_if_exists PAYMENT[:remove], ajax:true
       end
       
       step('create account') do
-        open_url URLS[:register]
-        click_on_radio user.gender, { 0 => REGISTER[:mister], 1 =>  REGISTER[:madam], 2 =>  REGISTER[:miss] }
-        fill REGISTER[:first_name], with:user.address.first_name
-        fill REGISTER[:last_name], with:user.address.last_name
-        fill REGISTER[:email], with:account.login
-        fill REGISTER[:email_confirmation], with:account.login
-        fill REGISTER[:password], with:account.password
-        fill REGISTER[:password_confirmation], with:account.password
-        fill REGISTER[:birthdate], with:Robot::BIRTHDATE_AS_STRING.(user.birthdate)
-        click_on REGISTER[:cgu]
-        click_on REGISTER[:submit]
-        
-        if exists? REGISTER[:submit]
-          terminate_on_error(:account_creation_failed)
-        else
-          message :account_created, :next_step => 'renew login'
+        register(Cdiscount) do
+          fill REGISTER[:birthdate], with:Robot::BIRTHDATE_AS_STRING.(user.birthdate)
+          click_on REGISTER[:cgu]
         end
       end
       
@@ -153,7 +138,6 @@ class Cdiscount
         fill LOGIN[:email], with:account.login
         fill LOGIN[:password], with:account.password
         click_on LOGIN[:submit]
-        wait_for([LOGIN[:logout], LOGIN[:submit]])
         
         if exists? LOGIN[:submit]
           terminate_on_error :login_failed

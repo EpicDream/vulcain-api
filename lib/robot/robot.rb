@@ -187,9 +187,11 @@ class Robot
     @driver.click_on(element)
   end
   
-  def click_on_if_exists xpath
+  def click_on_if_exists xpath, opts={}
+    wait_for(['//body'])
     element = @driver.find_element(xpath, nowait:true)
     @driver.click_on element unless element.nil?
+    wait_ajax if opts[:ajax]
   end
   
   def click_on_radio value, choices
@@ -261,6 +263,7 @@ class Robot
   end
   
   def fill xpath, args={}
+    return if args[:check] && !exists?(xpath)
     input = @driver.find_element(xpath)
     input.clear
     input.send_key args[:with]
@@ -313,6 +316,7 @@ class Robot
   end
   
   def exists? xpath
+    wait_for(['//body'])
     element = @driver.find_element(xpath, nowait:true)
     !!element && element.displayed?
   end
@@ -357,6 +361,28 @@ class Robot
       run_step('logout')
       open_url order.products_urls[0]
       run_step('login')
+    end
+  end
+  
+  def register vendor
+    open_url vendor::URLS[:register]
+    wait_for(['//body'])
+    if exists? vendor::REGISTER[:mister]
+      click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
+    end
+    fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
+    fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
+    fill vendor::REGISTER[:email], with:account.login, check:true
+    fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
+    fill vendor::REGISTER[:password], with:account.password, check:true
+    fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
+    yield if block_given?
+    click_on vendor::REGISTER[:submit]
+    
+    if exists? vendor::REGISTER[:submit]
+      terminate_on_error(:account_creation_failed)
+    else
+      message :account_created, :next_step => 'renew login'
     end
   end
   
