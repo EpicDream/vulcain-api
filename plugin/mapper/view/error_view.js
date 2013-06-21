@@ -17,8 +17,7 @@ var ErrorView = function(model) {
     _msgP.text(err.msg);
     var step = _.find(model.steps, function(s) { return s.id == err.step });
     _stepP.text(step.desc);
-    var action = step.actions[err.line];
-    _actionP.text(action.desc);
+    _actionP.text(err.action_name);
     _codeP.html(err.code.replace(/\n/g,"<br>\n"));
     var logs = _.map(err.logs, function(msg) {
       return msg[0] + " : " + (msg[0] != 'message' ? msg[1] : msg[1].message);

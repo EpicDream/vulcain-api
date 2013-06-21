@@ -16,10 +16,11 @@ class Plugin::IRobot < Robot
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :step, :code
-    attr_accessor :source, :screenshot, :logs, :stepstrace
-    def initialize(msg,args={})
-      super("#{err.class}: #{err.to_s}")
+    attr_reader :code, :message
+    attr_accessor :source, :screenshot, :logs, :stepstrace, :step
+    def initialize(err,args={})
+      @message = "#{err.class}: #{err.to_s}"
+      super(@message)
       @step = args[:step]
       @code = args[:code]
       @action_name = args[:action_name]
@@ -39,7 +40,7 @@ class Plugin::IRobot < Robot
       }
     end
     def to_s
-      "StrategyError in step '#{@step}', action '#{@action_name}', for code \n#{@code}\n=> #{message}"
+      "StrategyError in step '#{@step}', action '#{@action_name}', for code \n#{@code}\n=> #{@message}"
     end
   end
 
@@ -121,6 +122,7 @@ class Plugin::IRobot < Robot
     @pl_driver = @driver.driver
     @pl_current_product = {}
     @billing = {}
+    @isTest = false
 
     self.instance_eval do
       pl_step('run') do
@@ -187,6 +189,7 @@ class Plugin::IRobot < Robot
       end
 
       pl_step('run_test') do
+        @isTest = true
         pl_open_url! @shop_base_url
         if account.new_account
           run_step('account_creation')
@@ -237,11 +240,6 @@ class Plugin::IRobot < Robot
     @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
     run_step('run_test')
     @pl_driver.quit
-  rescue StrategyError => err
-    err.source = @driver.page_source
-    err.screenshot = @driver.screenshot
-    err.logs = @messager.logs
-    raise err
   end
 
   def pl_add_strategy(strategy)
@@ -251,19 +249,17 @@ class Plugin::IRobot < Robot
     }
   end
 
-  def pl_add_step(step)
-    # Get new context
-    step_binding = Kernel.binding
+  def pl_add_step(_step)
     # Create callable step
-    pl_step(step[:id]) do
+    pl_step(_step[:id]) do
+      @current_step = _step
+      # Get new context
+      context = Kernel.binding
       # Eval each action
-      for act in step[:actions]
-        begin
-          step_binding.eval act[:code]
-        rescue => err
-          raise StrategyError.new(err, {step: step[:id], code: act[:code], action_name: act[:desc]})
-        end
+      for act in _step[:actions]
+        pl_action(act[:desc], act[:code], context)
       end
+      @current_step = nil
     end
   end
 
@@ -273,6 +269,7 @@ class Plugin::IRobot < Robot
       begin
         yield block
       rescue StrategyError => err
+        err.step = name unless err.step
         err.stepstrace << "in step `#{name}'"
         raise
       rescue => err
@@ -284,6 +281,26 @@ class Plugin::IRobot < Robot
         raise e
       end
     end
+  end
+
+  # Intercept errors to create StrategyError that contains all usefull informations
+  # Execute the given block, or the passed string action within the given context.
+  def pl_action(name, action=nil, context=nil)
+    messager.logging.message(:action, name) if @isTest
+    if block_given?
+      yield
+    elsif action.kind_of?(String)
+      eval action, context
+    else
+      messager.logging.message(:warning, "No action to do for #{name.inspect}")
+    end
+  rescue => err
+    puts "#{err.class} : #{err}", err.backtrace[0..10].join("\n") if ! err.kind_of?(NoSuchElementError) || err.kind_of?(StrategyError)
+    e = StrategyError.new(err, {step: @current_step[:id], code: action, action_name: name})
+    e.source = @driver.page_source
+    e.screenshot = @driver.screenshot
+    e.logs = @messager.logs
+    raise e
   end
 
   # Call without bang method if exist.
@@ -420,7 +437,7 @@ class Plugin::IRobot < Robot
 
   #
   def pl_check!(xpath)
-    raise NoSuchElementError if find(xpath).empty?
+    raise NoSuchElementError, "Check path failed !" if find(xpath).empty?
   end
 
   # Search for radio buttons in xpath,
