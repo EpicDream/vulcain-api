@@ -4,8 +4,16 @@ require "nokogiri"
 require "html_to_plain_text"
 
 class Robot
-
   YES_ANSWER = true
+  BIRTHDATE_AS_STRING = lambda do |birthdate|
+    [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
+  end
+  
+  PRICES_IN_TEXT = lambda do |text| 
+    text.scan(/(\d+\s*[,\.€]+\s*\d*\s*€*)/).flatten.map do |price| 
+      price.gsub(/\s/, '').gsub(/[,€]/, '.').to_f
+    end
+  end
 
   attr_accessor :context, :driver, :messager
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
@@ -16,6 +24,7 @@ class Robot
     rescue
       terminate_on_error :driver_failed
     end
+    
     @block = block
     self.context = context
     @next_step = nil
@@ -25,6 +34,7 @@ class Robot
     @product_url_index = 0
     @products = []
     @billing = nil
+    load_common_steps
     self.instance_eval(&@block)
   end
   
@@ -335,6 +345,19 @@ class Robot
   
   def scraped_text xpath
     HtmlToPlainText.plain_text @page.xpath(xpath).to_s
+  end
+  
+  def load_common_steps
+    step('run') do
+      step = account.new_account ? 'create account' : 'renew login'
+      run_step step
+    end
+    
+    step('renew login') do
+      run_step('logout')
+      open_url order.products_urls[0]
+      run_step('login')
+    end
   end
   
 end

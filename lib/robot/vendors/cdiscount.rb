@@ -1,19 +1,5 @@
 # encoding: utf-8
 module CdiscountConstants
-  USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
-  
-  BIRTHDATE_AS_STRING = lambda do |birthdate|
-    [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
-  end
-  
-  PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/(\d+(?:,\d+)?.*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
-  end
-  
-  MOBILE_PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/(\d+€\d*)/).flatten.map { |price| price.gsub('€', '.').to_f }
-  end
-  
   URLS = {
     base:'http://www.cdiscount.com/',
     home:'https://clients.cdiscount.com/Account/Home.aspx',
@@ -115,27 +101,15 @@ class Cdiscount
   def instanciate_robot
     Robot.new(@context) do
 
-      step('run') do
-        step = account.new_account ? 'create account' : 'renew login'
-        run_step step
-      end
-      
-      step('renew login') do
-        run_step('logout')
-        order.products_urls.inspect
-        open_url order.products_urls[0]
-        run_step('login')
-      end
-      
       step('crawl') do
         @driver.quit
-        @driver = Driver.new(user_agent:USER_AGENT)
+        @driver = Driver.new(user_agent:Driver::MOBILE_USER_AGENT)
         open_url @context['url']
         @page = Nokogiri::HTML.parse @driver.page_source
 
         product = {:options => {}}
         product[:product_title] =  scraped_text CRAWLING[:title]
-        product[:product_price] = MOBILE_PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).last
+        product[:product_price] = Robot::PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).last
         product[:shipping_info] = scraped_text CRAWLING[:shipping_info]
         product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
         product[:shipping_price] = nil
@@ -162,7 +136,7 @@ class Cdiscount
         fill REGISTER[:email_confirmation], with:account.login
         fill REGISTER[:password], with:account.password
         fill REGISTER[:password_confirmation], with:account.password
-        fill REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
+        fill REGISTER[:birthdate], with:Robot::BIRTHDATE_AS_STRING.(user.birthdate)
         click_on REGISTER[:cgu]
         click_on REGISTER[:submit]
         
@@ -210,7 +184,7 @@ class Cdiscount
         end
       end
       
-      step('add to cart') do |args={}|
+      step('add to cart') do |args|
         args ||= {}
         open_url next_product_url
         extra = '//div[@id="fpBlocPrice"]//span[@class="href underline"]'
@@ -235,14 +209,14 @@ class Cdiscount
         product['price_text'] = get_text PRODUCT[:price_text]
         product['product_title'] = get_text PRODUCT[:title]
         product['product_image_url'] = image_url(PRODUCT[:image])
-        prices = PRICES_IN_TEXT.(product['price_text'])
+        prices = Robot::PRICES_IN_TEXT.(product['price_text'])
         product['price_product'] = prices[0]
         product['url'] = current_product_url
         products << product
       end
       
       step('build final billing') do
-        prices = PRICES_IN_TEXT.(get_text BILL[:text])
+        prices = Robot::PRICES_IN_TEXT.(get_text BILL[:text])
         self.billing = { product:prices[0], shipping:prices[1], total:prices[2] }
       end
       
