@@ -34,8 +34,23 @@ module AmazonFranceConstants
     submit: '//*[@id="signInSubmit-input"] | //*[@id="ra-mobile-signin-button"]',
     logout:'//*[@id="who-are-you"]/span[2]/a',
     captcha:'//*[@id="ap_captcha_img"]/img | //*[@id="ra-captcha-img"]/img | /html/body/table/tbody/tr[1]/td/img',
-    captcha_submit:'/html/body/table/tbody/tr[1]/td/form/input[2]',
+    captcha_submit:'//html/body/table/tbody/tr[1]/td/form/input[2]',
     captcha_input:'//*[@id="ap_captcha_guess"] | //*[@id="ra-captcha-guess"] | //*[@id="captchacharacters"]'
+  }
+  
+  SHIPMENT = {
+    full_name: '//*[@id="enterAddressFullName"]',
+    address_1: '//*[@id="enterAddressAddressLine1"]',
+    address_2: '//*[@id="enterAddressAddressLine2"]',
+    additionnal_address: '//*[@id="GateCode"]',
+    city: '//*[@id="enterAddressCity"]',
+    zip: '//*[@id="enterAddressPostalCode"]',
+    mobile_phone: '//*[@id="enterAddressPhoneNumber"]',
+    submit_packaging: '//*[@id="shippingOptionFormId"]/div[2]/span/input',
+    submit: '/html/body/div[4]/div[2]/div[1]/form/div[4]/button',
+    select_this_address: 'Envoyer à cette adresse',
+    address_option: '//*[@id="addr-addr_0"]/label/i',
+    address_submit: '//*[@id="AVS"]/div[2]/form/button/span'
   }
   
   CART = {
@@ -44,7 +59,8 @@ module AmazonFranceConstants
     remove_item:'Supprimer',
     empty_message:'//*[@id="cart-active-items"]/div[2]/h3',
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: 'Passer la commande'
+    submit: 'Passer la commande',
+    submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
   }
   
   PRODUCT = {
@@ -53,42 +69,29 @@ module AmazonFranceConstants
     image:'//*[@id="previous-image"]'
   }
 
-  PAYMENT = {
-    remove: '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
-    remove_confirmation: '/html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input'
+  
+  BILL = {
+    price:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[1]/td[2]',
+    shipping:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[2]/td[2]',
+    total:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[3]/td[2]',
+    info:'//*[@id="promise-summary"]'
   }
-
-  SHIPMENT_SEND_TO_THIS_ADDRESS = 'Envoyer à cette adresse'
-  SHIPMENT_FORM_NAME = '//*[@id="enterAddressFullName"]'
-  SHIPMENT_FORM_ADDRESS_1 = '//*[@id="enterAddressAddressLine1"]'
-  SHIPMENT_FORM_ADDRESS_2 = '//*[@id="enterAddressAddressLine2"]'
-  SHIPMENT_FORM_CITY = '//*[@id="enterAddressCity"]'
-  SHIPMENT_FORM_ZIPCODE = '//*[@id="enterAddressPostalCode"]'
-  SHIPMENT_FORM_PHONE = '//*[@id="enterAddressPhoneNumber"]'
-  SHIPMENT_FORM_ADDITIONAL = '//*[@id="GateCode"]'
-  SHIPMENT_FORM_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div[3]/button/span'
-  SHIPMENT_OPTIONS_SUBMIT = '//*[@id="shippingOptionFormId"]/div[2]/span/input'
-  SHIPMENT_ADDRESS_CONFIRM_OPTION = '//*[@id="addr-addr_0"]/label/i'
-  SHIPMENT_ADDRESS_CONFIRM_SUBMIT = '//*[@id="AVS"]/div[2]/form/button/span'
   
-  CREDIT_CARD_NUMBER = '//*[@id="addCreditCardNumber"]'
-  CREDIT_CARD_HOLDER = '//*[@id="ccName"]'
-  CREDIT_CARD_CVV = '//*[@id="addCreditCardVerificationNumber"]'
-  CREDIT_CARD_EXP_MONTH = '//*[@id="ccMonth"]'
-  CREDIT_CARD_EXP_YEAR = '//*[@id="ccYear"]'
-  CREDIT_CARD_SUBMIT = '//*[@id="ccAddCard"]'
-  CONTINUE_TO_PAYMENT = '//*[@id="continueButton"]'
-  
-  INVOICE_ADDRESS_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a | /html/body/div[4]/div[2]/div[1]/form/div/div[1]/div/div[2]/div/span'
-  VALIDATE_ORDER_SUBMIT = '//*[@id="spc-form"]/div/span[1]/span/input'
-  PRODUCT_PRICE_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[1]/td[2]'
-  PRODUCT_SHIPPING_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[2]/td[2]'
-  TOTAL_PRICE_ON_SUBMIT = '//*[@id="subtotals-marketplace-table"]/table/tbody/tr[3]/td[2]' 
-  
-  THANK_YOU_HEADER = '//*[@id="thank-you-header"]'
-  THANK_YOU_SHIPMENT = '//*[@id="orders-list"]/div/ul/li/div'
-  SHIPPING_DATE_PROMISE = '//*[@id="orders-list"]/div/ul/li/div/div[2]'
-
+  PAYMENT = {
+    remove: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
+    remove_confirmation: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input',
+    access: '//*[@id="continueButton"]',
+    invoice_address: '//html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a | //html/body/div[4]/div[2]/div[1]/form/div/div[1]/div/div[2]/div/span',
+    validate: '//*[@id="spc-form"]/div/span[1]/span/input',
+    holder:'//*[@id="ccName"]',
+    number:'//*[@id="addCreditCardNumber"]',
+    exp_month:'//*[@id="ccMonth"]',
+    exp_year:'//*[@id="ccYear"]',
+    cvv:'//*[@id="addCreditCardVerificationNumber"]',
+    submit: '//*[@id="ccAddCard"]',
+    status: '//*[@id="thank-you-header"]',
+    succeed: /votre\s+commande\s+a\s+été\s+passée/i
+  }
   
   CRAWLING = {
     title:'//*[@id="main"]//h1', 
@@ -188,97 +191,29 @@ class AmazonFrance
       end
       
       step('fill shipping form') do
-        fill SHIPMENT_FORM_NAME, with:"#{user.address.first_name} #{user.address.last_name}"
-        fill SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1
-        fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
-        fill SHIPMENT_FORM_ADDITIONAL, with:user.address.additionnal_address
-        fill SHIPMENT_FORM_CITY, with:user.address.city
-        fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
-        fill SHIPMENT_FORM_PHONE, with:(user.address.mobile_phone || user.address.land_phone)
-        click_on SHIPMENT_FORM_SUBMIT
-        wait_for [SHIPMENT_OPTIONS_SUBMIT, SHIPMENT_ADDRESS_CONFIRM_SUBMIT]
-        
-        if exists? SHIPMENT_ADDRESS_CONFIRM_SUBMIT
-          click_on SHIPMENT_ADDRESS_CONFIRM_OPTION
-          click_on SHIPMENT_ADDRESS_CONFIRM_SUBMIT
-        end
+        fill_shipping_form(AmazonFrance)
       end
       
       step('finalize order') do
-        click_on CART_BUTTON
-        click_on_button_with_name ORDER_BUTTON_NAME
-        wait_for([LOGIN_SUBMIT, SHIPMENT_FORM_NAME])
-        if exists? LOGIN_SUBMIT
-          fill LOGIN_PASSWORD, with:account.password
-          click_on LOGIN_SUBMIT
-        end
-        wait_ajax
-
-        unless click_on_link_with_text_if_exists(SHIPMENT_SEND_TO_THIS_ADDRESS)
-          run_step 'fill shipping form'
-        end
-        click_on SHIPMENT_OPTIONS_SUBMIT
-        run_step('submit credit card')
-      end
-      
-      step('submit credit card') do
-        fill CREDIT_CARD_NUMBER, with:order.credentials.number
-        fill CREDIT_CARD_HOLDER, with:order.credentials.holder
-        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s
-        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
-        fill CREDIT_CARD_CVV, with:order.credentials.cvv
-        click_on CREDIT_CARD_SUBMIT
-        wait_ajax
-        run_step('submit order')
-      end
-      
-      step('submit order') do
-        click_on CONTINUE_TO_PAYMENT
-        wait_for [VALIDATE_ORDER_SUBMIT, INVOICE_ADDRESS_SUBMIT]
-        if exists? INVOICE_ADDRESS_SUBMIT
-          click_on INVOICE_ADDRESS_SUBMIT
-        end
-        wait_for [VALIDATE_ORDER_SUBMIT]
-        run_step('build final billing')
-        assess
-      end
-      
-      step('cancel') do
-        terminate_on_cancel
-      end
-      
-      step('payment') do
-        answer = answers.last
-        action = questions[answers.last.question_id]
-
-        if eval(action)
-          run_step('validate order')
-        else
-          open_url URL[:base]
-          run_step('empty cart', next_step:'cancel')
-        end
+        fill_shipping_form = Proc.new {
+          !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
+        }
+        access_payment = Proc.new {
+          submit_credit_card(AmazonFrance)
+          click_on PAYMENT[:access]
+          wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+          click_on PAYMENT[:invoice_address], check:true
+          wait_for [PAYMENT[:validate]]
+        }
+        finalize_order(AmazonFrance, fill_shipping_form, access_payment)
       end
       
       step('build final billing') do
-        product, shipping, total = [PRODUCT_PRICE_ON_SUBMIT, PRODUCT_SHIPPING_ON_SUBMIT, TOTAL_PRICE_ON_SUBMIT].map do |xpath|
-          Robot::PRICES_IN_TEXT.(get_text xpath).first
-        end  
-        self.billing = { product:product, shipping:shipping, total:total}
+        build_final_billing(AmazonFrance)
       end
       
       step('validate order') do
-        page_source
-        click_on VALIDATE_ORDER_SUBMIT
-        wait_for([THANK_YOU_HEADER])
-        screenshot
-        if exists?(THANK_YOU_HEADER) && exists?(THANK_YOU_SHIPMENT)
-          self.billing.merge!({:shipping_info => get_text(SHIPPING_DATE_PROMISE)})
-          run_step('remove credit card')
-          terminate({ billing:self.billing})
-        else
-          run_step('remove credit card')
-          terminate_on_error(:order_validation_failed)
-        end
+        validate_order(AmazonFrance, skip_credit_card:true)
       end
       
     end

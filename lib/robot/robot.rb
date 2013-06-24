@@ -154,12 +154,23 @@ class Robot
   
   def click_on xpath, opts={}
     return unless xpath
-    return if opts[:check] && !exists?(xpath)
-    @driver.click_on @driver.find_element(xpath)
-    wait_ajax if opts[:ajax]
-    rescue
-      sleep(0.5)
-      retry #wait element clickable
+    unless xpath =~ /\/\//
+      click_on_button_with_name(xpath)
+    else
+      begin
+        @attempts = 0
+        return if opts[:check] && !exists?(xpath)
+        @driver.click_on @driver.find_element(xpath)
+        wait_ajax if opts[:ajax]
+    
+      rescue => e
+        if (@attempts += 1) <= 2
+          sleep(0.5) and retry #wait visible
+        else
+          raise
+        end
+      end
+    end
   end
   
   def move_to_and_click_on xpath
@@ -182,14 +193,10 @@ class Robot
     element
   end
   
-  def click_on_link_with_text text
+  def click_on_link_with_text text, opt={}
     element = @driver.find_links_with_text(text, nowait:true).first
+    return if opt[:check] && !element
     @driver.click_on element
-  end
-  
-  def click_on_link_with_text_if_exists text
-    return unless element = @driver.find_links_with_text(text, nowait:true).first
-    @driver.click_on(element)
   end
   
   def click_on_if_exists xpath, opts={}
@@ -268,11 +275,15 @@ class Robot
   end
   
   def fill xpath, args={}
-    return unless xpath
-    return if args[:check] && !exists?(xpath)
-    input = @driver.find_element(xpath)
-    input.clear
-    input.send_key args[:with]
+    if xpath.is_a?(Regexp)
+      fill_element_with_attribute_matching("input", "id", xpath, with:args[:with])
+    else
+      return unless xpath
+      return if args[:check] && !exists?(xpath)
+      input = @driver.find_element(xpath)
+      input.clear
+      input.send_key args[:with]
+    end
   end
   
   def fill_element_with_attribute_matching tag, attribute, regexp, args={}
@@ -369,6 +380,27 @@ class Robot
       open_url order.products_urls[0]
       run_step('login')
     end
+    
+    step('cancel') do
+      terminate_on_cancel
+    end
+    
+    step('cancel order') do
+      open_url URLS[:base]
+      run_step('empty cart', next_step:'cancel')
+    end
+    
+    step('payment') do
+      answer = answers.last
+      action = questions[answers.last.question_id]
+      
+      if eval(action)
+        message :validate_order, :next_step => 'validate order'
+      else
+        message :cancel_order, :next_step => 'cancel order'
+      end
+    end
+    
   end
   
   def register vendor
@@ -439,7 +471,7 @@ class Robot
     open_url next_product_url
     found = wait_for [vendor::CART[:add]] do
       message :no_product_available
-      terminate_on_error(:no_product_available) 
+      terminate_on_error(:no_product_available)
     end
     if found
       run_step('build product')
@@ -474,6 +506,100 @@ class Robot
     else
       message :cart_emptied, :next_step => next_step || 'add to cart'
     end
+  end
+  
+  def fill_shipping_form vendor
+    land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
+    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
+    
+    fill vendor::SHIPMENT[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
+    fill vendor::SHIPMENT[:address_1], with:user.address.address_1, check:true
+    fill vendor::SHIPMENT[:address_2], with:user.address.address_2, check:true
+    fill vendor::SHIPMENT[:additionnal_address], with:user.address.additionnal_address, check:true
+    fill vendor::SHIPMENT[:city], with:user.address.city, check:true
+    fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
+    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
+
+    click_on vendor::SHIPMENT[:same_billing_address], check:true
+    click_on vendor::SHIPMENT[:submit]
+    
+    wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
+    if exists? vendor::SHIPMENT[:address_option]
+      click_on vendor::SHIPMENT[:address_option]
+      click_on vendor::SHIPMENT[:address_submit]
+    end
+    # wait_for([SHIPMENT[:submit_packaging]])
+    click_on SHIPMENT[:option], check:true
+  end
+  
+  def finalize_order vendor, fill_shipping_form, access_payment, before_submit=nil
+    open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
+    before_submit.call if before_submit
+    click_on vendor::CART[:submit]
+    
+    in_stock = wait_for(vendor::CART[:submit_success]) do 
+      terminate_on_error(:out_of_stock)
+    end
+    
+    if in_stock
+      if exists? vendor::LOGIN[:submit]
+        fill vendor::LOGIN[:password], with:account.password
+        click_on vendor::LOGIN[:submit]
+      end
+      run_step('fill shipping form') if fill_shipping_form.call
+      
+      wait_for([vendor::SHIPMENT[:submit_packaging]])
+      click_on vendor::SHIPMENT[:option], check:true
+      click_on vendor::SHIPMENT[:submit_packaging]
+      
+      access_payment.call
+      
+      run_step('build final billing')
+      assess
+    end
+  end
+  
+  def submit_credit_card vendor
+    click_on vendor::PAYMENT[:visa], check:true
+    fill vendor::PAYMENT[:number], with:order.credentials.number
+    fill vendor::PAYMENT[:holder], with:order.credentials.holder
+    select_option vendor::PAYMENT[:exp_month], order.credentials.exp_month.to_s
+    select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year.to_s
+    fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
+    click_on vendor::PAYMENT[:submit]
+  end
+  
+  def build_final_billing vendor
+    price, shipping, total = [:price, :shipping, :total].map {|key| PRICES_IN_TEXT.(get_text vendor::BILL[key])}
+    info = get_text(vendor::BILL[:info])
+    self.billing = { product:price, shipping:shipping, total:total, shipping_info:info}
+  end
+  
+  def validate_order vendor, opts={}
+    submit_credit_card(vendor) unless opts[:skip_credit_card]
+    click_on vendor::PAYMENT[:validate], check:true
+    
+    page = wait_for([PAYMENT[:status]]) do
+      screenshot
+      page_source
+      terminate_on_error(:order_validation_failed)
+    end
+    
+    if page
+      screenshot
+      page_source
+      
+      status = get_text PAYMENT[:status]
+      if status =~ PAYMENT[:succeed]
+        run_step('remove credit card')
+        terminate({ billing:self.billing})
+      else
+        run_step('remove credit card')
+        terminate_on_error(:order_validation_failed)
+      end
+    end
+    
   end
   
 end

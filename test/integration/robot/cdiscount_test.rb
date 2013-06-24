@@ -14,7 +14,7 @@ class CdiscountTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_06@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_07@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1],
                             'credentials' => {
@@ -131,7 +131,6 @@ class CdiscountTest < ActiveSupport::TestCase
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     
     robot.run_step('finalize order')
-
     assert_equal products, robot.products
     assert_equal billing, robot.billing
   end
@@ -149,7 +148,7 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-    @message.expects(:message).times(14)
+    @message.expects(:message).times(14..20)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

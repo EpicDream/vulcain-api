@@ -136,7 +136,7 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-    @message.expects(:message).times(17..18)
+    @message.expects(:message).times(13..18)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -182,6 +182,5 @@ class AmazonTest < ActiveSupport::TestCase
 
     robot.run_step('crawl')
   end
-  
   
 end

@@ -32,6 +32,21 @@ module CdiscountConstants
     logout:'//*[@id="cphLeftArea_LeftArea_hlLogOff"]'
   }
   
+  SHIPMENT = {
+    address_1: /DeliveryAddressLine1/,
+    additionnal_address: /DeliveryDoorCode/,
+    city: /DeliveryCity/,
+    zip: /DeliveryZipCode/,
+    mobile_phone: /DeliveryPhoneNumbers_MobileNumber/,
+    land_phone: /DeliveryPhoneNumbers_PhoneNumber/,
+    submit_packaging: '//*[@id="ValidationSubmit"]',
+    submit: '//*[@id="LoginButton"]',
+    same_billing_address: '//*[@id="shippingOtherAddress"]',
+    option: '//*[@id="PointRetrait_pnlpartnercompleted"]/div/input',
+    address_option: '//*[@id="deliveryAddressChoice_2"]',
+    address_submit: '//*[@id="LoginButton"]',
+  }
+  
   CART = {
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
@@ -40,7 +55,8 @@ module CdiscountConstants
     steps:'//*[@id="masterCart"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
-    submit: '//*[@id="id_0__"]'
+    submit: '//*[@id="id_0__"]',
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
   }
   
   PRODUCT = {
@@ -49,26 +65,13 @@ module CdiscountConstants
     image:'//img[@class="basketProductView"]'
   }
   
-  SHIPMENT = {
-    address_1: /DeliveryAddressLine1/,
-    additionnal_address: /DeliveryDoorCode/,
-    city: /DeliveryCity/,
-    zip: /DeliveryZipCode/,
-    mobile_phone: /DeliveryPhoneNumbers_MobileNumber/,
-    land_phone: /DeliveryPhoneNumbers_PhoneNumber/,
-    same_billing_address: '//*[@id="shippingOtherAddress"]',
-    submit: '//*[@id="LoginButton"]',
-    colissimo: '//*[@id="PointRetrait_pnlpartnercompleted"]/div/input',
-    submit_packaging: '//*[@id="ValidationSubmit"]'
-  }
-  
   BILL = {
     text:'//*[@id="orderInfos"]'
   }
   
   PAYMENT = {
     visa:'//*[@id="cphMainArea_ctl01_optCardTypeVisa"]',
-    cb_submit: '//div[@class="paymentComptant"]//button',
+    access: '//div[@class="paymentComptant"]//button',
     holder:'//*[@id="cphMainArea_ctl01_txtCardOwner"]',
     number:'//*[@id="cphMainArea_ctl01_txtCardNumber"]',
     exp_month:'//*[@id="cphMainArea_ctl01_ddlMonth"]',
@@ -76,7 +79,8 @@ module CdiscountConstants
     cvv:'//*[@id="cphMainArea_ctl01_txtSecurityNumber"]',
     submit: '//*[@id="cphMainArea_ctl01_ValidateButton"]',
     remove: '//*[@id="mainCz"]//input[@title="Supprimer"]',
-    succeed: '//*[@id="mainContainer"]'
+    status: '//*[@id="mainContainer"]',
+    succeed: /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
   }
   
   CRAWLING = {
@@ -161,15 +165,28 @@ class Cdiscount
       end
       
       step('empty cart') do |args|
-        remove = Proc.new do 
-          click_on_all([CART[:remove_item]]) do |element|
-            open_url URLS[:cart]
-            !element.nil?
-          end
-        end
+        remove = Proc.new { click_on_all([CART[:remove_item]]) {|element| open_url URLS[:cart];!element.nil? }}
         check = Proc.new { wait_for([CART[:empty_message]]) {return false}}
         next_step = args && args[:next_step]
         empty_cart(Cdiscount, remove, check, next_step)
+      end
+      
+      step('fill shipping form') do
+        fill_shipping_form(Cdiscount)
+      end
+      
+      step('finalize order') do
+        fill_shipping_form = Proc.new {
+          exists? SHIPMENT[:submit]
+        }
+        access_payment = Proc.new {
+          click_on PAYMENT[:access]
+        }
+        before_submit = Proc.new {
+          run_step('build product')
+        }
+        
+        finalize_order(Cdiscount, fill_shipping_form, access_payment, before_submit)
       end
       
       step('build final billing') do
@@ -177,98 +194,8 @@ class Cdiscount
         self.billing = { product:prices[0], shipping:prices[1], total:prices[2] }
       end
       
-      step('submit address') do
-        land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
-        mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-        
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:address_1], with:user.address.address_1)
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:additionnal_address], with:user.address.additionnal_address)
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:city], with:user.address.city)
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:zip], with:user.address.zip)
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:land_phone], with:land_phone)
-        fill_element_with_attribute_matching("input", "id", SHIPMENT[:mobile_phone], with:mobile_phone)
-        click_on SHIPMENT[:same_billing_address]
-        wait_ajax
-        click_on SHIPMENT[:submit]
-        wait_for [SHIPMENT[:submit_packaging], SHIPMENT[:submit]]
-        if exists? '//*[@id="deliveryAddressChoice_2"]'
-          click_on '//*[@id="deliveryAddressChoice_2"]'
-          click_on SHIPMENT[:submit]
-        end
-      end
-      
-      step('finalize order') do
-        open_url URLS[:cart]
-        wait_for [CART[:submit]]
-        run_step('build product')
-        click_on CART[:submit]
-        in_stock = wait_for [SHIPMENT[:submit], SHIPMENT[:submit_packaging]] do
-          terminate_on_error(:out_of_stock)
-        end
-        if in_stock
-          if exists? SHIPMENT[:submit]
-            run_step('submit address')
-          end
-          wait_for([SHIPMENT[:submit_packaging]])
-          if exists? SHIPMENT[:colissimo]
-            click_on SHIPMENT[:colissimo]
-          end
-          click_on SHIPMENT[:submit_packaging]
-          click_on PAYMENT[:cb_submit]
-          run_step('build final billing')
-          assess
-        end
-      end
-      
-      step('payment') do
-        answer = answers.last
-        action = questions[answers.last.question_id]
-        
-        if eval(action)
-          message :validate_order, :next_step => 'validate order'
-        else
-          message :cancel_order, :next_step => 'cancel order'
-        end
-      end
-      
-      step('cancel') do
-        terminate_on_cancel
-      end
-      
-      step('cancel order') do
-        open_url URLS[:base]
-        run_step('empty cart', next_step:'cancel')
-      end
-      
       step('validate order') do
-        click_on PAYMENT[:visa]
-        fill PAYMENT[:number], with:order.credentials.number
-        fill PAYMENT[:holder], with:order.credentials.holder
-        select_option PAYMENT[:exp_month], order.credentials.exp_month.to_s
-        select_option PAYMENT[:exp_year], order.credentials.exp_year.to_s
-        fill PAYMENT[:cvv], with:order.credentials.cvv
-        click_on PAYMENT[:submit]
-        
-        page = wait_for([PAYMENT[:succeed]]) do
-          screenshot
-          page_source
-          terminate_on_error(:order_validation_failed)
-        end
-        
-        if page
-          screenshot
-          page_source
-          
-          thanks = get_text PAYMENT[:succeed]
-          if thanks =~ /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
-            run_step('remove credit card')
-            terminate({ billing:self.billing})
-          else
-            run_step('remove credit card')
-            terminate_on_error(:order_validation_failed)
-          end
-        end
-        
+        validate_order(Cdiscount)
       end
       
     end 
