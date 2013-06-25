@@ -147,7 +147,7 @@ var StrategyView = function(_strategy) {
   function _onSwitchMobility() {
     var mobility = _isCurrentHostMobile.prop("checked");
     _strategy.setMobility(mobility);
-    chrome.extension.sendMessage({'dest':'background','action':'setMobility',
+    chrome.extension.sendMessage(null, {'dest':'background','action':'setMobility',
       'host': glob.host, 'mobility': mobility});
   };
   function _onReset(event) {

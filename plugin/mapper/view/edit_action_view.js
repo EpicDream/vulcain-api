@@ -25,7 +25,7 @@ var EditActionView = function() {
     _page.find("#editPathBtn").click(_onEditPathClicked.bind(_that));
 
     $("#searchXPathBtn").click(function(event) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'path':_pathField.val()});
+      chrome.extension.sendMessage(null, {'dest':'contentscript','action':'show', 'path':_pathField.val()});
     });
 
     _typesField.change(_that.generateCode);
@@ -259,7 +259,7 @@ var EditActionView = function() {
   function _onNewMapping(msg) {
     _pathField.val(msg.path).change();
     _currentContext = msg.context;
-    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'path':msg.path});
+    chrome.extension.sendMessage(null, {'dest':'contentscript','action':'show', 'path':msg.path});
   };
 
   function _onMatchedElements(nbElements) {
