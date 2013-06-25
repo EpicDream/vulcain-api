@@ -366,8 +366,8 @@ class Robot
     response['text']
   end
   
-  def scraped_text xpath
-    HtmlToPlainText.plain_text @page.xpath(xpath).to_s
+  def scraped_text xpath, page
+    HtmlToPlainText.plain_text page.xpath(xpath).to_s
   end
   
   def load_common_steps

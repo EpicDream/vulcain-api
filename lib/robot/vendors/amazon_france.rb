@@ -103,8 +103,61 @@ module AmazonFranceConstants
   
 end
 
+module AmazonFranceCrawler
+  class ProductCrawler
+    
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_options
+      build_product
+    end
+    
+    def build_options
+      return if @page.xpath(@xpaths[:options]).none?
+      @robot.click_on @xpaths[:options]
+      1.upto(2) {
+        parse_options
+        @robot.click_on "//ul/li[1]"
+      }
+    end
+    
+    def parse_options
+      @robot.wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
+      page = Nokogiri::HTML.parse @robot.driver.page_source
+      option = page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
+      options = page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
+      @product[:options][option] = options
+    end
+    
+    def build_product
+      @robot.open_url @url
+      @product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
+      prices = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page)
+      @product[:product_price] = prices[0]
+      @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      @product[:shipping_price] = nil
+      @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
+      if @product[:options].empty?
+        @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
+      end
+    end
+    
+  end
+end
+
 class AmazonFrance
   include AmazonFranceConstants
+  include AmazonFranceCrawler
   
   attr_accessor :context, :robot
   
@@ -117,41 +170,9 @@ class AmazonFrance
     Robot.new(@context) do
       
       step('crawl') do
-        open_url @context['url']
-        @page = Nokogiri::HTML.parse @driver.page_source
-        
-        product = {:options => {}}
-        options = @page.xpath(CRAWLING[:options])
-        
-        if options.any?
-          click_on CRAWLING[:options]
-          wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
-          @page = Nokogiri::HTML.parse @driver.page_source
-          option = @page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
-          options = @page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
-          product[:options][option] = options
-          click_on "//ul/li[1]"
-          wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
-          @page = Nokogiri::HTML.parse @driver.page_source
-          option = @page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
-          options = @page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
-          product[:options][option] = options
-        end
-        
-        open_url @context['url']
-        @page = Nokogiri::HTML.parse @driver.page_source
-        product[:product_title] =  scraped_text CRAWLING[:title]
-        prices = Robot::PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
-        product[:product_price] = prices[0]
-        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
-        product[:shipping_price] = nil
-        product[:shipping_info] = scraped_text CRAWLING[:shipping_info]
-        
-        if product[:options].empty?
-          product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
-        end
-
-        terminate(product)
+        crawler = ProductCrawler.new(self, CRAWLING)
+        crawler.crawl @context['url']
+        terminate(crawler.product)
       end
       
       step('create account') do
