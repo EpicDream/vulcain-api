@@ -150,6 +150,7 @@ class Plugin::StrategiesController < ApplicationController
               {id: "set_total_price", desc: "Indiquer le prix total", option: "", type: "pl_set_tot_price"},
               {id: "set_tot_shipping_price", desc: "Indiquer le prix de livraison total", option: "", type: "pl_set_tot_shipping_price"},
               {id: "set_tot_products_price", desc: "Indiquer le prix total des produits", option: "", type: "pl_set_tot_products_price"},
+              {id: "check_nb_products", desc: "Vérifier que tous les articles sont dans le panier", option: "", type: "pl_check_cart_nb_products"},
               {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"}
             ]
           },{

@@ -82,6 +82,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_to_create_account', desc: "Cliquer sur le bouton de création du compte", args: {xpath: true}},
     {id: 'pl_click_to_validate_payment', desc: "Cliquer sur le bouton de validation du payement", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_check_cart_nb_products', desc: "Vérifier que tous les articles sont dans le panier", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
   ]
@@ -248,7 +249,8 @@ class Plugin::IRobot < Robot
             run_step('payment')
           end
           @messager.message :payment_info_entered
-
+        end
+        if @steps['empty_cart']
           run_step('empty_cart')
           @messager.message :cart_emptied
         end
@@ -590,6 +592,15 @@ class Plugin::IRobot < Robot
 
   def pl_binding
     return binding
+  end
+
+  # Raise if nb elements matched by path is different of order.products_url.size.
+  def pl_check_cart_nb_products!(path)
+    waited_nb = order.products_urls.size
+    elems = find(path)
+    if waited_nb != elems.size
+      raise NoSuchElementError, "Fail assertion : wait #{waited_nb} but found #{elems.size} elements for path #{path.inspect}"
+    end
   end
 
   def pl_assert_present(path)
