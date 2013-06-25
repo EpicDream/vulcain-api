@@ -79,6 +79,8 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
     {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
     {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
+    {id: 'pl_click_to_create_account', desc: "Cliquer sur le bouton de création du compte", args: {xpath: true}},
+    {id: 'pl_click_to_validate_payment', desc: "Cliquer sur le bouton de validation du payement", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
@@ -178,8 +180,10 @@ class Plugin::IRobot < Robot
       pl_step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
           begin
-            run_step('payment')
-            message :validate_order
+            catch :skip do
+              run_step('payment')
+              message :validate_order
+            end
             terminate({billing: @billing})
           rescue NoSuchElementError
             terminate_on_error :order_validation_failed
@@ -193,15 +197,18 @@ class Plugin::IRobot < Robot
 
       pl_step('run_test') do
         @isTest = true
-        pl_open_url! @shop_base_url
         if account.new_account
-          run_step('account_creation')
-          message :account_created
-        else
-          next if ! @steps['login']
-          run_step('login')
-          message :logged
+          pl_open_url! @shop_base_url
+          catch :skip do
+            run_step('account_creation')
+            message :account_created
+          end
         end
+
+        pl_open_url! @shop_base_url
+        next if ! @steps['login']
+        run_step('login')
+        message :logged
 
         next if ! @steps['unlog']
         if ! @steps['empty_cart']
@@ -379,6 +386,14 @@ class Plugin::IRobot < Robot
   def pl_click_on_each!(xpath)
     links(xpath).each(&:click)
   end
+  #
+  def pl_click_to_create_account(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
+  end
+  #
+  def pl_click_to_validate_payment(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
+  end
 
   # Fill text input.
   # If xpath isn't an input, search for a label for or a single input child.
@@ -551,6 +566,32 @@ class Plugin::IRobot < Robot
 
   def pl_binding
     return binding
+  end
+
+  def pl_assert_present(path)
+    return unless pl_test?
+    raise NoSuchElementError, "Fail assertion : no element found for path #{path.inspect}" if find(xpath).empty?
+  end
+
+  def pl_assert_number_elements(path, number)
+    return unless pl_test?
+    nbElems = find(xpath).size
+    raise NoSuchElementError, "Fail assertion : wait #{number} but found #{nbElems} elements for path #{path.inspect}" if nbElems != number
+  end
+
+  def pl_assert_present_and_skip(path)
+    return unless pl_test?
+    pl_assert_present(path)
+    pl_skip
+  end
+
+  def pl_skip
+    return unless pl_test?
+    throw :skip
+  end
+
+  def pl_test?
+    return @isTest
   end
 
   # private
