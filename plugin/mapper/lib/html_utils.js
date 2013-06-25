@@ -5,7 +5,7 @@ hu.getElementXPath = function(element) {
   var xpath = '';
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var id = $(element).attr("id");
-    if (id) {
+    if (id && ! hu.isRandom(id)) {
       xpath = '//'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
       break;
     } else {
@@ -24,7 +24,7 @@ hu.getElementCompleteXPath = function(element) {
   for ( ; element && element.nodeType == 1; element = element.parentNode ) {
     var broAndSis = $(element.parentNode).children(element.tagName);
     var id = $(element).attr("id");
-    if (id) {
+    if (id && (id.length < 15 || ! hu.isRandom(id))) {
       xpath = '/'+element.tagName.toLowerCase()+'[@id="'+id+'"]'+xpath;
     } else if (broAndSis.size() > 1)
       xpath = '/'+element.tagName.toLowerCase()+'['+(broAndSis.index(element)+1)+']' + xpath;
@@ -37,27 +37,6 @@ hu.getElementCompleteXPath = function(element) {
   return xpath;
 };
 
-// "//elem[@class='a_class an_other']" is 
-// Return 
-// ex : classes
-hu.classesToXpath = function(classes) {
-
-};
-
-
-// Rewind e to get the most general element for it.
-hu.getSameTextAncestor = function(e, stopIfId) {
-  var txt = e.innerText.replace(/\W/g,"").toLowerCase();
-  var parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
-  while (parentTxt == txt) {
-    if (stopIfId && e.attributes["id"])
-      break;
-    e = e.parentElement;
-    parentTxt = e.parentElement.innerText.replace(/\W/g,"").toLowerCase();
-  }
-  return e;
-};
-
 hu.getElementsByXPath = function(xpath) { 
   var aResult = new Array();
   try {
@@ -68,6 +47,64 @@ hu.getElementsByXPath = function(xpath) {
     console.error("for", xpath);
     console.error(err);
   }
+};
+
+hu.isXpath = function(path) {
+  return path[0] == '/' || path[0] == '(';
+}
+
+function getClasses(jelem) {
+  return (jelem.attr("class") ? _.compact(jelem.attr("class").split(/\s+/)).sort() : []);
+};
+
+// Get CSS Selector for this element : tagname, id, classes, child position.
+// If complete is false, stop when an id is found, or when discriminant classes are found and add only these.
+function fromParentSelector(jelement, complete) {
+  var tag = jelement[0].tagName;
+  // TAGNAME
+  var res = tag.toLowerCase();
+  // ID
+  var id = jelement.attr("id");
+  if (id && (id.length < 15 || ! hu.isRandom(id))) {
+    res += "#"+id;
+    if (! complete)
+      return res;
+  }
+  // Si il n'y a qu'un élément de ce type en enfant, on s'arrête
+  var sameTagSiblings = jelement.siblings().filter(function(index) { return this.tagName == tag; });
+  if (! complete && sameTagSiblings.length == 0)
+    return res;
+  // CLASSES
+  var elementClasses = getClasses(jelement);
+  if (! complete) {
+    var siblingsClasses = _.map(sameTagSiblings.filter("*[class]"), function(sibling) { return getClasses($(sibling)); });
+    var classes = _.difference(elementClasses, [].concat(_.flatten(siblingsClasses)));
+    res += _.map(classes, function(c){return "."+c;}).join('');
+    if (classes.length > 0)
+      return res;
+  } else {
+    res += _.map(elementClasses, function(c){return "."+c;}).join('');
+  }
+  // POSITION
+  var pos = jelement.index() + 1;
+  res += ":nth-child(" + pos + ")";
+  return res;
+};
+
+hu.getElementCSSSelectors = function(jelement, complete) {
+  var css = '';
+  for ( ; jelement && jelement[0].nodeType == 1 ; jelement = jelement.parent() ) {
+    elem_selector = fromParentSelector(jelement, complete);
+    css = elem_selector + " " + css;
+    if (jelement[0].tagName.toLowerCase() == 'body' || (! complete && elem_selector.match(/#/)))
+      break;
+  }
+  return css.trim();
+};
+
+// Return an Array of jQuery elements.
+hu.getElementsByCSS = function(css) {
+  return $(css);
 };
 
 // Does this xpath lead to a single element.
@@ -87,8 +124,20 @@ hu.setXPathUniq = function(xpath, e) {
   return xpath;
 };
 
-hu.askIfRandom = function(value) {
-  return confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
+hu.nonRandomId = [];
+hu.isRandom = function(value) {
+  if (value.length < 10)
+    return false;
+  if (value.length > 30)
+    return true;
+  if (value.match(/\d{5,}/))
+    return true;
+  if (hu.nonRandomId.indexOf(value) != -1)
+    return false;
+  var res = confirm("Est-ce que '"+value+"' est généré aléatoirement ?");
+  if (! res)
+    hu.nonRandomId.push(value);
+  return res;
 };
 
 // Return a HashMap h attributes/values.
@@ -119,7 +168,9 @@ hu.getFormAttrs = function(e) {
 
 // Return a HashMap h.
 // h.xpath
-// h.completeXPath
+// h.fullXPath
+// h.css
+// h.fullCSS
 // h.attrs : element's attrs. See hu.getElementAttrs().
 // h.siblings an Array of siblings' attrs. See hu.getElementAttrs().
 // h.parent : parent's attrs. See hu.getElementAttrs().
@@ -130,7 +181,9 @@ hu.getFormAttrs = function(e) {
 hu.getElementContext = function(e) {
   var context = {};
   context.xpath = hu.getElementXPath(e);
-  context.completeXPath = hu.getElementCompleteXPath(e);
+  context.fullXPath = hu.getElementCompleteXPath(e);
+  context.css = hu.getElementCSSSelectors($(e));
+  context.fullCSS = hu.getElementCSSSelectors($(e), true);
   context.attrs = hu.getElementAttrs(e);
   context.parent = hu.getElementAttrs(e.parentElement);
   context.siblings = [];
@@ -158,8 +211,8 @@ hu.getInputsLabel = function(e) {
       return l;
     else if (! l.getAttribute("for")) {
       var xpathResult = document.evaluate(".//input | .//textarea | .//select", l, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-      for ( var i = 0 ; i < xpathResult.snapshotLength ; i++ )
-        if (xpathResult.snapshotItem(i) == e)
+      for ( var j = 0 ; j < xpathResult.snapshotLength ; j++ )
+        if (xpathResult.snapshotItem(j) == e)
           return l;
     }
   }
@@ -232,5 +285,52 @@ hu.labels = function(e) {
     res.push(xpathresult.snapshotItem(i));
   
   return res;
+};
 
+hu.cookies = {};
+
+hu.cookies.add = function(name,value,days,domain) {
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime()+(days*24*60*60*1000));
+    var expires = "; expires="+date.toGMTString();
+  }
+  else var expires = "";
+  if (domain) domain = "; domain="+domain;
+  else domain = "";
+  document.cookie = name+"="+value+expires+"; path=/"+domain;
+};
+
+hu.cookies.get = function(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0;i < ca.length;i++) {
+    var c = ca[i];
+    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+  }
+  return null;
+};
+
+hu.cookies.remove = function(name) {
+  this.add(name,"",-1);
+  if (this.get(name))
+    this.add(name,"",-1,document.location.host.match(/\.\w+\.\w+$/)[0]);
+};
+
+hu.cookies.keys = function() {
+  var res = [];
+  var ca = document.cookie.split('; ');
+  for(var i=0;i < ca.length;i++) {
+    var key = ca[i].match(/^(\w+)(?==)/g);
+    if (key)
+      res.push(key[0]);
+  }
+  return res;
+};
+
+hu.cookies.removeAll = function() {
+  var keys = this.keys();
+  for (var i in keys)
+    this.remove(keys[i]);
 };
