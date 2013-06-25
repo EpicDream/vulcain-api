@@ -134,9 +134,6 @@ var StrategyView = function(_strategy) {
     if (idx == -1) { console.error(view.model, _strategy.steps); return s; }
     for (var i = idx+1, l = s.steps.length ; i < l ; i++)
       s.steps[i].actions.length = 0;
-    // Delete create_account if not on it.
-    if (idx != 0)
-      s.steps[0].actions.length = 0;
     // raise on empty actions
     var actions = s.steps[idx].actions;
     for (var i = actions.length-1 ; i >= 0 ; i--) {

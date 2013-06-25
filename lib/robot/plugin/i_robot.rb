@@ -17,7 +17,7 @@ class Plugin::IRobot < Robot
 
   class StrategyError < StandardError
     attr_reader :code, :message
-    attr_accessor :source, :screenshot, :logs, :stepstrace, :step
+    attr_accessor :source, :screenshot, :logs, :stepstrace, :step, :args
     def initialize(err,args={})
       @message = "#{err.class}: #{err.to_s}"
       super(@message)
@@ -131,32 +131,33 @@ class Plugin::IRobot < Robot
 
     self.instance_eval do
       pl_step('run') do
-        begin
-          pl_open_url! @shop_base_url
-          if account.new_account
-            begin
-              run_step('account_creation')
-              message :account_created
-              run_step('unlog')
-            rescue NoSuchElementError
-              terminate_on_error :account_creation_failed
-              next # Quit block
-            end
+        if account.new_account
+          begin
+            pl_open_url! @shop_base_url
+            run_step('account_creation')
+            message :account_created
+            run_step('unlog')
+          rescue
+            message :account_creation_failed
+            raise
           end
+        end
+
+        # Login
+        begin
           pl_open_url @shop_base_url
           run_step('login')
-          message :logged, :next_step => 'run_empty_cart'
-        rescue NoSuchElementError
-          terminate_on_error :login_failed
+          message :logged
+        rescue
+          message :login_failed
+          raise
         end
-      end
 
-      pl_step('run_empty_cart') do
+        # Empty Cart
         run_step('empty_cart')
-        message :cart_emptied, :next_step => 'run_fill_cart'
-      end
+        message :cart_emptied
 
-      pl_step('run_fill_cart') do
+        # Fill cart
         order.products_urls.each do |url|
           pl_open_url! url
           @pl_current_product = {}
@@ -164,26 +165,21 @@ class Plugin::IRobot < Robot
           run_step('add_to_cart')
           products << @pl_current_product
         end
-        message :cart_filled, :next_step => 'run_finalize'
-      end
+        message :cart_filled
 
-      pl_step('run_finalize') do
+        # Finalize
         run_step('finalize_order')
-
         @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
         @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
         @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
-
         pl_assess next_step:'run_waitAck'
       end
 
       pl_step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
           begin
-            catch :skip do
-              run_step('payment')
-              message :validate_order
-            end
+            run_step('payment')
+            message :validate_order
             terminate({billing: @billing})
           rescue NoSuchElementError
             terminate_on_error :order_validation_failed
@@ -197,42 +193,65 @@ class Plugin::IRobot < Robot
 
       pl_step('run_test') do
         @isTest = true
-        if account.new_account
+        catch :pass do
           pl_open_url! @shop_base_url
           catch :skip do
             run_step('account_creation')
-            message :account_created
+            @messager.message :account_created
           end
-        end
 
-        pl_open_url! @shop_base_url
-        next if ! @steps['login']
-        run_step('login')
-        message :logged
-
-        next if ! @steps['unlog']
-        if ! @steps['empty_cart']
-          run_step('unlog')
-          next if ! @steps['login']
+          throw :pass if ! @steps['login']
+          pl_open_url! @shop_base_url
           run_step('login')
+          @messager.message :logged
+
+          throw :pass if ! @steps['unlog']
+          if ! @steps['empty_cart']
+            run_step('unlog')
+            @messager.message :unlogged
+            throw :pass if ! @steps['login']
+            pl_open_url! @shop_base_url
+            run_step('login')
+            @messager.message :logged
+          end
+
+
+          throw :pass if ! @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+
+          throw :pass if ! @steps['add_to_cart']
+          if ! @steps['finalize_order']
+            order.products_urls.each do |url|
+              pl_open_url! url
+              run_step('add_to_cart')
+            end
+            @messager.message :cart_filled
+            run_step('empty_cart')
+            @messager.message :cart_emptied
+          end
+          order.products_urls.each do |url|
+            pl_open_url! url
+            @pl_current_product = {}
+            @pl_current_product['url'] = url
+            run_step('add_to_cart')
+            products << @pl_current_product
+          end
+          @messager.message :cart_filled
+
+          throw :pass if ! @steps['finalize_order']
+          run_step('finalize_order')
+          @messager.message :shipping_info_entered
+
+          throw :pass if ! @steps['payment']
+          catch :skip do
+            run_step('payment')
+          end
+          @messager.message :payment_info_entered
+
+          run_step('empty_cart')
+          @messager.message :cart_emptied
         end
-
-        next if ! @steps['empty_cart']
-        run_step('run_empty_cart')
-
-        next if ! @steps['add_to_cart']
-        run_step('run_fill_cart')
-
-        if ! @steps['finalize_order']
-          run_step('run_empty_cart')
-          run_step('run_fill_cart')
-        end
-
-        next if ! @steps['finalize_order']
-        run_step('run_finalize')
-
-        next if ! @steps['payment']
-        pl_assess next_step:'run_waitAck'
       end
     end
   end
@@ -247,8 +266,13 @@ class Plugin::IRobot < Robot
 
   def pl_fake_run
     @messager = FakeMessenger.new
-    @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
     run_step('run_test')
+  rescue StrategyError => err
+    err.args.merge!(current_product: @pl_current_product) if @pl_current_product
+    err.args.merge!(products: @products) if ! @products.empty?
+    err.args.merge!(biling: @billing) if @billing.empty?
+    raise
+  ensure
     @pl_driver.quit
   end
 
@@ -281,7 +305,7 @@ class Plugin::IRobot < Robot
         err.stepstrace << "in step `#{id}'"
         raise
       rescue => err
-        e = StrategyError.new(err, {step: id})
+        e = StrategyError.new(err, {step: id, url: current_url})
         e.set_backtrace(err.backtrace)
         e.source = @driver.page_source
         e.screenshot = @driver.screenshot
@@ -305,7 +329,7 @@ class Plugin::IRobot < Robot
       messager.logging.message(:warning, "No action to do for #{name.inspect}")
     end
   rescue => err
-    err_args = {step: arg[:step], code: code, action_name: name, args: {}}
+    err_args = {step: arg[:step], code: code, action_name: name, args: {}, url: current_url}
     if arg.kind_of?(Hash)
       err_args[:args][:url] = arg[:url]
       err_args[:args][:type] = arg[:type]
@@ -387,11 +411,11 @@ class Plugin::IRobot < Robot
     links(xpath).each(&:click)
   end
   #
-  def pl_click_to_create_account(path)
+  def pl_click_to_create_account!(path)
     pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
   end
   #
-  def pl_click_to_validate_payment(path)
+  def pl_click_to_validate_payment!(path)
     pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
   end
 
@@ -570,12 +594,12 @@ class Plugin::IRobot < Robot
 
   def pl_assert_present(path)
     return unless pl_test?
-    raise NoSuchElementError, "Fail assertion : no element found for path #{path.inspect}" if find(xpath).empty?
+    raise NoSuchElementError, "Fail assertion : no element found for path #{path.inspect}" if find(path).empty?
   end
 
   def pl_assert_number_elements(path, number)
     return unless pl_test?
-    nbElems = find(xpath).size
+    nbElems = find(path).size
     raise NoSuchElementError, "Fail assertion : wait #{number} but found #{nbElems} elements for path #{path.inspect}" if nbElems != number
   end
 
