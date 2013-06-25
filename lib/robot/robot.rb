@@ -405,19 +405,42 @@ class Robot
   end
   
   def register vendor
+    land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
+    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
+    
     open_url vendor::URLS[:register] if vendor::URLS[:register]
     wait_for(['//body'])
     
-    if exists? vendor::REGISTER[:mister]
-      click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
-    end
-    fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
-    fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
-    fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
     fill vendor::REGISTER[:email], with:account.login, check:true
     fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
     fill vendor::REGISTER[:password], with:account.password, check:true
     fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
+    click_on vendor::REGISTER[:submit_login], check:true
+    
+    if vendor::REGISTER[:submit_login] && exists?(vendor::REGISTER[:submit_login])
+      terminate_on_error(:account_creation_failed)
+      return
+    end
+    
+    if exists? vendor::REGISTER[:mister]
+      click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
+    end
+    if vendor::REGISTER[:birthdate]
+      fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
+    end
+    if vendor::REGISTER[:birthdate_day]
+      select_option vendor::REGISTER[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
+      select_option vendor::REGISTER[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
+      select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
+    end
+    
+    fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
+    fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
+    fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
+    fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
+    fill vendor::REGISTER[:land_phone], with:land_phone, check:true
+    
+    
     yield if block_given?
     click_on vendor::REGISTER[:submit]
     
@@ -463,22 +486,40 @@ class Robot
   
   def remove_credit_card vendor
     open_url vendor::URLS[:payments]
+    fill vendor::LOGIN[:email], with:account.login, check:true
+    fill vendor::LOGIN[:password], with:account.password, check:true
+    click_on vendor::LOGIN[:submit], check:true
     click_on vendor::PAYMENT[:remove], check:true, ajax:true
     click_on vendor::PAYMENT[:remove_confirmation], check:true
+    sleep 10
     open_url vendor::URLS[:base]
   end
   
-  def add_to_cart vendor
+  def add_to_cart vendor, best_offer=nil, opts={}
     open_url next_product_url
-    found = wait_for [vendor::CART[:add]] do
+    click_on vendor::CART[:extra_offers], check:true
+    
+    found = wait_for [vendor::CART[:add], vendor::CART[:offers]] do
       message :no_product_available
       terminate_on_error(:no_product_available)
     end
     if found
-      run_step('build product')
-      click_on vendor::CART[:add]
+      run_step('build product') unless opts[:skip_build_product]
+      if exists? vendor::CART[:offers]
+        best_offer.call
+      else
+        click_on vendor::CART[:add]
+      end
       message :cart_filled, :next_step => 'finalize order'
     end
+  end
+  
+  def update_product_with xpath
+    product = products.last
+    product['price_text'] = get_text xpath
+    prices = PRICES_IN_TEXT.(product['price_text'])
+    product['price_product'] = prices[0]
+    product['price_delivery'] = prices[1]
   end
   
   def build_product vendor

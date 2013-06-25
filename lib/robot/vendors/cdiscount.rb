@@ -153,7 +153,6 @@ class Cdiscount
       
       step('create account') do
         register(Cdiscount) do
-          fill REGISTER[:birthdate], with:Robot::BIRTHDATE_AS_STRING.(user.birthdate)
           click_on REGISTER[:cgu]
         end
       end
@@ -171,18 +170,13 @@ class Cdiscount
       end
       
       step('add to cart') do 
-        open_url next_product_url
-        click_on CART[:extra_offers], check:true
-        wait_for([CART[:add], CART[:offers]])
-        if exists? CART[:add]
-          click_on CART[:add]
-        else
+        best_offer = Proc.new {
           button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
-        end
-        wait_ajax 4
-        message :cart_filled, :next_step => 'finalize order'
+          wait_ajax 4
+        }
+        add_to_cart(Cdiscount, best_offer, skip_build_product:true)
       end
       
       step('build product') do
