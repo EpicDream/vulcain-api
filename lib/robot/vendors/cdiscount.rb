@@ -96,9 +96,44 @@ module CdiscountConstants
   
 end
 
+module CdiscountCrawler
+  class ProductCrawler
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_product
+      build_options
+    end
+    
+    def build_product
+      @product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
+      @product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).last
+      @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
+      @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      @product[:shipping_price] = nil
+      @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /disponible/i)
+    end
+    
+    def build_options
+      options = @page.xpath(@xpaths[:options]).map {|e| e.xpath(".//option").map(&:text) }
+      options.each {|option| @product[:options].merge!({option[0] => option[1..-1]})}
+    end
+    
+  end
+end
+
 class Cdiscount
   include CdiscountConstants
-  
+  include CdiscountCrawler
   attr_accessor :context, :robot
   
   def initialize context
@@ -112,20 +147,9 @@ class Cdiscount
       step('crawl') do
         @driver.quit
         @driver = Driver.new(user_agent:Driver::MOBILE_USER_AGENT)
-        open_url @context['url']
-        @page = Nokogiri::HTML.parse @driver.page_source
-
-        product = {:options => {}}
-        product[:product_title] =  scraped_text CRAWLING[:title]
-        product[:product_price] = Robot::PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).last
-        product[:shipping_info] = scraped_text CRAWLING[:shipping_info]
-        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
-        product[:shipping_price] = nil
-        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /disponible/i)
-        options = @page.xpath(CRAWLING[:options]).map {|e| e.xpath(".//option").map(&:text) }
-        options.each {|option| product[:options].merge!({option[0] => option[1..-1]})}
-
-        terminate(product)
+        crawler = ProductCrawler.new(self, CRAWLING)
+        crawler.crawl @context['url']
+        terminate(crawler.product)
       end
       
       step('create account') do

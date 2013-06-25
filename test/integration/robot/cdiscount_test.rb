@@ -193,7 +193,7 @@ class CdiscountTest < ActiveSupport::TestCase
     @robot.context = @context
     @message.expects(:message).times(1)
 
-    product = {:options=>{}, :product_title=>"HARIBO Schtroumpfs XXL 60 pièces (x1)", :product_price=>9.99, :shipping_info=>"Chez vous entre le 01/01/0001 et le 01/01/0001", :product_image_url=>"http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg", :shipping_price=>nil, :available=>true}
+    product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
     robot.expects(:terminate).with(product)
 
     robot.run_step('crawl')
