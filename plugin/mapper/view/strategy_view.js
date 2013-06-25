@@ -1,6 +1,8 @@
 
+include("error_view.js");
 include("new_action_view.js");
 include("edit_action_view.js");
+include("edit_path_view.js");
 include("step_view.js");
 include("action_view.js");
 
@@ -12,26 +14,31 @@ var StrategyView = function(_strategy) {
 
   var _that = this;
   var _patternPage = $(".stepTemplatePage").detach().removeClass("stepTemplatePage").addClass("stepPage").page();
-  var _startPage = $("#startPage").page();
-  var _stepsList = _startPage.find("#stepsList").listview();
+  var _page = $("#startPage").page(),
+      _stepsList = _page.find("#stepsList").listview(),
+      _name =  _page.find("#strategy_name");
   var _noServerPopup = $("#noServerPopup").popup();
   var _currentHostSpan = $("#currentHostSpan");
   var _isCurrentHostMobile = $("#isCurrentHostMobile").checkboxradio();
   newActionView = new NewActionView();
   editActionView = new EditActionView();
+  var _errorView = new ErrorView(_strategy);
 
   function _init() {
     $('#saveBtn').click(_onSave.bind(_that));
     $('#importBtn').click(_onLoad.bind(_that));
     $('#newBtn').click(_onReset.bind(_that));
     $('#clearBtn').click(_onClear.bind(_that));
-    _currentHostSpan.text(glob.host);
+    $("#addProductUrl").click(_onAddProductUrl.bind(_that));
+    _currentHostSpan.val(glob.host);
+    _name.change(_onNameChanged.bind(_that));
     _isCurrentHostMobile.change(_onSwitchMobility.bind(_that));
     window.addEventListener("beforeunload", _onUnload.bind(_that));
   };
 
   this.reset = function() {
     $(".stepPage").remove();
+    _name.val("");
     _stepsList.find("li").remove();
     _stepsList.listview('refresh');
     newActionView.reset();
@@ -40,6 +47,7 @@ var StrategyView = function(_strategy) {
   
   this.render = function() {
     this.reset();
+    _name.val(_strategy.name);
     newActionView.render(_.flatten(_.values(_strategy.predefined)), _strategy.types, _strategy.typesArgs);
     editActionView.render(_strategy.types, _strategy.typesArgs);
     _isCurrentHostMobile.prop("checked", _strategy.mobility).checkboxradio( "refresh" );
@@ -51,9 +59,7 @@ var StrategyView = function(_strategy) {
       this.addStep(steps[i], previousStepId, nextStepId);
     }
 
-    var lastPageId = localStorage[_strategy.id+"_lastPage"];
-    if (lastPageId && lastPageId != "newActionPage" && lastPageId != "editActionPage")
-      $.mobile.changePage("#"+lastPageId);
+    _restoreCurrentState();
   };
 
   this.addStep = function(step, previousStepId, nextStepId) {
@@ -80,9 +86,11 @@ var StrategyView = function(_strategy) {
     }.bind(this));
   };
   function _onUnload(event) {
-    localStorage[_strategy.id+"_lastPage"] = $("div[data-role='page']:visible").attr("id");
-    _strategy.save();
-    wait(200);/*send ajax*/
+    _saveCurrentState();
+    if (_strategy.modified()) {
+      _strategy.save();
+      wait(200);/*send ajax*/
+    }
   };
   function _onTest(event) {
     var s = _strategyToTest();
@@ -101,14 +109,12 @@ var StrategyView = function(_strategy) {
     }).done(function(hash) {
       $.mobile.loading('hide');
       if (hash.msg)
-        console.log("Test result :", hash);
-      if (hash.action)
-        popupText.html("Erreur pour la ligne :<br>"+hash.action+" :<br>"+hash.msg);
-      else if (hash.msg)
-        popupText.html("Une erreur c'est produite :<br>"+hash.msg);
-      else
+        _errorView.load(hash);
+      else {
+        console.log(hash);
         popupText.text("Aucune erreur détecté :-)");
-      popupText.parent().popup("open");
+        popupText.parent().popup("open");
+      }
     }).fail(function() {
       $.mobile.loading('hide');
       popupText.text("Problème de connectivité...").parent().popup("open");
@@ -121,21 +127,21 @@ var StrategyView = function(_strategy) {
     return _currentStepPage()[0].view;
   };
   function _strategyToTest() {
-    var s = _strategy.toHash({noContext: true});
+    var s = _strategy.toHash({noContexts: true});
     var view = _currentStepView();
     // Delete next steps actions
     var idx = _strategy.steps.indexOf(view.model);
     if (idx == -1) { console.error(view.model, _strategy.steps); return s; }
     for (var i = idx+1, l = s.steps.length ; i < l ; i++)
       s.steps[i].actions.length = 0;
-    // Delete create_account if not on it.
-    if (idx != 0)
-      s.steps[0].actions.length = 0;
     // raise on empty actions
     var actions = s.steps[idx].actions;
-    for (var i = actions.length-1 ; i >= 0 ; i--)
-      if (! actions[i].code)
+    for (var i = actions.length-1 ; i >= 0 ; i--) {
+      if (actions[i].classified && ! actions[i].code)
         actions[i].code = 'raise "Action '+actions[i].desc+' not set"';
+      else if (! actions[i].classified)
+        actions.splice(i, 1);
+    }
     return s;
   };
   function _onSwitchMobility() {
@@ -151,9 +157,43 @@ var StrategyView = function(_strategy) {
     }
   };
   function _onClear(event) {
+    chrome.extension.sendMessage({'dest':'contentscript','action':'clearCookies'});
+    delete localStorage[_strategy.id+"_lastPage"];
     if (confirm("Êtes vous sûr de vouloir effacer le cache ?")) {
       _strategy.clearCache();
     }
+  };
+  function _onAddProductUrl(event) {
+    _strategy.addProductUrl(glob.href);
+  };
+
+  // Save current page id, and current step/action if necessary.
+  function _saveCurrentState() {
+    var lastPage = {id: $.mobile.activePage.attr("id")};
+    if (lastPage.id == "errorPage")
+      lastPage.id = _.last(glob.history).replace(/^#/,'');
+    else if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
+      lastPage.editActionViewState = editActionView.getState();
+    localStorage[_strategy.id+"_lastPage"] = JSON.stringify(lastPage);
+  };
+  // Load previous page, when plugin exit last time.
+  function _restoreCurrentState() {
+    var lastPage = JSON.parse(localStorage[_strategy.id+"_lastPage"] || "null");
+    if (! lastPage)
+      return;
+
+    if (lastPage.stepIdx) {
+      var step = _strategy.steps[lastPage.stepIdx];
+      glob.history.push('#'+step.id+'Page');
+    }
+
+    if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
+      editActionView.restoreState(lastPage.editActionViewState);
+    $.mobile.changePage("#"+lastPage.id, {dontRemeberCurrentPage: true});
+  };
+  //
+  function _onNameChanged() {
+    _strategy.setName(_name.val());
   };
 
 

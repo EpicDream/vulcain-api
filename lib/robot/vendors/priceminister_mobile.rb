@@ -180,7 +180,7 @@ class Plugin::IRobot < Robot
               run_step('unlog')
             rescue NoSuchElementError
               terminate_on_error :account_creation_failed
-              next
+              next # Quit block
             end
           end
           pl_open_url @shop_base_url
