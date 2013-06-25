@@ -1,87 +1,92 @@
 # encoding: UTF-8
-class Fnac
-  USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
-  URL = 'http://www.fnac.com/'
-  PRICES_IN_TEXT = lambda do |text| 
-    text.scan(/(\d+(?:,\d+)?\s*€)/).flatten.map { |price| price.gsub(',', '.').to_f }
-  end
-  WEB_PRICES_IN_TEXT = lambda do |text|
-    text.scan(/(\d+[,\.\d]*).?€/).flatten.map { |price| price.gsub(',', '.').to_f }
-  end
+module FnacConstants
+  URLS = {
+    base:'http://www.fnac.com/',
+    home:'http://www.fnac.com/',
+    login:'https://secure.fnac.com/Mobile/LogonPage.aspx?pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fMobile%2fDefaultAccount.aspx&PageAuth=X&LogonType=WebMobile',
+    register: 'https://secure.fnac.com/Mobile/LogonPage.aspx?pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fMobile%2fDefaultAccount.aspx&PageAuth=X&LogonType=WebMobile',
+    payments:'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx',
+    cart:'https://secure.fnac.com/mobile/OrderPipe/Default.aspx?pipe=webmobile&APP=webmobile',
+  }
   
-  HEAD_MENU_BUTTON = '//*[@id="header"]/nav/a[2]/span/span'
-  HEAD_FNAC_LINK = '//*[@id="header"]/nav/a'
+  REGISTER = {
+    mister:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[3]/label/span/span[2]',
+    madam:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[2]/label/span/span[2]',
+    miss:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[1]/label/span/span[2]',
+    last_name:'//*[@id="RegistrationMemberId_registrationContainer_lastName_txtLastname"]',
+    first_name:'//*[@id="RegistrationMemberId_registrationContainer_firstName_txtFirstName"]',
+    birthdate_day:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlDay"]',
+    birthdate_month:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlMonth"]',
+    birthdate_year:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlYear"]',
+    mobile_phone: '//*[@id="RegistrationMemberId_registrationContainer_cellPhone_txtCellPhone"]',
+    email:'//*[@id="RegistrationControl_txtEmail"]',
+    password:'//*[@id="RegistrationControl_txtPassword1"]',
+    password_confirmation:'//*[@id="RegistrationControl_txtPassword2"]',
+    submit_login: '//*[@id="RegistrationControl_lnkBtnValidate"]',
+    submit: '//*[@id="RegistrationMemberId_submitButton"]'
+  }
   
-  LOGIN_URL = 'https://secure.fnac.com/Mobile/LogonPage.aspx?pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fMobile%2fDefaultAccount.aspx&PageAuth=X&LogonType=WebMobile'
-  LOGIN_EMAIL = '//*[@id="logonControl_txtEmail"]'
-  LOGIN_PASSWORD = '//*[@id="logonControl_txtPassword"]'
-  LOGIN_SUBMIT = '//*[@id="logonControl_btnPoursuivre"]'
-  PAYMENTS_PAGE_URL = 'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx'
+  LOGIN = {
+    email:'//*[@id="logonControl_txtEmail"] | //*[@id="OPControl1_ctl00_LoginControl1_txtEmail"]',
+    password:'//*[@id="logonControl_txtPassword"] | //*[@id="OPControl1_ctl00_LoginControl1_txtPassword"]',
+    submit: '//*[@id="logonControl_btnPoursuivre"] | //*[@id="OPControl1_ctl00_LoginControl1_btnPoursuivre"]'
+  }
   
-  REGISTER_EMAIL = '//*[@id="RegistrationControl_txtEmail"]'
-  REGISTER_PASSWORD = '//*[@id="RegistrationControl_txtPassword1"]'
-  REGISTER_PASSWORD_CONFIRMATION = '//*[@id="RegistrationControl_txtPassword2"]'
-  REGISTER_SUBMIT = '//*[@id="RegistrationControl_lnkBtnValidate"]'
-  REGISTER_CIVILITY_M = '//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[3]/label/span/span[2]'
-  REGISTER_CIVILITY_MME = '//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[2]/label/span/span[2]'
-  REGISTER_CIVILITY_MLLE = '//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[1]/label/span/span[2]'
-  REGISTER_FIRST_NAME = '//*[@id="RegistrationMemberId_registrationContainer_firstName_txtFirstName"]'
-  REGISTER_LAST_NAME =  '//*[@id="RegistrationMemberId_registrationContainer_lastName_txtLastname"]'
-  REGISTER_BIRTHDATE_DAY = '//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlDay"]'
-  REGISTER_BIRTHDATE_MONTH = '//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlMonth"]'
-  REGISTER_BIRTHDATE_YEAR = '//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlYear"]'
-  REGISTER_MOBILE_PHONE = '//*[@id="RegistrationMemberId_registrationContainer_cellPhone_txtCellPhone"]'
-  REGISTER_ADDRESS_SUBMIT = '//*[@id="RegistrationMemberId_submitButton"]'
+  SHIPMENT = {
+    first_name:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtFirstName"]',
+    last_name:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtLastName"]',
+    add_address:'//*[@id="OPControl1_ctl00_AddressManager_AddressBook_btnNewAddress"]/div/div[1]',
+    address_1: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine1"]',
+    address_2: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine2"]',
+    city: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCity"]',
+    zip: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtZipCode"]',
+    mobile_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]',
+    land_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]',
+    select_this_address: '//*[@id="form1"]/div[3]/div[1]/div/div',
+    submit: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_btnUpdate"]',
+    submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+  }
   
-  MPOFFER = '//span[@class="mpoffer"]/a'
-  MPOFFER_FIRST_OFFER = '//*[@id="offers_list"]/ul/li[1]'
-  MPOFFER_FIRST_OFFER_ADD_TO_CART = '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a'
-  MPOFFER_FIRST_OFFER_PRICE_TEXT = '//*[@id="offers_list"]/ul/li[1]//div[@class="offer-pricer"]'
-  ADD_TO_CART = '//div[@class="addbasket"]'
-  PRICE_TEXT = '//div[@class="buybox"]/fieldset'
-  PRODUCT_TITLE = '//*[@id="content"]/div/section[1]/div[1]'
-  PRODUCT_IMAGE = '//*[@id="content"]/div/section[2]/div[1]/a/img'
+  CART = {
+    add:'//div[@class="addbasket"]',
+    offers: '//span[@class="mpoffer"]/a',
+    offer: '//*[@id="offers_list"]/ul/li[1]',
+    add_offer: '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a',
+    quantity: '//div[@class="quantite"]/input',
+    recompute: '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]',
+    cgu:'//div[@class="ui-checkbox"]',
+    submit: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    submit_success: [LOGIN[:submit]],
+  }
   
-  CART_URL = 'https://secure.fnac.com/mobile/OrderPipe/Default.aspx?pipe=webmobile&APP=webmobile'
-  QUANTITY_INPUT = '//div[@class="quantite"]/input'
-  RECOMPUTE_BUTTON = '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]'
-  PRODUCT_PRICE_ON_SUBMIT = '//div[@class="prix"]'
-  PRODUCT_SHIPPING_ON_SUBMIT = '//div[@class="livraison"]'
-  TOTAL_PRICE_ON_SUBMIT = '//span[@class="valeur_total_commande"]'
-  CGU_CHECKBOX = '//div[@class="ui-checkbox"]'
-  CONTINUE_ORDER_SUBMIT = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
-  ORDER_LOGIN_PASSWORD = '//*[@id="OPControl1_ctl00_LoginControl1_txtPassword"]'
-  ORDER_LOGIN_SUBMIT = '//*[@id="OPControl1_ctl00_LoginControl1_btnPoursuivre"]'
-  ADD_ADDRESS = '//*[@id="OPControl1_ctl00_AddressManager_AddressBook_btnNewAddress"]/div/div[1]'
-  SELECT_THIS_ADDRESS = '//*[@id="form1"]/div[3]/div[1]/div/div'
+  PRODUCT = {
+    price_text:'//div[@class="buybox"]/fieldset',
+    title:'//*[@id="content"]/div/section[1]/div[1]',
+    image:'//*[@id="content"]/div/section[2]/div[1]/a/img',
+    offer_price_text:'//*[@id="offers_list"]/ul/li[1]//div[@class="offer-pricer"]'
+  }
   
-  SHIPMENT_FORM_FIRST_NAME = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtFirstName"]'
-  SHIPMENT_FORM_LAST_NAME = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtLastName"]'
-  SHIPMENT_FORM_ADDRESS_1 = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine1"]'
-  SHIPMENT_FORM_ADDRESS_2 = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine2"]'
-  SHIPMENT_FORM_CITY = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCity"]'
-  SHIPMENT_FORM_ZIPCODE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtZipCode"]'
-  SHIPMENT_FORM_MOBILE_PHONE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]'
-  SHIPMENT_FORM_LAND_PHONE = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]'
-  SHIPMENT_FORM_SUBMIT = '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_btnUpdate"]'
+  BILL = {
+    shipping:'//*[@id="home"]/div/div[3]/div[1]/span[2]',
+    total:'//*[@id="home"]/div/div[3]/div[1]/span[6]',
+  }
   
-  ORDER_CONTINUE = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
-  
-  BANK_CARD_TAB = '//*[@id="magicalGNIIIII"]/div[1]/a[1]'
-  VISA_CHECKBOX = '//*[@id="divNewCard"]/div[2]/div[1]/label/span'
-  CUG_CHECKBOX = '//*[@id="divNewCard"]/div[3]/div'
-  VALIDATE_ORDER_BUTTON = '//*[@id="OPControl1_ctl00_BtnContinueCommand"]'
-  
-  CREDIT_CARD_NUMBER = '//*[@id="Ecom_Payment_Card_Number"]'
-  CREDIT_CARD_EXP_MONTH = '//*[@id="Ecom_Payment_Card_ExpDate_Month"]'
-  CREDIT_CARD_EXP_YEAR = '//*[@id="Ecom_Payment_Card_ExpDate_Year"]'
-  CREDIT_CARD_CVV = '//*[@id="Ecom_Payment_Card_Verification"]'
-  CREDIT_CARD_SUBMIT = '//*[@id="submit3"]'
-  CREDIT_CARD_CANCEL = '//*[@id="ncol_cancel"]'
-  CREDIT_CARD_REMOVE = '//*[@id="AccountPaymentBook"]/section/ul/li/div/a'
-  PAYMENTS_MODES = '//*[@id="AccountPaymentBook"]'
-  
-  THANK_YOU_HEADER = '//*[@id="thank-you"]'
+  PAYMENT = {
+    remove: '//*[@id="AccountPaymentBook"]/section/ul/li/div/a',
+    credit_card:'//*[@id="magicalGNIIIII"]/div[1]/a[1]',
+    visa:'//*[@id="divNewCard"]/div[2]/div[1]/label/span',
+    cgu:'//*[@id="divNewCard"]/div[3]/div',
+    access:'//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    cancel:'//*[@id="ncol_cancel"]',
+    
+    number:'//*[@id="Ecom_Payment_Card_Number"]',
+    exp_month:'//*[@id="Ecom_Payment_Card_ExpDate_Month"]',
+    exp_year:'//*[@id="Ecom_Payment_Card_ExpDate_Year"]',
+    cvv:'//*[@id="Ecom_Payment_Card_Verification"]',
+    submit:  '//*[@id="submit3"]',
+    status: '//*[@id="thank-you"]',
+    succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
+  }
   
   CRAWLING = {
     title:'//*[@id="content"]//div/h1', 
@@ -91,23 +96,20 @@ class Fnac
     available:'//div[@class="availability"]'
   }
   
+end
+
+class Fnac
+  include FnacConstants
+  
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context.merge!({options:{user_agent:USER_AGENT}})
+    @context = context.merge!({options:{user_agent:Driver::MOBILE_USER_AGENT}})
     @robot = instanciate_robot
   end
   
   def instanciate_robot
     Robot.new(@context) do
-
-      step('run') do
-        if account.new_account
-          message :expect, :steps => 8, :next_step => 'create account'
-        else
-          message :expect, :steps => 7, :next_step => 'renew login'
-        end
-      end
       
       step('crawl') do
         open_url @context['url']
@@ -125,233 +127,82 @@ class Fnac
         terminate(product)
       end
       
-      step('renew login') do
-        run_step('logout')
-        open_url order.products_urls[0]
-        run_step('login')
-      end
-      
       step('create account') do
-        open_url LOGIN_URL
-        mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-        
-        fill REGISTER_EMAIL, with:account.login
-        fill REGISTER_PASSWORD, with:account.password
-        fill REGISTER_PASSWORD_CONFIRMATION, with:account.password
-        click_on REGISTER_SUBMIT
-        click_on_radio user.gender, {0 => REGISTER_CIVILITY_M, 1 =>  REGISTER_CIVILITY_MME, 2 =>  REGISTER_CIVILITY_MLLE}
-        fill REGISTER_FIRST_NAME, with:user.address.first_name
-        fill REGISTER_LAST_NAME, with:user.address.last_name
-        fill REGISTER_FIRST_NAME, with:user.address.first_name
-        select_option REGISTER_BIRTHDATE_DAY, user.birthdate.day.to_s.rjust(2, "0")
-        select_option REGISTER_BIRTHDATE_MONTH, user.birthdate.month.to_s.rjust(2, "0")
-        select_option REGISTER_BIRTHDATE_YEAR, user.birthdate.year.to_s.rjust(2, "0")
-        fill REGISTER_MOBILE_PHONE, with:mobile_phone
-        click_on REGISTER_ADDRESS_SUBMIT
-        
-        wait_for [HEAD_MENU_BUTTON, REGISTER_ADDRESS_SUBMIT]
-        
-        if exists? REGISTER_ADDRESS_SUBMIT
-          terminate_on_error(:account_creation_failed)
-        else
-          message :account_created, :next_step => 'renew login'
-        end
+        register(Fnac)
       end
       
       step('login') do
-        open_url LOGIN_URL
-        
-        fill LOGIN_EMAIL, with:account.login
-        fill LOGIN_PASSWORD, with:account.password
-        click_on LOGIN_SUBMIT
-        wait_for [HEAD_MENU_BUTTON, LOGIN_SUBMIT]
-        
-        if exists? LOGIN_SUBMIT
-          terminate_on_error :login_failed
-        else
-          message :logged, :next_step => 'empty cart'
-        end
-        
+        login(Fnac)
       end
       
       step('logout') do
+        #Like Hotel California. Can enter but never leave.
       end
       
       step('remove credit card') do
-        open_url PAYMENTS_PAGE_URL
-        fill LOGIN_EMAIL, with:account.login
-        fill LOGIN_PASSWORD, with:account.password
-        click_on LOGIN_SUBMIT
-        wait_for [PAYMENTS_MODES]
-        click_on_if_exists CREDIT_CARD_REMOVE
-      end
-      
-      step('build product') do
-        product = Hash.new
-        product['price_text'] = get_text PRICE_TEXT
-        product['product_title'] = get_text PRODUCT_TITLE
-        product['product_image_url'] = image_url(PRODUCT_IMAGE)
-        prices = PRICES_IN_TEXT.(product['price_text'])
-        product['price_product'] = prices[0]
-        product['price_delivery'] = prices[1]
-        product['url'] = current_product_url
-        products << product
-      end
-      
-      step('update product') do
-        product = products.last
-        product['price_text'] = get_text MPOFFER_FIRST_OFFER_PRICE_TEXT
-        prices = PRICES_IN_TEXT.(product['price_text'])
-        product['price_product'] = prices[0]
-        product['price_delivery'] = prices[1]
-      end
-      
-      step('empty cart') do |args|
-        run_step('remove credit card')
-        open_url CART_URL
-        wait_for [HEAD_FNAC_LINK]
-        wait_ajax
-        if exists? QUANTITY_INPUT
-          fill_all QUANTITY_INPUT, with:"0"
-          click_on RECOMPUTE_BUTTON
-        end
-        wait_for([HEAD_FNAC_LINK])
-        products = []
-        if exists? QUANTITY_INPUT
-          terminate_on_error(:cart_not_emptied) 
-        else
-          message :cart_emptied, :next_step => (args && args[:next_step]) || 'add to cart'
-        end
-      end
-      
-      step('add to cart product new and lowest price') do
-        click_on MPOFFER
-        if click_on_link_with_attribute("@title", "Neuf")
-          click_on MPOFFER_FIRST_OFFER
-          run_step('update product')
-          click_on MPOFFER_FIRST_OFFER_ADD_TO_CART
-        else
-          terminate_on_error(:out_of_stock)
-        end
+        remove_credit_card(Fnac)
       end
       
       step('add to cart') do
-        if url = next_product_url
-          open_url url
-          wait_ajax
-          
-          found = wait_for [ADD_TO_CART] do
-            message :no_product_available
-            terminate_on_error(:no_product_available) 
+        best_offer = Proc.new {
+          click_on CART[:offers]
+          if click_on_link_with_attribute("@title", "Neuf")
+            click_on CART[:offer]
+            update_product_with PRODUCT[:offer_price_text]
+            click_on CART[:add_offer]
+          else
+            terminate_on_error(:out_of_stock)
           end
-          
-          if found
-            run_step('build product')
-            if exists? MPOFFER
-              run_step('add to cart product new and lowest price')
-            else
-              click_on ADD_TO_CART
-            end
-            run_step 'add to cart'
-          end
-          
-        else
-          wait_ajax(3)
-          message :cart_filled, :next_step => 'finalize order'
-        end
+        }
+        add_to_cart(Fnac, best_offer)
       end
       
-      step('build final billing') do
-        product, shipping, total = [PRODUCT_PRICE_ON_SUBMIT, PRODUCT_SHIPPING_ON_SUBMIT, TOTAL_PRICE_ON_SUBMIT].map do |xpath|
-          PRICES_IN_TEXT.(get_text xpath).first
-        end  
-        self.billing = { product:product, shipping:shipping, total:total}
+      step('build product') do
+        build_product(Fnac)
       end
       
-      step('submit address') do
-        wait_for([ADD_ADDRESS, SELECT_THIS_ADDRESS])
-        unless exists? SELECT_THIS_ADDRESS
-          click_on ADD_ADDRESS
-          wait_for([SHIPMENT_FORM_FIRST_NAME])
-          fill SHIPMENT_FORM_FIRST_NAME, with:"#{user.address.first_name}"
-          fill SHIPMENT_FORM_LAST_NAME, with:"#{user.address.last_name}"
-          fill SHIPMENT_FORM_ADDRESS_1, with:user.address.address_1
-          fill SHIPMENT_FORM_ADDRESS_2, with:user.address.address_2
-          fill SHIPMENT_FORM_CITY, with:user.address.city
-          fill SHIPMENT_FORM_ZIPCODE, with:user.address.zip
-          fill SHIPMENT_FORM_LAND_PHONE, with:user.address.land_phone
-          fill SHIPMENT_FORM_MOBILE_PHONE, with:user.address.mobile_phone
-          click_on SHIPMENT_FORM_SUBMIT
-        else
-          click_on SELECT_THIS_ADDRESS
-        end
+      step('empty cart') do |args|
+        remove = Proc.new {
+          if exists? CART[:quantity]
+            fill_all CART[:quantity], with:"0"
+            click_on CART[:recompute]
+          end
+        }
+        check = Proc.new { !(exists? CART[:quantity])}
+        next_step = args && args[:next_step]
+        empty_cart(Fnac, remove, check, next_step)
+      end
+
+      step('fill shipping form') do
+        fill_shipping_form(Fnac)
       end
       
       step('finalize order') do
-        open_url CART_URL
-        run_step('build final billing')
-        click_on CGU_CHECKBOX
-        click_on CONTINUE_ORDER_SUBMIT
-        fill ORDER_LOGIN_PASSWORD, with:account.password
-        click_on ORDER_LOGIN_SUBMIT
-        run_step('submit address')
-        click_on ORDER_CONTINUE
-        click_on BANK_CARD_TAB
-        click_on VISA_CHECKBOX
-        click_on CUG_CHECKBOX
-        click_on VALIDATE_ORDER_BUTTON
-        assess
+        fill_shipping_form = Proc.new {
+          !click_on(SHIPMENT[:select_this_address], check:true)
+        }
+        access_payment = Proc.new {
+          click_on PAYMENT[:credit_card]
+          click_on PAYMENT[:visa]
+          click_on PAYMENT[:cgu]
+          click_on PAYMENT[:access]
+        }
+        finalize_order(Fnac, fill_shipping_form, access_payment)
       end
-      
-      step('payment') do
-        answer = answers.last
-        action = questions[answers.last.question_id]
-        
-        if eval(action)
-          message :validate_order, :next_step => 'validate order'
-        else
-          message :cancel_order, :next_step => 'cancel order'
-        end
-      end
-      
-      step('cancel') do
-        terminate_on_cancel
+     
+      step('build final billing') do
+        build_final_billing(Fnac)
       end
       
       step('cancel order') do
-        click_on CREDIT_CARD_CANCEL
+        click_on PAYMENT[:cancel]
         accept_alert
-        open_url URL
+        open_url URLS[:home]
         run_step('empty cart', next_step:'cancel')
       end
       
       step('validate order') do
-        fill CREDIT_CARD_NUMBER, with:order.credentials.number
-        select_option CREDIT_CARD_EXP_MONTH, order.credentials.exp_month.to_s.rjust(2, "0")
-        select_option CREDIT_CARD_EXP_YEAR, order.credentials.exp_year.to_s
-        fill CREDIT_CARD_CVV, with:order.credentials.cvv
-        click_on CREDIT_CARD_SUBMIT
-        
-        page = wait_for([THANK_YOU_HEADER]) do
-          accept_alert
-          screenshot
-          page_source
-          terminate_on_error(:order_validation_failed)
-        end
-        
-        if page
-          screenshot
-          page_source
-          thanks = get_text THANK_YOU_HEADER
-          if thanks =~ /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i
-            run_step('remove credit card')
-            terminate({ billing:self.billing})
-          else
-            run_step('remove credit card')
-            terminate_on_error(:order_validation_failed)
-          end
-        end
-        
+        validate_order(Fnac, zero_fill:true)
       end
       
     end

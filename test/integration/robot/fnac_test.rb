@@ -13,9 +13,9 @@ class FnacTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre14@yopmail.com', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre17@yopmail.com', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => [PRODUCT_1_URL, PRODUCT_2_URL],
+                'order' => {'products_urls' => [PRODUCT_1_URL],
                             'credentials' => {
                               'holder' => 'MARIE ROSE', 
                               'number' => '101290129019201', 
@@ -44,7 +44,7 @@ class FnacTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      @robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -75,9 +75,15 @@ class FnacTest < ActiveSupport::TestCase
   end
   
   test "add to cart - build products" do
-    expected_products = [{"price_text"=>"15,26 €\nEN STOCK\n+ Frais de port\n0 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>15.26, "price_delivery"=>0.0, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}, {"price_text"=>"35,90 €\nEN STOCK\nLivraison gratuite à partir de 25 €", "product_title"=>"", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", "price_product"=>35.9, "price_delivery"=>25.0, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"}]
+    expected_products = [{
+      "price_text"=>"15,34 €\nEN STOCK\n+ Frais de port\n0 €",
+      "product_title"=>"DELTA MACHINE - EDITION DELUXE",
+      "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg",
+      "price_product"=>15.34,
+      "price_delivery"=>0.0,
+      "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
     
-    @message.expects(:message).times(13)
+    @message.expects(:message).times(6)
     @message.expects(:message).with(:message, {:message=>:cart_filled})
     
     robot.run_step('login')
@@ -88,7 +94,7 @@ class FnacTest < ActiveSupport::TestCase
   end
   
   test "empty cart" do
-    @message.expects(:message).times(13)
+    @message.expects(:message).times(10)
     @message.expects(:message).with(:message, {message: :cart_emptied})
 
     robot.run_step('login')
@@ -101,14 +107,14 @@ class FnacTest < ActiveSupport::TestCase
     robot.run_step('login')
     robot.run_step('remove credit card')
     
-    assert !robot.exists?(Fnac::CREDIT_CARD_REMOVE)
+    assert !robot.exists?(Fnac::PAYMENT[:remove])
   end
   
   test "complete order process" do
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-    @message.expects(:message).times(18)
+    @message.expects(:message).times(14)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -124,6 +130,19 @@ class FnacTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
+    # robot.run_step('validate order')
+  end
+  
+  test "cancel order on payment" do
+    @context["order"]["products_urls"] = [PRODUCT_4_URL]
+    robot.context = @context
+    
+    @message.expects(:message).times(19)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
+    robot.run_step('cancel order')
   end
   
   test "ensure take the lowest price using new and used link" do

@@ -46,6 +46,7 @@ module CdiscountConstants
     address_submit: '//*[@id="LoginButton"]',
   }
   
+
   CART = {
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
