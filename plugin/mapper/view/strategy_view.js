@@ -173,7 +173,9 @@ var StrategyView = function(_strategy) {
   // Save current page id, and current step/action if necessary.
   function _saveCurrentState() {
     var lastPage = {id: $.mobile.activePage.attr("id")};
-    if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
+    if (lastPage.id == "errorPage")
+      lastPage.id = _.last(glob.history).replace(/^#/,'');
+    else if (lastPage.id == "editActionPage" || lastPage.id == "editPathPage")
       lastPage.editActionViewState = editActionView.getState();
     localStorage[_strategy.id+"_lastPage"] = JSON.stringify(lastPage);
   };
