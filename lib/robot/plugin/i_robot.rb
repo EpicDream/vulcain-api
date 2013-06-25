@@ -24,7 +24,7 @@ class Plugin::IRobot < Robot
       @step = args[:step]
       @code = args[:code]
       @action_name = args[:action_name]
-      @args = args[:args]
+      @args = args[:args] || {}
       @source = @screenshot = nil
       @stepstrace = []
     end
@@ -124,6 +124,7 @@ class Plugin::IRobot < Robot
   attr_accessor :pl_driver, :shop_base_url
 
   def initialize(context, &block)
+    block = proc {} unless block_given?
     super(context, &block)
     @pl_driver = @driver.driver
     @pl_current_product = {}
@@ -215,7 +216,6 @@ class Plugin::IRobot < Robot
             run_step('login')
             @messager.message :logged
           end
-
 
           throw :pass if ! @steps['empty_cart']
           run_step('empty_cart')

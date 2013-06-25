@@ -58,6 +58,7 @@ class #{vendor.camelize}
     @robot = instanciate_robot
   end
 
+  private
   def instanciate_robot
     r = Plugin::IRobot.new(@context) do
 INIT
@@ -69,9 +70,9 @@ INIT
         f.puts "\t\t\tend"
       end
       f.puts "\t\tend"
+      f.puts "\t\tr.shop_base_url = #{"http://#{host.gsub(/_mobile/,"")}".inspect}"
+      f.puts "\t\treturn r"
       f.puts "\tend"
-      f.puts "\tr.shop_base_url = #{"http://#{host.gsub(/_mobile/,"")}".inspect}"
-      f.puts "\treturn r"
       f.puts "end"
     end
   end
@@ -79,22 +80,42 @@ INIT
   def self.make_test_file(host)
     strategy = getStrategyHash(host)
     vendor = strategy[:name]
+    FileUtils.mkdir_p("test/unit/robot/plugin/vendors/")
     File.open("test/unit/robot/plugin/vendors/"+vendor.underscore+"_test.rb", "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8
 
+require 'test_helper'
 require "robot/vendors/#{vendor.underscore}.rb"
 
-class Plugin::#{vendor.camelize}Test < ActiveSupport::TestCase
+class #{vendor.camelize}Test < ActiveSupport::TestCase
   setup do
-    @message = stub(message: true)
-    @messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
+    @context = #{CONTEXT.inspect}
+    @products_url = #{strategy[:productsUrl].inspect}
   end
 
-  def test(create_account=false)
-    strategy = Plugin::RobotFactory.getStrategyHash(#{host})
-    res = Plugin::RobotFactory.test_strategy(strategy)
-    assert_nil res[:msg], "Found error for strategy #{vendore.camelize} !\n#{res.inspect}"
+  test 'it should raise nothing on normal test' do
+    @context['order']['products_urls'] = @products_url.shuffle
+    robot = #{vendor.camelize}.new(@context).robot
+    assert_nothing_raised "#{$!}" do
+      robot.pl_fake_run
+    end
+  end
+
+  test 'it should raise nothing on account creation test' do
+    skip("Comment this line to manually test account creation")
+    @context['order']['products_urls'] = @products_url.sample
+    @context['account']['new_account'] = true
+    robot = #{vendor.camelize}.new(@context).robot
+    robot.messager = Plugin::IRobot::FakeMessager.new
+
+    assert robot.questions.empty?
+    assert ! robot.next_step?
+    assert_nothing_raised "#{$!}" do
+      robot.run
+    end
+    assert ! robot.questions.empty?
+    assert robot.next_step?
   end
 end
 INIT
@@ -117,7 +138,7 @@ INIT
 
     CONTEXT['order']['products_urls'] = strategy[:productsUrl].sample(2)
 
-    robot = Plugin::IRobot.new(CONTEXT) {}
+    robot = Plugin::IRobot.new(CONTEXT)
     robot.pl_add_strategy(strategy)
     robot.pl_fake_run
     return {products: robot.products, biling: robot.billing, logs: robot.messager.logs}
