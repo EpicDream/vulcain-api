@@ -139,6 +139,7 @@ class Robot
   end
  
   def get_text xpath
+    return unless xpath
     @driver.find_element(xpath).text
   end
   
@@ -571,7 +572,7 @@ class Robot
   end
   
   def build_final_billing vendor
-    price, shipping, total = [:price, :shipping, :total].map {|key| PRICES_IN_TEXT.(get_text vendor::BILL[key])}
+    price, shipping, total = [:price, :shipping, :total].map {|key| PRICES_IN_TEXT.(get_text vendor::BILL[key]).first}
     info = get_text(vendor::BILL[:info])
     self.billing = { product:price, shipping:shipping, total:total, shipping_info:info}
   end

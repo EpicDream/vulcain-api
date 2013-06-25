@@ -120,13 +120,13 @@ class CdiscountTest < ActiveSupport::TestCase
   end
   
   test "add to cart and finalize order" do
-    @message.expects(:message).times(13)
+    @message.expects(:message).times(13..16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
 
-    products = [{"price_text"=>"21,35 €\nsoit 17,85 € HT", "product_title"=>"HARIBO Happy Box Haribo 600g (x5)", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg", "price_product"=>21.35, "url"=>"http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html"}]
-    billing = {:product=>21.35, :shipping=>6.99, :total=>28.34}
+    products = [{'price_text' => "21,35 €\nsoit 17,85 € HT", 'product_title' => 'HARIBO Happy Box Haribo 600g (x5)', 'product_image_url' => 'http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg', 'price_product' => 21.35, 'price_delivery' => 17.85, 'url' => 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'}]
+    billing = {:product => 21.35, :shipping => 6.99, :total => 28.34, :shipping_info => nil}
     questions = [{:text => nil, :id => '1', :options => nil}]
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     

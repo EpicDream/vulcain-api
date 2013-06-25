@@ -66,7 +66,9 @@ module CdiscountConstants
   }
   
   BILL = {
-    text:'//*[@id="orderInfos"]'
+    price:'//*[@id="orderInfos"]/div[2]/div[2]',
+    shipping:'//*[@id="orderInfos"]/div[2]/div[5]',
+    total:'//*[@id="orderInfos"]/div[2]/div[8]'
   }
   
   PAYMENT = {
@@ -190,8 +192,7 @@ class Cdiscount
       end
       
       step('build final billing') do
-        prices = Robot::PRICES_IN_TEXT.(get_text BILL[:text])
-        self.billing = { product:prices[0], shipping:prices[1], total:prices[2] }
+        build_final_billing(Cdiscount)
       end
       
       step('validate order') do

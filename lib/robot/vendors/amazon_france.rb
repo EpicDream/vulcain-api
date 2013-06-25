@@ -68,7 +68,6 @@ module AmazonFranceConstants
     title:'//*[@id="universal-product-title-features"]',
     image:'//*[@id="previous-image"]'
   }
-
   
   BILL = {
     price:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[1]/td[2]',
