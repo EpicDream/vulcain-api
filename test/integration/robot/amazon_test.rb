@@ -43,7 +43,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -136,17 +136,19 @@ class AmazonTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-    @message.expects(:message).times(13..18)
+    robot.expects(:submit_credit_card).returns(false)
+    robot.expects(:build_final_billing)
+    @message.expects(:message).times(14)
+    
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
-    steps = robot.instance_variable_get(:@steps)
-    steps['submit credit card'] = Proc.new {}
-     
     robot.run_step('finalize order')
   end
    
   test "shipment fill with ask address confirmation" do
+    robot.expects(:submit_credit_card).returns(false)
+    robot.expects(:build_final_billing)
     @message.expects(:message).times(15..20)
 
     @context['user']['address']['zip'] = "75002"
@@ -155,9 +157,6 @@ class AmazonTest < ActiveSupport::TestCase
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
-    steps = robot.instance_variable_get(:@steps)
-    steps['submit order'] = Proc.new {}
-
     robot.run_step('finalize order')
   end
   

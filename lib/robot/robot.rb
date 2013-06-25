@@ -163,7 +163,7 @@ class Robot
         return if opts[:check] && !exists?(xpath)
         @driver.click_on @driver.find_element(xpath)
         wait_ajax if opts[:ajax]
-    
+        true
       rescue => e
         if (@attempts += 1) <= 2
           sleep(0.5) and retry #wait visible

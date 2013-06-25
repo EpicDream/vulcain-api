@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 module CdiscountConstants
   URLS = {
     base:'http://www.cdiscount.com/',
