@@ -12,3 +12,5 @@ vulcain.sublime-project
 vulcain.sublime-workspace
 mapper.sublime-project
 mapper.sublime-workspace
+db/plugin/*
+lib/robot/plugin/vendors/*
