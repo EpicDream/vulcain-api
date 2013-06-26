@@ -178,8 +178,6 @@ class AmazonFrance
       step('create account') do
         open_url URLS[:base]
         open_url URLS[:account]
-        click_on REGISTER[:new_account]
-        
         register(AmazonFrance)
       end
       

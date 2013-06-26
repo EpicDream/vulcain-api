@@ -16,7 +16,7 @@ class Robot
     end
   end
 
-  attr_accessor :context, :driver, :messager
+  attr_accessor :context, :driver, :messager, :vendor
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
   
   def initialize context, &block
@@ -196,6 +196,7 @@ class Robot
   end
   
   def click_on_link_with_text text, opt={}
+    return unless text
     element = @driver.find_links_with_text(text, nowait:true).first
     return if opt[:check] && !element
     @driver.click_on element
@@ -234,7 +235,8 @@ class Robot
   end
 
   def click_on_button_with_name name
-    button = @driver.find_input_with_value(name)
+    button = @driver.find_links_with_text(name, nowait:true).first
+    button ||= @driver.find_input_with_value(name)
     @driver.click_on button
   end
   
@@ -342,7 +344,7 @@ class Robot
   end
   
   def wait_for xpaths, &rescue_block
-    xpath = xpaths.join("|")
+    xpath = xpaths.compact.join("|")
     @driver.find_element(xpath)
   rescue => e
     if block_given?
@@ -388,7 +390,8 @@ class Robot
     end
     
     step('cancel order') do
-      open_url URLS[:base]
+      click_on vendor::PAYMENT[:cancel], check:true
+      open_url vendor::URLS[:base]
       run_step('empty cart', next_step:'cancel')
     end
     
@@ -409,7 +412,8 @@ class Robot
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     
-    open_url vendor::URLS[:register] if vendor::URLS[:register]
+    open_url(vendor::URLS[:register]) || click_on(REGISTER[:new_account])
+    
     wait_for(['//body'])
     
     fill vendor::REGISTER[:email], with:account.login, check:true
@@ -440,7 +444,6 @@ class Robot
     fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
     fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
     fill vendor::REGISTER[:land_phone], with:land_phone, check:true
-    
     
     yield if block_given?
     click_on vendor::REGISTER[:submit]
@@ -482,7 +485,8 @@ class Robot
   
   def logout vendor
     open_url vendor::URLS[:home]
-    click_on_if_exists vendor::LOGIN[:logout]
+    open_url vendor::URLS[:logout]
+    click_on vendor::LOGIN[:logout], check:true
   end
   
   def remove_credit_card vendor
@@ -496,10 +500,11 @@ class Robot
     open_url vendor::URLS[:base]
   end
   
-  def add_to_cart vendor, best_offer=nil, opts={}
+  def add_to_cart vendor, best_offer=nil, before_wait=nil, opts={}
     open_url next_product_url
+    before_wait.call if before_wait
     click_on vendor::CART[:extra_offers], check:true
-    
+
     found = wait_for [vendor::CART[:add], vendor::CART[:offers]] do
       message :no_product_available
       terminate_on_error(:no_product_available)
@@ -510,6 +515,7 @@ class Robot
         best_offer.call
       else
         click_on vendor::CART[:add]
+        wait_ajax if opts[:ajax]
       end
       message :cart_filled, :next_step => 'finalize order'
     end
@@ -571,11 +577,21 @@ class Robot
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
+    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
+    if vendor::SHIPMENT[:birthdate_day]
+      select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
+      select_option vendor::SHIPMENT[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
+      select_option vendor::SHIPMENT[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
+    end
 
     click_on vendor::SHIPMENT[:same_billing_address], check:true
     click_on vendor::SHIPMENT[:submit]
     
     wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
+    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
+    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    
     if exists? vendor::SHIPMENT[:address_option]
       click_on vendor::SHIPMENT[:address_option]
       click_on vendor::SHIPMENT[:address_submit]
@@ -586,6 +602,7 @@ class Robot
   
   def finalize_order vendor, fill_shipping_form, access_payment, before_submit=nil
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
+    wait_for ["//body"]
     click_on vendor::CART[:cgu], check:true
     before_submit.call if before_submit
     click_on vendor::CART[:submit]
@@ -605,7 +622,6 @@ class Robot
       wait_for([vendor::SHIPMENT[:submit_packaging]])
       click_on vendor::SHIPMENT[:option], check:true
       click_on vendor::SHIPMENT[:submit_packaging]
-      
       access_payment.call
       
       run_step('build final billing')
@@ -626,6 +642,7 @@ class Robot
   end
   
   def build_final_billing vendor
+    return if self.billing
     price, shipping, total = [:price, :shipping, :total].map do |key| 
       PRICES_IN_TEXT.(get_text vendor::BILL[key]).first
     end
