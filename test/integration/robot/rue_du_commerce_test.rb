@@ -131,7 +131,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   test "complete order process" do
-    @message.expects(:message).times(15)
+    @message.expects(:message).times(17)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
