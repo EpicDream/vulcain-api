@@ -28,6 +28,12 @@ class Plugin::RobotFactory
             }
   }
 
+  def self.create(host)
+    make_rb_file(host)
+    make_test_file(host)
+    merge(host)
+  end
+
   def self.getStrategyHash(host)
     filename = Rails.root+"db/plugin/"+(host+".yml")
     if File.file?(filename)
@@ -40,7 +46,7 @@ class Plugin::RobotFactory
   def self.make_rb_file(host)
     strategy = getStrategyHash(host)
     vendor = strategy[:name]
-    File.open(File.expand_path("../../vendors/"+vendor.underscore+".rb",__FILE__), "w") do |f|
+    File.open(File.expand_path("../vendors/"+vendor.underscore+".rb",__FILE__), "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8
 
@@ -80,8 +86,7 @@ INIT
   def self.make_test_file(host)
     strategy = getStrategyHash(host)
     vendor = strategy[:name]
-    FileUtils.mkdir_p("test/unit/robot/plugin/vendors/")
-    File.open("test/unit/robot/plugin/vendors/"+vendor.underscore+"_test.rb", "w") do |f|
+    File.open("test/integration/robot/"+vendor.underscore+"_test.rb", "w") do |f|
       f.puts <<-INIT
 # encoding: utf-8
 
@@ -147,6 +152,15 @@ INIT
   ensure
     CONTEXT['account'][:new_account] = false
     CONTEXT[:options][:user_agent] = nil
+  end
+
+  def self.merge(host)
+    strategy = getStrategyHash(host)
+    vendor = strategy[:name]
+    merge_files(vendor, "", [
+      File.expand_path("../selenium_extensions.rb",__FILE__),
+      File.expand_path("../i_robot.rb",__FILE__),
+      File.expand_path("../vendors/"+vendor.underscore+".rb",__FILE__)])
   end
 
   def self.merge_files(vendor, strategy, others)
