@@ -178,8 +178,12 @@ class Plugin::IRobot < Robot
               run_step('account_creation')
               message :account_created
               run_step('unlog')
-            rescue NoSuchElementError
+            rescue StrategyError => err
+              message err.inspect
               terminate_on_error :account_creation_failed
+              next
+            rescue NoSuchElementError => err
+              terminate_on_error err.inspect
               next # Quit block
             end
           end
@@ -837,7 +841,7 @@ class PriceministerMobile
           elems = find("div.error.notification p")
           if elems.size == 0
             break
-          elsif elems.size == 1 && elems.first.text =~ /pseudo/
+          elsif elems.map(&:text).join("; ") =~ /pseudo/i
             # Pseudo
             plarg_xpath = '//input[@id="login"]'
             plarg_argument = i < 10 ? PriceministerMobile.generatePseudo(account.login.gsub(/@(\w+\.)+\w+$/, ''), i) :
@@ -848,13 +852,17 @@ class PriceministerMobile
             plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
             pl_click_on!(plarg_xpath)
           else
-            e = StrategyError.new("Notification d'erreurs non gérés : "+elems.text.inspect)
+            e = Plugin::IRobot::StrategyError.new("Notification d'erreurs non gérés : "+elems.map(&:text).inspect)
             raise e
           end
         end
-        # Vérifier connecté
-        plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
-        pl_check!(plarg_xpath)
+        begin
+          # Vérifier connecté
+          plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
+          pl_check!(plarg_xpath)
+        rescue NoSuchElementError => err
+          raise Plugin::IRobot::StrategyError.new("Erreur inconnue après la création du compte")
+        end
         # Retourner sur le site mobile
         plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
         pl_click_on!(plarg_xpath)
