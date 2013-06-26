@@ -90,8 +90,42 @@ module RueDuCommerceConstants
   
 end
 
+module RueDuCommerceCrawler
+  class ProductCrawler
+    
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_product
+    end
+    
+    def build_product
+      product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
+      product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).first
+      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
+      product[:shipping_price] = Robot::PRICES_IN_TEXT.(product[:shipping_info]).first
+      product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
+      keys = @page.xpath(@xpaths[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
+      values = @page.xpath(@xpaths[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
+      keys.each_with_index { |key, index| product[:options][key] = values[index]}
+    end
+  end
+end
+
 class RueDuCommerce
   include RueDuCommerceConstants
+  include RueDuCommerceCrawler
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -104,21 +138,9 @@ class RueDuCommerce
     Robot.new(@context) do
 
       step('crawl') do
-        open_url @context['url']
-        @page = Nokogiri::HTML.parse @driver.page_source
-        
-        product = {:options => {}}
-        product[:product_title] =  scraped_text CRAWLING[:title]
-        product[:product_price] = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price]).first
-        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
-        product[:shipping_info] = scraped_text CRAWLING[:shipping_info] 
-        product[:shipping_price] = WEB_PRICES_IN_TEXT.(product[:shipping_info]).first
-        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
-        keys = @page.xpath(CRAWLING[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
-        values = @page.xpath(CRAWLING[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
-        keys.each_with_index { |key, index| product[:options][key] = values[index]}
-
-        terminate(product)
+        crawler = ProductCrawler.new(self, CRAWLING)
+        crawler.crawl @context['url']
+        terminate(crawler.product)
       end
       
       step('create account') do
