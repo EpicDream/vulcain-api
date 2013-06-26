@@ -11,7 +11,7 @@ class Robot
   
   PRICES_IN_TEXT = lambda do |text| 
     break [] unless text
-    text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+\s*[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
+    text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
       price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
     end
   end

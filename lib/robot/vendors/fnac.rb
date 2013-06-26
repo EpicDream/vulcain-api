@@ -98,8 +98,38 @@ module FnacConstants
   
 end
 
+module FnacCrawler
+  class ProductCrawler
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_product
+    end
+    
+    def build_product
+      product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
+      prices = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page)
+      product[:product_price] = prices[0]
+      product[:shipping_price] = prices[1] || 0
+      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info] , @page
+      product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
+    end
+  end
+end
+
 class Fnac
   include FnacConstants
+  include FnacCrawler
   
   attr_accessor :context, :robot
   
@@ -112,19 +142,9 @@ class Fnac
     Robot.new(@context) do
       
       step('crawl') do
-        open_url @context['url']
-        @page = Nokogiri::HTML.parse @driver.page_source
-        
-        product = {:options => {}}
-        product[:product_title] =  scraped_text CRAWLING[:title]
-        prices = WEB_PRICES_IN_TEXT.(scraped_text CRAWLING[:price])
-        product[:product_price] = prices[0]
-        product[:shipping_price] = prices[1] || 0
-        product[:product_image_url] = @page.xpath(CRAWLING[:image_url]).attribute("src").to_s
-        product[:shipping_info] = scraped_text CRAWLING[:shipping_info] 
-        product[:available] = !!(scraped_text(CRAWLING[:available]) =~ /en\s+stock/i)
-
-        terminate(product)
+        crawler = ProductCrawler.new(self, CRAWLING)
+        crawler.crawl @context['url']
+        terminate(crawler.product)
       end
       
       step('create account') do

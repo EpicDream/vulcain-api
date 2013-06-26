@@ -44,7 +44,7 @@ class FnacTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end

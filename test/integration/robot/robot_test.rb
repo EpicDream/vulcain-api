@@ -20,4 +20,8 @@ class RobotTest < ActiveSupport::TestCase
     assert_equal [10.20, 10], Robot::PRICES_IN_TEXT.("lorem EUR 10,20 lorem EUR 10")
   end
   
+  test "with cr" do
+    assert_equal [945, 12.99], Robot::PRICES_IN_TEXT.("945 €\nEn Stock\n+ Frais de port\n12,99€")
+  end
+  
 end
