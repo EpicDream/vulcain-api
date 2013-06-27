@@ -188,7 +188,7 @@ class AmazonFrance
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
         }
         access_payment = Proc.new {
-          if submit_credit_card(AmazonFrance)
+          if submit_credit_card
             click_on PAYMENT[:access]
             wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
             click_on PAYMENT[:invoice_address], check:true
