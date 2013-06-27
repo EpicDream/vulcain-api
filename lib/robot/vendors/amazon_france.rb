@@ -47,7 +47,7 @@ module AmazonFranceConstants
     zip: '//*[@id="enterAddressPostalCode"]',
     mobile_phone: '//*[@id="enterAddressPhoneNumber"]',
     submit_packaging: '//*[@id="shippingOptionFormId"]/div[2]/span/input',
-    submit: '/html/body/div[4]/div[2]/div[1]/form/div[4]/button',
+    submit: '//button[@name="shipToThisAddress"]',
     select_this_address: 'Envoyer à cette adresse',
     address_option: '//*[@id="addr-addr_0"]/label/i',
     address_submit: '//*[@id="AVS"]/div[2]/form/button/span'
@@ -164,54 +164,25 @@ class AmazonFrance
   def initialize context
     @context = context.merge!({options:{user_agent:Driver::MOBILE_USER_AGENT}})
     @robot = instanciate_robot
+    @robot.vendor = AmazonFrance
   end
   
   def instanciate_robot
     Robot.new(@context) do
       
-      step('crawl') do
-        crawler = ProductCrawler.new(self, CRAWLING)
-        crawler.crawl @context['url']
-        terminate(crawler.product)
-      end
-      
       step('create account') do
         open_url URLS[:base]
         open_url URLS[:account]
-        register(AmazonFrance)
-      end
-      
-      step('login') do
-        login(AmazonFrance)
-      end
-      
-      step('logout') do
-        logout(AmazonFrance)
-      end
-      
-      step('remove credit card') do
-        remove_credit_card(AmazonFrance)
-      end
-      
-      step('add to cart') do
-        add_to_cart(AmazonFrance)
-      end
-      
-      step('build product') do
-        build_product(AmazonFrance)
+        register
       end
       
       step('empty cart') do |args|
         remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax } }
         check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }
         next_step = args && args[:next_step]
-        empty_cart(AmazonFrance, remove, check, next_step)
+        empty_cart(remove, check, next_step)
       end
-      
-      step('fill shipping form') do
-        fill_shipping_form(AmazonFrance)
-      end
-      
+
       step('finalize order') do
         fill_shipping_form = Proc.new {
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
@@ -224,15 +195,11 @@ class AmazonFrance
             wait_for [PAYMENT[:validate]]
           end
         }
-        finalize_order(AmazonFrance, fill_shipping_form, access_payment)
-      end
-      
-      step('build final billing') do
-        build_final_billing(AmazonFrance)
+        finalize_order(fill_shipping_form, access_payment)
       end
       
       step('validate order') do
-        validate_order(AmazonFrance, skip_credit_card:true)
+        validate_order(skip_credit_card:true)
       end
       
     end

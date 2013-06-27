@@ -280,6 +280,8 @@ class Robot
   
   def fill xpath, args={}
     if xpath.is_a?(Regexp)
+      element = @driver.find_elements_by_attribute_matching("input", "id", xpath, nowait:true)
+      return if args[:check] && !element
       fill_element_with_attribute_matching("input", "id", xpath, with:args[:with])
     else
       return unless xpath
@@ -344,8 +346,12 @@ class Robot
   end
   
   def wait_for xpaths, &rescue_block
-    xpath = xpaths.compact.join("|")
-    @driver.find_element(xpath)
+    if xpaths.first.is_a?(Regexp)
+      @driver.find_elements_by_attribute_matching("input", "id", xpaths.first)
+    else
+      xpath = xpaths.compact.join("|")
+      @driver.find_element(xpath)
+    end
   rescue => e
     if block_given?
       rescue_block.call
@@ -379,6 +385,42 @@ class Robot
       run_step step
     end
     
+    step('create account') do
+      register
+    end
+    
+    step('login') do
+      login
+    end
+    
+    step('logout') do
+      logout
+    end
+    
+    step('remove credit card') do
+      remove_credit_card
+    end
+
+    step('add to cart') do
+      add_to_cart
+    end
+    
+    step('build product') do
+      build_product
+    end
+    
+    step('fill shipping form') do
+      fill_shipping_form
+    end
+    
+    step('build final billing') do
+      build_final_billing
+    end
+    
+    step('validate order') do
+      validate_order
+    end
+    
     step('renew login') do
       run_step('logout')
       open_url order.products_urls[0]
@@ -406,13 +448,23 @@ class Robot
       end
     end
     
+    step('crawl') do
+      crawler = vendor::ProductCrawler.new(self, vendor::CRAWLING)
+      crawler.crawl @context['url']
+      terminate(crawler.product)
+    end
+    
+    step('validate order') do
+      validate_order
+    end
+    
   end
   
-  def register vendor
+  def register
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     
-    open_url(vendor::URLS[:register]) || click_on(REGISTER[:new_account])
+    open_url(vendor::URLS[:register]) || click_on(vendor::REGISTER[:new_account])
     
     wait_for(['//body'])
     
@@ -444,8 +496,8 @@ class Robot
     fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
     fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
     fill vendor::REGISTER[:land_phone], with:land_phone, check:true
-    
-    yield if block_given?
+    click_on vendor::REGISTER[:cgu], check:true
+
     click_on vendor::REGISTER[:submit]
     
     if exists? vendor::REGISTER[:submit]
@@ -455,7 +507,7 @@ class Robot
     end
   end
   
-  def decaptchatize vendor
+  def decaptchatize
     wait_ajax
     if exists? vendor::LOGIN[:captcha]
       element = find_element vendor::LOGIN[:captcha]
@@ -464,13 +516,13 @@ class Robot
     end
   end
   
-  def login vendor
+  def login
     open_url vendor::URLS[:login]
     click_on vendor::LOGIN[:link], check:true
     
-    decaptchatize(vendor) if vendor::LOGIN[:captcha]
+    decaptchatize if vendor::LOGIN[:captcha]
     click_on vendor::LOGIN[:captcha_submit], check:true
-    decaptchatize(vendor) if vendor::LOGIN[:captcha]
+    decaptchatize if vendor::LOGIN[:captcha]
     
     fill vendor::LOGIN[:email], with:account.login
     fill vendor::LOGIN[:password], with:account.password
@@ -483,13 +535,13 @@ class Robot
     end
   end
   
-  def logout vendor
+  def logout
     open_url vendor::URLS[:home]
     open_url vendor::URLS[:logout]
     click_on vendor::LOGIN[:logout], check:true
   end
   
-  def remove_credit_card vendor
+  def remove_credit_card
     open_url vendor::URLS[:payments]
     fill vendor::LOGIN[:email], with:account.login, check:true
     fill vendor::LOGIN[:password], with:account.password, check:true
@@ -500,7 +552,7 @@ class Robot
     open_url vendor::URLS[:base]
   end
   
-  def add_to_cart vendor, best_offer=nil, before_wait=nil, opts={}
+  def add_to_cart best_offer=nil, before_wait=nil, opts={}
     open_url next_product_url
     before_wait.call if before_wait
     click_on vendor::CART[:extra_offers], check:true
@@ -515,8 +567,8 @@ class Robot
         best_offer.call
       else
         click_on vendor::CART[:add]
-        wait_ajax if opts[:ajax]
       end
+      wait_ajax if opts[:ajax]
       message :cart_filled, :next_step => 'finalize order'
     end
   end
@@ -529,7 +581,7 @@ class Robot
     product['price_delivery'] = prices[1]
   end
   
-  def build_product vendor
+  def build_product
     product = Hash.new
     product['price_text'] = get_text vendor::PRODUCT[:price_text]
     product['product_title'] = get_text vendor::PRODUCT[:title]
@@ -542,7 +594,7 @@ class Robot
     products << product
   end
   
-  def empty_cart vendor, remove, check, next_step=nil
+  def empty_cart remove, check, next_step=nil
     run_step('remove credit card')
     products = []
     open_cart = Proc.new {
@@ -560,7 +612,7 @@ class Robot
     end
   end
   
-  def fill_shipping_form vendor
+  def fill_shipping_form
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     
@@ -597,10 +649,10 @@ class Robot
       click_on vendor::SHIPMENT[:address_submit]
     end
     # wait_for([SHIPMENT[:submit_packaging]])
-    click_on SHIPMENT[:option], check:true
+    click_on vendor::SHIPMENT[:option], check:true
   end
   
-  def finalize_order vendor, fill_shipping_form, access_payment, before_submit=nil
+  def finalize_order fill_shipping_form, access_payment, before_submit=nil
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
     wait_for ["//body"]
     click_on vendor::CART[:cgu], check:true
@@ -629,9 +681,9 @@ class Robot
     end
   end
   
-  def submit_credit_card vendor, opts={}
+  def submit_credit_card
     exp_month = order.credentials.exp_month.to_s
-    exp_month = exp_month.rjust(2, "0") if opts[:zero_fill]
+    exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
     click_on vendor::PAYMENT[:visa], check:true
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
@@ -641,7 +693,7 @@ class Robot
     click_on vendor::PAYMENT[:submit]
   end
   
-  def build_final_billing vendor
+  def build_final_billing
     return if self.billing
     price, shipping, total = [:price, :shipping, :total].map do |key| 
       PRICES_IN_TEXT.(get_text vendor::BILL[key]).first
@@ -651,8 +703,8 @@ class Robot
     self.billing = { product:price, shipping:shipping, total:total, shipping_info:info}
   end
   
-  def validate_order vendor, opts={}
-    submit_credit_card(vendor, opts) unless opts[:skip_credit_card]
+  def validate_order opts={}
+    submit_credit_card unless opts[:skip_credit_card]
     click_on vendor::PAYMENT[:validate], check:true
     
     page = wait_for([vendor::PAYMENT[:status]]) do

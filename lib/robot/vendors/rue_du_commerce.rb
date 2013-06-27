@@ -75,7 +75,8 @@ module RueDuCommerceConstants
     submit: '//*[@id="contentsips"]/form[2]/input[9]',
     status: '/html/body/div/div[2]/div/div[3]',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
-    cancel: '//*[@id="contentsips"]/center[1]/form/input[2]'
+    cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
+    zero_fill: true
   }
   
   CRAWLING = {
@@ -136,24 +137,6 @@ class RueDuCommerce
   
   def instanciate_robot
     Robot.new(@context) do
-
-      step('crawl') do
-        crawler = ProductCrawler.new(self, CRAWLING)
-        crawler.crawl @context['url']
-        terminate(crawler.product)
-      end
-      
-      step('create account') do
-        register(RueDuCommerce)
-      end
-      
-      step('login') do
-        login(RueDuCommerce)
-      end
-      
-      step('logout') do
-        logout(RueDuCommerce)
-      end
       
       step('remove credit card') do
         #can't be done on mobile version
@@ -165,28 +148,20 @@ class RueDuCommerce
             execute_script("redirect('http://m.rueducommerce.fr/fiche-produit/' + window.offer_reference)")
           end
         }
-        add_to_cart(RueDuCommerce, nil, before_wait, skip_build_product:true, ajax:true)
-      end
-      
-      step('build product') do
-        build_product(RueDuCommerce)
+        add_to_cart(nil, before_wait, skip_build_product:true, ajax:true)
       end
       
       step('empty cart') do |args|
         remove = Proc.new {
           click_on_all [CART[:remove_item]] do |remove_link|
-            wait_for(['//body'])
+            wait_ajax 
             !remove_link.nil?
           end
         }
         check = Proc.new { true }
         next_step = args && args[:next_step]
         
-        empty_cart(RueDuCommerce, remove, check, next_step)
-      end
-      
-      step('fill shipping form') do
-        fill_shipping_form(RueDuCommerce)
+        empty_cart(remove, check, next_step)
       end
       
       step('delete product options') do
@@ -222,15 +197,7 @@ class RueDuCommerce
           click_on PAYMENT[:visa]
         end
         
-        finalize_order(RueDuCommerce, fill_shipping_form, access_payment, before_submit)
-      end
-      
-      step('build final billing') do
-        build_final_billing(RueDuCommerce)
-      end
-      
-      step('validate order') do
-        validate_order(RueDuCommerce, zero_fill:true)
+        finalize_order(fill_shipping_form, access_payment, before_submit)
       end
 
     end

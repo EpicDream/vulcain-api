@@ -14,7 +14,7 @@ class CdiscountTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_07@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_08@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
                 'order' => {'products_urls' => [PRODUCT_URL_1],
                             'credentials' => {
@@ -45,7 +45,7 @@ class CdiscountTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end

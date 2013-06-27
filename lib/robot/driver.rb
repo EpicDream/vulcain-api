@@ -100,8 +100,8 @@ class Driver
     driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{value}']")
   end
   
-  def find_elements_by_attribute_matching tag, attribute, regexp
-    waiting {
+  def find_elements_by_attribute_matching tag, attribute, regexp, options={}
+    waiting(options[:nowait]) {
       nodes = driver.find_elements(:xpath => "//#{tag}")
       elements = nodes.select { |node| node.attribute(attribute) =~ regexp }
       break elements if elements.any?

@@ -114,7 +114,7 @@ class FnacTest < ActiveSupport::TestCase
     @context['order']['products_urls'] = [PRODUCT_2_URL]
     robot.context = @context
     
-    @message.expects(:message).times(14)
+    @message.expects(:message).times(14..16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -125,7 +125,7 @@ class FnacTest < ActiveSupport::TestCase
     @context["order"]["products_urls"] = [PRODUCT_4_URL]
     robot.context = @context
     
-    @message.expects(:message).times(16)
+    @message.expects(:message).times(14..16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -149,7 +149,7 @@ class FnacTest < ActiveSupport::TestCase
     @context["order"]["products_urls"] = [PRODUCT_5_URL]
     robot.context = @context
     
-    @message.expects(:message).times(18)
+    @message.expects(:message).times(14..18)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

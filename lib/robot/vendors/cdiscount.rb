@@ -46,7 +46,6 @@ module CdiscountConstants
     address_submit: '//*[@id="LoginButton"]',
   }
   
-
   CART = {
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
@@ -139,6 +138,7 @@ class Cdiscount
   def initialize context
     @context = context
     @robot = instanciate_robot
+    @robot.vendor = Cdiscount
   end
   
   def instanciate_robot
@@ -151,25 +151,7 @@ class Cdiscount
         crawler.crawl @context['url']
         terminate(crawler.product)
       end
-      
-      step('create account') do
-        register(Cdiscount) do
-          click_on REGISTER[:cgu]
-        end
-      end
-      
-      step('login') do
-        login(Cdiscount)
-      end
-      
-      step('logout') do
-        logout(Cdiscount)
-      end
-      
-      step('remove credit card') do
-        remove_credit_card(Cdiscount)
-      end
-      
+
       step('add to cart') do 
         best_offer = Proc.new {
           button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
@@ -177,22 +159,14 @@ class Cdiscount
           @driver.driver.execute_script(script)
           wait_ajax 4
         }
-        add_to_cart(Cdiscount, best_offer, skip_build_product:true)
-      end
-      
-      step('build product') do
-        build_product(Cdiscount)
+        add_to_cart(best_offer, nil, skip_build_product:true, ajax:true)
       end
       
       step('empty cart') do |args|
         remove = Proc.new { click_on_all([CART[:remove_item]]) {|element| open_url URLS[:cart];!element.nil? }}
         check = Proc.new { wait_for([CART[:empty_message]]) {return false}}
         next_step = args && args[:next_step]
-        empty_cart(Cdiscount, remove, check, next_step)
-      end
-      
-      step('fill shipping form') do
-        fill_shipping_form(Cdiscount)
+        empty_cart(remove, check, next_step)
       end
       
       step('finalize order') do
@@ -206,15 +180,7 @@ class Cdiscount
           run_step('build product')
         }
         
-        finalize_order(Cdiscount, fill_shipping_form, access_payment, before_submit)
-      end
-      
-      step('build final billing') do
-        build_final_billing(Cdiscount)
-      end
-      
-      step('validate order') do
-        validate_order(Cdiscount)
+        finalize_order(fill_shipping_form, access_payment, before_submit)
       end
       
     end 

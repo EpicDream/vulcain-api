@@ -13,7 +13,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   attr_accessor :robot
   
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_03@free.fr', 'password' => 'shopelia2013'},
+    @context = {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products_urls' => [PRODUCT_5_URL],
                             'credentials' => {
@@ -43,7 +43,7 @@ class RueDuCommerceTest < ActiveSupport::TestCase
   end
   
   teardown do
-    #robot.driver.quit
+    robot.driver.quit
   end
   
   test "account creation" do

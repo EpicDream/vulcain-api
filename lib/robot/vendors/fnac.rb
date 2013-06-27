@@ -86,6 +86,7 @@ module FnacConstants
     submit:  '//*[@id="submit3"]',
     status: '//*[@id="thank-you"]',
     succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
+    zero_fill: true
   }
   
   CRAWLING = {
@@ -136,31 +137,14 @@ class Fnac
   def initialize context
     @context = context.merge!({options:{user_agent:Driver::MOBILE_USER_AGENT}})
     @robot = instanciate_robot
+    @robot.vendor = Fnac
   end
   
   def instanciate_robot
     Robot.new(@context) do
       
-      step('crawl') do
-        crawler = ProductCrawler.new(self, CRAWLING)
-        crawler.crawl @context['url']
-        terminate(crawler.product)
-      end
-      
-      step('create account') do
-        register(Fnac)
-      end
-      
-      step('login') do
-        login(Fnac)
-      end
-      
       step('logout') do
         #Like Hotel California. Can enter but never leave.
-      end
-      
-      step('remove credit card') do
-        remove_credit_card(Fnac)
       end
       
       step('add to cart') do
@@ -174,11 +158,7 @@ class Fnac
             terminate_on_error(:out_of_stock)
           end
         }
-        add_to_cart(Fnac, best_offer)
-      end
-      
-      step('build product') do
-        build_product(Fnac)
+        add_to_cart(best_offer)
       end
       
       step('empty cart') do |args|
@@ -190,13 +170,9 @@ class Fnac
         }
         check = Proc.new { !(exists? CART[:quantity])}
         next_step = args && args[:next_step]
-        empty_cart(Fnac, remove, check, next_step)
+        empty_cart(remove, check, next_step)
       end
 
-      step('fill shipping form') do
-        fill_shipping_form(Fnac)
-      end
-      
       step('finalize order') do
         fill_shipping_form = Proc.new {
           !click_on(SHIPMENT[:select_this_address], check:true)
@@ -207,22 +183,14 @@ class Fnac
           click_on PAYMENT[:cgu]
           click_on PAYMENT[:access]
         }
-        finalize_order(Fnac, fill_shipping_form, access_payment)
+        finalize_order(fill_shipping_form, access_payment)
       end
      
-      step('build final billing') do
-        build_final_billing(Fnac)
-      end
-      
       step('cancel order') do
         click_on PAYMENT[:cancel]
         accept_alert
         open_url URLS[:home]
         run_step('empty cart', next_step:'cancel')
-      end
-      
-      step('validate order') do
-        validate_order(Fnac, zero_fill:true)
       end
       
     end
