@@ -7,7 +7,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -17,7 +17,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def register
-    skip "Can' create account each time!"
+    #skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
 
@@ -64,8 +64,20 @@ class StrategyTest < ActiveSupport::TestCase
     assert.call
   end
   
+  def add_to_cart urls, assert=Proc.new{}
+    @message.expects(:message).times(10..16)
+    robot.run_step('login')
+    
+    urls.each do |url|
+      robot.stubs(:next_product_url).returns(url)
+      robot.stubs(:current_product_url).returns(url)
+      robot.run_step('add to cart')
+    end
+    assert.call
+  end
+  
   def empty_cart urls, assert=Proc.new{}
-    @message.expects(:message).times(13..16)
+    @message.expects(:message).times(13..20)
     robot.run_step('login')
     
     urls.each do |url|
@@ -178,7 +190,7 @@ class StrategyTest < ActiveSupport::TestCase
                                           'additionnal_address' => '',
                                           'zip' => '75019',
                                           'city' => 'Paris',
-                                          'mobile_phone' => '0134562345',
+                                          'mobile_phone' => '0634562345',
                                           'land_phone' => '0134562345',
                                           'country' => 'France'}
                           }

@@ -47,8 +47,8 @@ class AmazonTest < StrategyTest
     robot.expects(:submit_credit_card).returns(false)
     robot.expects(:build_final_billing)
     products = [{"price_text"=>"Prix: EUR 118,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir","product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg","price_product"=>118.0,"price_delivery"=>0,"url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}]
-    urls = [PRODUCT_URL_5]
-    run_spec("finalize order", urls, products, nil)
+
+    run_spec("finalize order", [PRODUCT_URL_5], products, nil)
   end
 
   test "complete order process" do

@@ -6,6 +6,7 @@ class Driver
   PROFILE_PATH = Dir.home + "/.config/google-chrome/Default"
   TIMEOUT = 40
   MAX_ATTEMPTS_ON_RAISE = 20
+  LEAVE_PAGE_TIMEOUT = 10
   
   attr_accessor :driver, :wait
   
@@ -107,6 +108,16 @@ class Driver
       break elements if elements.any?
       nil
     }
+  end
+  
+  def wait_leave xpath
+    duration = 0
+    while find_element(xpath, nowait:true)
+      sleep(0.5)
+      duration += 0.5
+      raise if duration >= LEAVE_PAGE_TIMEOUT
+    end
+    true
   end
   
   private

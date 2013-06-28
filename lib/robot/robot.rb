@@ -181,10 +181,12 @@ class Robot
   
   def click_on_links_with_text text, &block
     elements = @driver.find_links_with_text(text, nowait:true)
+    count = elements.count
     return false if elements.none?
-    elements.each do |element| 
-      @driver.click_on element
+    count.times do
       block.call if block_given?
+      element = @driver.find_links_with_text(text, nowait:true).first
+      @driver.click_on element
     end
   end
   
@@ -353,12 +355,19 @@ class Robot
       @driver.find_element(xpath)
     end
   rescue => e
+    puts e.inspect
     if block_given?
       rescue_block.call
       return false
     else
       raise e
     end
+  end
+  
+  def wait_leave xpath
+    @driver.wait_leave(xpath)
+  rescue
+    return false
   end
   
   def accept_alert
@@ -496,11 +505,15 @@ class Robot
     fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
     fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
     fill vendor::REGISTER[:land_phone], with:land_phone, check:true
+    fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
+    fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
+    fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+    fill vendor::REGISTER[:city], with:user.address.city, check:true
+    
     click_on vendor::REGISTER[:cgu], check:true
-
     click_on vendor::REGISTER[:submit]
     
-    if exists? vendor::REGISTER[:submit]
+    unless wait_leave(vendor::REGISTER[:submit])
       terminate_on_error(:account_creation_failed)
     else
       message :account_created, :next_step => 'renew login'
@@ -610,6 +623,7 @@ class Robot
     else
       message :cart_emptied, :next_step => next_step || 'add to cart'
     end
+    
   end
   
   def fill_shipping_form
