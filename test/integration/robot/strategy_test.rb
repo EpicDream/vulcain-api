@@ -3,10 +3,13 @@ require 'test_helper'
 
 class StrategyTest < ActiveSupport::TestCase
 
-  attr_accessor :robot
+  attr_accessor :robot, :context
   
   teardown do
-    robot.driver.quit
+    begin
+      robot.driver.quit
+    rescue
+    end
   end
   
   def run_spec name, *args
@@ -24,8 +27,10 @@ class StrategyTest < ActiveSupport::TestCase
   def register_failure
     @message.expects(:message).times(1)
     @context['account']['login'] = 'legrand_pierre_04@free.fr'
+    @context['account']['password'] = ''
     @robot.context = @context
     robot.expects(:terminate_on_error).with(:account_creation_failed)
+    
     robot.run_step('create account')
   end
   
@@ -39,7 +44,6 @@ class StrategyTest < ActiveSupport::TestCase
   def login_failure
     @context['account']['password'] = "badpassword"
     robot.context = @context
-    
     @message.expects(:message).times(1)
     robot.expects(:terminate_on_error).with(:login_failed)
     
@@ -53,8 +57,15 @@ class StrategyTest < ActiveSupport::TestCase
     #assert..
   end
   
-  def empty_cart urls
-    @message.expects(:message).times(13)
+  def remove_credit_card assert=Proc.new{}
+    @message.expects(:message).times(4)
+    robot.run_step('login')
+    robot.run_step('remove credit card')
+    assert.call
+  end
+  
+  def empty_cart urls, assert=Proc.new{}
+    @message.expects(:message).times(13..16)
     robot.run_step('login')
     
     urls.each do |url|
@@ -63,10 +74,10 @@ class StrategyTest < ActiveSupport::TestCase
       robot.run_step('add to cart')
     end
     robot.run_step('empty cart')
-    yield if block_given?
+    assert.call
   end
   
-  def delete_product_options urls
+  def delete_product_options urls, assert=Proc.new
     @message.expects(:message).times(11)
     @context['order']['products_urls'] = urls
     @robot.context = @context
@@ -75,7 +86,7 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('delete product options')
-    yield if block_given?
+    assert.call
   end
   
   def finalize_order urls, products, billing
@@ -153,7 +164,7 @@ class StrategyTest < ActiveSupport::TestCase
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products_urls' => [],
                             'credentials' => {
-                              'holder' => 'MARIE ROSE', 
+                              'holder' => 'Pierre Petit', 
                               'number' => '101290129019201', 
                               'exp_month' => 5,
                               'exp_year' => 2014,

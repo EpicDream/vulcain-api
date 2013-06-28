@@ -35,15 +35,13 @@ class RueDuCommerceTest < StrategyTest
   end
   
   test "empty cart" do
-    run_spec("empty cart", [PRODUCT_1_URL, PRODUCT_2_URL]) do
-      assert !(robot.exists? RueDuCommerce::CART[:remove_item])
-    end
+    assert = Proc.new { assert !(robot.exists? RueDuCommerce::CART[:remove_item]) }
+    run_spec("empty cart", [PRODUCT_1_URL, PRODUCT_2_URL], assert)
   end
   
   test "delete product options" do
-    run_spec("delete product options", [PRODUCT_4_URL]) do
-      assert_equal 1, robot.find_elements(RueDuCommerce::CART[:remove_item]).count
-    end
+    assert = Proc.new { assert_equal 1, robot.find_elements(RueDuCommerce::CART[:remove_item]).count }
+    run_spec("delete product options", [PRODUCT_4_URL], assert)
   end
   
   test "finalize order" do
