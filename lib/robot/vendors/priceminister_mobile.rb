@@ -170,6 +170,15 @@ class Plugin::IRobot < Robot
     @billing = {}
 
     self.instance_eval do
+
+      step('crawl') do
+        url = @context['url']
+        pl_open_url! url
+        @pl_current_product = {:options => {}}
+        run_step('extract')
+        terminate @pl_current_product
+      end
+
       step('run') do
         begin
           pl_open_url! @shop_base_url
@@ -203,8 +212,8 @@ class Plugin::IRobot < Robot
       step('run_fill_cart') do
         order.products_urls.each do |url|
           pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
+          @pl_current_product = {'url' => url}
+          run_step('extract') if @steps['extract']
           run_step('add_to_cart')
           products << @pl_current_product
         end
@@ -499,6 +508,7 @@ class Plugin::IRobot < Robot
   def pl_set_product_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['price_text'] = text
+    @pl_current_product['product_price'] = text
     @pl_current_product['price_product'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
@@ -510,7 +520,28 @@ class Plugin::IRobot < Robot
   def pl_set_product_delivery_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['delivery_text'] = text
+    @pl_current_product['shipping_price'] = text
     @pl_current_product['price_delivery'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_shipping_info!(path)
+    text = get_text(path)
+    @pl_current_product['shipping_info'] = text
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_available!(path)
+    text = get_text(path)
+    @pl_current_product['available'] = text
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
@@ -900,23 +931,28 @@ class PriceministerMobile
         plarg_css = {css: 'div.ui-page-active ul.seller_package li p.pm_action a.remove_item'}
         pl_click_on_all!(plarg_xpath)
       end
-      step('add_to_cart') do
-        # Aller sur les produits neufs
-        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
-        pl_click_on!(plarg_xpath)
-        wait_ajax(2)
+      step('extract') do
         # Indiquer le titre de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
         pl_set_product_title!(plarg_xpath)
         # Indiquer l'url de l'image de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
         pl_set_product_image_url!(plarg_xpath)
+        # Aller sur les produits neufs
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
+        pl_click_on!(plarg_xpath)
+        wait_ajax(2)
         # Indiquer le prix de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
         pl_set_product_price!(plarg_xpath)
         # Indiquer le prix de livraison de l'article
         plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
         pl_set_product_delivery_price!(plarg_xpath)
+        # Indiquer les informations de livraison de l'article
+        plarg_xpath = 'div.adv_list article:nth-child(1) div ul li.more_details div.shipping'
+        pl_set_product_shipping_info!(plarg_xpath)
+      end
+      step('add_to_cart') do
         # Bouton ajouter au panier
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[1]/form/div'
         plarg_css = {css: 'div.adv_list article:nth-child(1) li.add_to_cart form.pm_frm div.ui-btn'}
