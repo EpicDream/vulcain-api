@@ -13,7 +13,7 @@ class AmazonTest < ActiveSupport::TestCase
   
   setup do
     @context = {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://localhost:3000/shopelia'},
                 'order' => {'products_urls' => [PRODUCT_URL_5, PRODUCT_URL_2],
                             'credentials' => {
                               'holder' => 'MARIE ROSE', 
