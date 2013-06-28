@@ -9,7 +9,7 @@ class ExchangersTest <  ActiveSupport::TestCase
   test "synchrone request return" do
     request = {vendor:"RueDuCommerce", url:RDC_URL}.to_json
     response = Dispatcher::AMQPController.synchrone_request(request)
-    puts response.inspect
+    assert response["status"]
   end
   
 end
