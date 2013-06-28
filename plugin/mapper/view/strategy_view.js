@@ -88,7 +88,7 @@ var StrategyView = function(_strategy) {
   function _onUnload(event) {
     _saveCurrentState();
     if (_strategy.modified()) {
-      _strategy.save();
+      _strategy.quickSave();
       wait(200);/*send ajax*/
     }
   };

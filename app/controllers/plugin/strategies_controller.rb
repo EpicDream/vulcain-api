@@ -122,14 +122,19 @@ class Plugin::StrategiesController < ApplicationController
               {id: "mon_panier_btn", desc: "Bouton mon panier", option: "", type: "pl_click_on"}
             ]
           },{
-            id: "add_to_cart",
-            desc: "Ajouter Produit",
+            id: "extract",
+            desc: "Extraire les informations du produit",
             actions: [
-              {id: "add_to_cart_btn", desc: "Bouton ajouter au panier", option: "", type: "pl_click_on"},
               {id: "set_product_delivery_price", desc: "Indiquer le prix de livraison de l'article", option: "", type: "pl_set_product_delivery_price"},
               {id: "set_product_price", desc: "Indiquer le prix de l'article", option: "", type: "pl_set_product_price"},
               {id: "set_product_image_url", desc: "Indiquer l'url de l'image de l'article", option: "", type: "pl_set_product_image_url"},
               {id: "set_product_title", desc: "Indiquer le titre de l'article", option: "", type: "pl_set_product_title"}
+            ]
+          },{
+            id: "add_to_cart",
+            desc: "Ajouter Produit",
+            actions: [
+              {id: "add_to_cart_btn", desc: "Bouton ajouter au panier", option: "", type: "pl_click_on"}
             ]
           },{
             id: "finalize_order",
