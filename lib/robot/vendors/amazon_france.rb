@@ -162,7 +162,7 @@ class AmazonFrance
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context.merge!({options:{user_agent:Driver::MOBILE_USER_AGENT}})
+    @context = context
     @robot = instanciate_robot
     @robot.vendor = AmazonFrance
   end

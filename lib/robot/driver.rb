@@ -1,7 +1,7 @@
 require "selenium-webdriver"
 
 class Driver
-  USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17"
+  DESKTOP_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17"
   MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
   PROFILE_PATH = Dir.home + "/.config/google-chrome/Default"
   TIMEOUT = 40
@@ -113,7 +113,7 @@ class Driver
   
   def switches options
     mkdir_profile if options[:profile_dir].nil?
-    user_agent = options[:user_agent] || USER_AGENT
+    user_agent = options[:user_agent] || MOBILE_USER_AGENT
     user_data_dir = options[:profile_dir] || @profile_path
     ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}"]
   end

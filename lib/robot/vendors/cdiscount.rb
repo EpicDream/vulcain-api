@@ -136,7 +136,7 @@ class Cdiscount
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context
+    @context = context.merge!({ options: {user_agent:Driver::DESKTOP_USER_AGENT } })
     @robot = instanciate_robot
     @robot.vendor = Cdiscount
   end
@@ -146,7 +146,7 @@ class Cdiscount
 
       step('crawl') do
         @driver.quit
-        @driver = Driver.new(user_agent:Driver::MOBILE_USER_AGENT)
+        @driver = Driver.new
         crawler = ProductCrawler.new(self, CRAWLING)
         crawler.crawl @context['url']
         terminate(crawler.product)
