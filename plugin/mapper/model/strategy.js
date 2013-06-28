@@ -81,6 +81,13 @@ var Strategy = function(host, mobile) {
     this.bdd.save(this.toHash(), onFail, onDone);
     _modified = false;
   };
+  this.quickSave = function(onFail, onDone) {
+    if (! _modified || this.steps.length == 0 || this.steps[0].actions.length == 0)
+      return;
+    this.updated_at = (new Date()).getTime();
+    this.bdd.localSave(this.toHash(), onFail, onDone);
+    _modified = false;
+  };
   this.setDefault = function() {
     this.steps = [
       new Step(this, {id: 'account_creation', desc: "Inscription", value: "", actions: []}),
