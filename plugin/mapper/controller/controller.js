@@ -38,7 +38,7 @@ $(".backButton").click(function() { glob.goBack(); });
 // INITIALISATION DU MODELE ET DE LA VUE
 //////////////////////////////////////////
 
-chrome.extension.sendMessage({'dest':'contentscript', 'action':'getPageInfos'});
+chrome.extension.sendMessage(null, {'dest':'contentscript', 'action':'getPageInfos'});
 
 chrome.extension.onMessage.addListener(function(msg, sender) {
   if (msg.dest != 'plugin' || msg.action != 'setPageInfos')

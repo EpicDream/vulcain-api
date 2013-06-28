@@ -25,7 +25,7 @@ function onBodyClick(event) {
     msg.context = hu.getElementContext(e);
     msg.merged = false;
     msg.path = msg.context.css;
-    chrome.extension.sendMessage(msg);
+    chrome.extension.sendMessage(null, msg);
   }
 };
 
@@ -77,7 +77,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
     msg.href = location.href;
     msg.mobile = plugin.mobile;
     msg.dest = 'plugin';
-    chrome.extension.sendMessage(msg);
+    chrome.extension.sendMessage(null, msg);
   } else if (msg.action == "start") {
     plugin.mobile = msg.mobile;
     buildExtension();
@@ -89,7 +89,7 @@ chrome.extension.onMessage.addListener(function(msg, sender) {
       return;
     msg.dest = 'plugin';
     msg.path = path;
-    chrome.extension.sendMessage(msg);
+    chrome.extension.sendMessage(null, msg);
   } else if (msg.action == "clearCookies") {
     hu.cookies.removeAll();
   }
