@@ -76,6 +76,8 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_shipping_info', desc: "Indiquer les informations de livraison", args: {xpath: true}},
+    {id: 'pl_set_product_available', desc: "Indiquer la disponibilité de l'article", args: {xpath: true}},
     {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
     {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
     {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
@@ -132,6 +134,14 @@ class Plugin::IRobot < Robot
     @isTest = false
 
     self.instance_eval do
+      pl_step('crawl') do
+        url = @context['url']
+        pl_open_url! url
+        @pl_current_product = {:options => {}}
+        run_step('extract')
+        terminate @pl_current_product
+      end
+
       pl_step('run') do
         if account.new_account
           begin
@@ -162,8 +172,8 @@ class Plugin::IRobot < Robot
         # Fill cart
         order.products_urls.each do |url|
           pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
+          @pl_current_product = {'url' => url}
+          run_step('extract') if @steps['extract']
           run_step('add_to_cart')
           products << @pl_current_product
         end
@@ -501,27 +511,6 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "Check path failed !" if find(xpath).empty?
   end
 
-  # Search for radio buttons in xpath,
-  # and send message to present them to the user.
-  def pl_present_radio_choices(xpath, question)
-    choices = @pl_driver.find_element(xpath: xpath).find_elements(xpath: ".//input[@type='radio']")
-    new_question(question, options: choices, action: "pl_click_on_radio('#{xpath}', answer)" )
-  end
-
-  # Search for checkboxes in xpath,
-  # and send message to present them to the user.
-  def pl_present_checkbox_choices(xpath, question)
-    choices = @pl_driver.find_element(xpath: xpath).find_elements(xpath: ".//input[@type='checkbox']")
-    new_question(question, options: choices, action: "pl_tick_checkbox('#{xpath}', answer)" )
-  end
-
-  # Search for select options in xpath,
-  # and send message to present them to the user.
-  def pl_present_select_choices(xpath, question)
-    choices = options_of_select( find_element(xpath: xpath) )
-    new_question(question, options: choices, action: "select_option('#{xpath}', answer)" )
-  end
-
   # Wait until the xpath become available.
   def pl_wait(xpath)
     @pl_driver.find_element(xpath: xpath)
@@ -556,6 +545,26 @@ class Plugin::IRobot < Robot
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_shipping_info!(path)
+    text = get_text(path)
+    @pl_current_product['shipping_info'] = text
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = (find(path) rescue [])
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_available!(path)
+    text = get_text(path)
+    @pl_current_product['available'] = text
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = (find(path) rescue [])
     puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
     raise
   end
