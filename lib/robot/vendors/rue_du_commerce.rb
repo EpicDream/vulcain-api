@@ -165,6 +165,7 @@ class RueDuCommerce
       end
       
       step('delete product options') do
+        open_url URLS[:cart]
         begin
           element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
           wait_ajax(8) if element
