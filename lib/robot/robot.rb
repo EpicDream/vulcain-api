@@ -568,7 +568,7 @@ class Robot
       else
         click_on vendor::CART[:add]
       end
-      wait_ajax if opts[:ajax]
+      wait_ajax(4) if opts[:ajax]
       message :cart_filled, :next_step => 'finalize order'
     end
   end
