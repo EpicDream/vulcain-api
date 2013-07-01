@@ -37,15 +37,15 @@ class Selenium::WebDriver::Support::Select
 
     if value.kind_of?(Integer) && value != 0
       o = options.detect do |o|
-        o.value.to_i == value || o.text.to_i == value
+        o.enabled? && (o.value.to_i == value || o.text.to_i == value)
       end
     elsif value.kind_of?(Regexp)
       o = options.detect do |o|
-        o.value =~ value || o.text =~ value
+        o.enabled? && (o.value =~ value || o.text =~ value)
       end
     else
       o = options.detect do |o|
-        o.value == value.to_s || o.text == value.to_s
+        o.enabled? && (o.value == value.to_s || o.text == value.to_s)
       end
     end
     if o.nil?

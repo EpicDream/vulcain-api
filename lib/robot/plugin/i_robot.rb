@@ -4,10 +4,6 @@ require "robot/robot"
 require "robot/plugin/selenium_extensions"
 require "robot/core_extensions"
 
-if Object.const_defined?(:Plugin)
-  Object.send(:remove_const, :Plugin)
-end
-
 module Plugin
 end
 
@@ -20,32 +16,48 @@ class Plugin::IRobot < Robot
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :step, :action
-    attr_accessor :source, :screenshot
-    def initialize(msg,args={})
-      super(msg)
+    attr_reader :code, :message
+    attr_accessor :source, :screenshot, :logs, :stepstrace, :step, :args
+    def initialize(err,args={})
+      @message = "#{err.class}: #{err.to_s}"
+      super(@message)
       @step = args[:step]
-      @action = args[:action]
-      @line = args[:line]
+      @code = args[:code]
+      @action_name = args[:action_name]
+      @args = args[:args] || {}
       @source = @screenshot = nil
-    end
-    def add(key, value)
-
+      @stepstrace = []
     end
     def to_h
-      return {step: @step, action: @action, line: @line, msg: self.message, source: @source, screenshot: @screenshot}
+      return {
+        step: @step,
+        code: @code,
+        action_name: @action_name,
+        msg: self.message,
+        args: @args,
+        source: @source,
+        screenshot: @screenshot,
+        logs: @logs,
+        stepstrace: @stepstrace,
+        backtrace: backtrace
+      }
     end
-    def message
-      return super+" in step '#{@step}'"
+    def to_s
+      "StrategyError in step '#{@step}', action '#{@action_name}', for code \n#{@code}\n=> #{@message}"
     end
   end
 
   class FakeMessenger
+    attr_reader :logs
+    def initialize
+      @logs = []
+    end
     def method_missing(meth, *args, &block)
       return self
     end
     def message(*args, &block)
       p args
+      @logs << args
       return nil
     end
   end
@@ -55,7 +67,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on', desc: "Cliquer sur le lien ou le bouton", args: {xpath: true}},
     {id: 'pl_fill_text', desc: "Remplir le champ", args: {xpath: true, default_arg: true}},
     {id: 'pl_select_option', desc: "Sélectionner l'option", args: {xpath: true, default_arg: true}},
-    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true}},
+    {id: 'pl_click_on_radio', desc: "Sélectioner le radio bouton", args: {xpath: true, default_arg: true}},
     {id: 'pl_tick_checkbox', desc: "Cocher la checkbox", args: {xpath: true}},
     {id: 'pl_untick_checkbox', desc: "Décocher la checkbox", args: {xpath: true}},
     {id: 'pl_click_on_all', desc: "Cliquer sur les liens ou les boutons", args: {xpath: true}},
@@ -64,14 +76,17 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
     {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_shipping_info', desc: "Indiquer les informations de livraison", args: {xpath: true}},
+    {id: 'pl_set_product_available', desc: "Indiquer la disponibilité de l'article", args: {xpath: true}},
+    {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
+    {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
+    {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
+    {id: 'pl_click_to_create_account', desc: "Cliquer sur le bouton de création du compte", args: {xpath: true}},
+    {id: 'pl_click_to_validate_payment', desc: "Cliquer sur le bouton de validation du payement", args: {xpath: true}},
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
+    {id: 'pl_check_cart_nb_products', desc: "Vérifier que tous les articles sont dans le panier", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
-    # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
-    # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
-    # {id: 'wait_ajax', desc: "Attendre"},
-    # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
-    # {id: 'message', desc: "Envoyer un message", has_arg: true}
   ]
   for a in ACTION_METHODS
     a[:method] ||= a[:id]
@@ -85,7 +100,7 @@ class Plugin::IRobot < Robot
   USER_INFO = [
     {id: 'login', desc:"Login", value:"account.login"},
     {id: 'password', desc:"Mot de passe", value:"account.password"},
-    {id: 'email', desc:"Email", value:"account.email"},
+    {id: 'email', desc:"Email", value:"account.login"},
     {id: 'last_name', desc:"Nom", value:"user.address.last_name"},
     {id: 'first_name', desc:"Prénom", value:"user.address.first_name"},
     {id: 'birthdate_day', desc:"Jour de naissance", value:"user.birthdate.day"},
@@ -100,7 +115,7 @@ class Plugin::IRobot < Robot
     {id: 'zip', desc:"Code Postal", value:"user.address.zip"},
     {id: 'city', desc:"Ville", value:"user.address.city"},
     {id: 'country', desc:"Pays", value:"user.address.country"},
-    {id: 'card_type', desc:"Type de carte", value:"/visa/i"},
+    {id: 'card_type', desc:"Type de carte", value:"(order.credentials.number[0] == '4' ? 'VISA' : 'MASTERCARD')"},
     {id: 'holder', desc:"Nom du porteur", value:"order.credentials.holder"},
     {id: 'card_number', desc:"Numéro de la carte", value:"order.credentials.number"},
     {id: 'exp_month', desc:"Mois d'expiration", value:"order.credentials.exp_month"},
@@ -111,101 +126,144 @@ class Plugin::IRobot < Robot
   attr_accessor :pl_driver, :shop_base_url
 
   def initialize(context, &block)
+    block = proc {} unless block_given?
     super(context, &block)
     @pl_driver = @driver.driver
     @pl_current_product = {}
+    @billing = {}
+    @isTest = false
 
     self.instance_eval do
-      step('run') do
-        begin
-          pl_open_url! @shop_base_url
-          if account.new_account
-            begin
-              run_step('account_creation')
-            rescue NoSuchElementError
-              terminate_on_error :account_creation_failed
-            end
+      pl_step('crawl') do
+        url = @context['url']
+        pl_open_url! url
+        @pl_current_product = {:options => {}}
+        run_step('extract')
+        terminate @pl_current_product
+      end
+
+      pl_step('run') do
+        if account.new_account
+          begin
+            pl_open_url! @shop_base_url
+            run_step('account_creation')
             message :account_created
             run_step('unlog')
-            pl_open_url @shop_base_url
+          rescue
+            message :account_creation_failed
+            raise
           end
-          run_step('login')
-          message :logged, :next_step => 'run_empty_cart'
-        rescue NoSuchElementError
-          terminate_on_error :login_failed
         end
-      end
 
-      step('run_empty_cart') do
+        # Login
+        begin
+          pl_open_url @shop_base_url
+          run_step('login')
+          message :logged
+        rescue
+          message :login_failed
+          raise
+        end
+
+        # Empty Cart
         run_step('empty_cart')
-        message :cart_emptied, :next_step => 'run_fill_cart'
-      end
+        message :cart_emptied
 
-      step('run_fill_cart') do
+        # Fill cart
         order.products_urls.each do |url|
           pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
+          @pl_current_product = {'url' => url}
+          run_step('extract') if @steps['extract']
           run_step('add_to_cart')
           products << @pl_current_product
         end
-        message :cart_filled, :next_step => 'run_finalize'
-      end
+        message :cart_filled
 
-      step('run_finalize') do
+        # Finalize
         run_step('finalize_order')
+        @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
+        @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
+        @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
         pl_assess next_step:'run_waitAck'
       end
 
-      step('run_waitAck') do
+      pl_step('run_waitAck') do
         if answers.last.answer == Robot::YES_ANSWER
           begin
             run_step('payment')
+            message :validate_order
+            terminate({billing: @billing})
           rescue NoSuchElementError
             terminate_on_error :order_validation_failed
           end
-          message :validate_order
-          terminate
         else
-          run_step('empty cart')
+          run_step('empty_cart')
           message :cancel_order
           terminate_on_cancel
         end
       end
 
-      step('run_test') do
-        continue = true
-        pl_open_url! @shop_base_url
-        if account.new_account
-          run_step('account_creation')
-        else
-          continue = false if ! @steps['login']
-          run_step('login') if continue
+      pl_step('run_test') do
+        @isTest = true
+        catch :pass do
+          pl_open_url! @shop_base_url
+          catch :skip do
+            run_step('account_creation')
+            @messager.message :account_created
+          end
+
+          throw :pass if ! @steps['login']
+          pl_open_url! @shop_base_url
+          run_step('login')
+          @messager.message :logged
+
+          throw :pass if ! @steps['unlog']
+          if ! @steps['empty_cart']
+            run_step('unlog')
+            @messager.message :unlogged
+            throw :pass if ! @steps['login']
+            pl_open_url! @shop_base_url
+            run_step('login')
+            @messager.message :logged
+          end
+
+          throw :pass if ! @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+
+          throw :pass if ! @steps['add_to_cart']
+          if ! @steps['finalize_order']
+            order.products_urls.each do |url|
+              pl_open_url! url
+              run_step('add_to_cart')
+            end
+            @messager.message :cart_filled
+            run_step('empty_cart')
+            @messager.message :cart_emptied
+          end
+          order.products_urls.each do |url|
+            pl_open_url! url
+            @pl_current_product = {}
+            @pl_current_product['url'] = url
+            run_step('add_to_cart')
+            products << @pl_current_product
+          end
+          @messager.message :cart_filled
+
+          throw :pass if ! @steps['finalize_order']
+          run_step('finalize_order')
+          @messager.message :shipping_info_entered
+
+          throw :pass if ! @steps['payment']
+          catch :skip do
+            run_step('payment')
+          end
+          @messager.message :payment_info_entered
         end
-        continue = false if ! @steps['unlog']
-        run_step('unlog') if continue
-        continue = false if ! @steps['login']
-        run_step('login') if continue
-        continue = false if ! @steps['empty_cart']
-        run_step('empty_cart') if continue
-        continue = false if ! @steps['add_to_cart']
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          run_step('add_to_cart')
-        end if continue
-        run_step('empty_cart') if continue
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
-          run_step('add_to_cart')
-          products << @pl_current_product
-        end if continue
-        continue = false if ! @steps['finalize_order']
-        run_step('finalize_order') if continue
-        continue = false if ! @steps['payment']
-        run_step('payment') if continue
+        if @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+        end
       end
     end
   end
@@ -220,42 +278,92 @@ class Plugin::IRobot < Robot
 
   def pl_fake_run
     @messager = FakeMessenger.new
-    @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
     run_step('run_test')
-    @pl_driver.quit
   rescue StrategyError => err
-    err.source = @driver.page_source
-    err.screenshot = @driver.screenshot
-    raise err
+    err.args.merge!(current_product: @pl_current_product) if @pl_current_product
+    err.args.merge!(products: @products) if ! @products.empty?
+    err.args.merge!(biling: @billing) if @billing.empty?
+    raise
+  ensure
+    @pl_driver.quit
   end
 
   def pl_add_strategy(strategy)
     @shop_base_url = "http://"+strategy[:host]+"/"
     strategy[:steps].each { |s|
-      pl_add_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
+      pl_step(s) if s[:actions].any? { |a| ! a[:code].blank? }
     }
   end
 
-  def pl_add_step(step)
-    # Get new context
-    step_binding = Kernel.binding
-    # Create callable step
-    step(step[:id]) do
-      puts "Running #{step[:id]} :"
-      # Eval each action
-      for act in step[:actions]
-        begin
-          puts act[:code]
-          step_binding.eval act[:code]
-        rescue => err
-          raise StrategyError.new(err, {step: step[:id], action: act[:code].inspect, line: step[:actions].index(act)})
+  # Intercept errors to add steptrace
+  def pl_step(arg, &block)
+    id, actions = arg.kind_of?(Hash) ? [arg[:id], arg[:actions]] : [arg.to_s, nil]
+
+    step(id) do
+      begin
+        if actions
+          context = Kernel.binding
+          for act in actions
+            act[:context] = context
+            act[:step] = arg[:id]
+            pl_action(act)
+          end
+        elsif block_given?
+          yield block
+        else
+          messager.logging.message(:warning, "Nothing to do for step #{id.inspect}")
         end
+      rescue StrategyError => err
+        err.stepstrace << "in step `#{id}'"
+        raise
+      rescue => err
+        e = StrategyError.new(err, {step: id, url: current_url})
+        e.set_backtrace(err.backtrace)
+        e.source = @driver.page_source
+        e.screenshot = @driver.screenshot
+        e.logs = @messager.logs
+        e.stepstrace << "in step `#{id}'"
+        raise e
       end
     end
-  rescue StrategyError
-    raise
+  end
+
+  # Intercept errors to create StrategyError that contains all usefull informations
+  # Execute the given block, or the passed string action within the given context.
+  def pl_action(arg)
+    name, code = arg.kind_of?(Hash) ? [arg[:desc], arg[:code]] : [arg.to_s, nil]
+    messager.logging.message(:action, name) if @isTest
+    if code
+      eval code, arg[:context]
+    elsif block_given?
+      yield
+    else
+      messager.logging.message(:warning, "No action to do for #{name.inspect}")
+    end
   rescue => err
-    raise StrategyError.new(err, {step: step[:id]})
+    err_args = {step: arg[:step], code: code, action_name: name, args: {}, url: current_url}
+    if arg.kind_of?(Hash)
+      err_args[:args][:url] = arg[:url]
+      err_args[:args][:type] = arg[:type]
+      err_args[:args][:pass] = arg[:pass]
+      err_args[:args][:path] = arg[:xpath]
+      elems = (find(plarg_path) rescue [])
+      err_args[:args][:elements_count] = elems.size
+      # err_args[:args][:elements] = elems
+      plarg = USER_INFO.find{|ui| ui[:id] == arg[:arg]}
+      if plarg
+        err_args[:args][:argument] = plarg[:value]
+        err_args[:args][:argument_val] = eval "(#{plarg[:value]}) rescue nil", arg[:context]
+      elsif ! arg[:arg].blank?
+        messager.logging.message(:warning, "Cannot find value of argument of type #{arg[:arg]}")
+      end
+    end
+    e = StrategyError.new(err, err_args)
+    e.set_backtrace(err.backtrace)
+    e.source = @driver.page_source
+    e.screenshot = @driver.screenshot
+    e.logs = @messager.logs
+    raise e
   end
 
   # Call without bang method if exist.
@@ -263,9 +371,9 @@ class Plugin::IRobot < Robot
     meth_name = methSym.to_s+'!'
     if self.respond_to?(meth_name)
       begin
-        return self.send(meth_name, *args, &block)
+        return self.send(meth_name, *args, &block) || true
       rescue NoSuchElementError
-        return nil
+        return false
       end
     else
       return super(methSym, *args, &block)
@@ -314,6 +422,14 @@ class Plugin::IRobot < Robot
   def pl_click_on_each!(xpath)
     links(xpath).each(&:click)
   end
+  #
+  def pl_click_to_create_account!(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
+  end
+  #
+  def pl_click_to_validate_payment!(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
+  end
 
   # Fill text input.
   # If xpath isn't an input, search for a label for or a single input child.
@@ -322,7 +438,22 @@ class Plugin::IRobot < Robot
     raise NoSuchElementError, "One field waited ! #{inputs.map_send(:[],"type").inspect} (for xpath=#{xpath.inspect})" if inputs.size != 1
     input = inputs.first
     input.clear
+    value = value.to_s
     input.send_keys(value)
+    return if input.value == value
+    message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+
+    5.times do |i|
+      input.clear
+      value.split('').each do |c|
+        input.send_keys(c)
+        sleep(0.1 * (i+1))
+      end
+      break if input.value == value
+      message warning: "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
+    end
+    return if input.value == value
+    raise StrategyError, "Bad input value : enter #{value.inspect} got #{input.value.inspect}"
   end
 
   # Select option.
@@ -377,28 +508,7 @@ class Plugin::IRobot < Robot
 
   #
   def pl_check!(xpath)
-    raise NoSuchElementError if find(xpath).empty?
-  end
-
-  # Search for radio buttons in xpath,
-  # and send message to present them to the user.
-  def pl_present_radio_choices(xpath, question)
-    choices = @pl_driver.find_element(xpath: xpath).find_elements(xpath: ".//input[@type='radio']")
-    new_question(question, options: choices, action: "pl_click_on_radio('#{xpath}', answer)" )
-  end
-
-  # Search for checkboxes in xpath,
-  # and send message to present them to the user.
-  def pl_present_checkbox_choices(xpath, question)
-    choices = @pl_driver.find_element(xpath: xpath).find_elements(xpath: ".//input[@type='checkbox']")
-    new_question(question, options: choices, action: "pl_tick_checkbox('#{xpath}', answer)" )
-  end
-
-  # Search for select options in xpath,
-  # and send message to present them to the user.
-  def pl_present_select_choices(xpath, question)
-    choices = options_of_select( find_element(xpath: xpath) )
-    new_question(question, options: choices, action: "select_option('#{xpath}', answer)" )
+    raise NoSuchElementError, "Check path failed !" if find(xpath).empty?
   end
 
   # Wait until the xpath become available.
@@ -439,8 +549,93 @@ class Plugin::IRobot < Robot
     raise
   end
 
+  def pl_set_product_shipping_info!(path)
+    text = get_text(path)
+    @pl_current_product['shipping_info'] = text
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = (find(path) rescue [])
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_available!(path)
+    text = get_text(path)
+    @pl_current_product['available'] = text
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = (find(path) rescue [])
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_tot_products_price!(xpath)
+    text = get_text(xpath)
+    @billing[:product] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_tot_shipping_price!(xpath)
+    text = get_text(xpath)
+    @billing[:shipping] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_tot_price!(xpath)
+    text = get_text(xpath)
+    @billing[:total] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
   def pl_binding
     return binding
+  end
+
+  # Raise if nb elements matched by path is different of order.products_url.size.
+  def pl_check_cart_nb_products!(path)
+    waited_nb = order.products_urls.size
+    elems = find(path)
+    if waited_nb != elems.size
+      raise NoSuchElementError, "Fail assertion : wait #{waited_nb} but found #{elems.size} elements for path #{path.inspect}"
+    end
+  end
+
+  def pl_assert_present(path)
+    return unless pl_test?
+    raise NoSuchElementError, "Fail assertion : no element found for path #{path.inspect}" if find(path).empty?
+  end
+
+  def pl_assert_number_elements(path, number)
+    return unless pl_test?
+    nbElems = find(path).size
+    raise NoSuchElementError, "Fail assertion : wait #{number} but found #{nbElems} elements for path #{path.inspect}" if nbElems != number
+  end
+
+  def pl_assert_present_and_skip(path)
+    return unless pl_test?
+    pl_assert_present(path)
+    pl_skip
+  end
+
+  def pl_skip
+    return unless pl_test?
+    throw :skip
+  end
+
+  def pl_test?
+    return @isTest
   end
 
   # private
@@ -448,8 +643,15 @@ class Plugin::IRobot < Robot
     # Else arg is a Hash with :css or :xpath as key
     def find(arg)
       sleep(0.5)
-      return @pl_driver.find_elements(xpath: arg) if arg.kind_of?(String)
-      return @pl_driver.find_elements(arg)
+      if arg.kind_of?(String) && (arg[0] == '/' || arg[0] == '(')
+        return @pl_driver.find_elements(xpath: arg)
+      elsif arg.kind_of?(String)
+        return @pl_driver.find_elements(css: arg)
+      elsif arg.kind_of?(Hash)
+        return @pl_driver.find_elements(arg)
+      else
+        raise NoSuchElementError, "Cannot find #{arg.inspect} : wait a String or a Hash."
+      end
     end
 
     # Return only inputs, selects and textareas.
@@ -539,8 +741,9 @@ class Plugin::IRobot < Robot
     def get_input_for_value!(inputs, value)
       values = inputs.map { |e,_| [e, e.value] }
       i = values.find { |e,v| v == value }.first
+      return i unless i.nil?
       labels = inputs.map { |e,_| [e, get_input_label(e).text] }
-      i = labels.find { |e,v| v == value }.first if i.nil?
+      i = labels.find { |e,v| v == value }.first
       raise NoSuchElementError, "Can not find #{value.inspect} in values #{values.map(&:last).inspect} nor labels #{labels.map(&:last).inspect}." if i.nil?
       return i
     end

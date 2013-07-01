@@ -19,6 +19,22 @@ namespace :strategies do
     StrategiesTestsReport.new(output).report
     io.close
   end
+
+  desc "Lunch strategy creator plugin and rails server."
+  task :lunch_plugin do
+    server_pid = spawn("rails server")
+    chrome_pid = spawn("google-chrome --load-extension=#{Rails.root+"plugin/mapper"}")
+    Process.wait chrome_pid
+    Process.kill(2, server_pid)
+  end
+
+  desc "Create the strategy's robot and test files."
+  task :create, [:identifiant] => :environment do |t, args|
+    require "robot/plugin/robot_factory"
+    Plugin::RobotFactory.create(args[:identifiant])
+    puts "", "> Les fichiers sont créés !", ""
+    puts "===>>> Pensez à les commiter ! <<<===", ""
+  end
   
   def stdout_to io
     stdout, stderr = $stdout.dup, $stderr.dup
