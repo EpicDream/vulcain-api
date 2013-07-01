@@ -67,7 +67,7 @@ module VulcainApi
     }
     
     config.dispatcher = {
-      strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceministerMobile"],
+      strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "PriceministerMobile", "Darty"],
       min_idle_vulcains: 5,
       max_idle_average: 50, # %
       running_timeout_after: 3.minutes,      

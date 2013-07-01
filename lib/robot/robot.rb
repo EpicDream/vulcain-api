@@ -160,6 +160,7 @@ class Robot
       click_on_button_with_name(xpath)
     else
       return if opts[:check] && !exists?(xpath)
+      attempts = 0
       begin
         element = @driver.find_element(xpath)
         @driver.click_on element

@@ -89,7 +89,6 @@ class CdiscountTest < StrategyTest
     assert_equal billing, robot.billing
   end
   
-  
   test "crawl url of product with no options" do
     robot.driver.quit
     robot.driver = Driver.new
