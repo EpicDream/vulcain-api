@@ -658,7 +658,7 @@ class Robot
     click_on vendor::SHIPMENT[:option], check:true
   end
   
-  def finalize_order fill_shipping_form, access_payment, before_submit=nil
+  def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
     wait_for ["//body"]
     click_on vendor::CART[:cgu], check:true
@@ -669,7 +669,11 @@ class Robot
       terminate_on_error(:out_of_stock)
     end
     
-    if in_stock
+    if no_delivery = no_delivery.call
+      terminate_on_error(:no_delivery)
+    end
+    
+    if in_stock && !no_delivery
       if exists? vendor::LOGIN[:submit]
         fill vendor::LOGIN[:email], with:account.login, check:true
         fill vendor::LOGIN[:password], with:account.password

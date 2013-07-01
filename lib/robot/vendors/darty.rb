@@ -34,6 +34,7 @@ module DartyConstants
   
   SHIPMENT = {
     submit_packaging: '//*[@id="button_basket_colissimo"]',
+    bill: '//*[@id="basket_content"]'
   }
   
   CART = {
@@ -42,7 +43,7 @@ module DartyConstants
     empty_message:'//*[@id="contentColOne"]',
     submit: '//*[@id="newbottomFinishButton"]',
     empty_message_match: /Votre panier est actuellement vide/i,
-    submit_success: [SHIPMENT[:submit_packaging]]
+    submit_success: [SHIPMENT[:bill]]
   }
   
   PRODUCT = {
@@ -95,6 +96,7 @@ class Darty
     Robot.new(@context) do
       
       step('remove credit card') do
+        #not recorded
       end
       
       step('empty cart') do |args|
@@ -109,10 +111,11 @@ class Darty
       
       step('finalize order') do
         fill_shipping_form = Proc.new {}
-        access_payment = Proc.new {
-          
+        access_payment = Proc.new {}
+        no_delivery = Proc.new {
+          !exists?(SHIPMENT[:submit_packaging])
         }
-        finalize_order(fill_shipping_form, access_payment)
+        finalize_order(fill_shipping_form, access_payment, nil, no_delivery)
       end
       
     end

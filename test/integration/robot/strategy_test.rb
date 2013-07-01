@@ -120,7 +120,7 @@ class StrategyTest < ActiveSupport::TestCase
   def complete_order_process urls
     @context['order']['products_urls'] = urls
     @robot.context = @context
-    @message.expects(:message).times(17)
+    @message.expects(:message).times(14..17)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -139,6 +139,19 @@ class StrategyTest < ActiveSupport::TestCase
     
     robot.expects(:wait_for).times(1..2)
     robot.run_step('validate order')
+  end
+  
+  def no_delivery_error url
+    @message.expects(:message).times(12)
+    @context['order']['products_urls'] = [url]
+    @robot.context = @context
+    
+    robot.expects(:terminate_on_error).with(:no_delivery)
+    
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.run_step('finalize order')
   end
   
   def cancel_order urls
