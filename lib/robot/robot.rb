@@ -159,19 +159,11 @@ class Robot
     unless xpath =~ /\/\//
       click_on_button_with_name(xpath)
     else
-      begin
-        @attempts = 0
-        return if opts[:check] && !exists?(xpath)
-        @driver.click_on @driver.find_element(xpath)
-        wait_ajax if opts[:ajax]
-        true
-      rescue => e
-        if (@attempts += 1) <= 2
-          sleep(0.5) and retry #wait visible
-        else
-          raise
-        end
-      end
+      return if opts[:check] && !exists?(xpath)
+      element = @driver.find_element(xpath)
+      @driver.click_on element
+      wait_ajax if opts[:ajax]
+      true
     end
   end
   
