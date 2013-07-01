@@ -105,7 +105,7 @@ class StrategyTest < ActiveSupport::TestCase
     @context['order']['products_urls'] = urls
     @robot.context = @context
     
-    @message.expects(:message).times(16)
+    @message.expects(:message).times(13..16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
@@ -130,14 +130,14 @@ class StrategyTest < ActiveSupport::TestCase
   def validate_order urls
     @context['order']['products_urls'] = urls
     @robot.context = @context
-    @message.expects(:message).times(18)
+    @message.expects(:message).times(15..18)
 
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
     
-    robot.expects(:wait_for).times(2)
+    robot.expects(:wait_for).times(1..2)
     robot.run_step('validate order')
   end
   

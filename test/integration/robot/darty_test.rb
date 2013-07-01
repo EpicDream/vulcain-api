@@ -46,9 +46,13 @@ class AmazonTest < StrategyTest
   #TEST PILE : NON LIVRABLE , SEULEMENT RETRAIT EN MAGASIN MAIS BOUTON COMMANDE DU PANIER PRESENT
   
   test "finalize order" do
-    products = []
-
-    run_spec("finalize order", [PRODUCT_URL_3], products, nil)
+    products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801"}]
+    billing = {:product=>39.9, :shipping=>nil, :total=>39.9, :shipping_info=>"Livraison par Colissimo :\nEntre le Mer. 03/07 et le Ven. 05/07"}
+    run_spec("finalize order", [PRODUCT_URL_3], products, billing)
+  end
+  
+  test "validate order" do
+    run_spec("validate order", [PRODUCT_URL_3])
   end
   
 end
