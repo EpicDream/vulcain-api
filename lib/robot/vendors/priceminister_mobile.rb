@@ -544,7 +544,7 @@ class Plugin::IRobot < Robot
   def pl_set_product_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['price_text'] = text
-    @pl_current_product['product_price'] = text
+    # @pl_current_product['product_price'] = text
     @pl_current_product['price_product'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
@@ -556,7 +556,7 @@ class Plugin::IRobot < Robot
   def pl_set_product_delivery_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['delivery_text'] = text
-    @pl_current_product['shipping_price'] = text
+    # @pl_current_product['shipping_price'] = text
     @pl_current_product['price_delivery'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
