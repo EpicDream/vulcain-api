@@ -62,24 +62,11 @@ class CdiscountTest < StrategyTest
   end
 
   test "handle out of stock (click on 'Passer la commande' has no action even manually)" do
-    run_spec("out of stock", [PRODUCT_URL_1], products, billing)
+    run_spec("out of stock", PRODUCT_URL_7)
   end
   
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_URL_1])
-  end
-  
-  test "add to cart and finalize order with confirmation of address" do
-    @context["user"]["address"]["address_1"] = "32781 rue de nulle part ailleurs"
-    @context["order"]["products_urls"] = ["http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(755939365)ttid(5)url(http://www.cdiscount.com/dp.asp?sku=5051889024712&refer=*)"]
-    
-    robot.context = @context
-    
-    @message.expects(:message).times(14)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.run_step('finalize order')
   end
 
   test "add to cart and finalize order with 4x payment option to avoid" do
@@ -92,7 +79,7 @@ class CdiscountTest < StrategyTest
     robot.run_step('add to cart')
     
     products = [{"price_text"=>"162,17 €\n+ Eco Part : 1,00 €\nsoit 136,43 € HT", "product_title"=>"Home cinema 2.1 3D LG BH6220C (USB + Wif...", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/4/1/085x085/lg8808992997504.jpg", "price_product"=>162.17, "price_delivery"=>1.0, "url"=>"http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)"}]
-    billing = {:product=>163.17, :shipping=>20.0, :total=>183.17}
+    billing = {:product=>163.17, :shipping=>20.0, :total=>183.17, :shipping_info=>nil}
     questions = [{:text => nil, :id => '1', :options => nil}]
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     
@@ -102,27 +89,21 @@ class CdiscountTest < StrategyTest
     assert_equal billing, robot.billing
   end
   
-  # 
-  # test "crawl url of product with no options" do
-  #   @context = {'url' => PRODUCT_URL_5}
-  #   @robot.context = @context
-  #   @message.expects(:message).times(1)
-  # 
-  #   product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
-  #   robot.expects(:terminate).with(product)
-  # 
-  #   robot.run_step('crawl')
-  # end
-  # 
-  # test "crawl url of product with options" do
-  #   @context = {'url' => PRODUCT_URL_6 }
-  #   @robot.context = @context
-  #   @message.expects(:message).times(1)
-  # 
-  #   product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
-  #   robot.expects(:terminate).with(product)
-  # 
-  #   robot.run_step('crawl')
-  # end
+  
+  test "crawl url of product with no options" do
+    robot.driver.quit
+    robot.driver = Driver.new
+    
+    product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
+    run_spec("crawl", PRODUCT_URL_5, product)
+  end
+
+  test "crawl url of product with options" do
+    robot.driver.quit
+    robot.driver = Driver.new
+    
+    product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
+    run_spec("crawl", PRODUCT_URL_6, product)
+  end
   
 end  
