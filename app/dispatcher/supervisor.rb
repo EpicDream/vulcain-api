@@ -29,7 +29,7 @@ module Dispatcher
         @idle_samples << { idle:idle, total:total, ratio:ratio }
       
         samples = YAML.load_file(DUMP_IDLE_SAMPLES_FILE_PATH)
-        samples = [] if samples.count > 360 * 24 * 5 #5 days of samples
+        samples = [] if samples.count > 360 * 24 * 1 #1 day of samples
         samples << @idle_samples.last
         File.open(DUMP_IDLE_SAMPLES_FILE_PATH, "w+") { |f| YAML.dump(samples, f) }
       }

@@ -29,11 +29,9 @@ module Dispatcher
     end
     
     def idle_vulcains &block
-      @mutex.synchronize {
-        vulcains = @pool.select { |vulcain| vulcain.available? }
-        block.call(vulcains) if block_given?
-        vulcains
-      }
+      vulcains = @pool.select { |vulcain| vulcain.available? }
+      block.call(vulcains) if block_given?
+      vulcains
     end
     
     def busy_vulcains &block
