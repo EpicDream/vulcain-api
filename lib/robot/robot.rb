@@ -160,10 +160,19 @@ class Robot
       click_on_button_with_name(xpath)
     else
       return if opts[:check] && !exists?(xpath)
-      element = @driver.find_element(xpath)
-      @driver.click_on element
-      wait_ajax if opts[:ajax]
-      true
+      begin
+        element = @driver.find_element(xpath)
+        @driver.click_on element
+        wait_ajax if opts[:ajax]
+        true
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        attempts += 1
+        if attempts < 20
+          sleep(0.5) and retry 
+        else
+          raise
+        end
+      end
     end
   end
   
