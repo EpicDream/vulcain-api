@@ -95,7 +95,6 @@ class Plugin::IRobot < Robot
       return self
     end
     def message(*args, &block)
-      p args
       return nil
     end
   end
@@ -168,8 +167,18 @@ class Plugin::IRobot < Robot
     @pl_driver = @driver.driver
     @pl_current_product = {}
     @billing = {}
+    @isTest = false
 
     self.instance_eval do
+
+      step('crawl') do
+        url = @context['url']
+        pl_open_url! url
+        @pl_current_product = {:options => {}}
+        run_step('extract')
+        terminate @pl_current_product
+      end
+
       step('run') do
         begin
           pl_open_url! @shop_base_url
@@ -178,9 +187,13 @@ class Plugin::IRobot < Robot
               run_step('account_creation')
               message :account_created
               run_step('unlog')
-            rescue NoSuchElementError
+            rescue StrategyError => err
+              message err.inspect
               terminate_on_error :account_creation_failed
               next
+            rescue NoSuchElementError => err
+              terminate_on_error err.inspect
+              next # Quit block
             end
           end
           pl_open_url @shop_base_url
@@ -199,8 +212,8 @@ class Plugin::IRobot < Robot
       step('run_fill_cart') do
         order.products_urls.each do |url|
           pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
+          @pl_current_product = {'url' => url}
+          run_step('extract') if @steps['extract']
           run_step('add_to_cart')
           products << @pl_current_product
         end
@@ -234,38 +247,66 @@ class Plugin::IRobot < Robot
       end
 
       step('run_test') do
-        continue = true
-        pl_open_url! @shop_base_url
-        if account.new_account
-          run_step('account_creation')
-        else
-          continue = false if ! @steps['login']
-          run_step('login') if continue
+        @isTest = true
+        catch :pass do
+          pl_open_url! @shop_base_url
+          catch :skip do
+            run_step('account_creation')
+            @messager.message :account_created
+          end
+
+          throw :pass if ! @steps['login']
+          pl_open_url! @shop_base_url
+          run_step('login')
+          @messager.message :logged
+
+          throw :pass if ! @steps['unlog']
+          if ! @steps['empty_cart']
+            run_step('unlog')
+            @messager.message :unlogged
+            throw :pass if ! @steps['login']
+            pl_open_url! @shop_base_url
+            run_step('login')
+            @messager.message :logged
+          end
+
+          throw :pass if ! @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+
+          throw :pass if ! @steps['add_to_cart']
+          if ! @steps['finalize_order']
+            order.products_urls.each do |url|
+              pl_open_url! url
+              run_step('add_to_cart')
+            end
+            @messager.message :cart_filled
+            run_step('empty_cart')
+            @messager.message :cart_emptied
+          end
+          order.products_urls.each do |url|
+            pl_open_url! url
+            @pl_current_product = {}
+            @pl_current_product['url'] = url
+            run_step('add_to_cart')
+            products << @pl_current_product
+          end
+          @messager.message :cart_filled
+
+          throw :pass if ! @steps['finalize_order']
+          run_step('finalize_order')
+          @messager.message :shipping_info_entered
+
+          throw :pass if ! @steps['payment']
+          catch :skip do
+            run_step('payment')
+          end
+          @messager.message :payment_info_entered
         end
-        continue = false if ! @steps['unlog']
-        run_step('unlog') if continue && ! @steps['empty_cart']
-        continue = false if ! @steps['login']
-        run_step('login') if continue && ! @steps['empty_cart']
-        continue = false if ! @steps['empty_cart']
-        run_step('empty_cart') if continue && ! @steps['finalize_order']
-        continue = false if ! @steps['add_to_cart']
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          run_step('add_to_cart')
-        end if continue && ! @steps['finalize_order']
-        run_step('empty_cart') if continue && ! @steps['finalize_order']
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {}
-          @pl_current_product['url'] = url
-          run_step('add_to_cart')
-          products << @pl_current_product
-        end if continue
-        continue = false if ! @steps['finalize_order']
-        run_step('finalize_order') if continue
-        continue = false if ! @steps['payment']
-        run_step('payment') if continue
+        if @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+        end
       end
     end
   end
@@ -280,13 +321,13 @@ class Plugin::IRobot < Robot
 
   def pl_fake_run
     @messager = FakeMessenger.new
-    @answers = [{answer: Robot::YES_ANSWER}.to_openstruct]
     run_step('run_test')
-    @pl_driver.quit
   rescue StrategyError => err
     err.source = @driver.page_source
     err.screenshot = @driver.screenshot
     raise err
+  ensure
+    @pl_driver.quit
   end
 
   def pl_add_strategy(strategy)
@@ -373,6 +414,14 @@ class Plugin::IRobot < Robot
   # WARNING : May not work if page reload !
   def pl_click_on_each!(xpath)
     links(xpath).each(&:click)
+  end
+  #
+  def pl_click_to_create_account!(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
+  end
+  #
+  def pl_click_to_validate_payment!(path)
+    pl_test? ? pl_assert_present_and_skip(path) : pl_click_on(path)
   end
 
   # Fill text input.
@@ -495,6 +544,7 @@ class Plugin::IRobot < Robot
   def pl_set_product_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['price_text'] = text
+    @pl_current_product['product_price'] = text
     @pl_current_product['price_product'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
@@ -506,7 +556,28 @@ class Plugin::IRobot < Robot
   def pl_set_product_delivery_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['delivery_text'] = text
+    @pl_current_product['shipping_price'] = text
     @pl_current_product['price_delivery'] = get_price(text)
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_shipping_info!(path)
+    text = get_text(path)
+    @pl_current_product['shipping_info'] = text
+  rescue ArgumentError
+    puts "#{xpath.inspect} => #{text.inspect}"
+    elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_available!(path)
+    text = get_text(path)
+    @pl_current_product['available'] = text
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
@@ -546,6 +617,41 @@ class Plugin::IRobot < Robot
 
   def pl_binding
     return binding
+  end
+
+  # Raise if nb elements matched by path is different of order.products_url.size.
+  def pl_check_cart_nb_products!(path)
+    waited_nb = order.products_urls.size
+    elems = find(path)
+    if waited_nb != elems.size
+      raise NoSuchElementError, "Fail assertion : wait #{waited_nb} but found #{elems.size} elements for path #{path.inspect}"
+    end
+  end
+
+  def pl_assert_present(path)
+    return unless pl_test?
+    raise NoSuchElementError, "Fail assertion : no element found for path #{path.inspect}" if find(path).empty?
+  end
+
+  def pl_assert_number_elements(path, number)
+    return unless pl_test?
+    nbElems = find(path).size
+    raise NoSuchElementError, "Fail assertion : wait #{number} but found #{nbElems} elements for path #{path.inspect}" if nbElems != number
+  end
+
+  def pl_assert_present_and_skip(path)
+    return unless pl_test?
+    pl_assert_present(path)
+    pl_skip
+  end
+
+  def pl_skip
+    return unless pl_test?
+    throw :skip
+  end
+
+  def pl_test?
+    return @isTest
   end
 
   # private
@@ -755,7 +861,7 @@ class PriceministerMobile
 
   def self.generatePseudo(base, i=-1)
     i = (i == -1 ? '' : i.to_s)
-    return base[0...(12-i.size)].gsub(/[^\w\.-]/, '')+i
+    return base[0...(12-i.size)].gsub(/[^\w_-]/, '')+i
   end
 
   def instanciate_robot
@@ -829,35 +935,42 @@ class PriceministerMobile
         # Non à la promo avion
         plarg_xpath = '//div[@id="other_block"]/fieldset/div[2]/div/div/p/label[2]/span'
         pl_click_on_radio!(plarg_xpath)
-        # Bouton créer le compte
-        plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
-        pl_click_on!(plarg_xpath)
-        # Vérifier pas de problème de pseudo
-        15.times do |i|
-          elems = find("div.error.notification p")
-          if elems.size == 0
-            break
-          elsif elems.size == 1 && elems.first.text =~ /pseudo/
-            # Pseudo
-            plarg_xpath = '//input[@id="login"]'
-            plarg_argument = i < 10 ? PriceministerMobile.generatePseudo(account.login.gsub(/@(\w+\.)+\w+$/, ''), i) :
-                                      PriceministerMobile.generatePseudo('user-', rand(10**6...10**7))
-            pl_fill_text!(plarg_xpath, plarg_argument)
+        catch :skip do
+          # Bouton créer le compte
+          plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
+          pl_click_to_create_account!(plarg_xpath)
+          # Vérifier pas de problème de pseudo
+          15.times do |i|
+            elems = find("div.error.notification p")
+            if elems.size == 0
+              break
+            elsif elems.map(&:text).join("; ") =~ /pseudo/i
+              # Pseudo
+              plarg_xpath = '//input[@id="login"]'
+              plarg_argument = i < 10 ? PriceministerMobile.generatePseudo(account.login.gsub(/@(\w+\.)+\w+$/, ''), i) :
+                                        PriceministerMobile.generatePseudo('user-', rand(10**6...10**7))
+              pl_fill_text!(plarg_xpath, plarg_argument)
 
-            # Bouton créer le compte
-            plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
-            pl_click_on!(plarg_xpath)
-          else
-            e = StrategyError.new("Notification d'erreurs non gérés : "+elems.text.inspect)
-            raise e
+              # Bouton créer le compte
+              plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
+              pl_click_on!(plarg_xpath)
+            else
+              e = Plugin::IRobot::StrategyError.new("Notification d'erreurs non gérés : "+elems.map(&:text).inspect)
+              raise e
+            end
+          end
+          begin
+            # Vérifier connecté
+            plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
+            pl_check!(plarg_xpath)
+          rescue NoSuchElementError => err
+            raise Plugin::IRobot::StrategyError.new("Erreur inconnue après la création du compte")
           end
         end
-        # Vérifier connecté
-        plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
-        pl_check!(plarg_xpath)
         # Retourner sur le site mobile
         plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
         pl_click_on!(plarg_xpath)
+        throw :skip if @isTest
       end
       step('login') do
         # Mon Compte
@@ -892,23 +1005,31 @@ class PriceministerMobile
         plarg_css = {css: 'div.ui-page-active ul.seller_package li p.pm_action a.remove_item'}
         pl_click_on_all!(plarg_xpath)
       end
-      step('add_to_cart') do
-        # Aller sur les produits neufs
-        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
-        pl_click_on!(plarg_xpath)
-        wait_ajax(2)
+      step('extract') do
         # Indiquer le titre de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
         pl_set_product_title!(plarg_xpath)
         # Indiquer l'url de l'image de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
         pl_set_product_image_url!(plarg_xpath)
+        # Aller sur les produits neufs
+        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section[1]/div/section/header/nav/ul/li[2]/a[not(contains(concat(" ", @class, " "), " inactive "))]'
+        pl_click_on!(plarg_xpath)
+        wait_ajax(2)
         # Indiquer le prix de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
         pl_set_product_price!(plarg_xpath)
         # Indiquer le prix de livraison de l'article
         plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
         pl_set_product_delivery_price!(plarg_xpath)
+        # Indiquer les informations de livraison de l'article
+        plarg_xpath = 'div.adv_list article:nth-child(1) div ul li.more_details div.shipping'
+        pl_set_product_shipping_info!(plarg_xpath)
+      end
+      step('add_to_cart') do
+        # Retourner sur le site mobile
+        plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
+        pl_click_on(plarg_xpath)
         # Bouton ajouter au panier
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[1]/form/div'
         plarg_css = {css: 'div.adv_list article:nth-child(1) li.add_to_cart form.pm_frm div.ui-btn'}
@@ -976,7 +1097,7 @@ class PriceministerMobile
         pl_click_on_exact!(plarg_xpath)
         # Bouton valider et payer
         plarg_xpath = '//div[@id]/div/button'
-        pl_click_on!(plarg_xpath)
+        pl_click_to_validate_payment!(plarg_xpath)
         # Validate
         wait_ajax(3)
         pl_check!('//div[@class="notification success"]')

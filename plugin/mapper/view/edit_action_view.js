@@ -1,27 +1,31 @@
 
 var EditActionView = function() {
-  var _that = this;
-  var _page = $("#editActionPage").page();
-  var _typesField = _page.find("select.type").selectmenu();
-  var _argumentsField = _page.find("select.argument").selectmenu();
-  var _passField = _page.find("input.pass").checkboxradio();
-  var _descriptionField = _page.find("input.description");
-  var _urlField = _page.find("input.url").textinput();
-  var _xpathField = _page.find("input.xpath").textinput();
-  var _codeField = _page.find("textarea.code");
-  var _backBtn = _page.find("div[data-role='header'] a[data-rel='back']");
-  var _saveBtn = _page.find("#editSaveBtn");
-  var _deleteBtn = _page.find("#editDeleteBtn");
-  var _types = [], _arguments = [], _typesH = {}, _argumentsH = {};
-  var _currentAction = null,
-     _currentContext = null;
+  var _that = this,
+      _page = $("#editActionPage").page(),
+      _actionName = _page.find(".actionName"),
+      _typesField = _page.find("select.type").selectmenu(),
+      _argumentsField = _page.find("select.argument").selectmenu(),
+      _passField = _page.find("input.pass").checkboxradio(),
+      _descriptionField = _page.find("input.description"),
+      _urlField = _page.find("input.url").textinput(),
+      _pathField = _page.find("textarea.path"),
+      _codeField = _page.find("textarea.code"),
+      _backBtn = _page.find("div[data-role='header'] .backButton"),
+      _saveBtn = _page.find("#editSaveBtn"),
+      _deleteBtn = _page.find("#editDeleteBtn"),
+      _nbElementsMatchedBtn = _page.find("#nbElementsMatchedBtn").find("span:not(:has(*))"),
+      _types = [], _arguments = [], _typesH = {}, _argumentsH = {},
+      _currentAction = null,
+      _currentContext = null,
+      _editPathView = new EditPathView();
 
   function _init() {
     _page.find(".type").change(_onTypeChanged.bind(_that));
     _page.find("#editCancelBtn").click(_that.clear);
+    _page.find("#editPathBtn").click(_onEditPathClicked.bind(_that));
 
     $("#searchXPathBtn").click(function(event) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':_xpathField.val()});
+      chrome.extension.sendMessage(null, {'dest':'contentscript','action':'show', 'path':_pathField.val()});
     });
 
     _typesField.change(_that.generateCode);
@@ -29,13 +33,16 @@ var EditActionView = function() {
     _passField.change(_that.generateCode);
     _descriptionField.change(_that.generateCode);
     _urlField.change(_that.generateCode);
-    _xpathField.change(_that.generateCode);
+    _pathField.change(_that.generateCode);
 
     chrome.extension.onMessage.addListener(function(msg, sender) {
-      if (msg.dest != 'plugin' || msg.action != 'newMap' || $.mobile.activePage[0] != _page[0])
+      if (msg.dest != 'plugin' || $.mobile.activePage[0] != _page[0])
         return;
 
-      _onNewMapping(msg);
+      if (msg.action == 'newMap')
+        _onNewMapping(msg);
+      else if (msg.action == 'match')
+        _onMatchedElements(msg.nbElements);
     }.bind(_that));
   };
 
@@ -82,13 +89,14 @@ var EditActionView = function() {
       _urlField.textinput('enable');
     // XPath
     if (type == "" || ! _typesH[type].args.xpath)
-      _xpathField.textinput('disable');
+      _pathField.textinput('disable');
     else
-      _xpathField.textinput('enable');
+      _pathField.textinput('enable');
   };
 
-  this.load = function(action, onSave, onDel) {
+  this.load = function(action) {
     _currentAction = action;
+    _actionName.text(action.desc);
     // Types
     var type = action.type;
     _typesField.find("option[value='"+type+"']").prop('selected',true).parent().selectmenu('refresh');
@@ -114,11 +122,11 @@ var EditActionView = function() {
     } else
       _urlField.textinput('disable');
     // XPath
-    _xpathField.val(action.xpath);
+    _pathField.val(action.xpath);
     if (type == "" || ! _typesH[type].args.xpath)
-      _xpathField.textinput('disable');
+      _pathField.textinput('disable');
     else
-      _xpathField.textinput('enable');
+      _pathField.textinput('enable');
     // Others
     _passField.prop('checked', action.pass).checkboxradio( "refresh" );
     _descriptionField.val(action.desc);
@@ -127,16 +135,18 @@ var EditActionView = function() {
     else
       this.generateCode();
     _codeField.css("height", "100%").keyup();
+    if (!action.view)
+      return;
     _backBtn[0].onclick = function() {
-      onSave();
+      action.view.save(this.get());
       this.clear();
     }.bind(this);
     _saveBtn[0].onclick = function() {
-      onSave();
+      action.view.save(this.get());
       this.clear();
     }.bind(this);
     _deleteBtn[0].onclick = function() {
-      onDel();
+      action.view.delete();
       this.clear();
     }.bind(this);
   };
@@ -150,8 +160,8 @@ var EditActionView = function() {
     action.pass = _passField.prop('checked');
     if (! _urlField.prop("disabled"))
       action.url = _urlField.val();
-    if (! _xpathField.prop("disabled"))
-      action.xpath = _xpathField.val();
+    if (! _pathField.prop("disabled"))
+      action.xpath = _pathField.val();
     action.code = _codeField.val();
     if (_currentContext)
       action.context = _currentContext;
@@ -160,18 +170,20 @@ var EditActionView = function() {
 
   this.clear = function() {
     _currentAction = null;
+    _actionName.text('#');
     _currentContext = null;
     _saveBtn[0].onclick = null;
     _deleteBtn[0].onclick = null;
-    _currentAction = null;
     _typesField[0].selectedIndex = 0;
     _argumentsField.prop("disabled", true)[0].selectedIndex = 0;
     _passField.prop('checked', false).checkboxradio( "refresh" );
     _descriptionField.val("");
     _urlField.prop("disabled", true).val("");
-    _xpathField.prop("disabled", true).val("");
+    _pathField.prop("disabled", true).val("");
+    _pathField.css("height", "100%").keyup();
     _codeField.val("");
     _codeField.css("height", "100%").keyup();
+    _nbElementsMatchedBtn.html("&nbsp;");
   };
 
   this.generateCode = function() {
@@ -181,8 +193,8 @@ var EditActionView = function() {
       code += "plarg_url = '" + _urlField.val().replace(/'/g,'"') + "'\n";
     }
     // xpath
-    if (! _xpathField.prop("disabled")) {
-      code += "plarg_xpath = '" + _xpathField.val().replace(/'/g,'"') + "'\n";
+    if (! _pathField.prop("disabled")) {
+      code += "plarg_xpath = '" + _pathField.val().replace(/'/g,'"') + "'\n";
     }
     // argument
     if (! _argumentsField.prop("disabled") && _argumentsField.val()) {
@@ -206,14 +218,61 @@ var EditActionView = function() {
     return code;
   };
 
-  function _onNewMapping(msg) {
-    if (_xpathField.val() != msg.xpath && ! msg.merged && _currentAction.context.length > 0) {
-      chrome.extension.sendMessage({'dest':'contentscript','action':'merge', 'old_context':_.last(_currentAction.context), 'new_context': msg.context});
-      return;
+  this.getState = function() {
+    var res = {};
+    res.stepIdx = _currentAction.step.index();
+    res.actionIdx = _currentAction.index();
+    res.context = _currentContext;
+    res.values = this.get();
+    if ($.mobile.activePage.attr('id') == "editPathPage")
+      res.editPaths = _editPathView.getState();
+    return res;
+  };
+  this.restoreState = function(state) {
+    this.load(state.values);
+    _currentAction = model.steps[state.stepIdx].actions[state.actionIdx];
+    _backBtn[0].onclick = function() {
+      _currentAction.view.save(this.get());
+      this.clear();
+    }.bind(this);
+    _saveBtn[0].onclick = function() {
+      _currentAction.view.save(this.get());
+      this.clear();
+    }.bind(this);
+    _deleteBtn[0].onclick = function() {
+      _currentAction.view.delete();
+      this.clear();
+    }.bind(this);
+    _currentContext = state.context;
+    glob.history.push('#'+_currentAction.step.id+'Page');
+    if (state.editPaths) {
+      _editPathView.load(_currentAction, _pathField.val(), _currentContext,
+        function() {
+          var res = _editPathView.get();
+          _pathField.val(res.finalPath).change();
+          _currentContext = res.context;
+        });
+      _editPathView.restoreState(state.editPaths);
     }
-    _xpathField.val(msg.xpath).change();
+  };
+
+  function _onNewMapping(msg) {
+    _pathField.val(msg.path).change();
     _currentContext = msg.context;
-    chrome.extension.sendMessage({'dest':'contentscript','action':'show', 'xpath':msg.xpath});
+    chrome.extension.sendMessage(null, {'dest':'contentscript','action':'show', 'path':msg.path});
+  };
+
+  function _onMatchedElements(nbElements) {
+    _nbElementsMatchedBtn.text(nbElements);
+  };
+
+  function _onEditPathClicked() {
+    _editPathView.load(_currentAction, _pathField.val(), _currentContext,
+      function() {
+        var res = _editPathView.get();
+        _pathField.val(res.finalPath).change();
+        _currentContext = res.context;
+      });
   };
 
   for (var f in this) {

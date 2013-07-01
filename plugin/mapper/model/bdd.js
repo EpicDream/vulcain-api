@@ -24,14 +24,14 @@ var BDD = function() {
     });
     return d;
   };
-  this.remoteLoad = function(strategyId, onDone, onFail) {
-    if (! strategyId) throw "'strategyId' must be set.";
+  this.remoteLoad = function(strategy, onDone, onFail) {
+    if (! strategy) throw "'strategy' must be set.";
     if (! onDone) throw "'onDone' must be set.";
     $.ajax({
       type : "GET",
       url: pluginUrl+"/strategies/show",
       //dataType: 'application/json; charset=utf-8',
-      data: strategyId
+      data: strategy
     }).done(function(hash) {
       onDone(hash);
     }).fail(function() {
@@ -64,11 +64,11 @@ var BDD = function() {
     if (onDone) onDone();
   };
   // Load model data for host, remotely or in local if remote fail.
-  this.load = function(strategyId, onDone, onFail) {
-    var localHash = this.localLoad(strategyId);
+  this.load = function(strategy, onDone, onFail) {
+    var localHash = this.localLoad(strategy.id);
     if (this.remote)
-      this.remoteLoad(strategyId, function(hash) {
-        if (! localHash || (hash && hash.updated_at >= localHash.updated_at) && hash.steps.length != 0) onDone(hash);
+      this.remoteLoad(strategy, function(hash) {
+        if (hash && ! localHash || hash.updated_at >= localHash.updated_at) onDone(hash);
         else if (localHash) onDone(localHash);
         else onFail();
       }.bind(this), function() {
@@ -80,7 +80,6 @@ var BDD = function() {
   };
   // Save model data, remotely or in local if remote fail.
   this.save = function(strategy, onFail, onDone) {
-    strategy.update_at = new Date();
     if (this.remote)
       this.remoteSave(strategy, function() {
         this.localSave(strategy);
@@ -93,7 +92,6 @@ var BDD = function() {
   };
   // Clear data saved in localStorage.
   this.clearCache = function(strategy) {
-    delete localStorage['types'];
     delete localStorage[strategy.id];
   };
 };

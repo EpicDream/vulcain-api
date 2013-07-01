@@ -2,7 +2,9 @@
 var StepView = function(step, patternPage, predefined) {
   var _that = this;
   var _page = patternPage.clone();
-  var _actionsList = _page.find("ul.actionsList").listview().sortable({ delay: 20, distance: 10 });
+  var _actionsList = _page.find("ul.actionsList").listview().sortable({ delay: 20, distance: 10, axis: "y", containment: "parent" }),
+      _classifiedDivider = _actionsList.find("> .classifiedDivider"),
+      _toClassifyDivider = _actionsList.find("> .toClassifyDivider");
   var _title = _page.find(".title");
   var _predefinedActionSelect = _page.find(".newActionSelect").selectmenu();
   var _predefinedActionsH = {};
@@ -15,9 +17,11 @@ var StepView = function(step, patternPage, predefined) {
     _page.attr('id', step.id+"Page");
     _page.find(".newActionButton").click(_onNewActionClicked.bind(_that));
     _page.find(".newActionSelect").change(_onNewActionSelected.bind(_that));
-    _page.find(".testPopup").popup();
+    _page.find(".testPopup").popup({ history: false });
+    _page.find(".help").attr("href","#help_"+step.id);
 
     _actionsList.on("sortupdate", _onActionsSorted.bind(_that));
+    _actionsList.sortable({cancel: "li.actionDivider"});
 
     _menu.find("a").attr("href", "#"+step.id+"Page").
           append('Etape <span class="step-li-pos"></span> : <span class="step-desc"></span>').
@@ -59,7 +63,10 @@ var StepView = function(step, patternPage, predefined) {
   this.addAction = function(action) {
     var actionView = new ActionView(this, action);
     var li = actionView.render();
-    _actionsList.append(li);
+    if (action.classified)
+      _toClassifyDivider.before(li);
+    else
+      _toClassifyDivider.after(li);
     _actionsList.listview("refresh");
     li[0].view = actionView;
     _menu.find("a span.ui-li-count").text(step.actions.length);
@@ -77,22 +84,23 @@ var StepView = function(step, patternPage, predefined) {
   function _onActionsSorted(event, ui) {
     _actionsList.listview("refresh");
     var actionView = ui.item[0].view;
-    var idx = $.inArray(ui.item[0], _actionsList.find("li"));
+    var idx = $.inArray(ui.item[0], _actionsList.find("li.action"));
     step.moveAction(actionView.model, idx);
+    step.setClassified(actionView.model, $(ui.item[0]).index() < _toClassifyDivider.index());
   };
 
   function _onNewActionClicked(event) {
     newActionView.onAdd(function() {
       var a = step.newAction(newActionView.get());
       _that.addAction(a).edit();
-      $.mobile.changePage("#editActionPage", {changeHash: false});
+      $.mobile.changePage("#editActionPage", {dontRemeberCurrentPage: true});
     }.bind(_that));
   };
 
   function _onNewActionSelected(event) {
     var optionVal = $(event.target).find("option:selected").val();
     if (optionVal == "") return;
-    _predefinedActionSelect.find("option[value='']").prop('selected',true)
+    _predefinedActionSelect.find("option[value='']").prop('selected',true);
     _predefinedActionSelect.selectmenu('refresh');
     var aModel = step.newAction(_predefinedActionsH[optionVal]);
     var aView = _that.addAction(aModel).edit();
