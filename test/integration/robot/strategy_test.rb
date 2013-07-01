@@ -17,7 +17,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def register
-    #skip "Can' create account each time!"
+    skip "Can' create account each time!"
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
 
@@ -65,7 +65,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def add_to_cart urls, assert=Proc.new{}
-    @message.expects(:message).times(10..16)
+    @message.expects(:message).times(6..16)
     robot.run_step('login')
     
     urls.each do |url|
@@ -151,6 +151,18 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
+    robot.run_step('finalize order')
+  end
+  
+  def out_of_stock url
+    @context["order"]["products_urls"] = [url]
+    robot.context = @context
+    
+    @message.expects(:message).times(12)
+    robot.run_step('login')
+    robot.run_step('empty cart')
+    robot.run_step('add to cart')
+    robot.expects(:terminate_on_error).with(:out_of_stock)
     robot.run_step('finalize order')
   end
   

@@ -1,8 +1,8 @@
-# encoding: utf-8
-require 'test_helper'
+# encoding: UTF-8
+require_relative 'strategy_test'
 require_robot 'cdiscount'
 
-class CdiscountTest < ActiveSupport::TestCase
+class CdiscountTest < StrategyTest
   PRODUCT_URL_1 = 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'
   PRODUCT_URL_2 = 'http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html'
   PRODUCT_URL_3 = 'http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html'
@@ -11,148 +11,62 @@ class CdiscountTest < ActiveSupport::TestCase
   PRODUCT_URL_6 = 'http://www.cdiscount.com/pret-a-porter/vetements-femme/l-amie-de-paris-t-shirt-femme-bleu/f-11302173234-s303bleu.html'
   PRODUCT_URL_7 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-persica-peche-210-pieces/f-127010208-haribopersica.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
  
-  attr_accessor :robot
-  
   setup do
-    @context = {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => [PRODUCT_URL_1],
-                            'credentials' => {
-                              'holder' => 'MARIE ROSE', 
-                              'number' => '101290129019201', 
-                              'exp_month' => 1,
-                              'exp_year' => 2014,
-                              'cvv' => 123}},
-                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'gender' => 1,
-                           'address' => { 'address_1' => '12 rue des lilas',
-                                          'address_2' => '',
-                                          'first_name' => 'Pierre',
-                                          'last_name' => 'Legrand',
-                                          'additionnal_address' => '',
-                                          'zip' => '75019',
-                                          'city' => 'Paris',
-                                          'mobile_phone' => '0634562345',
-                                          'land_phone' => '0134562345',
-                                          'country' => 'France'}
-                          }
-                }
-                
-    @robot = Cdiscount.new(@context).robot
-    @message = stub
-    @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
+    initialize_robot_for Cdiscount
   end
   
-  teardown do
-    begin
-      robot.driver.quit
-    rescue
-    end
+  test "register" do
+    run_spec("register")
   end
   
-  test "account creation" do
-    skip "Can' create account each time!"
-    @message.expects(:message).times(1)
-    robot.expects(:message).with(:account_created, :next_step => 'renew login')
-    
-    robot.run_step('create account')
+  test "register failure" do
+    run_spec("register failure")
   end
-  
-  test "account creation failure" do
-    @context["account"]["login"] = "bademail"
-    robot.context = @context
 
-    @message.expects(:message).times(1)
-    robot.expects(:terminate_on_error).with(:account_creation_failed)
-    
-    robot.run_step('create account')
-  end
-  
-  test "logout" do
-    @message.expects(:message).times(4)
-    robot.run_step('login')
-    robot.run_step('logout')
-  end
-  
   test "login" do
-    @message.expects(:message).times(1)
-    robot.expects(:message).with(:logged, :next_step => 'empty cart')
-
-    robot.run_step('login')
+    run_spec("login")
   end
   
   test "login failure" do
-    @message.expects(:message).times(1)
-    @context["account"]["password"] = "badpassword"
-    robot.context = @context
-    
-    robot.expects(:terminate_on_error)
-
-    robot.run_step('login')
+    run_spec("login failure")
   end
   
-  test "add to cart and empty cart" do
-    @message.expects(:message).times(11)
-    
-    robot.run_step('login')
-    robot.run_step('add to cart')
-    robot.stubs(:next_product_url).returns(PRODUCT_URL_2)
-    robot.run_step('add to cart')
-
-    robot.expects(:message).with(:cart_emptied, :next_step => 'add to cart')
-    robot.run_step('empty cart')
+  test "logout" do
+    run_spec("logout")
   end
   
   test "remove credit card" do
-    @message.expects(:message).times(4)
-    robot.run_step('login')
-    robot.run_step('remove credit card')
+    run_spec("remove credit card")
   end
   
-  test "add to cart when vendors choices" do
-    @message.expects(:message).times(6)
-    
-    @context["order"]["products_urls"] = [PRODUCT_URL_3]
-    robot.context = @context
-    
-    robot.run_step('login')
-    robot.run_step('add to cart')
+  test "empty cart" do
+    assert = Proc.new {}
+    run_spec("empty cart", [PRODUCT_URL_5, PRODUCT_URL_2], assert)
   end
   
-  test "add to cart and finalize order" do
-    @message.expects(:message).times(13..16)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-
+   test "add to cart when vendors choices" do
+    assert = Proc.new {
+      robot.open_url Cdiscount::URLS[:cart]
+      title = robot.get_text('//tr[@class="basketProductName"]')
+      assert title =~ /Puzzle Cars/
+    }
+    
+    run_spec("add to cart", [PRODUCT_URL_3], assert)
+  end
+  
+  test "finalize order" do
     products = [{'price_text' => "21,35 €\nsoit 17,85 € HT", 'product_title' => 'HARIBO Happy Box Haribo 600g (x5)', 'product_image_url' => 'http://i2.cdscdn.com/pdt2/5/x/5/1/085x085/har693925x5.jpg', 'price_product' => 21.35, 'price_delivery' => 17.85, 'url' => 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'}]
     billing = {:product => 21.35, :shipping => 6.99, :total => 28.34, :shipping_info => nil}
-    questions = [{:text => nil, :id => '1', :options => nil}]
-    @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
-    
-    robot.run_step('finalize order')
-    assert_equal products, robot.products
-    assert_equal billing, robot.billing
+
+    run_spec("finalize order", [PRODUCT_URL_1], products, billing)
   end
-  
+
   test "handle out of stock (click on 'Passer la commande' has no action even manually)" do
-    @context["order"]["products_urls"] = [PRODUCT_URL_7]
-    robot.context = @context
-    
-    @message.expects(:message).times(12)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.expects(:terminate_on_error).with(:out_of_stock)
-    robot.run_step('finalize order')
+    run_spec("out of stock", [PRODUCT_URL_1], products, billing)
   end
   
   test "complete order process" do
-    @message.expects(:message).times(14..20)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.run_step('finalize order')
+    run_spec("complete order process", [PRODUCT_URL_1])
   end
   
   test "add to cart and finalize order with confirmation of address" do
@@ -167,7 +81,7 @@ class CdiscountTest < ActiveSupport::TestCase
     robot.run_step('add to cart')
     robot.run_step('finalize order')
   end
-  
+
   test "add to cart and finalize order with 4x payment option to avoid" do
     @message.expects(:message).times(20)
     @context["order"]["products_urls"] = [PRODUCT_URL_4]
@@ -188,26 +102,27 @@ class CdiscountTest < ActiveSupport::TestCase
     assert_equal billing, robot.billing
   end
   
-  test "crawl url of product with no options" do
-    @context = {'url' => PRODUCT_URL_5}
-    @robot.context = @context
-    @message.expects(:message).times(1)
-
-    product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
-    robot.expects(:terminate).with(product)
-
-    robot.run_step('crawl')
-  end
-  
-  test "crawl url of product with options" do
-    @context = {'url' => PRODUCT_URL_6 }
-    @robot.context = @context
-    @message.expects(:message).times(1)
-
-    product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
-    robot.expects(:terminate).with(product)
-
-    robot.run_step('crawl')
-  end
+  # 
+  # test "crawl url of product with no options" do
+  #   @context = {'url' => PRODUCT_URL_5}
+  #   @robot.context = @context
+  #   @message.expects(:message).times(1)
+  # 
+  #   product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
+  #   robot.expects(:terminate).with(product)
+  # 
+  #   robot.run_step('crawl')
+  # end
+  # 
+  # test "crawl url of product with options" do
+  #   @context = {'url' => PRODUCT_URL_6 }
+  #   @robot.context = @context
+  #   @message.expects(:message).times(1)
+  # 
+  #   product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
+  #   robot.expects(:terminate).with(product)
+  # 
+  #   robot.run_step('crawl')
+  # end
   
 end  
