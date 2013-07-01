@@ -141,8 +141,14 @@ class Robot
   end
   
   def click_on xpath
-    element = @driver.find_element(xpath)
-    @driver.click_on element
+    attempts = 0
+    begin
+      element = @driver.find_element(xpath)
+      @driver.click_on element
+    rescue Selenium::WebDriver::Error::StaleElementReferenceError
+      attempts += 1
+      sleep(0.5) and retry if attempts < 20
+    end
   end
   
   def move_to_and_click_on xpath
