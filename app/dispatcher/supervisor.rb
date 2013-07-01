@@ -49,11 +49,11 @@ module Dispatcher
     
     def ping_vulcains
       Proc.new {
-        @pool.ping_vulcains do
-          @pool.idle_vulcains do |vulcains| 
-            vulcains.each { |vulcain| vulcain.blocked = !vulcain.ack_ping }
-          end
-        end
+        # @pool.ping_vulcains do
+        #   @pool.idle_vulcains do |vulcains| 
+        #     vulcains.each { |vulcain| vulcain.blocked = !vulcain.ack_ping }
+        #   end
+        # end
       }
     end
     
