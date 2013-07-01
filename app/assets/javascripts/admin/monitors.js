@@ -34,7 +34,7 @@ var Graph = {
 		};
 		
 		var idleAlert = samples.idles[samples.idles.length - 1].y == 0;
-		idleAlert ? Alert.dog().play() : Alert.dog().pause();
+		//idleAlert ? Alert.dog().play() : Alert.dog().pause();
 
 		this._idleGraph.setData(data);
 	}
