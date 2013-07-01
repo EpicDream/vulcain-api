@@ -6,6 +6,7 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.darty.com/nav/achat/informatique/portables/tablette/it_works_tm703.html'
   PRODUCT_URL_2 = 'http://www.darty.com/nav/achat/informatique/calculatrice/pile_rechargeable/sony_pilre_ceb_aa_x4_aaa.html'
   PRODUCT_URL_3 = 'http://m.darty.com/m/produit?codic=3752801'
+  PRODUCT_URL_4 = 'http://m.darty.com/m/produit?codic=1331116'
   
   setup do
     initialize_robot_for Darty
@@ -59,6 +60,16 @@ class AmazonTest < StrategyTest
   
   test "validate order" do
     run_spec("validate order", [PRODUCT_URL_3])
+  end
+  
+  test "crawl url of product with delivery enabe" do
+    product = {:options=>{}, :product_title=>"Okoia BULLE", :product_price=>10.0, :shipping_price=>5.0, :product_image_url=>"http://image.darty.com/petit_electromenager/chauffage_ventilation/purificateur/okoia_bulle_e1207201331116A_103645927.jpg", :shipping_info=>"Modes de livraison\n\n|\nRetrait gratuit en magasin\n |\nVoir les magasins\n |\n|\nLivraison par Colissimo\n( + 5 € )\n | Chez vous\njeudi 04/07  |\n|\nLivraison par Chronopost\n( + 9,90 € )\n | Chez vous mercredi\n03/07 avant 13h  |", :delivery=>true}
+    run_spec("crawl", PRODUCT_URL_4, product)
+  end
+
+  test "crawl url of product with no delivery" do
+    product = {:options=>{}, :product_title=>"Sony LR06 AA x4 + LR03 AAA x2", :product_price=>5.0, :shipping_price=>nil, :product_image_url=>"http://image.darty.com/informatique/calculatrice/pile_rechargeable/sony_pilre_ceb_aa_x4_aaa_f010426v1a_1284456912933.jpg", :shipping_info=>"Modes de livraison\n\n|\nRetrait gratuit en magasin\n |\nVoir les magasins\n |", :delivery=>false}
+    run_spec("crawl", PRODUCT_URL_2, product)
   end
   
 end

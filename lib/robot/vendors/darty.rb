@@ -71,19 +71,47 @@ module DartyConstants
   }
   
   CRAWLING = {
-    # title:'//*[@itemprop="name"]', 
-    # price:'//div[@class="prices"]//td[@class="px_ctc"] | //div[@id="zm_prices_information"]',
-    # image_url:'//img[@itemprop="image"]',
-    # shipping_info: '//div[@class="trsp"]/div[@class="desc"]/ul/li[1] | //*[@id="zm_shipments_information"]',
-    # available:'//div[@id="zm_availability"] | //div[@id="dispo"]',
-    # options_keys:'//dl[@class="attMenu"]//dt',
-    # options_values:'//dl[@class="attMenu"]//dd'
+    title:'//div[@class="mts"]/div[1]', 
+    price:'//div[@class="mts"]/div[3]/span',
+    image_url:'//*[@id="zoom-opener"]/img',
+    shipping_info: '//*[@id="delivery_tab"]',
   }
   
 end
 
+module DartyCrawler
+  class ProductCrawler
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_product
+    end
+    
+    def build_product
+      product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
+      prices = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page)
+      deliveries = "#{@robot.scraped_text @xpaths[:shipping_info] , @page}"
+      product[:product_price] = prices[0]
+      product[:shipping_price] = Robot::PRICES_IN_TEXT.(deliveries).first
+      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      product[:shipping_info] = deliveries
+      product[:delivery] = !!(product[:shipping_info] =~ /Colissimo/)
+    end
+  end
+end
+
 class Darty
   include DartyConstants
+  include DartyCrawler
   attr_accessor :context, :robot
   
   def initialize context
@@ -96,7 +124,7 @@ class Darty
     Robot.new(@context) do
       
       step('remove credit card') do
-        #not recorded
+        #not recorded by default
       end
       
       step('empty cart') do |args|

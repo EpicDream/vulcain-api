@@ -168,17 +168,17 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('cancel order')
   end
   
-  def crawl url, product
-    @context = {'url' => url }
-    @robot.context = @context
-    @message.expects(:message).times(1)
-
-    robot.expects(:terminate).with(product)
-    robot.run_step('crawl')
+  def crawl url, expected_product
+    crawler = @vendor::ProductCrawler.new(@robot, @vendor::CRAWLING)
+    crawler.crawl url
+    [:product_title, :product_price, :shipping_price, :product_image_url, :delivery].each do |key|
+      assert_equal expected_product[key], crawler.product[key]
+    end
   end
   
   def initialize_robot_for vendor
     @context = common_context
+    @vendor = vendor
     @robot = vendor.new(@context).robot
     @message = stub
     @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
