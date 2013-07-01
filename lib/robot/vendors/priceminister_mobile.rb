@@ -119,11 +119,6 @@ class Plugin::IRobot < Robot
     {id: 'pl_click_on_exact', desc: "Cliquer sur l'élément exact", args: {xpath: true}},
     {id: 'wait_ajax', desc: "Attendre l'Ajax", args: {}},
     {id: 'pl_user_code', desc: "Entrer manuellement du code", args: {xpath: true, current_url: true}}
-    # {id: 'pl_open_product_url product_url', desc: "Aller sur la page du produit"},
-    # {id: 'wait_for_button_with_name', desc: "Attendre le bouton"},
-    # {id: 'wait_ajax', desc: "Attendre"},
-    # {id: 'ask', desc: "Demander à l'utilisateur", has_arg: true},
-    # {id: 'message', desc: "Envoyer un message", has_arg: true}
   ]
   for a in ACTION_METHODS
     a[:method] ||= a[:id]
@@ -168,10 +163,12 @@ class Plugin::IRobot < Robot
     @pl_current_product = {}
     @billing = {}
     @isTest = false
+    @isCrawling = false
 
     self.instance_eval do
 
       step('crawl') do
+        @isCrawling = true
         url = @context['url']
         pl_open_url! url
         @pl_current_product = {:options => {}}
@@ -543,9 +540,7 @@ class Plugin::IRobot < Robot
 
   def pl_set_product_price!(xpath)
     text = get_text(xpath)
-    @pl_current_product['price_text'] = text
-    @pl_current_product['product_price'] = text
-    @pl_current_product['price_product'] = get_price(text)
+    @pl_current_product['product_price'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
@@ -555,9 +550,7 @@ class Plugin::IRobot < Robot
 
   def pl_set_product_delivery_price!(xpath)
     text = get_text(xpath)
-    @pl_current_product['delivery_text'] = text
-    @pl_current_product['shipping_price'] = text
-    @pl_current_product['price_delivery'] = get_price(text)
+    @pl_current_product['shipping_price'] = get_price(text)
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
@@ -576,6 +569,7 @@ class Plugin::IRobot < Robot
   end
 
   def pl_set_product_available!(path)
+    return unless @isCrawling
     text = get_text(path)
     @pl_current_product['available'] = text
   rescue ArgumentError

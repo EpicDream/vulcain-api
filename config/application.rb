@@ -72,11 +72,11 @@ module VulcainApi
       max_idle_average: 50, # %
       running_timeout_after: 3.minutes,      
       ensure_min_idle_vulcains_every: 30.seconds,
-      dump_idles_samples_every: 10.seconds,
+      dump_idles_samples_every: 60.seconds,
       ensure_max_idle_vulcains_every: 1.hour,
       check_timeouts_every: 10.seconds,
       ping_vulcains_every: 30.seconds,
-      dump_pool_every: 3.seconds,
+      dump_pool_every: 5.seconds,
       touch_dispatcher_running_every: 30.seconds,
     }
 
