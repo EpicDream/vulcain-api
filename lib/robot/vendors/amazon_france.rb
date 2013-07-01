@@ -45,7 +45,7 @@ class AmazonFrance
   SHIPMENT_FORM_ZIPCODE = '//*[@id="enterAddressPostalCode"]'
   SHIPMENT_FORM_PHONE = '//*[@id="enterAddressPhoneNumber"]'
   SHIPMENT_FORM_ADDITIONAL = '//*[@id="GateCode"]'
-  SHIPMENT_FORM_SUBMIT = '/html/body/div[4]/div[2]/div[1]/form/div[3]/button/span'
+  SHIPMENT_FORM_SUBMIT = '/html/body/div[4]/div[2]/div/form/div[4]/button'
   SHIPMENT_OPTIONS_SUBMIT = '//*[@id="shippingOptionFormId"]/div[2]/span/input'
   SHIPMENT_ADDRESS_CONFIRM_OPTION = '//*[@id="addr-addr_0"]/label/i'
   SHIPMENT_ADDRESS_CONFIRM_SUBMIT = '//*[@id="AVS"]/div[2]/form/button/span'

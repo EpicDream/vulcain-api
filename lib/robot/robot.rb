@@ -141,10 +141,8 @@ class Robot
   end
   
   def click_on xpath
-    @driver.click_on @driver.find_element(xpath)
-    rescue
-      sleep(0.5)
-      retry #wait element clickable
+    element = @driver.find_element(xpath)
+    @driver.click_on element
   end
   
   def move_to_and_click_on xpath

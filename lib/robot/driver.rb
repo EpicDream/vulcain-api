@@ -50,7 +50,16 @@ class Driver
   end
 
   def click_on element
-    element.click
+    @attempts = 0
+    begin
+      element.click
+    rescue
+      if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
+        sleep(0.5) and retry #wait element clickable
+      else
+        raise
+      end
+    end
   end
  
   def move_to_and_click_on element
