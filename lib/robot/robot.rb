@@ -163,10 +163,11 @@ class Robot
       attempts = 0
       begin
         element = @driver.find_element(xpath)
-        @driver.click_on element
+        @driver.move_to_and_click_on element
         wait_ajax if opts[:ajax]
         true
-      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+      rescue => e# Selenium::WebDriver::Error::StaleElementReferenceError
+        puts e.inspect
         attempts += 1
         if attempts < 20
           sleep(0.5) and retry 
@@ -614,7 +615,7 @@ class Robot
     products = []
     open_cart = Proc.new {
       open_url vendor::URLS[:cart] || click_on(vendor::CART[:button], check:true)
-      wait_for ['//body']
+      wait_for [vendor::CART[:items_lists]]
     }
     open_cart.call
     remove.call

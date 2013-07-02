@@ -7,7 +7,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -16,8 +16,8 @@ class StrategyTest < ActiveSupport::TestCase
     send(name.gsub(/\s/, '_'), *args)
   end
   
-  def register
-    skip "Can' create account each time!"
+  def register skip=true
+    skip "Can' create account each time!" if skip
     @message.expects(:message).times(1)
     robot.expects(:message).with(:account_created, :next_step => 'renew login')
 

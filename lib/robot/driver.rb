@@ -74,6 +74,8 @@ class Driver
  
   def move_to_and_click_on element
     driver.action.move_to(element).click.perform
+  rescue => e
+    puts e.inspect
   end
   
   def find_element xpath, options={}
