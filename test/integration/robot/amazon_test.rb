@@ -54,7 +54,7 @@ class AmazonTest < StrategyTest
   test "complete order process" do
     robot.expects(:submit_credit_card).returns(false)
     robot.expects(:build_final_billing)
-    run_spec("complete order process", [PRODUCT_5_URL])
+    run_spec("complete order process", [PRODUCT_URL_5])
   end
   
   test "crawl url of product with no options" do
