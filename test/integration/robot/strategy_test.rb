@@ -171,7 +171,7 @@ class StrategyTest < ActiveSupport::TestCase
   def cancel_order urls
     @context['order']['products_urls'] = urls
     @robot.context = @context
-    @message.expects(:message).times(20)
+    @message.expects(:message).times(15..20)
     @message.expects(:message).with(:step, 'cancel order')
     @message.expects(:message).with(:step, 'empty cart')
     
@@ -186,7 +186,7 @@ class StrategyTest < ActiveSupport::TestCase
     crawler = @vendor::ProductCrawler.new(@robot, @vendor::CRAWLING)
     crawler.crawl url
     [:product_title, :product_price, :shipping_price, :product_image_url, :delivery].each do |key|
-      assert_equal expected_product[key], crawler.product[key]
+      assert_equal expected_product[key], crawler.product[key], "fail with #{key}"
     end
   end
   
