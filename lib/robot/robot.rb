@@ -320,8 +320,9 @@ class Robot
     end
   end
   
-  def select_option xpath, value
+  def select_option xpath, value, opts={}
     select = @driver.find_element(xpath)
+    return if opts[:check] && !select
     value = value[:with] if value.kind_of?(Hash)
     @driver.select_option(select, value.to_s)
   end
@@ -706,6 +707,7 @@ class Robot
     exp_month = order.credentials.exp_month.to_s
     exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
     click_on vendor::PAYMENT[:visa], check:true
+    select_option vendor::PAYMENT[:credit_card], vendor::PAYMENT[:visa_value], check:true
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
     select_option vendor::PAYMENT[:exp_month], exp_month
