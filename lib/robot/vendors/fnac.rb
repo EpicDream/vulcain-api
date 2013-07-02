@@ -158,7 +158,7 @@ class Fnac
             terminate_on_error(:out_of_stock)
           end
         }
-        add_to_cart(best_offer)
+        add_to_cart(best_offer, nil, ajax:true)
       end
       
       step('empty cart') do |args|
