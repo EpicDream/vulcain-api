@@ -220,9 +220,24 @@ class Plugin::IRobot < Robot
       step('run_finalize') do
         run_step('finalize_order')
 
-        @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
-        @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
-        @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
+        # Si il manque le tot des produits ou de la livraison, mais qu'on l'a pour chaque produit indépendemment, on le calcule
+        if @billing[:product].nil? && products.all? { |p| p['product_price'].kind_of?(Numeric) }
+          @billing[:product] = products.map { |p| p['product_price'] }.inject(:+)
+        end
+        if @billing[:shipping].nil? && products.all? { |p| p['shipping_price'].kind_of?(Numeric) }
+          @billing[:shipping] = products.map { |p| p['shipping_price'] }.inject(:+)
+        end
+        # Si il manque juste total, addition
+        if @billing[:total].nil? && @billing[:product] && @billing[:shipping]
+          @billing[:total] = @billing[:product] + @billing[:shipping]
+        # Si on a le total, c'est bon, on va se débrouiller avec.
+        elsif @billing[:total] && (@billing[:product].nil? || @billing[:shipping].nil?)
+          @billing[:product] = @billing[:total]
+          @billing[:shipping] = 0.0
+        # Si on a pas le total et qu'il manque un des deux autres, CRASH !
+        elsif @billing[:total].nil?
+          raise NoSuchElementError, "Cannot compute total price. Missing prices : #{[@billing[:total] ? '' : 'TOT', @billing[:product] ? '' : 'PROD', @billing[:shipping] ? '' : 'SHIP'].join(', ')}."
+        end
 
         pl_assess next_step:'run_waitAck'
       end
@@ -309,7 +324,7 @@ class Plugin::IRobot < Robot
   end
 
   def pl_assess(args)
-    if products.all? { |p| p['price_product'].kind_of?(Numeric) && p['price_delivery'].kind_of?(Numeric) }
+    if products.all? { |p| p['product_price'].kind_of?(Numeric) && p['shipping_price'].kind_of?(Numeric) }
       assess(args)
     else
       raise StrategyError.new("Impossible de faire un résumé : il manque des informations sur les prix de certains produits.\n#{products}")
@@ -1012,13 +1027,13 @@ class PriceministerMobile
         wait_ajax(2)
         # Indiquer le prix de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
-        pl_set_product_price!(plarg_xpath)
+        pl_set_product_price(plarg_xpath)
         # Indiquer le prix de livraison de l'article
         plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
-        pl_set_product_delivery_price!(plarg_xpath)
+        pl_set_product_delivery_price(plarg_xpath)
         # Indiquer les informations de livraison de l'article
         plarg_xpath = 'div.adv_list article:nth-child(1) div ul li.more_details div.shipping'
-        pl_set_product_shipping_info!(plarg_xpath)
+        pl_set_product_shipping_info(plarg_xpath)
       end
       step('add_to_cart') do
         # Retourner sur le site mobile
@@ -1031,9 +1046,12 @@ class PriceministerMobile
         wait_ajax(3)
       end
       step('finalize_order') do
-        # Aller sur la page principale
+        # Aller sur la page du panier
         plarg_url = 'http://www.priceminister.com/cart'
         pl_open_url!(plarg_url)
+        # Prix total
+        plarg_path = 'div.ui-page-active section header div p.total_amount span.value'
+        pl_set_tot_price!(plarg_path)
         # Bouton finalisation
         plarg_xpath = '//div[@id]/div/section/header/div/a/span/span'
         pl_click_on!(plarg_xpath)
