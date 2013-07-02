@@ -357,7 +357,6 @@ class Robot
       @driver.find_element(xpath)
     end
   rescue => e
-    puts e.inspect
     if block_given?
       rescue_block.call
       return false
@@ -471,7 +470,7 @@ class Robot
     
   end
   
-  def register
+  def register deviances={}
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     
@@ -509,12 +508,21 @@ class Robot
     fill vendor::REGISTER[:land_phone], with:land_phone, check:true
     fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
     fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
-    fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+    unless deviances[:zip]
+      fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+    else
+      deviances[:zip].call
+    end
     fill vendor::REGISTER[:city], with:user.address.city, check:true
-    
     click_on vendor::REGISTER[:cgu], check:true
     click_on vendor::REGISTER[:submit]
-    
+
+    wait_ajax
+    if exists? vendor::REGISTER[:address_option]
+      click_on vendor::REGISTER[:address_option]
+      move_to_and_click_on vendor::REGISTER[:submit]
+    end
+      
     unless wait_leave(vendor::REGISTER[:submit])
       terminate_on_error(:account_creation_failed)
     else
