@@ -2,7 +2,7 @@
 require_relative 'strategy_test'
 require_robot 'darty'
 
-class AmazonTest < StrategyTest
+class DartyTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.darty.com/nav/achat/informatique/portables/tablette/it_works_tm703.html'
   PRODUCT_URL_2 = 'http://www.darty.com/nav/achat/informatique/calculatrice/pile_rechargeable/sony_pilre_ceb_aa_x4_aaa.html'
   PRODUCT_URL_3 = 'http://m.darty.com/m/produit?codic=3752801'
