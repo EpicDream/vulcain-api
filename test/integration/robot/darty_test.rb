@@ -13,11 +13,21 @@ class DartyTest < StrategyTest
   end
   
   test "register" do
-    run_spec("register")
+    run_spec("register", false)
   end
   
   test "register failure" do
     run_spec("register failure")
+  end
+  
+  test "register with popup on postal code enter" do
+    @context['user']['address']['zip'] = '18500'
+    @context['user']['address']['address_1'] = '17bis rue Jean Graczyk'    
+    @context['user']['address']['city'] = 'Vignoux-sur-Barangeon'    
+    
+    @robot.context = @context
+    
+    run_spec("register", false)
   end
 
   test "login" do
