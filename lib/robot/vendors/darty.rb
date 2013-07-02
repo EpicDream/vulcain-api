@@ -22,6 +22,7 @@ module DartyConstants
     zip:'//*[@id="mes_parametres_code_postal"]',
     password:'//*[@id="mot_de_passe"]',
     password_confirmation:'//*[@id="confirmation_mot_de_passe"]',
+    address_option:'//*[@id="option_redressement_1"]',
     submit: '//*[@id="form_adresse"]/div[2]/div/input[2]'
   }
   
@@ -122,6 +123,19 @@ class Darty
   
   def instanciate_robot
     Robot.new(@context) do
+      
+      step('create account') do
+        zip = Proc.new do
+          fill REGISTER[:zip], with:user.address.zip, check:true
+          wait_ajax 4
+          elements = find_elements('//li[@class="ui-menu-item"]/a')
+          elements.each do |e|
+            city = user.address.city.gsub(/-/, ' ').downcase.strip
+            @driver.click_on(e) if e.text.downcase.strip == city
+          end
+        end
+        register(zip:zip)
+      end
       
       step('remove credit card') do
         #not recorded by default
