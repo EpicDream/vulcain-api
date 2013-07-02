@@ -12,14 +12,6 @@ class SupervisorTest <  ActiveSupport::TestCase
   end
   
   test "ping vulcains should block vulcain iff idle and does not ack ping" do
-    @pool.pool = vulcains
-    vulcain = @pool.pool.first
-    vulcain.stubs(:ack_ping).returns(false)
-    
-    @supervisor.ping_vulcains.call
-    
-    assert vulcain.blocked
-    assert_equal 2, @pool.pool.count { |vulcain| !vulcain.blocked  }
   end
   
   test "check timeouts of vulcains" do

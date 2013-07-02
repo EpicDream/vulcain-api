@@ -48,12 +48,9 @@ module Dispatcher
     end
     
     def ping_vulcains
-      Proc.new {
-        # @pool.ping_vulcains do
-        #   @pool.idle_vulcains do |vulcains| 
-        #     vulcains.each { |vulcain| vulcain.blocked = !vulcain.ack_ping }
-        #   end
-        # end
+      Proc.new { 
+        #check vulcains which not ack ping here, before call ping_vulcains
+        @pool.ping_vulcains
       }
     end
     

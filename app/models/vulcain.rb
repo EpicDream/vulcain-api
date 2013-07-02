@@ -16,7 +16,7 @@ class Vulcain
   end
   
   def available?
-    @idle && !@blocked && !@stale
+    @idle && !@blocked && !@stale && @ack_ping
   end
   
   def busy?
