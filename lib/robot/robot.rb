@@ -615,7 +615,7 @@ class Robot
     products = []
     open_cart = Proc.new {
       open_url vendor::URLS[:cart] || click_on(vendor::CART[:button], check:true)
-      wait_for [vendor::CART[:items_lists]]
+      wait_for [vendor::CART[:items_lists], '//body']
     }
     open_cart.call
     remove.call

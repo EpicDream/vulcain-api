@@ -6,7 +6,7 @@ module ToysrusFranceConstants
     login:'https://www.toysrus.fr/login.jsp',
     logout:'https://www.toysrus.fr/j_logout',
     payments:'',
-    cart:''
+    cart:'http://www.toysrus.fr/cart/shoppingcart.jsp'
   }
   
   REGISTER = {

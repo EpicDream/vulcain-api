@@ -36,16 +36,16 @@ class ToysrusFranceTest < StrategyTest
   
   test "add to cart" do
     assert = Proc.new do
-      assert_equal 2, robot.find_elements('//tr[@class="orderItem"]').count
+      assert_equal 1, robot.find_elements('//tr[@class="orderItem"]').count
     end
-    run_spec("add to cart", [PRODUCT_URL_1, PRODUCT_URL_2], assert)
+    run_spec("add to cart", [PRODUCT_URL_1], assert)
   end
   
   test "empty cart" do
     assert = Proc.new do
       assert_equal 0, robot.find_elements('//tr[@class="orderItem"]').count
     end
-    run_spec("empty cart", [PRODUCT_URL_1, PRODUCT_URL_2], assert)
+    run_spec("empty cart", [PRODUCT_URL_1], assert)
   end
   
 end
