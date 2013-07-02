@@ -113,9 +113,10 @@ class SupervisorTest <  ActiveSupport::TestCase
     samples = (1..100).map { |n|  { idle:3, total:3, ratio:100 } } 
     @supervisor.instance_variable_set(:@idle_samples, samples)
     
-    Vulcain.expects(:unmout_instance).twice
+    Vulcain.expects(:unmout_instance).twice.returns(true)
     
     @supervisor.ensure_max_idle_vulcains.call
+    assert_equal 1, @pool.pool.count
   end
   
   test " no unmount vulcains if average of idles vulcains for last hour samples is lt config.max_idle_average" do
@@ -132,7 +133,6 @@ class SupervisorTest <  ActiveSupport::TestCase
     
     @supervisor.ensure_max_idle_vulcains.call
   end
-  
   
   private
   

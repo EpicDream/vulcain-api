@@ -136,7 +136,9 @@ module Dispatcher
     def unmout_vulcains total
       total.times do
         next unless vulcain = @pool.pull(UNMOUNT_SESSION)
-        Vulcain.unmout_instance(vulcain.pid)
+        if Vulcain.unmout_instance(vulcain.pid)
+          @pool.pop(vulcain.id)
+        end
       end
     end
     
