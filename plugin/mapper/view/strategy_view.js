@@ -80,10 +80,11 @@ var StrategyView = function(_strategy) {
     _strategy.save();
   };
   function _onLoad(event) {
-    _strategy.load(function() {
-      this.reset();
-      this.render();
-    }.bind(this));
+    if (_strategy.modified() && confirm("Vous allez perdre vos dernières modifications : êtes vous sûr de vouloir recharger ?"))
+      _strategy.load(function() {
+        this.reset();
+        this.render();
+      }.bind(this));
   };
   function _onUnload(event) {
     _saveCurrentState();
