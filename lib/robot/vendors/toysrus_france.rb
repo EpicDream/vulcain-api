@@ -32,6 +32,7 @@ module ToysrusFranceConstants
     mobile_phone:'//*[@id="billingAddress-phone"]',
     submit: '//*[@id="address-sugg-diff-bott"]',
     submit_packaging: '//*[@id="proceed"]/button',
+    same_billing_address: '//*[@id="shipOption2"]'
   }
   
   CART = {
