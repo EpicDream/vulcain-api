@@ -491,9 +491,17 @@ class Robot
       return
     end
     
-    if exists? vendor::REGISTER[:mister]
+    if exists? vendor::REGISTER[:gender]
+      value = case user.gender
+      when 0 then vendor::REGISTER[:mister]
+      when 1 then vendor::REGISTER[:madam]
+      when 2 then vendor::REGISTER[:miss]
+      end
+      select_option vendor::REGISTER[:gender], value
+    elsif exists? vendor::REGISTER[:mister]
       click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
     end
+    
     if vendor::REGISTER[:birthdate]
       fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
     end
@@ -503,6 +511,12 @@ class Robot
       select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
     end
     
+    unless deviances[:zip]
+      fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+    else
+      deviances[:zip].call
+    end
+    
     fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
     fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
     fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
@@ -510,12 +524,15 @@ class Robot
     fill vendor::REGISTER[:land_phone], with:land_phone, check:true
     fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
     fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
-    unless deviances[:zip]
-      fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+    
+    
+    unless deviances[:city]
+      fill vendor::REGISTER[:city], with:user.address.city, check:true
     else
-      deviances[:zip].call
+      deviances[:city].call
     end
-    fill vendor::REGISTER[:city], with:user.address.city, check:true
+    
+    fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
     click_on vendor::REGISTER[:cgu], check:true
     click_on vendor::REGISTER[:submit]
 
