@@ -605,7 +605,7 @@ class Robot
     click_on vendor::LOGIN[:submit], check:true
     click_on vendor::PAYMENT[:remove], check:true, ajax:true
     click_on vendor::PAYMENT[:remove_confirmation], check:true
-    sleep 10
+    wait_ajax 
     open_url vendor::URLS[:base]
   end
   

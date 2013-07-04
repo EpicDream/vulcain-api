@@ -44,6 +44,7 @@ class ImenagerTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new do
+      robot.find_element(Imenager::CART[:remove_item]).nil?
     end
     run_spec("empty cart", [PRODUCT_URL_1], assert)
   end

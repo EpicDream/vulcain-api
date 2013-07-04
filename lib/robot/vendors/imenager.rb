@@ -8,7 +8,7 @@ module ImenagerConstants
     login:'http://www.imenager.com/identification.php?origin=account.php',
     logout: 'http://www.imenager.com/logoff_process.php',
     payments:'',
-    cart:''
+    cart:'http://www.imenager.com/shopping_cart.php'
   }
   
   REGISTER = {
@@ -57,10 +57,10 @@ module ImenagerConstants
   
   CART = {
     add:'//*[@id="contenuPrincipal"]/div[7]/div[2]/div[2]/a',
-    remove_item:'',
+    remove_item:'//div[@class="delete"]/a',
     empty_message:'',
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: '',
+    submit: '//a[@class="boutonEtapeSuivante"]',
     submit_success: [],
   }
   
@@ -147,11 +147,31 @@ class Imenager
   def instanciate_robot
     Robot.new(@context) do
       
+      step('remove credit card') do
+        #TODO rmeove
+      end
+      
       step('empty cart') do |args|
-        #TODO : REMOVE IF NO SPECIFICITY
+        remove = Proc.new { click_on_all([CART[:remove_item]]) { |e| !e.nil? } }
+        check = Proc.new { find_element(CART[:remove_item]).nil? }
+        next_step = args && args[:next_step]
+        empty_cart(remove, check, next_step)
+      end
+
+      step('delete product options') do
+        click_on_all([CART[:remove_item]], start_index:1) { |e| !e.nil? }
       end
 
       step('finalize order') do
+        before_submit = Proc.new do
+          run_step('delete product options')
+        end
+        fill_shipping_form = Proc.new do
+        end
+        access_payment = Proc.new do
+        end
+        
+        finalize_order(fill_shipping_form, access_payment, before_submit)
       end
       
       step('validate order') do

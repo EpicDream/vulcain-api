@@ -7,7 +7,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      robot.driver.quit
+      #robot.driver.quit
     rescue
     end
   end
@@ -77,7 +77,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def empty_cart urls, assert=Proc.new{}
-    @message.expects(:message).times(13..20)
+    @message.expects(:message).times(10..20)
     robot.run_step('login')
     
     urls.each do |url|
