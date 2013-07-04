@@ -658,12 +658,21 @@ class Robot
   end
   
   def fill_shipping_form
-    $stdout << user.address.land_phone + "\n"
-    $stdout << user.address.mobile_phone + "\n"
+    $stdout << "HERE"
+    $stdout << user.address.land_phone
+    $stdout << "\n"
+    
+    $stdout << user.address.mobile_phone
+    $stdout << "\n"
+    
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    $stdout << land_phone+ "\n"
-    $stdout << mobile_phone+ "\n"
+    $stdout << land_phone
+    $stdout << "\n"
+    
+    $stdout << mobile_phone
+    $stdout << "\n"
+    
     click_on vendor::SHIPMENT[:add_address], check:true
     wait_for [vendor::SHIPMENT[:city]]
     
@@ -676,7 +685,8 @@ class Robot
     fill vendor::SHIPMENT[:city], with:user.address.city, check:true
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
     sleep(2)
-    $stdout << mobile_phone+ "\n"
+    $stdout << mobile_phone
+    $stdout << "\n"
     
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     sleep(3)
