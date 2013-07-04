@@ -672,8 +672,7 @@ class Robot
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
-    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
-    fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
+    
     if vendor::SHIPMENT[:birthdate_day]
       select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
       select_option vendor::SHIPMENT[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
@@ -684,7 +683,6 @@ class Robot
     click_on vendor::SHIPMENT[:submit]
     wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
     
-    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     
     if exists? vendor::SHIPMENT[:address_option]
