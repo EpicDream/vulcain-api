@@ -5,7 +5,7 @@ module ConforamaConstants
     base:'http://m.conforama.fr/',
     home:'http://m.conforama.fr/home.php',
     register:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&toRegisterForm=true&device=MOBILE#UserRegistrationUpdateForm',
-    login:'',
+    login:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&device=MOBILE',
     payments:'',
     cart:''
   }
@@ -30,14 +30,10 @@ module ConforamaConstants
   }
   
   LOGIN = {
-    link:'',
-    email:'',
-    password:'',
-    submit: '',
-    logout:'',
-    captcha:'',
-    captcha_submit:'',
-    captcha_input:''
+    email:'//*[@id="loginMail"]',
+    password:'//*[@id="loginPass"]',
+    submit: '//*[@id="Logon"]/div/div[2]/div[2]/a',
+    logout:'/html/body/a[6]/div',
   }
   
   SHIPMENT = {
