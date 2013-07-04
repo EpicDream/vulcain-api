@@ -491,7 +491,6 @@ class Robot
       terminate_on_error(:account_creation_failed)
       return
     end
-    
     if exists? vendor::REGISTER[:gender]
       value = case user.gender
       when 0 then vendor::REGISTER[:mister]
@@ -526,6 +525,21 @@ class Robot
     fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
     fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
     
+    if exists? vendor::REGISTER[:address_type]
+      user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
+      fill vendor::REGISTER[:address_number], with:$1, check:true
+      
+      begin
+        options = options_of_select(vendor::REGISTER[:address_type])
+        option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
+        select_option(vendor::REGISTER[:address_type], option[0])
+      rescue
+        fill vendor::REGISTER[:address_track], with:"#{$2} #{$3}", check:true
+      else
+        fill vendor::REGISTER[:address_track], with:$3, check:true
+      end
+      
+    end
     
     unless deviances[:city]
       fill vendor::REGISTER[:city], with:user.address.city, check:true
