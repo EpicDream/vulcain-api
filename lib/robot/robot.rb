@@ -656,9 +656,12 @@ class Robot
   end
   
   def fill_shipping_form
+    puts user.address.land_phone
+    puts user.address.mobile_phone
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    
+    puts land_phone
+    puts mobile_phone
     click_on vendor::SHIPMENT[:add_address], check:true
     wait_for [vendor::SHIPMENT[:city]]
     
@@ -672,7 +675,7 @@ class Robot
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
-    
+    sleep(60)
     if vendor::SHIPMENT[:birthdate_day]
       select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
       select_option vendor::SHIPMENT[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
