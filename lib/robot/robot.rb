@@ -763,7 +763,6 @@ class Robot
     if page
       screenshot
       page_source
-      
       status = get_text vendor::PAYMENT[:status]
       if status =~ vendor::PAYMENT[:succeed]
         run_step('remove credit card')
@@ -773,7 +772,6 @@ class Robot
         terminate_on_error(:order_validation_failed)
       end
     end
-    
   end
   
 end

@@ -70,5 +70,5 @@ class ToysrusFranceTest < StrategyTest
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_URL_1])
   end
-  
+
 end

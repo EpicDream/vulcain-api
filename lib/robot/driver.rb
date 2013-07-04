@@ -63,7 +63,10 @@ class Driver
     @attempts = 0
     begin
       element.click
-    rescue
+    rescue Timeout::Error
+      #strange behaviour, the element is well clicked but this wait TIMEOUT and raise Timeout::Error
+      return
+    rescue => e
       if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
         sleep(0.5) and retry #wait element clickable
       else
@@ -75,7 +78,6 @@ class Driver
   def move_to_and_click_on element
     driver.action.move_to(element).click.perform
   rescue => e
-    puts e.inspect
   end
   
   def find_element xpath, options={}
