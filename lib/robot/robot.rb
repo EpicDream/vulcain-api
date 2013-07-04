@@ -292,6 +292,8 @@ class Robot
       return if args[:check] && !exists?(xpath)
       input = @driver.find_element(xpath)
       input.clear
+      $stdout << args[:with] + "\n"
+      
       input.send_key args[:with]
     end
   end
@@ -656,13 +658,12 @@ class Robot
   end
   
   def fill_shipping_form
-    $stdout << "HERE"
-    $stdout << user.address.land_phone
-    $stdout << user.address.mobile_phone
+    $stdout << user.address.land_phone + "\n"
+    $stdout << user.address.mobile_phone + "\n"
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    $stdout << land_phone
-    $stdout << mobile_phone
+    $stdout << land_phone+ "\n"
+    $stdout << mobile_phone+ "\n"
     click_on vendor::SHIPMENT[:add_address], check:true
     wait_for [vendor::SHIPMENT[:city]]
     
@@ -674,8 +675,14 @@ class Robot
     fill vendor::SHIPMENT[:additionnal_address], with:user.address.additionnal_address, check:true
     fill vendor::SHIPMENT[:city], with:user.address.city, check:true
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
+    sleep(2)
+    $stdout << mobile_phone+ "\n"
+    
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    sleep(3)
+    
     fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
+    
     sleep(60)
     if vendor::SHIPMENT[:birthdate_day]
       select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
