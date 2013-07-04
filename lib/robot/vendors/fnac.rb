@@ -41,7 +41,7 @@ module FnacConstants
     city: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCity"]',
     zip: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtZipCode"]',
     mobile_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]',
-    # land_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]',
+    land_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]',
     select_this_address: '//*[@id="form1"]/div[3]/div[1]/div/div',
     submit: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_btnUpdate"]',
     submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',

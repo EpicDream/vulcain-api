@@ -292,8 +292,7 @@ class Robot
       return if args[:check] && !exists?(xpath)
       input = @driver.find_element(xpath)
       input.clear
-      $stdout << args[:with] + "\n"
-      
+      sleep(1)
       input.send_key args[:with]
     end
   end
@@ -658,21 +657,8 @@ class Robot
   end
   
   def fill_shipping_form
-    $stdout << "HERE"
-    $stdout << user.address.land_phone
-    $stdout << "\n"
-    
-    $stdout << user.address.mobile_phone
-    $stdout << "\n"
-    
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    $stdout << land_phone
-    $stdout << "\n"
-    
-    $stdout << mobile_phone
-    $stdout << "\n"
-    
     click_on vendor::SHIPMENT[:add_address], check:true
     wait_for [vendor::SHIPMENT[:city]]
     
@@ -684,16 +670,10 @@ class Robot
     fill vendor::SHIPMENT[:additionnal_address], with:user.address.additionnal_address, check:true
     fill vendor::SHIPMENT[:city], with:user.address.city, check:true
     fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
-    sleep(2)
-    $stdout << mobile_phone
-    $stdout << "\n"
     
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
-    sleep(3)
-    
     fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
     
-    sleep(60)
     if vendor::SHIPMENT[:birthdate_day]
       select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
       select_option vendor::SHIPMENT[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
@@ -704,7 +684,7 @@ class Robot
     click_on vendor::SHIPMENT[:submit]
     wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
     
-    #fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     
     if exists? vendor::SHIPMENT[:address_option]
       click_on vendor::SHIPMENT[:address_option]
@@ -735,9 +715,7 @@ class Robot
         fill vendor::LOGIN[:password], with:account.password
         click_on vendor::LOGIN[:submit]
       end
-      $stdout << "M1"
       run_step('fill shipping form') if fill_shipping_form.call
-      $stdout << "M2"
       
       wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
       click_on vendor::SHIPMENT[:option], check:true
@@ -752,7 +730,7 @@ class Robot
     exp_month = order.credentials.exp_month.to_s
     exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
     click_on vendor::PAYMENT[:visa], check:true
-    select_option vendor::PAYMENT[:credit_card], vendor::PAYMENT[:visa_value], check:true
+    select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
     select_option vendor::PAYMENT[:exp_month], exp_month

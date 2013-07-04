@@ -38,7 +38,7 @@ module ToysrusFranceConstants
   PAYMENT = {
     remove: '//*[@id="walletCC_1030254522"]/dl/dt/ul/li[6]/ul/li/a',
     confirm_remove: '//*[@id="deleteAddress"]',
-    credit_card:'//*[@id="creditCardPaymentMethod-cardType"]',
+    credit_card_select:'//*[@id="creditCardPaymentMethod-cardType"]',
     visa_value:'VC',
     access:'//*[@id="payment-method"]/p/a',
     number:'//*[@id="creditCardPaymentMethod-cardNumber"]',
