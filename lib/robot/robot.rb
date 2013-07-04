@@ -656,12 +656,13 @@ class Robot
   end
   
   def fill_shipping_form
-    puts user.address.land_phone
-    puts user.address.mobile_phone
+    $stdout << "HERE"
+    $stdout << user.address.land_phone
+    $stdout << user.address.mobile_phone
     land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    puts land_phone
-    puts mobile_phone
+    $stdout << land_phone
+    $stdout << mobile_phone
     click_on vendor::SHIPMENT[:add_address], check:true
     wait_for [vendor::SHIPMENT[:city]]
     
@@ -717,7 +718,10 @@ class Robot
         fill vendor::LOGIN[:password], with:account.password
         click_on vendor::LOGIN[:submit]
       end
+      $stdout << "M1"
       run_step('fill shipping form') if fill_shipping_form.call
+      $stdout << "M2"
+      
       wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
       click_on vendor::SHIPMENT[:option], check:true
       click_on vendor::SHIPMENT[:submit_packaging]
