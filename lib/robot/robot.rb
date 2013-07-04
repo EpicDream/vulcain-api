@@ -683,7 +683,7 @@ class Robot
     click_on vendor::SHIPMENT[:submit]
     wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
     
-    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
+    #fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     
     if exists? vendor::SHIPMENT[:address_option]
       click_on vendor::SHIPMENT[:address_option]
