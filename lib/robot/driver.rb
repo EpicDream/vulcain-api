@@ -82,7 +82,12 @@ class Driver
   
   def find_element xpath, options={}
     waiting(options[:nowait]) { 
-      driver.find_elements(:xpath => xpath)[options[:index] || 0] 
+    begin  
+      driver.find_elements(:xpath => xpath)[options[:index] || 0]
+    rescue Selenium::WebDriver::Error::UnhandledAlertError
+      accept_alert
+      return nil
+    end
     }
   end
   
