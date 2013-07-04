@@ -321,6 +321,7 @@ class Robot
   end
   
   def select_option xpath, value, opts={}
+    return unless xpath
     select = @driver.find_element(xpath)
     return if opts[:check] && !select
     value = value[:with] if value.kind_of?(Hash)
