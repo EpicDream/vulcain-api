@@ -49,6 +49,7 @@ module FnacConstants
   
   CART = {
     add:'//div[@class="addbasket"]',
+    validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
     offers: '//span[@class="mpoffer"]/a',
     offer: '//*[@id="offers_list"]/ul/li[1]',
     add_offer: '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a',

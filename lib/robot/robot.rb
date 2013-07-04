@@ -163,11 +163,10 @@ class Robot
       attempts = 0
       begin
         element = @driver.find_element(xpath)
-        @driver.move_to_and_click_on element
+        @driver.click_on element
         wait_ajax if opts[:ajax]
         true
-      rescue => e# Selenium::WebDriver::Error::StaleElementReferenceError
-        puts e.inspect
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
         attempts += 1
         if attempts < 20
           sleep(0.5) and retry 
@@ -611,6 +610,7 @@ class Robot
         click_on vendor::CART[:add]
       end
       wait_ajax(4) if opts[:ajax]
+      click_on vendor::CART[:validate], check:true
       message :cart_filled, :next_step => 'finalize order'
     end
   end
@@ -682,8 +682,8 @@ class Robot
 
     click_on vendor::SHIPMENT[:same_billing_address], check:true
     click_on vendor::SHIPMENT[:submit]
-    
     wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
+    
     mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     
@@ -717,12 +717,10 @@ class Robot
         click_on vendor::LOGIN[:submit]
       end
       run_step('fill shipping form') if fill_shipping_form.call
-      
-      wait_for([vendor::SHIPMENT[:submit_packaging]])
+      wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
       click_on vendor::SHIPMENT[:option], check:true
       click_on vendor::SHIPMENT[:submit_packaging]
       access_payment.call
-      
       run_step('build final billing')
       assess
     end
@@ -753,6 +751,7 @@ class Robot
   
   def validate_order opts={}
     submit_credit_card unless opts[:skip_credit_card]
+    wait_for(['//body'])
     click_on vendor::PAYMENT[:validate], check:true
     
     page = wait_for([vendor::PAYMENT[:status]]) do
