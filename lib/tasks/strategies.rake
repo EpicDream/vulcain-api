@@ -50,6 +50,7 @@ class StrategiesTestsReport
   GREP = Proc.new { |output, type| output.scan(%r{#{type}:\ntest_complete_order_process\((.*?)\)}).flatten }
   XSTR = Proc.new { |ivar, disp| ivar.map {|test_klass| "#{test_klass.gsub(/Test/,'')} : #{disp}"}}
   REPORT_FILE_PATH = "#{Rails.root}/tmp/strategies_test_report.txt"
+  NAGIOS_TOUCH_FILE_PATH = "#{Rails.root}/tmp/strategies_tests_result.log"
   
   def initialize output
     @failures = GREP.(output, "Failure")
@@ -62,14 +63,20 @@ class StrategiesTestsReport
     `curl -i -X POST -k -d '{"accessKey": "yiOeiGcux3ZuhdsWuVHJ", "streamName": "vulcain_core_status", "point": #{point}}' https://www.leftronic.com/customSend/`
   end
   
+  def nagios status
+    File.open(NAGIOS_TOUCH_FILE_PATH, "w") { |f| f.write(status.to_s.upcase) }
+  end
+  
   def report
     unless @success
       leftronic(:red)
+      nagios(:fail)
       File.open(REPORT_FILE_PATH, "w") do |file|
         file.write XSTR.(@failures, "Failure").inspect
         file.write XSTR.(@errors, "Error").inspect
       end
     else
+      nagios(:ok)
       leftronic(:green)
     end
   end

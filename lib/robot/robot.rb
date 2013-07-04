@@ -691,7 +691,7 @@ class Robot
       click_on vendor::SHIPMENT[:address_option]
       click_on vendor::SHIPMENT[:address_submit]
     end
-    # wait_for([SHIPMENT[:submit_packaging]])
+
     click_on vendor::SHIPMENT[:option], check:true
   end
   
