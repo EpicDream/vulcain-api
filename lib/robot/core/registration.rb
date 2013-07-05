@@ -17,17 +17,16 @@ module RobotCore
       robot.wait_for([vendor::REGISTER[:submit_login], vendor::REGISTER[:submit]])
     end
     
-    def login_step?
+    def still_login_step?
       !vendor::REGISTER[:submit_login].nil? && robot.exists?(vendor::REGISTER[:submit_login])
     end
-    alias :still_login_step? :login_step?
     
     def login
-      robot.fill vendor::REGISTER[:email], with:account.login
+      robot.fill vendor::REGISTER[:email], with:account.login, check:true
       robot.fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
-      robot.fill vendor::REGISTER[:password], with:account.password
+      robot.fill vendor::REGISTER[:password], with:account.password, check:true
       robot.fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
-      robot.click_on vendor::REGISTER[:submit_login]
+      robot.click_on vendor::REGISTER[:submit_login], check:true
     end
     
     def gender
@@ -56,7 +55,7 @@ module RobotCore
     
     def run
       access_form
-      login if login_step?
+      login
 
       if still_login_step?
         robot.terminate_on_error(:account_creation_failed)
