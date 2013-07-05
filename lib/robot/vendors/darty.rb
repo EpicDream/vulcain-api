@@ -134,7 +134,7 @@ class Darty
             @driver.click_on(e) if e.text.downcase.strip == city
           end
         end
-        register(zip:zip)
+        RobotCore::Registration.new(self, zip:zip).run
       end
       
       step('remove credit card') do

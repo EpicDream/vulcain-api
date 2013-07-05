@@ -2,13 +2,11 @@
 require "ostruct"
 require "nokogiri"
 require "html_to_plain_text"
-
-unless ENV['VULCAIN-CORE']
-  require_relative "core/core"
-end
+require_relative "core/core" unless ENV['VULCAIN-CORE']
 
 class Robot
   include RobotCore::Actions
+  
   YES_ANSWER = true
   BIRTHDATE_AS_STRING = lambda do |birthdate|
     [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
@@ -20,9 +18,9 @@ class Robot
       price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
     end
   end
-
+  
   attr_accessor :context, :driver, :messager, :vendor
-  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
+  attr_accessor :account, :order, :user, :questions, :answers, :products, :billing
   
   def initialize context, &block
     begin
@@ -35,7 +33,6 @@ class Robot
     self.context = context
     @next_step = nil
     @steps = {}
-    @steps_options = []
     @questions = {}
     @product_url_index = 0
     @products = []
@@ -141,10 +138,10 @@ class Robot
       next unless context[ivar]
       instance_variable_set "@#{ivar}", context[ivar].to_openstruct
     end
+    user.address.land_phone ||= "04" + user.address.mobile_phone[2..-1]
+    user.address.mobile_phone ||= "06" + user.address.land_phone[2..-1]
     @session = context['session']
   end
- 
-
   
   def resolve_captcha image_url
     client = DeathByCaptcha.http_client('ericlarch', 'yolain$1')
@@ -163,7 +160,7 @@ class Robot
     end
     
     step('create account') do
-      register
+      RobotCore::Registration.new(self).run
     end
     
     step('login') do
@@ -237,96 +234,96 @@ class Robot
     
   end
   
-  def register deviances={}
-    land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
-    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    
-    open_url(vendor::URLS[:register]) || click_on(vendor::REGISTER[:new_account])
-    
-    wait_for(['//body'])
-    
-    fill vendor::REGISTER[:email], with:account.login, check:true
-    fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
-    fill vendor::REGISTER[:password], with:account.password, check:true
-    fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
-    click_on vendor::REGISTER[:submit_login], check:true
-    
-    if vendor::REGISTER[:submit_login] && exists?(vendor::REGISTER[:submit_login])
-      terminate_on_error(:account_creation_failed)
-      return
-    end
-    if exists? vendor::REGISTER[:gender]
-      value = case user.gender
-      when 0 then vendor::REGISTER[:mister]
-      when 1 then vendor::REGISTER[:madam]
-      when 2 then vendor::REGISTER[:miss]
-      end
-      select_option vendor::REGISTER[:gender], value
-    elsif exists? vendor::REGISTER[:mister]
-      click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
-    end
-    
-    if vendor::REGISTER[:birthdate]
-      fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
-    end
-    if vendor::REGISTER[:birthdate_day]
-      select_option vendor::REGISTER[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
-      select_option vendor::REGISTER[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
-      select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
-    end
-    
-    unless deviances[:zip]
-      fill vendor::REGISTER[:zip], with:user.address.zip, check:true
-    else
-      deviances[:zip].call
-    end
-    
-    fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
-    fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
-    fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
-    fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
-    fill vendor::REGISTER[:land_phone], with:land_phone, check:true
-    fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
-    fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
-    
-    if exists? vendor::REGISTER[:address_type]
-      user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
-      fill vendor::REGISTER[:address_number], with:$1, check:true
-      
-      begin
-        options = options_of_select(vendor::REGISTER[:address_type])
-        option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
-        select_option(vendor::REGISTER[:address_type], option[0])
-      rescue
-        fill vendor::REGISTER[:address_track], with:"#{$2} #{$3}", check:true
-      else
-        fill vendor::REGISTER[:address_track], with:$3, check:true
-      end
-      
-    end
-    
-    unless deviances[:city]
-      fill vendor::REGISTER[:city], with:user.address.city, check:true
-    else
-      deviances[:city].call
-    end
-    
-    fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
-    click_on vendor::REGISTER[:cgu], check:true
-    click_on vendor::REGISTER[:submit]
-
-    wait_ajax
-    if exists? vendor::REGISTER[:address_option]
-      click_on vendor::REGISTER[:address_option]
-      move_to_and_click_on vendor::REGISTER[:submit]
-    end
-      
-    unless wait_leave(vendor::REGISTER[:submit])
-      terminate_on_error(:account_creation_failed)
-    else
-      message :account_created, :next_step => 'renew login'
-    end
-  end
+  # def register deviances={}
+  #   land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
+  #   mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
+  #   
+  #   open_url(vendor::URLS[:register]) || click_on(vendor::REGISTER[:new_account])
+  #   
+  #   wait_for(['//body'])
+  #   
+  #   fill vendor::REGISTER[:email], with:account.login, check:true
+  #   fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
+  #   fill vendor::REGISTER[:password], with:account.password, check:true
+  #   fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
+  #   click_on vendor::REGISTER[:submit_login], check:true
+  #   
+  #   if vendor::REGISTER[:submit_login] && exists?(vendor::REGISTER[:submit_login])
+  #     terminate_on_error(:account_creation_failed)
+  #     return
+  #   end
+  #   if exists? vendor::REGISTER[:gender]
+  #     value = case user.gender
+  #     when 0 then vendor::REGISTER[:mister]
+  #     when 1 then vendor::REGISTER[:madam]
+  #     when 2 then vendor::REGISTER[:miss]
+  #     end
+  #     select_option vendor::REGISTER[:gender], value
+  #   elsif exists? vendor::REGISTER[:mister]
+  #     click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
+  #   end
+  #   
+  #   if vendor::REGISTER[:birthdate]
+  #     fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
+  #   end
+  #   if vendor::REGISTER[:birthdate_day]
+  #     select_option vendor::REGISTER[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
+  #     select_option vendor::REGISTER[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
+  #     select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
+  #   end
+  #   
+  #   unless deviances[:zip]
+  #     fill vendor::REGISTER[:zip], with:user.address.zip, check:true
+  #   else
+  #     deviances[:zip].call
+  #   end
+  #   
+  #   fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
+  #   fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
+  #   fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
+  #   fill vendor::REGISTER[:mobile_phone], with:mobile_phone, check:true
+  #   fill vendor::REGISTER[:land_phone], with:land_phone, check:true
+  #   fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
+  #   fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
+  #   
+  #   if exists? vendor::REGISTER[:address_type]
+  #     user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
+  #     fill vendor::REGISTER[:address_number], with:$1, check:true
+  #     
+  #     begin
+  #       options = options_of_select(vendor::REGISTER[:address_type])
+  #       option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
+  #       select_option(vendor::REGISTER[:address_type], option[0])
+  #     rescue
+  #       fill vendor::REGISTER[:address_track], with:"#{$2} #{$3}", check:true
+  #     else
+  #       fill vendor::REGISTER[:address_track], with:$3, check:true
+  #     end
+  #     
+  #   end
+  #   
+  #   unless deviances[:city]
+  #     fill vendor::REGISTER[:city], with:user.address.city, check:true
+  #   else
+  #     deviances[:city].call
+  #   end
+  #   
+  #   fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
+  #   click_on vendor::REGISTER[:cgu], check:true
+  #   click_on vendor::REGISTER[:submit]
+  # 
+  #   wait_ajax
+  #   if exists? vendor::REGISTER[:address_option]
+  #     click_on vendor::REGISTER[:address_option]
+  #     move_to_and_click_on vendor::REGISTER[:submit]
+  #   end
+  #     
+  #   unless wait_leave(vendor::REGISTER[:submit])
+  #     terminate_on_error(:account_creation_failed)
+  #   else
+  #     message :account_created, :next_step => 'renew login'
+  #   end
+  # end
   
   def decaptchatize
     wait_ajax

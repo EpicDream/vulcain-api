@@ -170,12 +170,6 @@ class AmazonFrance
   def instanciate_robot
     Robot.new(@context) do
       
-      step('create account') do
-        open_url URLS[:base]
-        open_url URLS[:account]
-        register
-      end
-      
       step('empty cart') do |args|
         remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax } }
         check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }

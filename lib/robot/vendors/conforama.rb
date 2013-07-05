@@ -152,7 +152,7 @@ class Conforama
           option = options.detect { |value, text|  text.downcase.strip == city}
           select_option(REGISTER[:city], option[0])
         end
-        register(city:city)
+        RobotCore::Registration.new(self, city:city).run
       end
       
       step('empty cart') do |args|
