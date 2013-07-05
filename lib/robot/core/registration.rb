@@ -17,19 +17,20 @@ module RobotCore
       robot.wait_for([vendor::REGISTER[:submit_login], vendor::REGISTER[:submit]])
     end
     
-    def run
-      access_form
-
-      robot.fill vendor::REGISTER[:email], with:account.login, check:true
+    def login_step?
+      !vendor::REGISTER[:submit_login].nil? && robot.exists?(vendor::REGISTER[:submit_login])
+    end
+    alias :still_login_step? :login_step?
+    
+    def login
+      robot.fill vendor::REGISTER[:email], with:account.login
       robot.fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
-      robot.fill vendor::REGISTER[:password], with:account.password, check:true
+      robot.fill vendor::REGISTER[:password], with:account.password
       robot.fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
-      robot.click_on vendor::REGISTER[:submit_login], check:true
-
-      if vendor::REGISTER[:submit_login] && robot.exists?(vendor::REGISTER[:submit_login])
-        robot.terminate_on_error(:account_creation_failed)
-        return
-      end
+      robot.click_on vendor::REGISTER[:submit_login]
+    end
+    
+    def gender
       if robot.exists? vendor::REGISTER[:gender]
         value = case user.gender
         when 0 then vendor::REGISTER[:mister]
@@ -40,7 +41,9 @@ module RobotCore
       elsif robot.exists? vendor::REGISTER[:mister]
         robot.click_on_radio user.gender, { 0 => vendor::REGISTER[:mister], 1 =>  vendor::REGISTER[:madam], 2 =>  vendor::REGISTER[:miss] }
       end
-
+    end
+    
+    def birthdate
       if vendor::REGISTER[:birthdate]
         robot.fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
       end
@@ -49,6 +52,19 @@ module RobotCore
         robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
         robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
       end
+    end
+    
+    def run
+      access_form
+      login if login_step?
+
+      if still_login_step?
+        robot.terminate_on_error(:account_creation_failed)
+        return
+      end
+      
+      gender
+      birthdate
 
       unless deviances[:zip]
         robot.fill vendor::REGISTER[:zip], with:user.address.zip, check:true
