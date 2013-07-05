@@ -10,7 +10,8 @@ class FnacTest < StrategyTest
   PRODUCT_4_URL = "http://ad.zanox.com/ppc/?19054231C2048768278&ULP=[[livre.fnac.com/a1169151/Georges-Hilaire-Gallet-Des-fleurs-pour-Algernon]]#fnac.com"
   PRODUCT_5_URL = "http://livre.fnac.com/a5715697/Dan-Brown-Inferno-Version-francaise?ectrans=1&Origin=zanox1464273#fnac.com"
   PRODUCT_6_URL = "http://www.fnac.com/mp13051465/Machine-a-coudre-835-Sapphire-Husqvarna/w-4"
-  
+  PRODUCT_7_URL = "http://ad.zanox.com/ppc/?25134383C1552684717T&ULP=[[video.fnac.com%2Fa1772597%2FLa-Belle-et-le-Clochard-Edition-simple-DVD-Zone-2]]"
+
   setup do
     initialize_robot_for Fnac
   end
@@ -54,7 +55,7 @@ class FnacTest < StrategyTest
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_2_URL])
   end
-
+  
   test "ensure cb payment if tab with fnac card payment mode" do
     @context["order"]["products_urls"] = [PRODUCT_4_URL]
     robot.context = @context
