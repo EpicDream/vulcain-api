@@ -2,7 +2,6 @@
 require_relative 'strategy_test'
 require_robot 'fnac'
 
-
 class FnacTest < StrategyTest
   PRODUCT_1_URL = "http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"
   PRODUCT_2_URL = "http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"
