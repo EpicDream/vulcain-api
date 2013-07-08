@@ -158,7 +158,7 @@ class Robot
     end
     
     step('logout') do
-      logout
+      RobotCore::Logout.new(self).run
     end
     
     step('remove credit card') do
@@ -224,11 +224,11 @@ class Robot
     
   end
   
-  def logout
-    open_url vendor::URLS[:home]
-    open_url vendor::URLS[:logout]
-    click_on vendor::LOGIN[:logout], check:true
-  end
+  # def logout
+  #   open_url vendor::URLS[:home]
+  #   open_url vendor::URLS[:logout]
+  #   click_on vendor::LOGIN[:logout], check:true
+  # end
   
   def remove_credit_card
     open_url vendor::URLS[:payments]

@@ -5,7 +5,6 @@ module RobotCore
     
     def initialize robot, deviances={}
       @robot = robot
-      @user = robot.user
       @account = robot.account
       @vendor = robot.vendor
     end
