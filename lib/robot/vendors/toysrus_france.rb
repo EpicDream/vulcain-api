@@ -96,18 +96,12 @@ class ToysrusFrance
       end
       
       step('add to cart') do
-        before_wait = Proc.new {
+        cart = RobotCore::Cart.new(self)
+        cart.before_add = Proc.new {
           wait_ajax
           click_on CART[:popup], check:true
         }
-        add_to_cart(nil, before_wait)
-      end
-      
-      step('empty cart') do |args|
-        remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax} }
-        check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
+        cart.fill
       end
       
       step('finalize order') do

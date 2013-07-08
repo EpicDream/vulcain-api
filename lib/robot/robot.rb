@@ -157,20 +157,25 @@ class Robot
       RobotCore::Login.new(self).run
     end
     
+    step('renew login') do
+      RobotCore::Login.new(self).renew
+    end
+    
     step('logout') do
       RobotCore::Logout.new(self).run
     end
     
     step('remove credit card') do
-      remove_credit_card
+      RobotCore::CreditCard.new(self).remove
+    end
+    
+    step('empty cart') do |args|
+      next_step = args && args[:next_step]
+      RobotCore::Cart.new(self).empty(next_step:next_step)
     end
 
     step('add to cart') do
-      add_to_cart
-    end
-    
-    step('build product') do
-      build_product
+      RobotCore::Cart.new(self).fill
     end
     
     step('fill shipping form') do
@@ -183,12 +188,6 @@ class Robot
     
     step('validate order') do
       validate_order
-    end
-    
-    step('renew login') do
-      run_step('logout')
-      open_url order.products_urls[0]
-      run_step('login')
     end
     
     step('cancel') do
@@ -220,85 +219,6 @@ class Robot
     
     step('validate order') do
       validate_order
-    end
-    
-  end
-  
-  # def logout
-  #   open_url vendor::URLS[:home]
-  #   open_url vendor::URLS[:logout]
-  #   click_on vendor::LOGIN[:logout], check:true
-  # end
-  
-  def remove_credit_card
-    open_url vendor::URLS[:payments]
-    fill vendor::LOGIN[:email], with:account.login, check:true
-    fill vendor::LOGIN[:password], with:account.password, check:true
-    click_on vendor::LOGIN[:submit], check:true
-    click_on vendor::PAYMENT[:remove], check:true, ajax:true
-    click_on vendor::PAYMENT[:remove_confirmation], check:true
-    wait_ajax 
-    open_url vendor::URLS[:base]
-  end
-  
-  def add_to_cart best_offer=nil, before_wait=nil, opts={}
-    open_url next_product_url
-    before_wait.call if before_wait
-    click_on vendor::CART[:extra_offers], check:true
-
-    found = wait_for [vendor::CART[:add], vendor::CART[:offers]] do
-      message :no_product_available
-      terminate_on_error(:no_product_available)
-    end
-    if found
-      run_step('build product') unless opts[:skip_build_product]
-      if exists? vendor::CART[:offers]
-        best_offer.call
-      else
-        click_on vendor::CART[:add]
-      end
-      wait_ajax(4) if opts[:ajax]
-      click_on vendor::CART[:validate], check:true
-      message :cart_filled, :next_step => 'finalize order'
-    end
-  end
-  
-  def update_product_with xpath
-    product = products.last
-    product['price_text'] = get_text xpath
-    prices = PRICES_IN_TEXT.(product['price_text'])
-    product['price_product'] = prices[0]
-    product['price_delivery'] = prices[1]
-  end
-  
-  def build_product
-    product = Hash.new
-    product['price_text'] = get_text vendor::PRODUCT[:price_text]
-    product['product_title'] = get_text vendor::PRODUCT[:title]
-    product['product_image_url'] = image_url vendor::PRODUCT[:image]
-    prices = PRICES_IN_TEXT.(product['price_text'])
-    product['price_product'] = prices[0]
-    product['price_delivery'] = prices[1]
-    product['price_delivery'] ||= vendor::DELIVERY_PRICE.(product) if defined?(vendor::DELIVERY_PRICE)
-    product['url'] = current_product_url
-    products << product
-  end
-  
-  def empty_cart remove, check, next_step=nil
-    run_step('remove credit card')
-    products = []
-    open_cart = Proc.new {
-      open_url vendor::URLS[:cart] || click_on(vendor::CART[:button], check:true)
-      wait_for [vendor::CART[:items_lists], '//body']
-    }
-    open_cart.call
-    remove.call
-    open_cart.call
-    
-    unless check.call
-      terminate_on_error(:cart_not_emptied) 
-    else
-      message :cart_emptied, :next_step => next_step || 'add to cart'
     end
     
   end
@@ -343,7 +263,7 @@ class Robot
   
   def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
-    wait_for [vendor::CART[:submit], "//body"]
+    wait_for [vendor::CART[:submit]]
     click_on vendor::CART[:cgu], check:true
     before_submit.call if before_submit
     click_on vendor::CART[:submit]

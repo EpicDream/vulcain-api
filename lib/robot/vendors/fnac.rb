@@ -58,6 +58,8 @@ module FnacConstants
     cgu:'//div[@class="ui-checkbox"]',
     submit: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
+    empty_message: '//*[@id="form1"]',
+    empty_message_match: /Votre panier est vide/i,
   }
   
   PRODUCT = {
@@ -144,35 +146,33 @@ class Fnac
   def instanciate_robot
     Robot.new(@context) do
       
-      step('logout') do
-        #Like Hotel California. Can enter but never leave.
-      end
-      
       step('add to cart') do
-        best_offer = Proc.new {
+        cart = RobotCore::Cart.new(self)
+        cart.best_offer = Proc.new {
           click_on CART[:offers]
           if click_on_link_with_attribute("@title", "Neuf")
             click_on CART[:offer]
-            update_product_with PRODUCT[:offer_price_text]
+            RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
+            # update_product_with PRODUCT[:offer_price_text]
             click_on CART[:add_offer]
           else
             terminate_on_error(:out_of_stock)
           end
         }
-        add_to_cart(best_offer, nil, ajax:true)
+        cart.fill
       end
       
-      step('empty cart') do |args|
-        remove = Proc.new {
-          if exists? CART[:quantity]
-            fill_all CART[:quantity], with:"0"
-            click_on CART[:recompute]
-          end
-        }
-        check = Proc.new { !(exists? CART[:quantity])}
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
-      end
+      # step('empty cart') do |args|
+      #   remove = Proc.new {
+      #     if exists? CART[:quantity]
+      #       fill_all CART[:quantity], with:"0"
+      #       click_on CART[:recompute]
+      #     end
+      #   }
+      #   check = Proc.new { !(exists? CART[:quantity])}
+      #   next_step = args && args[:next_step]
+      #   empty_cart(remove, check, next_step)
+      # end
 
       step('finalize order') do
         fill_shipping_form = Proc.new {

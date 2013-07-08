@@ -44,9 +44,11 @@ module RueDuCommerceConstants
   
   CART = {
     add: '//section[@class="cart-buttons"]/a',
-    remove_item: '/html/body/div/div[2]/div/div[3]/div[1]/div/a[2]',
+    remove_item: '//html/body/div/div[2]/div/div[3]/div[1]/div/a[2]',
     submit: 'Finaliser ma commande',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
+    empty_message: '//html/body/div/div[2]/div',
+    empty_message_match: /Votre panier est vide/i
   }
   
   PRODUCT = {
@@ -138,30 +140,15 @@ class RueDuCommerce
   def instanciate_robot
     Robot.new(@context) do
       
-      step('remove credit card') do
-        #can't be done on mobile version
-      end
-      
       step('add to cart') do
-        before_wait = Proc.new {
+        cart = RobotCore::Cart.new(self)
+        cart.options = {skip_build_product:true}
+        cart.before_add = Proc.new {
           if current_product_url =~ /www\.rueducommerce\.fr|ad\.zanox\.com/
             execute_script("redirect('http://m.rueducommerce.fr/fiche-produit/' + window.offer_reference)")
           end
         }
-        add_to_cart(nil, before_wait, skip_build_product:true, ajax:true)
-      end
-      
-      step('empty cart') do |args|
-        remove = Proc.new {
-          click_on_all [CART[:remove_item]] do |remove_link|
-            wait_ajax 
-            !remove_link.nil?
-          end
-        }
-        check = Proc.new { true }
-        next_step = args && args[:next_step]
-        
-        empty_cart(remove, check, next_step)
+        cart.fill
       end
       
       step('delete product options') do

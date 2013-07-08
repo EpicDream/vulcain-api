@@ -22,6 +22,12 @@ module RobotCore
       end
     end
     
+    def renew
+      robot.run_step('logout')
+      robot.open_url robot.order.products_urls[0]
+      run
+    end
+    
     private
     
     def fails?

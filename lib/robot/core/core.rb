@@ -1,3 +1,7 @@
 require_relative 'actions'
 require_relative 'registration'
 require_relative 'login'
+require_relative 'logout'
+require_relative 'credit_card'
+require_relative 'cart'
+require_relative 'product'

@@ -77,7 +77,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def empty_cart urls, assert=Proc.new{}
-    @message.expects(:message).times(10..20)
+    @message.expects(:message).times(9..16)
     robot.run_step('login')
     
     urls.each do |url|
@@ -105,7 +105,7 @@ class StrategyTest < ActiveSupport::TestCase
     @context['order']['products_urls'] = urls
     @robot.context = @context
     
-    @message.expects(:message).times(13..16)
+    @message.expects(:message).times(12..16)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

@@ -217,9 +217,13 @@ module RobotCore
     def wait_for xpaths, &rescue_block
       if xpaths.first.is_a?(Regexp)
         @driver.find_elements_by_attribute_matching("input", "id", xpaths.first)
-      else
+      elsif xpaths.first =~ /\/\//
         xpath = xpaths.compact.join("|")
         @driver.find_element(xpath)
+      else
+        name = xpaths.first
+        button = @driver.find_links_with_text(name, nowait:true).first
+        button ||= @driver.find_input_with_value(name)
       end
     rescue => e
       if block_given?

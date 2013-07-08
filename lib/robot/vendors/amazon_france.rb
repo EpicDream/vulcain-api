@@ -170,13 +170,6 @@ class AmazonFrance
   def instanciate_robot
     Robot.new(@context) do
       
-      step('empty cart') do |args|
-        remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax } }
-        check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
-      end
-
       step('finalize order') do
         fill_shipping_form = Proc.new {
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)

@@ -153,20 +153,15 @@ class Cdiscount
       end
 
       step('add to cart') do 
-        best_offer = Proc.new {
+        cart = RobotCore::Cart.new(self)
+        cart.options = {skip_build_product:true}
+        cart.best_offer = Proc.new {
           button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
           wait_ajax 4
         }
-        add_to_cart(best_offer, nil, skip_build_product:true, ajax:true)
-      end
-      
-      step('empty cart') do |args|
-        remove = Proc.new { click_on_all([CART[:remove_item]]) {|element| open_url URLS[:cart];!element.nil? }}
-        check = Proc.new { wait_for([CART[:empty_message]]) {return false}}
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
+        cart.fill
       end
       
       step('finalize order') do
@@ -177,7 +172,7 @@ class Cdiscount
           click_on PAYMENT[:access]
         }
         before_submit = Proc.new {
-          run_step('build product')
+          RobotCore::Product.new(self).build
         }
         
         finalize_order(fill_shipping_form, access_payment, before_submit)

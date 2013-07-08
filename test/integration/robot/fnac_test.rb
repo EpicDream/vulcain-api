@@ -41,7 +41,7 @@ class FnacTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new {}
-    run_spec("empty cart", [PRODUCT_URL_5, PRODUCT_URL_2], assert)
+    run_spec("empty cart", [PRODUCT_5_URL, PRODUCT_2_URL], assert)
   end
   
   test "finalize order" do

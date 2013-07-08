@@ -48,8 +48,8 @@ module DartyConstants
   }
   
   PRODUCT = {
-    price_text:'//div[@class="mts"]',
-    title:'//div[@class="mts"]/div',
+    price_text:'//*[@id="no_zoom"]/div[2]/div[2]/div',
+    title:'//*[@id="no_zoom"]/div[2]/div[2]/div/div[1]',
     image:'//*[@id="zoom-opener"]/img'
   }
   
@@ -135,20 +135,6 @@ class Darty
           end
         end
         RobotCore::Registration.new(self, zip:zip).run
-      end
-      
-      step('remove credit card') do
-        #not recorded by default
-      end
-      
-      step('empty cart') do |args|
-        remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { } }
-        check = Proc.new do 
-          wait_for [CART[:empty_message]]
-          get_text(CART[:empty_message]) =~ CART[:empty_message_match] 
-        end
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
       end
       
       step('finalize order') do

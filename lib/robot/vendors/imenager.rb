@@ -147,17 +147,6 @@ class Imenager
   def instanciate_robot
     Robot.new(@context) do
       
-      step('remove credit card') do
-        #TODO rmeove
-      end
-      
-      step('empty cart') do |args|
-        remove = Proc.new { click_on_all([CART[:remove_item]]) { |e| !e.nil? } }
-        check = Proc.new { find_element(CART[:remove_item]).nil? }
-        next_step = args && args[:next_step]
-        empty_cart(remove, check, next_step)
-      end
-
       step('delete product options') do
         click_on_all([CART[:remove_item]], start_index:1) { |e| !e.nil? }
       end

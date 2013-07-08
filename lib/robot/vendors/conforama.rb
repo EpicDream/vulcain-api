@@ -154,18 +154,7 @@ class Conforama
         end
         RobotCore::Registration.new(self, city:city).run
       end
-      
-      step('empty cart') do |args|
-        #TODO : REMOVE IF NO SPECIFICITY
-      end
 
-      step('finalize order') do
-      end
-      
-      step('validate order') do
-        #TODO : REMOVE IF NO SPECIFICITY
-      end
-      
     end
   end
   
