@@ -92,9 +92,6 @@ class ToysrusFrance
   def instanciate_robot
     Robot.new(@context) do
       
-      step('remove credit card') do
-      end
-      
       step('add to cart') do
         cart = RobotCore::Cart.new(self)
         cart.before_add = Proc.new {

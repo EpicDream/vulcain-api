@@ -4,7 +4,8 @@ module Robots
   
   class Loader
     REQUIRES = ['undef_klasses', 'core_extensions', 'driver', 'core/actions', 'core/registration', 
-      'core/login', 'core/logout', 'core/credit_card', 'core/cart', 'core/product', 'robot']
+      'core/login', 'core/logout', 'core/credit_card', 'core/cart', 'core/product', 'core/shipping',
+      'robot']
     
     def initialize vendors
       @vendors = vendors

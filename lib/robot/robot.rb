@@ -136,6 +136,7 @@ class Robot
     end
     user.address.land_phone ||= "04" + user.address.mobile_phone[2..-1]
     user.address.mobile_phone ||= "06" + user.address.land_phone[2..-1]
+    user.address.full_name = "#{user.address.first_name} #{user.address.last_name}"
     @session = context['session']
   end
   
@@ -179,7 +180,7 @@ class Robot
     end
     
     step('fill shipping form') do
-      fill_shipping_form
+      RobotCore::Shipping.new(self).run
     end
     
     step('build final billing') do
@@ -222,45 +223,7 @@ class Robot
     end
     
   end
-  
-  def fill_shipping_form
-    land_phone = user.address.land_phone || "04" + user.address.mobile_phone[2..-1]
-    mobile_phone = user.address.mobile_phone || "06" + user.address.land_phone[2..-1]
-    click_on vendor::SHIPMENT[:add_address], check:true
-    wait_for [vendor::SHIPMENT[:city]]
-    
-    fill vendor::SHIPMENT[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
-    fill vendor::SHIPMENT[:first_name], with:user.address.first_name, check:true
-    fill vendor::SHIPMENT[:last_name], with:user.address.last_name, check:true
-    fill vendor::SHIPMENT[:address_1], with:user.address.address_1, check:true
-    fill vendor::SHIPMENT[:address_2], with:user.address.address_2, check:true
-    fill vendor::SHIPMENT[:additionnal_address], with:user.address.additionnal_address, check:true
-    fill vendor::SHIPMENT[:city], with:user.address.city, check:true
-    fill vendor::SHIPMENT[:zip], with:user.address.zip, check:true
-    
-    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
-    fill vendor::SHIPMENT[:land_phone], with:land_phone, check:true
-    
-    if vendor::SHIPMENT[:birthdate_day]
-      select_option vendor::SHIPMENT[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
-      select_option vendor::SHIPMENT[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
-      select_option vendor::SHIPMENT[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
-    end
 
-    click_on vendor::SHIPMENT[:same_billing_address], check:true
-    click_on vendor::SHIPMENT[:submit]
-    wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
-    
-    fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
-    
-    if exists? vendor::SHIPMENT[:address_option]
-      click_on vendor::SHIPMENT[:address_option]
-      click_on vendor::SHIPMENT[:address_submit]
-    end
-
-    click_on vendor::SHIPMENT[:option], check:true
-  end
-  
   def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
     wait_for [vendor::CART[:submit]]
