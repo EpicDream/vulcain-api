@@ -28,14 +28,18 @@ module RobotCore
       address
       submit
       
-      unless robot.wait_leave(vendor::REGISTER[:submit])
-        robot.terminate_on_error(:account_creation_failed)
+      if fails? 
+        robot.terminate_on_error :account_creation_failed
       else
         robot.message :account_created, :next_step => 'renew login'
       end
     end
     
     private
+    
+    def fails?
+      !robot.wait_leave(vendor::REGISTER[:submit])
+    end
     
     def submit
       robot.click_on vendor::REGISTER[:cgu], check:true
