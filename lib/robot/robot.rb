@@ -8,10 +8,6 @@ class Robot
   include RobotCore::Actions
   
   YES_ANSWER = true
-  BIRTHDATE_AS_STRING = lambda do |birthdate|
-    [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
-  end
-  
   PRICES_IN_TEXT = lambda do |text| 
     break [] unless text
     text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 

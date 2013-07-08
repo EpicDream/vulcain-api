@@ -1,5 +1,9 @@
 module RobotCore
   class Registration
+    BIRTHDATE_AS_STRING = lambda do |birthdate|
+      [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
+    end
+    
     attr_reader :user, :account, :vendor, :robot, :deviances
     
     def initialize robot, deviances={}
@@ -8,6 +12,40 @@ module RobotCore
       @account = robot.account
       @vendor = robot.vendor
       @deviances = deviances
+    end
+    
+    def run
+      access_form
+      login
+
+      if still_login_step?
+        robot.terminate_on_error(:account_creation_failed)
+        return
+      end
+      
+      gender
+      birthdate
+      address
+      submit
+      
+      unless robot.wait_leave(vendor::REGISTER[:submit])
+        robot.terminate_on_error(:account_creation_failed)
+      else
+        robot.message :account_created, :next_step => 'renew login'
+      end
+    end
+    
+    private
+    
+    def submit
+      robot.click_on vendor::REGISTER[:cgu], check:true
+      robot.click_on vendor::REGISTER[:submit]
+      robot.wait_ajax
+
+      if robot.exists? vendor::REGISTER[:address_option]
+        robot.click_on vendor::REGISTER[:address_option]
+        robot.move_to_and_click_on vendor::REGISTER[:submit]
+      end
     end
     
     def access_form
@@ -53,18 +91,7 @@ module RobotCore
       end
     end
     
-    def run
-      access_form
-      login
-
-      if still_login_step?
-        robot.terminate_on_error(:account_creation_failed)
-        return
-      end
-      
-      gender
-      birthdate
-
+    def address
       unless deviances[:zip]
         robot.fill vendor::REGISTER[:zip], with:user.address.zip, check:true
       else
@@ -102,20 +129,7 @@ module RobotCore
       end
 
       robot.fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
-      robot.click_on vendor::REGISTER[:cgu], check:true
-      robot.click_on vendor::REGISTER[:submit]
-
-      robot.wait_ajax
-      if robot.exists? vendor::REGISTER[:address_option]
-        robot.click_on vendor::REGISTER[:address_option]
-        robot.move_to_and_click_on vendor::REGISTER[:submit]
-      end
-
-      unless robot.wait_leave(vendor::REGISTER[:submit])
-        robot.terminate_on_error(:account_creation_failed)
-      else
-        robot.message :account_created, :next_step => 'renew login'
-      end
     end
+    
   end
 end
