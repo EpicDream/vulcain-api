@@ -60,8 +60,9 @@ class ImenagerTest < StrategyTest
     run_spec("validate order", [PRODUCT_URL_1])
   end
   
-  test "complete order process" do
-    run_spec("complete order process", [PRODUCT_URL_1])
-  end
+  # Script not sure to be used, no complete test available for now
+  # test "complete order process" do
+  #   run_spec("complete order process", [PRODUCT_URL_1])
+  # end
   
 end
