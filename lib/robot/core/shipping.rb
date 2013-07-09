@@ -20,12 +20,8 @@ module RobotCore
     
     def submit_options
       robot.fill vendor::SHIPMENT[:mobile_phone], with:user.address.mobile_phone, check:true
-
-      if robot.exists? vendor::SHIPMENT[:address_option]
-        robot.click_on vendor::SHIPMENT[:address_option]
-        robot.click_on vendor::SHIPMENT[:address_submit]
-      end
-
+      robot.click_on vendor::SHIPMENT[:address_option], check:true
+      robot.click_on vendor::SHIPMENT[:address_submit], check:true
       robot.click_on vendor::SHIPMENT[:option], check:true
     end
     
