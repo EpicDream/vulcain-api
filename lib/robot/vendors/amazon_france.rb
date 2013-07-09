@@ -20,11 +20,12 @@ module AmazonFranceConstants
   
   REGISTER = {
     new_account:'//*[@id="ap_register_url"]/a | //*[@id="ra-mobile-new-customer-button"]',
-    full_name:'//*[@id="ap_customer_name"]',
-    email:'//*[@id="ap_email"]',
-    password:'//*[@id="ap_password"]',
-    password_confirmation:'//*[@id="ap_password_check"]',
-    submit: '//*[@id="continue-input"]'
+    full_name:'//*[@id="ap_customer_name"] | //*[@id="ra-register-customer-name"]',
+    email:'//*[@id="ap_email"] | //*[@id="ra-register-email"]',
+    email_confirmation: '//*[@id="ra-register-email-check"]',
+    password:'//*[@id="ap_password"] | //*[@id="ra-register-password"]',
+    password_confirmation:'//*[@id="ap_password_check"] | //*[@id="ra-register-password-check"]',
+    submit: '//button[@type="submit"] | //*[@id="continue-input"]'
   }
   
   LOGIN = {
