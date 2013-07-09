@@ -57,8 +57,9 @@ class ConforamaTest < StrategyTest
     run_spec("validate order", [PRODUCT_URL_1])
   end
   
-  test "complete order process" do
-    run_spec("complete order process", [PRODUCT_URL_1])
-  end
+  # Script not ready for now , not sure to be integrated
+  # test "complete order process" do
+  #   run_spec("complete order process", [PRODUCT_URL_1])
+  # end
   
 end

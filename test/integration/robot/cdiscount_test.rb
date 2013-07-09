@@ -60,6 +60,13 @@ class CdiscountTest < StrategyTest
 
     run_spec("finalize order", [PRODUCT_URL_1], products, billing)
   end
+  
+  test "validate order with mastercard" do
+    @context['order']['credentials']['number'] = '501290129019201'
+    @robot.context = @context
+    
+    run_spec("validate order", [PRODUCT_URL_1])
+  end
 
   test "handle out of stock (click on 'Passer la commande' has no action even manually)" do
     run_spec("out of stock", PRODUCT_URL_7)

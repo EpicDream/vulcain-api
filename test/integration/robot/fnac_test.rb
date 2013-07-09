@@ -51,6 +51,15 @@ class FnacTest < StrategyTest
     run_spec("finalize order", [PRODUCT_1_URL], products, billing)
   end  
   
+  test "finalize order with master card" do
+    products = [{"price_text"=>"13,02 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>13.02, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
+    billing = {:product=>13.02, :shipping=>2.39, :total=>15.41, :shipping_info=>nil}
+    @context['order']['credentials']['number'] = '501290129019201'
+    @robot.context = @context
+    
+    run_spec("finalize order", [PRODUCT_1_URL], products, billing)
+  end  
+  
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_2_URL])
   end

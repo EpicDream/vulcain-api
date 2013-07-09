@@ -259,7 +259,13 @@ class Robot
   def submit_credit_card
     exp_month = order.credentials.exp_month.to_s
     exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
-    click_on vendor::PAYMENT[:visa], check:true
+    
+    if order.credentials.number =~ /^5/
+      click_on vendor::PAYMENT[:mastercard], check:true
+    else
+      click_on vendor::PAYMENT[:visa], check:true
+    end
+    
     select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder

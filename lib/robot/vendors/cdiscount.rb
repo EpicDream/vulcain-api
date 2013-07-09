@@ -72,6 +72,7 @@ module CdiscountConstants
   
   PAYMENT = {
     visa:'//*[@id="cphMainArea_ctl01_optCardTypeVisa"]',
+    mastercard: '//*[@id="cphMainArea_ctl01_optCardTypeMasterCard"]',
     access: '//div[@class="paymentComptant"]//button',
     holder:'//*[@id="cphMainArea_ctl01_txtCardOwner"]',
     number:'//*[@id="cphMainArea_ctl01_txtCardNumber"]',

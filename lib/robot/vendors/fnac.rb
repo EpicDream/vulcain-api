@@ -78,10 +78,10 @@ module FnacConstants
     remove: '//*[@id="AccountPaymentBook"]/section/ul/li/div/a',
     credit_card:'//*[@id="magicalGNIIIII"]/div[1]/a[1]',
     visa:'//*[@id="divNewCard"]/div[2]/div[1]/label/span',
+    mastercard: '//*[@id="divNewCard"]/div[2]/div[2]/label/span',
     cgu:'//*[@id="divNewCard"]/div[3]/div',
     access:'//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     cancel:'//*[@id="ncol_cancel"]',
-    
     number:'//*[@id="Ecom_Payment_Card_Number"]',
     exp_month:'//*[@id="Ecom_Payment_Card_ExpDate_Month"]',
     exp_year:'//*[@id="Ecom_Payment_Card_ExpDate_Year"]',
@@ -180,7 +180,11 @@ class Fnac
         }
         access_payment = Proc.new {
           click_on PAYMENT[:credit_card]
-          click_on PAYMENT[:visa]
+          if order.credentials.number =~ /^5/
+            click_on PAYMENT[:mastercard]
+          else
+            click_on PAYMENT[:visa]
+          end
           click_on PAYMENT[:cgu]
           click_on PAYMENT[:access]
         }
