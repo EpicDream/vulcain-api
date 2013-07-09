@@ -1049,6 +1049,9 @@ class PriceministerMobile
         # Aller sur la page du panier
         plarg_url = 'http://www.priceminister.com/cart'
         pl_open_url!(plarg_url)
+        # Retourner sur le site mobile
+        plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
+        pl_click_on(plarg_xpath)
         # Prix total
         plarg_path = 'div.ui-page-active section header div p.total_amount span.value'
         pl_set_tot_price!(plarg_path)
