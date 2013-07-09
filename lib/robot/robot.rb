@@ -716,7 +716,9 @@ class Robot
   def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
     wait_for [vendor::CART[:submit], "//body"]
+    wait_ajax
     click_on vendor::CART[:cgu], check:true
+    wait_ajax
     before_submit.call if before_submit
     click_on vendor::CART[:submit]
     
