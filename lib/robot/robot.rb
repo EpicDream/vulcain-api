@@ -705,10 +705,8 @@ class Robot
     
     fill vendor::SHIPMENT[:mobile_phone], with:mobile_phone, check:true
     
-    if exists? vendor::SHIPMENT[:address_option]
-      click_on vendor::SHIPMENT[:address_option]
-      click_on vendor::SHIPMENT[:address_submit]
-    end
+    click_on vendor::SHIPMENT[:address_option], check:true
+    click_on vendor::SHIPMENT[:address_submit], check:true
 
     click_on vendor::SHIPMENT[:option], check:true
   end

@@ -74,7 +74,7 @@ module RueDuCommerceConstants
     exp_year:'//*[@id="contentsips"]/form[2]/select[2]',
     cvv:'//*[@id="CVV_KEY"]',
     submit: '//*[@id="contentsips"]/form[2]/input[9]',
-    status: '/html/body/div/div[2]/div/div[3]',
+    status: '//html/body/div',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
     zero_fill: true
