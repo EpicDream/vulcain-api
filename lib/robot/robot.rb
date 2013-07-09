@@ -747,6 +747,8 @@ class Robot
   def submit_credit_card
     exp_month = order.credentials.exp_month.to_s
     exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
+    exp_year =  order.credentials.exp_year.to_s
+    exp_year = exp_year[2..-1] if vendor::PAYMENT[:trunc_year]
     
     if order.credentials.number =~ /^5/
       click_on vendor::PAYMENT[:mastercard], check:true
@@ -758,7 +760,7 @@ class Robot
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
     select_option vendor::PAYMENT[:exp_month], exp_month
-    select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year.to_s
+    select_option vendor::PAYMENT[:exp_year], exp_year
     fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
     click_on vendor::PAYMENT[:submit]
   end
