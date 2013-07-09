@@ -12,11 +12,13 @@ module RobotCore
     def run
       access_form
       fill_properties
-
-      robot.click_on vendor::SHIPMENT[:same_billing_address], check:true
-      robot.click_on vendor::SHIPMENT[:submit]
-      robot.wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
-
+      submit
+      submit_options
+    end
+    
+    private
+    
+    def submit_options
       robot.fill vendor::SHIPMENT[:mobile_phone], with:user.address.mobile_phone, check:true
 
       if robot.exists? vendor::SHIPMENT[:address_option]
@@ -27,13 +29,21 @@ module RobotCore
       robot.click_on vendor::SHIPMENT[:option], check:true
     end
     
-    private
+    def submit
+      robot.click_on vendor::SHIPMENT[:same_billing_address], check:true
+      robot.click_on vendor::SHIPMENT[:submit]
+      robot.wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
+    end
     
     def fill_properties
-      user.address.marshal_dump.keys.each do |property|
+      properties = user.address.marshal_dump.keys
+      properties.each do |property|
         robot.fill vendor::SHIPMENT[property], with:user.address.send(property), check:true
       end
-      return unless vendor::SHIPMENT[:birthdate_day]
+      birthdate if vendor::SHIPMENT[:birthdate_day]
+    end
+    
+    def birthdate
       [:day, :month, :year].each do |property|
         xpath = vendor::SHIPMENT["birthdate_#{property}".to_sym]
         robot.select_option xpath, user.birthdate.send(property).to_s.rjust(2, "0")

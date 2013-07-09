@@ -27,6 +27,7 @@ module RobotCore
       birthdate
       address
       submit
+      submit_options
       
       if fails? 
         robot.terminate_on_error :account_creation_failed
@@ -45,7 +46,9 @@ module RobotCore
       robot.click_on vendor::REGISTER[:cgu], check:true
       robot.click_on vendor::REGISTER[:submit]
       robot.wait_ajax
-
+    end
+    
+    def submit_options
       if robot.exists? vendor::REGISTER[:address_option]
         robot.click_on vendor::REGISTER[:address_option]
         robot.move_to_and_click_on vendor::REGISTER[:submit]
@@ -102,13 +105,10 @@ module RobotCore
         deviances[:zip].call
       end
 
-      robot.fill vendor::REGISTER[:full_name], with:"#{user.address.first_name} #{user.address.last_name}", check:true
-      robot.fill vendor::REGISTER[:first_name], with:user.address.first_name, check:true
-      robot.fill vendor::REGISTER[:last_name], with:user.address.last_name, check:true
-      robot.fill vendor::REGISTER[:mobile_phone], with:user.address.mobile_phone, check:true
-      robot.fill vendor::REGISTER[:land_phone], with:user.address.land_phone, check:true
-      robot.fill vendor::REGISTER[:address_1], with:user.address.address_1, check:true
-      robot.fill vendor::REGISTER[:address_2], with:user.address.address_2, check:true
+      properties = user.address.marshal_dump.keys
+      properties.each do |property|
+        robot.fill vendor::REGISTER[property], with:user.address.send(property), check:true
+      end
 
       if robot.exists? vendor::REGISTER[:address_type]
         user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
