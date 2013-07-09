@@ -48,8 +48,8 @@ module DartyConstants
   }
   
   PRODUCT = {
-    price_text:'//div[@class="mts"]',
-    title:'//div[@class="mts"]/div',
+    price_text:'//*[@id="no_zoom"]/div[2]/div[2]/div',
+    title:'//*[@id="no_zoom"]/div[2]/div[2]/div/div[1]',
     image:'//*[@id="zoom-opener"]/img'
   }
   
