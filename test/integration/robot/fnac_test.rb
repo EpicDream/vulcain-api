@@ -61,7 +61,6 @@ class FnacTest < StrategyTest
     run_spec("finalize order", [PRODUCT_1_URL], products, billing)
   end  
   
-  
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_2_URL])
   end

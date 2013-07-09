@@ -52,6 +52,16 @@ class RueDuCommerceTest < StrategyTest
     run_spec("finalize order", urls, products, billing)
   end
   
+  test "finalize order with master card" do
+    products = [{"price_text"=>"TOTAL DE VOS ARTICLES\n18€90\nTOTAL DES FRAIS DE PORT\n5€90\nMONTANT TTC (TVA plus d’infos)\n24€80", "product_title"=>"Philips - Pta 436/00", "product_image_url"=>"http://s3.static69.com/m/image-offre/0/2/9/c/029c5357801ba4439f7161f263b4a68f-100x75.jpg", "price_product"=>18.9, "price_delivery"=>5.9, "url"=>"http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"}]
+    billing = {:product=>18.9, :shipping=>5.9, :total=>24.8, :shipping_info=>"Date de livraison estimée : le 29/06/2013 par Standard"}
+    urls = [PRODUCT_5_URL]
+    @context['order']['credentials']['number'] = '501290129019201'
+    @robot.context = @context
+    
+    run_spec("finalize order", urls, products, billing)
+  end  
+  
   test "complete order process" do
     run_spec("complete order process", [PRODUCT_5_URL])
   end

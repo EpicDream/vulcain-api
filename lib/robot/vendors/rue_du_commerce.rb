@@ -68,6 +68,7 @@ module RueDuCommerceConstants
     finalize:'Finaliser ma commande',
     credit_card:'//*[@id="inpMop1"] | //*[@id="inpMop2"]',
     visa:'//*[@id="inpMop_VISA"]',
+    mastercard:'//*[@id="inpMop_MASTERCARD"]',
     number:'//*[@id="CARD_NUMBER"]',
     exp_month:'//*[@id="contentsips"]/form[2]/select[1]',
     exp_year:'//*[@id="contentsips"]/form[2]/select[2]',
@@ -195,7 +196,12 @@ class RueDuCommerce
           run_step 'build final billing'
           click_on PAYMENT[:finalize]
           click_on PAYMENT[:credit_card]
-          click_on PAYMENT[:visa]
+          if order.credentials.number =~ /^5/
+            click_on PAYMENT[:mastercard]
+          else
+            click_on PAYMENT[:visa]
+          end
+          
         end
         
         finalize_order(fill_shipping_form, access_payment, before_submit)
