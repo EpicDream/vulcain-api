@@ -95,6 +95,7 @@ class ToysrusFrance
     Robot.new(@context) do
       
       step('remove credit card') do
+        #not found
       end
       
       step('add to cart') do
