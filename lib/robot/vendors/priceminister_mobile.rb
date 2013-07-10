@@ -1015,6 +1015,9 @@ class PriceministerMobile
         pl_click_on_all!(plarg_xpath)
       end
       step('extract') do
+        # Aller sur le site mobile
+        plarg_xpath = '//div[@id]/div[1]/div[3]/a'
+        pl_click_on(plarg_xpath)
         # Indiquer le titre de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
         pl_set_product_title!(plarg_xpath)
