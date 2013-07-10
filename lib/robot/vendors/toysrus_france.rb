@@ -41,6 +41,7 @@ module ToysrusFranceConstants
     confirm_remove: '//*[@id="deleteAddress"]',
     credit_card_select:'//*[@id="creditCardPaymentMethod-cardType"]',
     visa_value:'VC',
+    master_card_value:'MC',
     access:'//*[@id="payment-method"]/p/a',
     number:'//*[@id="creditCardPaymentMethod-cardNumber"]',
     exp_month:'//*[@id="creditCardPaymentMethod-expirationMonth"]',

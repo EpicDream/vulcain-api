@@ -755,8 +755,11 @@ class Robot
     else
       click_on vendor::PAYMENT[:visa], check:true
     end
-    
-    select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
+    if order.credentials.number =~ /^5/
+      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
+    else
+      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
+    end
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
     select_option vendor::PAYMENT[:exp_month], exp_month
