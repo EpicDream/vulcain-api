@@ -110,21 +110,7 @@ module RobotCore
         robot.fill vendor::REGISTER[property], with:user.address.send(property), check:true
       end
 
-      if robot.exists? vendor::REGISTER[:address_type]
-        user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
-        robot.fill vendor::REGISTER[:address_number], with:$1, check:true
-
-        begin
-          options = options_of_select(vendor::REGISTER[:address_type])
-          option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
-          robot.select_option(vendor::REGISTER[:address_type], option[0])
-        rescue
-          robot.fill vendor::REGISTER[:address_track], with:"#{$2} #{$3}", check:true
-        else
-          robot.fill vendor::REGISTER[:address_track], with:$3, check:true
-        end
-
-      end
+      split_address if robot.exists? vendor::REGISTER[:address_type]
 
       unless deviances[:city]
         robot.fill vendor::REGISTER[:city], with:user.address.city, check:true
@@ -133,6 +119,21 @@ module RobotCore
       end
 
       robot.fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
+    end
+    
+    def split_address
+      user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
+      robot.fill vendor::REGISTER[:address_number], with:$1, check:true
+
+      begin
+        options = options_of_select(vendor::REGISTER[:address_type])
+        option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
+        robot.select_option(vendor::REGISTER[:address_type], option[0])
+      rescue
+        robot.fill vendor::REGISTER[:address_track], with:"#{$2} #{$3}", check:true
+      else
+        robot.fill vendor::REGISTER[:address_track], with:$3, check:true
+      end
     end
     
   end

@@ -27,7 +27,7 @@ class Driver
   end
   
   def current_url
-    driver.current_url
+    @driver.current_url
   end
   
   def execute_script script

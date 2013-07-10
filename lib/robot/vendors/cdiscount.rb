@@ -54,6 +54,7 @@ module CdiscountConstants
     steps:'//*[@id="masterCart"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
+    empty_message_match: /.*/,
     submit: '//*[@id="id_0__"]',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
   }
@@ -153,7 +154,7 @@ class Cdiscount
         terminate(crawler.product)
       end
 
-      step('add to cart') do 
+      step('add to cart') do
         cart = RobotCore::Cart.new(self)
         cart.options = {skip_build_product:true}
         cart.best_offer = Proc.new {

@@ -27,7 +27,6 @@ module RobotCore
       open
       remove
       open
-
       unless check
         robot.terminate_on_error(:cart_not_emptied) 
       else
