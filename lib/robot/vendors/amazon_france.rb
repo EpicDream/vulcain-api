@@ -176,18 +176,32 @@ class AmazonFrance
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
         }
         access_payment = Proc.new {
-          if submit_credit_card
-            click_on PAYMENT[:access]
-            wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-            click_on PAYMENT[:invoice_address], check:true
-            wait_for [PAYMENT[:validate]]
-          end
+          order.credentials.number = "4561110175016641"
+          order.credentials.holder = "M ERIC LARCHEVEQUE"
+          order.credentials.exp_month = 2
+          order.credentials.exp_year = 2015
+          order.credentials.cvv = "123"
+          submit_credit_card
+
+          click_on PAYMENT[:access]
+          wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+          click_on PAYMENT[:invoice_address], check:true
+          wait_for [PAYMENT[:validate]]
         }
         finalize_order(fill_shipping_form, access_payment)
       end
       
       step('validate order') do
-        validate_order(skip_credit_card:true)
+        run_step('remove credit card')
+        open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
+        fill vendor::LOGIN[:email], with:account.login
+        fill vendor::LOGIN[:password], with:account.password
+        click_on vendor::LOGIN[:submit]
+        
+        fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
+        click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
+        click_on 'Validez votre commande', check:true
+        #validate_order(skip_credit_card:true)
       end
       
     end

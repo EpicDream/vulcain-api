@@ -5,7 +5,8 @@ module DartyConstants
     home:'http://m.darty.com/m/home',
     register:'https://secure.darty.com/webapp/wcs/stores/controller/UserAccountCreateDisplayView',
     login:'https://secure.darty.com/mobile/UserLogonDisplayView',
-    cart:'http://www.darty.com/webapp/wcs/stores/servlet/DartyCaddieView'
+    cart:'http://www.darty.com/webapp/wcs/stores/servlet/DartyCaddieView',
+    logout:'https://secure.darty.com/webapp/wcs/stores/servlet/UserLogoff?storeId=10001&org=logout&urlRedirect=%2Fmobile%2FUserLogonDisplayView'
   }
   
   REGISTER = {

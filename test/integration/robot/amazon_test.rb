@@ -54,7 +54,7 @@ class AmazonTest < StrategyTest
   test "complete order process" do
     robot.expects(:submit_credit_card).returns(false)
     robot.expects(:build_final_billing)
-    run_spec("complete order process", [PRODUCT_URL_5])
+    run_spec("complete order process", [PRODUCT_URL_6])
   end
   
   test "crawl url of product with no options" do
@@ -65,6 +65,15 @@ class AmazonTest < StrategyTest
   test "crawl url of product with options" do
     product = {:options => {'Sélectionner Taille' => ['FR : 28 (Taille Fabricant : 1)', '28', '30', '38', '40'], 'Sélectionner Couleur' => ['FR : 28 (Taille Fabricant : 1) - Stone GrayEUR 39,95Seulement 1 en stock', 'FR : 28 (Taille Fabricant : 1) - New KhakiEUR 39,95Seulement 1 en stock']}, :product_title => 'Oakley Represent Short homme', :product_price => 39.95, :product_image_url => 'http://ecx.images-amazon.com/images/I/81E%2B2Jr80TL._SY180_.jpg', :shipping_price => nil, :shipping_info => ''}
     run_spec("crawl", PRODUCT_URL_3, product)
+  end
+  
+  test "validate order insert cb, get billing, go back and insert voucher for payment" do
+    products = [{"price_text"=>"Prix conseillé : EUR 17,90\nPrix: EUR 17,01\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 0,89 (5 %)", "product_title"=>"Atelier dessins (Broché)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY180_.jpg", "price_product"=>17.9, "price_delivery"=>17.01, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054"}]
+    billing = {:product=>17.01, :shipping=>0.0, :total=>17.01, :shipping_info=>"Date de livraison estimée :  15 juillet 2013"}
+    
+    run_spec("finalize order", [PRODUCT_URL_6], products, billing)
+    robot.run_step('validate order')
+    
   end
   
 end
