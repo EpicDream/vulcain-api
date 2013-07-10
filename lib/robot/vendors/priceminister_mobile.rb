@@ -1019,7 +1019,7 @@ class PriceministerMobile
         plarg_xpath = '//div[@id]/div[1]/div[3]/a'
         pl_click_on(plarg_xpath)
         # Indiquer le titre de l'article
-        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
+        plarg_xpath = 'div.ui-page-active div.ui-content section.pm_product h1.product_title'
         pl_set_product_title!(plarg_xpath)
         # Indiquer l'url de l'image de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
