@@ -1015,8 +1015,11 @@ class PriceministerMobile
         pl_click_on_all!(plarg_xpath)
       end
       step('extract') do
+        # Aller sur le site mobile
+        plarg_xpath = '//div[@id]/div[1]/div[3]/a'
+        pl_click_on(plarg_xpath)
         # Indiquer le titre de l'article
-        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]/div[1]/div/section/h1'
+        plarg_xpath = 'div.ui-page-active div.ui-content section.pm_product h1.product_title'
         pl_set_product_title!(plarg_xpath)
         # Indiquer l'url de l'image de l'article
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//section//ul/li[1]//a/img[@class="photo"]'
@@ -1049,6 +1052,9 @@ class PriceministerMobile
         # Aller sur la page du panier
         plarg_url = 'http://www.priceminister.com/cart'
         pl_open_url!(plarg_url)
+        # Retourner sur le site mobile
+        plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
+        pl_click_on(plarg_xpath)
         # Prix total
         plarg_path = 'div.ui-page-active section header div p.total_amount span.value'
         pl_set_tot_price!(plarg_path)

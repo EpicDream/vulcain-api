@@ -199,32 +199,30 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def common_context
-    { 'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
-      'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
-      'order' => {'products_urls' => [],
-                  'credentials' => {
-                    'holder' => 'Pierre Petit', 
-                    'number' => '101290129019201', 
-                    'exp_month' => 5,
-                    'exp_year' => 2014,
-                    'cvv' => 123}
-                  },
-      'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                 'gender' => 0,
-                 'address' => { 
-                    'address_1' => '12 rue des lilas',
-                    'address_2' => '',
-                    'first_name' => 'Pierre',
-                    'last_name' => 'Legrand',
-                    'additionnal_address' => '',
-                    'zip' => '75019',
-                    'city' => 'Paris',
-                    'mobile_phone' => '0634562345',
-                    'land_phone' => '0134562345',
-                    'country' => 'France'
-                  }
+
+    {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
+                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
+                'order' => {'products_urls' => [],
+                            'credentials' => {
+                              'holder' => 'Pierre Petit', 
+                              'number' => '501290129019201', 
+                              'exp_month' => 5,
+                              'exp_year' => 2014,
+                              'cvv' => 123}},
+                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
+                           'gender' => 0,
+                           'address' => { 'address_1' => '55 Rue Didier Kléber',
+                                          'address_2' => '',
+                                          'first_name' => 'Pierre',
+                                          'last_name' => 'Legrand',
+                                          'additionnal_address' => '',
+                                          'zip' => '38140',
+                                          'city' => 'Rives',
+                                          'mobile_phone' => '0634562345',
+                                          'land_phone' => '0134562345',
+                                          'country' => 'France'}
+                          }
                 }
-    }
   end
   
 end

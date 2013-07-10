@@ -224,10 +224,12 @@ class Robot
     
   end
 
+
   def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
     open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
     wait_for [vendor::CART[:submit]]
     click_on vendor::CART[:cgu], check:true
+    wait_ajax(4)
     before_submit.call if before_submit
     click_on vendor::CART[:submit]
     
@@ -259,18 +261,23 @@ class Robot
   def submit_credit_card
     exp_month = order.credentials.exp_month.to_s
     exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
+    exp_year =  order.credentials.exp_year.to_s
+    exp_year = exp_year[2..-1] if vendor::PAYMENT[:trunc_year]
     
     if order.credentials.number =~ /^5/
       click_on vendor::PAYMENT[:mastercard], check:true
     else
       click_on vendor::PAYMENT[:visa], check:true
     end
-    
-    select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
+    if order.credentials.number =~ /^5/
+      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
+    else
+      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
+    end
     fill vendor::PAYMENT[:number], with:order.credentials.number
     fill vendor::PAYMENT[:holder], with:order.credentials.holder
     select_option vendor::PAYMENT[:exp_month], exp_month
-    select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year.to_s
+    select_option vendor::PAYMENT[:exp_year], exp_year
     fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
     click_on vendor::PAYMENT[:submit]
   end

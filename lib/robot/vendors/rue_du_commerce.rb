@@ -79,7 +79,8 @@ module RueDuCommerceConstants
     status: '//html/body/div',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
-    zero_fill: true
+    zero_fill: true,
+    trunc_year: true
   }
   
   CRAWLING = {

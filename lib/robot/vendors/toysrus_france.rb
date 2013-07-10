@@ -31,6 +31,7 @@ module ToysrusFranceConstants
     zip: '//*[@id="billingAddress-address-postalCode"]',
     mobile_phone:'//*[@id="billingAddress-phone"]',
     submit: '//*[@id="address-sugg-diff-bott"]',
+    address_submit: '//*[@id="address-sugg-diff-bott2"]',
     submit_packaging: '//*[@id="proceed"]/button',
     same_billing_address: '//*[@id="shipOption2"]'
   }
@@ -40,6 +41,7 @@ module ToysrusFranceConstants
     confirm_remove: '//*[@id="deleteAddress"]',
     credit_card_select:'//*[@id="creditCardPaymentMethod-cardType"]',
     visa_value:'VC',
+    master_card_value:'MC',
     access:'//*[@id="payment-method"]/p/a',
     number:'//*[@id="creditCardPaymentMethod-cardNumber"]',
     exp_month:'//*[@id="creditCardPaymentMethod-expirationMonth"]',

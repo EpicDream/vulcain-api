@@ -58,7 +58,7 @@ module AmazonFranceConstants
     add:'//*[@id="universal-buy-buttons-box-sequence-features"]//form//button',
     button:'//*[@id="navbar-icon-cart"]',
     remove_item:'Supprimer',
-    empty_message:'//*[@id="cart-active-items"]/div[2]/h3',
+    empty_message:'//*[@id="cart-active-items"]',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: 'Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],

@@ -12,7 +12,7 @@ class ToysrusFranceTest < StrategyTest
   end
   
   test "register" do
-    run_spec("register")
+    run_spec("register",false)
   end
   
   test "register failure" do
