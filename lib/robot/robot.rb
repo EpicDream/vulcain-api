@@ -707,7 +707,7 @@ class Robot
     
     click_on vendor::SHIPMENT[:address_option], check:true
     click_on vendor::SHIPMENT[:address_submit], check:true
-
+    
     click_on vendor::SHIPMENT[:option], check:true
   end
   

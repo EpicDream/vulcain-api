@@ -31,6 +31,7 @@ module ToysrusFranceConstants
     zip: '//*[@id="billingAddress-address-postalCode"]',
     mobile_phone:'//*[@id="billingAddress-phone"]',
     submit: '//*[@id="address-sugg-diff-bott"]',
+    address_submit: '//*[@id="address-sugg-diff-bott2"]',
     submit_packaging: '//*[@id="proceed"]/button',
     same_billing_address: '//*[@id="shipOption2"]'
   }
