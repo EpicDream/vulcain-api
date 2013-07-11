@@ -738,9 +738,13 @@ class Robot
       wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
       click_on vendor::SHIPMENT[:option], check:true
       click_on vendor::SHIPMENT[:submit_packaging]
-      access_payment.call
+      with_assess = access_payment.call
       run_step('build final billing')
-      assess
+      if with_assess
+        assess
+      else
+        run_step('validate order')
+      end
     end
   end
   

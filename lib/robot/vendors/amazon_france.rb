@@ -184,22 +184,38 @@ class AmazonFrance
         empty_cart(remove, check, next_step)
       end
 
+      step('check promotional code') do
+        gift = false
+        if exists? '//*[@id="select-payments-view"]'
+          text = get_text '//*[@id="select-payments-view"]'
+          gift = !!(text =~ /Utilisez.*EUR\s+\d.*/)
+        end
+        gift
+      end
+      
       step('finalize order') do
         fill_shipping_form = Proc.new {
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
         }
         access_payment = Proc.new {
-          order.credentials.number = "4561110175016641"
-          order.credentials.holder = "M ERIC LARCHEVEQUE"
-          order.credentials.exp_month = 2
-          order.credentials.exp_year = 2015
-          order.credentials.cvv = "123"
-          submit_credit_card
+          gift = run_step('check promotional code')
+          if gift
+            click_on '//*[@id="continueButton"]'
+            assess = false
+          else
+            order.credentials.number = "4561110175016641"
+            order.credentials.holder = "M ERIC LARCHEVEQUE"
+            order.credentials.exp_month = 2
+            order.credentials.exp_year = 2015
+            order.credentials.cvv = "123"
+            submit_credit_card
 
-          click_on PAYMENT[:access]
-          wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-          click_on PAYMENT[:invoice_address], check:true
-          wait_for [PAYMENT[:validate]]
+            click_on PAYMENT[:access]
+            wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+            click_on PAYMENT[:invoice_address], check:true
+            wait_for [PAYMENT[:validate]]
+            assess = true
+          end
         }
         finalize_order(fill_shipping_form, access_payment)
       end
@@ -211,10 +227,15 @@ class AmazonFrance
         fill vendor::LOGIN[:password], with:account.password
         click_on vendor::LOGIN[:submit]
         
-        fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
-        click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
-        click_on 'Validez votre commande', check:true
-        #validate_order(skip_credit_card:true)
+        gift = run_step('check promotional code')
+        if gift
+          click_on '//*[@id="continueButton"]'
+        else
+          fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
+          click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
+          click_on 'Validez votre commande', check:true
+        end
+        validate_order(skip_credit_card:true)
       end
       
     end
