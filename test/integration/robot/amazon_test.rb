@@ -72,8 +72,9 @@ class AmazonTest < StrategyTest
     products = [{"price_text"=>"Prix conseillé : EUR 17,90\nPrix: EUR 17,01\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 0,89 (5 %)", "product_title"=>"Atelier dessins (Broché)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY180_.jpg", "price_product"=>17.9, "price_delivery"=>17.01, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054"}]
     billing = {:product=>17.01, :shipping=>0.0, :total=>17.01, :shipping_info=>"Date de livraison estimée :  15 juillet 2013"}
     
-    run_spec("finalize order", [PRODUCT_URL_6], products, billing)
-    robot.run_step('validate order')
+   # run_spec("finalize order", [PRODUCT_URL_6], products, billing)
+    # robot.run_step('validate order')
+    run_spec('validate order', [PRODUCT_URL_6])
   end
   
   test "something interesting" do

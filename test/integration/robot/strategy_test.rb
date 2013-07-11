@@ -138,8 +138,6 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    
-    robot.expects(:wait_for).times(1..2)
     robot.run_step('validate order')
   end
   

@@ -200,8 +200,8 @@ class AmazonFrance
         access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
+            robot.skip_assess = true
             click_on '//*[@id="continueButton"]'
-            assess = false
           else
             order.credentials.number = "4561110175016641"
             order.credentials.holder = "M ERIC LARCHEVEQUE"
@@ -214,7 +214,6 @@ class AmazonFrance
             wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
             click_on PAYMENT[:invoice_address], check:true
             wait_for [PAYMENT[:validate]]
-            assess = true
           end
         }
         finalize_order(fill_shipping_form, access_payment)
@@ -233,7 +232,7 @@ class AmazonFrance
         else
           fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
           click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
-          click_on 'Validez votre commande', check:true
+          click_on '//*[@id="continueButton"]'
         end
         validate_order(skip_credit_card:true)
       end

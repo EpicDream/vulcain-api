@@ -18,6 +18,7 @@ class Robot
 
   attr_accessor :context, :driver, :messager, :vendor
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
+  attr_accessor :skip_assess
   
   def initialize context, &block
     begin
@@ -78,11 +79,15 @@ class Robot
   end
   
   def assess state={}
-    @next_step = state[:next_step] || 'payment'
-    message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
-               :products => products, 
-               :billing => self.billing }
-    messager.dispatcher.message(:assess, message)
+    if skip_assess
+      run_step('validate order')
+    else
+      @next_step = state[:next_step] || 'payment'
+      message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
+                 :products => products, 
+                 :billing => self.billing }
+      messager.dispatcher.message(:assess, message)
+    end
   end
   
   def message message, state={}
@@ -738,13 +743,9 @@ class Robot
       wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
       click_on vendor::SHIPMENT[:option], check:true
       click_on vendor::SHIPMENT[:submit_packaging]
-      with_assess = access_payment.call
+      access_payment.call
       run_step('build final billing')
-      if with_assess
-        assess
-      else
-        run_step('validate order')
-      end
+      assess
     end
   end
   
@@ -785,7 +786,7 @@ class Robot
   def validate_order opts={}
     submit_credit_card unless opts[:skip_credit_card]
     wait_for(['//body'])
-    click_on vendor::PAYMENT[:validate], check:true
+    #click_on vendor::PAYMENT[:validate], check:true
     
     page = wait_for([vendor::PAYMENT[:status]]) do
       screenshot
