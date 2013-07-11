@@ -200,7 +200,7 @@ class AmazonFrance
         access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
-            robot.skip_assess = true
+            self.skip_assess = true
             click_on '//*[@id="continueButton"]'
           else
             order.credentials.number = "4561110175016641"
