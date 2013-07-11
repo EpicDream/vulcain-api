@@ -220,19 +220,21 @@ class AmazonFrance
       end
       
       step('validate order') do
-        run_step('remove credit card')
-        open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
-        fill vendor::LOGIN[:email], with:account.login
-        fill vendor::LOGIN[:password], with:account.password
-        click_on vendor::LOGIN[:submit]
+        unless self.skip_assess
+          run_step('remove credit card')
+          open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
+          fill vendor::LOGIN[:email], with:account.login
+          fill vendor::LOGIN[:password], with:account.password
+          click_on vendor::LOGIN[:submit]
         
-        gift = run_step('check promotional code')
-        if gift
-          click_on '//*[@id="continueButton"]'
-        else
-          fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
-          click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
-          click_on '//*[@id="continueButton"]'
+          gift = run_step('check promotional code')
+          if gift
+            click_on '//*[@id="continueButton"]'
+          else
+            fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
+            click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
+            click_on '//*[@id="continueButton"]'
+          end
         end
         
         wait_for(['//body'])
