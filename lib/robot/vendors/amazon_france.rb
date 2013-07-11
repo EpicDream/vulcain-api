@@ -234,7 +234,29 @@ class AmazonFrance
           click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
           click_on '//*[@id="continueButton"]'
         end
-        validate_order(skip_credit_card:true)
+        
+        wait_for(['//body'])
+        click_on vendor::PAYMENT[:validate], check:true
+
+        page = wait_for([vendor::PAYMENT[:status]]) do
+          screenshot
+          page_source
+          terminate_on_error(:failure)
+        end
+
+        if page
+          screenshot
+          page_source
+          status = get_text vendor::PAYMENT[:status]
+          if status =~ vendor::PAYMENT[:succeed]
+            run_step('remove credit card')
+            terminate({ billing:self.billing})
+          else
+            run_step('remove credit card')
+            terminate_on_error(:failure)
+          end
+        end
+        
       end
       
     end
