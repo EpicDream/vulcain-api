@@ -16,7 +16,8 @@ class Robot
   end
   
   attr_accessor :context, :driver, :messager, :vendor
-  attr_accessor :account, :order, :user, :questions, :answers, :products, :billing
+  attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
+  attr_accessor :skip_assess
   
   def initialize context, &block
     begin
@@ -76,11 +77,15 @@ class Robot
   end
   
   def assess state={}
-    @next_step = state[:next_step] || 'payment'
-    message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
-               :products => products, 
-               :billing => self.billing }
-    messager.dispatcher.message(:assess, message)
+    if skip_assess
+      run_step('validate order')
+    else
+      @next_step = state[:next_step] || 'payment'
+      message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
+                 :products => products, 
+                 :billing => self.billing }
+      messager.dispatcher.message(:assess, message)
+    end
   end
   
   def message message, state={}

@@ -171,22 +171,50 @@ class AmazonFrance
   def instanciate_robot
     Robot.new(@context) do
       
+      step('create account') do
+        open_url URLS[:base]
+        open_url URLS[:account]
+        register
+      end
+      
+      step('empty cart') do |args|
+        remove = Proc.new { click_on_links_with_text(CART[:remove_item]) { wait_ajax } }
+        check = Proc.new { get_text(CART[:empty_message]) =~ CART[:empty_message_match] }
+        next_step = args && args[:next_step]
+        empty_cart(remove, check, next_step)
+      end
+
+      step('check promotional code') do
+        gift = false
+        if exists? '//*[@id="select-payments-view"]'
+          text = get_text '//*[@id="select-payments-view"]'
+          gift = !!(text =~ /Utilisez.*EUR\s+\d.*/)
+        end
+        gift
+      end
+      
       step('finalize order') do
         fill_shipping_form = Proc.new {
           !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
         }
         access_payment = Proc.new {
-          order.credentials.number = "4561110175016641"
-          order.credentials.holder = "M ERIC LARCHEVEQUE"
-          order.credentials.exp_month = 2
-          order.credentials.exp_year = 2015
-          order.credentials.cvv = "123"
-          submit_credit_card
+          gift = run_step('check promotional code')
+          if gift
+            robot.skip_assess = true
+            click_on '//*[@id="continueButton"]'
+          else
+            order.credentials.number = "4561110175016641"
+            order.credentials.holder = "M ERIC LARCHEVEQUE"
+            order.credentials.exp_month = 2
+            order.credentials.exp_year = 2015
+            order.credentials.cvv = "123"
+            submit_credit_card
 
-          click_on PAYMENT[:access]
-          wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-          click_on PAYMENT[:invoice_address], check:true
-          wait_for [PAYMENT[:validate]]
+            click_on PAYMENT[:access]
+            wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+            click_on PAYMENT[:invoice_address], check:true
+            wait_for [PAYMENT[:validate]]
+          end
         }
         finalize_order(fill_shipping_form, access_payment)
       end
@@ -198,10 +226,15 @@ class AmazonFrance
         fill vendor::LOGIN[:password], with:account.password
         click_on vendor::LOGIN[:submit]
         
-        fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
-        click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
-        click_on 'Validez votre commande', check:true
-        #validate_order(skip_credit_card:true)
+        gift = run_step('check promotional code')
+        if gift
+          click_on '//*[@id="continueButton"]'
+        else
+          fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
+          click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
+          click_on '//*[@id="continueButton"]'
+        end
+        validate_order(skip_credit_card:true)
       end
       
     end

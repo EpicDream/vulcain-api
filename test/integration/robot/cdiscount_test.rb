@@ -97,19 +97,19 @@ class CdiscountTest < StrategyTest
   end
   
   test "crawl url of product with no options" do
-    robot.driver.quit
-    robot.driver = Driver.new
-    
     product = {:options => {}, :product_title => 'HARIBO Schtroumpfs XXL 60 pièces (x1)', :product_price => 10.45, :shipping_info => 'Chez vous entre le 01/01/0001 et le 01/01/0001', :product_image_url => 'http://i2.cdscdn.com/pdt2/x/x/l/1/140x140/harischtrouxxl.jpg', :shipping_price => nil, :available => true}
     run_spec("crawl", PRODUCT_URL_5, product)
   end
 
   test "crawl url of product with options" do
-    robot.driver.quit
-    robot.driver = Driver.new
-    
     product = {:options=>{"Taille"=>["S/M", "L/XL"], "Couleurs"=>["Beige", "Blanc", "Bleu", "Taupe", "Corail"]}, :product_title=>"L'AMIE DE PARIS T-Shirt Femme Bleu", :product_price=>6.79, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/l/e/u/1/140x140/s303bleu.jpg", :shipping_price=>nil, :available=>true}
     run_spec("crawl", PRODUCT_URL_6, product)
+  end
+  
+  test "crawl url wrapped in track url" do
+    url = "http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1017777673)ttid(5)url(http://www.cdiscount.com/dp.asp?sku=LEGO6156&refer=*)"
+    product = {:options=>{}, :product_title=>"Duplo Lego Ville - Le Safari", :product_price=>44.0, :shipping_info=>"Expédié sous 4 jours", :product_image_url=>"http://i2.cdscdn.com/pdt2/1/5/6/1/140x140/lego6156.jpg", :shipping_price=>nil, :available=>true}
+    run_spec("crawl", url, product)
   end
   
 end  
