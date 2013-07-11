@@ -786,7 +786,7 @@ class Robot
   def validate_order opts={}
     submit_credit_card unless opts[:skip_credit_card]
     wait_for(['//body'])
-    #click_on vendor::PAYMENT[:validate], check:true
+    click_on vendor::PAYMENT[:validate], check:true
     
     page = wait_for([vendor::PAYMENT[:status]]) do
       screenshot
