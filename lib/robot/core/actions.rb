@@ -210,7 +210,11 @@ module RobotCore
     def exists? xpath
       return unless xpath
       wait_for(['//body'])
-      element = @driver.find_element(xpath, nowait:true)
+      if xpath.is_a?(Regexp)
+        element = @driver.find_elements_by_attribute_matching("input", "id", xpath, nowait:true)
+      else
+        element = @driver.find_element(xpath, nowait:true)
+      end
       !!element && element.displayed?
     end
 

@@ -34,6 +34,28 @@ module RobotCore
       end
     end
     
+    def submit
+      open
+      robot.click_on vendor::CART[:cgu], check:true
+      robot.wait_ajax(4)
+      remove_options
+      robot.click_on vendor::CART[:submit]
+    end
+    
+    def remove_options
+      robot.click_on_all([vendor::CART[:remove_item]], start_index:1) { |e| !e.nil? }
+    end
+    
+    def open
+      robot.open_url vendor::URLS[:cart] or robot.click_on vendor::CART[:button]
+      robot.wait_for [vendor::CART[:items_lists], vendor::CART[:submit]]
+    end
+    
+    def out_of_stock?
+      robot.wait_for(vendor::CART[:submit_success]) { return true }
+      false
+    end
+    
     private
     
     def remove
@@ -53,11 +75,6 @@ module RobotCore
     def check
       robot.wait_for [vendor::CART[:empty_message]]
       robot.get_text(vendor::CART[:empty_message]) =~ vendor::CART[:empty_message_match] 
-    end
-    
-    def open
-      robot.open_url vendor::URLS[:cart] || robot.click_on(vendor::CART[:button], check:true)
-      robot.wait_for [vendor::CART[:items_lists], '//body']
     end
     
     def available?

@@ -194,13 +194,10 @@ class AmazonFrance
       end
       
       step('finalize order') do
-        fill_shipping_form = Proc.new {
-          !click_on_link_with_text(SHIPMENT[:select_this_address], check:true)
-        }
         access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
-            robot.skip_assess = true
+            self.skip_assess = true
             click_on '//*[@id="continueButton"]'
           else
             order.credentials.number = "4561110175016641"

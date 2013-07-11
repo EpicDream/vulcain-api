@@ -146,21 +146,14 @@ class Imenager
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('delete product options') do
-        click_on_all([CART[:remove_item]], start_index:1) { |e| !e.nil? }
-      end
 
       step('finalize order') do
-        before_submit = Proc.new do
-          run_step('delete product options')
-        end
-        fill_shipping_form = Proc.new do
-        end
-        access_payment = Proc.new do
-        end
+        # fill_shipping_form = Proc.new do
+        # end
+        # access_payment = Proc.new do
+        # end
         
-        finalize_order(fill_shipping_form, access_payment, before_submit)
+        finalize_order(fill_shipping_form, access_payment)
       end
       
       step('validate order') do

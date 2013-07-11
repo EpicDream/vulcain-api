@@ -139,11 +139,11 @@ class Darty
       end
       
       step('finalize order') do
-        fill_shipping_form = Proc.new {}
-        access_payment = Proc.new {}
-        no_delivery = Proc.new {
-          !exists?(SHIPMENT[:submit_packaging])
-        }
+        # fill_shipping_form = Proc.new {}
+        # access_payment = Proc.new {}
+        # no_delivery = Proc.new {
+        #   !exists?(SHIPMENT[:submit_packaging])
+        # }
         finalize_order(fill_shipping_form, access_payment, nil, no_delivery)
       end
       

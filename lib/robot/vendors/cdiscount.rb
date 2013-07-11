@@ -151,8 +151,10 @@ class Cdiscount
   def instanciate_robot
     Robot.new(@context) do
 
-      step('add to cart') do 
-        best_offer = Proc.new {
+      step('add to cart') do
+        cart = RobotCore::Cart.new(self)
+        cart.options = {skip_build_product:true}
+        cart.best_offer = Proc.new {
           button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
@@ -161,19 +163,15 @@ class Cdiscount
         cart.fill
       end
       
-      step('finalize order') do
-        fill_shipping_form = Proc.new {
-          exists? SHIPMENT[:submit]
-        }
-        access_payment = Proc.new {
-          click_on PAYMENT[:access]
-        }
-        before_submit = Proc.new {
-          RobotCore::Product.new(self).build
-        }
-        
-        finalize_order(fill_shipping_form, access_payment, before_submit)
-      end
+      # step('finalize order') do
+      #   # fill_shipping_form = Proc.new {
+      #   #   exists? SHIPMENT[:submit]
+      #   # }
+      #   access_payment = Proc.new {
+      #     click_on PAYMENT[:access]
+      #   }
+      #   finalize_order(fill_shipping_form, access_payment)
+      # end
       
     end 
   end

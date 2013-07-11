@@ -90,15 +90,16 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def delete_product_options urls, assert=Proc.new
-    @message.expects(:message).times(11)
+    @message.expects(:message).times(9..11)
     @context['order']['products_urls'] = urls
     @robot.context = @context
     
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
-    robot.run_step('delete product options')
-    assert.call
+    cart = RobotCore::Cart.new(robot)
+    cart.open
+    cart.remove_options
   end
   
   def finalize_order urls, products, billing

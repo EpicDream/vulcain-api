@@ -44,7 +44,7 @@ module RueDuCommerceConstants
   
   CART = {
     add: '//section[@class="cart-buttons"]/a',
-    remove_item: '//html/body/div/div[2]/div/div[3]/div[1]/div/a[2]',
+    remove_item: '//a[@class="delete-fav-search"]',
     submit: 'Finaliser ma commande',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
     empty_message: '//html/body/div/div[2]/div',
@@ -153,14 +153,6 @@ class RueDuCommerce
         cart.fill
       end
       
-      step('delete product options') do
-        open_url URLS[:cart]
-        begin
-          element = click_on_link_with_attribute "@class", 'delete-fav-search', :index => 1
-          wait_ajax(8) if element
-        end while element
-      end
-      
       step('remove contract options') do
         if exists? PAYMENT[:gold_contract_checkbox]
           click_on PAYMENT[:gold_contract_checkbox]
@@ -170,12 +162,9 @@ class RueDuCommerce
       end
       
       step('finalize order') do
-        before_submit = Proc.new do
-          run_step('delete product options')
-        end
-        fill_shipping_form = Proc.new do
-          exists? SHIPMENT[:submit]
-        end
+        # fill_shipping_form = Proc.new do
+        #   exists? SHIPMENT[:submit]
+        # end
         access_payment = Proc.new do
           click_on PAYMENT[:access]
           wait_for ['//body']
@@ -192,7 +181,7 @@ class RueDuCommerce
           
         end
         
-        finalize_order(fill_shipping_form, access_payment, before_submit)
+        finalize_order(fill_shipping_form, access_payment)
       end
 
     end

@@ -28,6 +28,12 @@ module RobotCore
       run
     end
     
+    def relog
+      robot.fill vendor::LOGIN[:email], with:account.login, check:true
+      robot.fill vendor::LOGIN[:password], with:account.password, check:true
+      robot.click_on vendor::LOGIN[:submit], check:true
+    end
+    
     private
     
     def fails?

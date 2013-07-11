@@ -104,9 +104,9 @@ class ToysrusFrance
       end
       
       step('finalize order') do
-        fill_shipping_form = Proc.new {
-          exists? SHIPMENT[:first_name]
-        }
+        # fill_shipping_form = Proc.new {
+        #   exists? SHIPMENT[:first_name]
+        # }
         access_payment = Proc.new {
           if exists? PAYMENT[:access]
             click_on PAYMENT[:access]
@@ -114,11 +114,7 @@ class ToysrusFrance
             click_on PAYMENT[:confirm_remove]
           end
         }
-        before_submit = Proc.new {
-          wait_ajax 4
-          click_on CART[:popup], check:true
-        }
-        finalize_order(fill_shipping_form, access_payment, before_submit)
+        finalize_order(fill_shipping_form, access_payment)
       end
       
     end

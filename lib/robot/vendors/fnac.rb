@@ -175,19 +175,19 @@ class Fnac
       # end
 
       step('finalize order') do
-        fill_shipping_form = Proc.new {
-          !click_on(SHIPMENT[:select_this_address], check:true)
-        }
-        access_payment = Proc.new {
-          click_on PAYMENT[:credit_card]
-          if order.credentials.number =~ /^5/
-            click_on PAYMENT[:mastercard]
-          else
-            click_on PAYMENT[:visa]
-          end
-          click_on PAYMENT[:cgu]
-          click_on PAYMENT[:access]
-        }
+        # fill_shipping_form = Proc.new {
+        #   !click_on(SHIPMENT[:select_this_address], check:true)
+        # }
+        # access_payment = Proc.new {
+        #   click_on PAYMENT[:credit_card]
+        #   if order.credentials.number =~ /^5/
+        #     click_on PAYMENT[:mastercard]
+        #   else
+        #     click_on PAYMENT[:visa]
+        #   end
+        #   click_on PAYMENT[:cgu]
+        #   click_on PAYMENT[:access]
+        # }
         finalize_order(fill_shipping_form, access_payment)
       end
      
