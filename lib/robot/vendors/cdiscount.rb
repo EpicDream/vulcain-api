@@ -87,7 +87,7 @@ module CdiscountConstants
   
   CRAWLING = {
     title:'//h1[@class="productTitle"]', 
-    price:'//div[@class="tab"]',
+    price:'//p[@class="prix big"]',
     image_url:'//div[@id="main"]//a[2]/img',
     shipping_info: '//div[@class="livraison"]',
     available:'//div[@id="main"]',
@@ -107,6 +107,11 @@ module CdiscountCrawler
     end
     
     def crawl url
+      @robot.driver.get url
+      url = @robot.driver.current_url
+      @robot.driver.quit
+      @robot.driver = Driver.new(user_agent:Driver::MOBILE_USER_AGENT)
+      
       @url = url
       @robot.open_url url
       @page = Nokogiri::HTML.parse @robot.driver.page_source
@@ -116,7 +121,7 @@ module CdiscountCrawler
     
     def build_product
       @product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      @product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).last
+      @product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).first
       @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
       @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
       @product[:shipping_price] = nil
@@ -144,14 +149,6 @@ class Cdiscount
   
   def instanciate_robot
     Robot.new(@context) do
-
-      step('crawl') do
-        @driver.quit
-        @driver = Driver.new
-        crawler = ProductCrawler.new(self, CRAWLING)
-        crawler.crawl @context['url']
-        terminate(crawler.product)
-      end
 
       step('add to cart') do 
         best_offer = Proc.new {
