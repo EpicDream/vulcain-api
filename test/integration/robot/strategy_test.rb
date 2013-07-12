@@ -114,8 +114,8 @@ class StrategyTest < ActiveSupport::TestCase
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     robot.run_step('finalize order')
 
-    # puts robot.products.inspect
-    # puts robot.billing.inspect
+    puts robot.products.inspect
+    puts robot.billing.inspect
     assert_equal products, robot.products
     assert_equal billing, robot.billing
   end
@@ -193,8 +193,11 @@ class StrategyTest < ActiveSupport::TestCase
     @context = common_context
     @vendor = vendor
     @robot = vendor.new(@context).robot
+    @robot.vendor = vendor
     @message = stub
     @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
+    @robot.stubs(:screenshot)
+    @robot.stubs(:page_source)
   end
   
   def common_context

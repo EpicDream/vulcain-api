@@ -173,7 +173,7 @@ class Robot
     end
     
     step('remove credit card') do
-      RobotCore::CreditCard.new(self).remove
+      RobotCore::CreditCard.instance(self).remove
     end
     
     step('empty cart') do |args|
@@ -190,11 +190,11 @@ class Robot
     end
     
     step('finalize order') do
-      RobotCore::Order.new(self).finalize
+      RobotCore::Order.instance(self).finalize
     end
     
     step('validate order') do
-      validate_order
+      RobotCore::Order.instance(self).validate
     end
     
     step('cancel') do
@@ -202,9 +202,7 @@ class Robot
     end
     
     step('cancel order') do
-      click_on vendor::PAYMENT[:cancel], check:true
-      open_url vendor::URLS[:base]
-      run_step('empty cart', next_step:'cancel')
+      RobotCore::Order.instance(self).cancel
     end
     
     step('payment') do
@@ -224,102 +222,6 @@ class Robot
       terminate(crawler.product)
     end
     
-    step('validate order') do
-      validate_order
-    end
-    
-  end
-
-  # def finalize_order fill_shipping_form, access_payment, before_submit=Proc.new{}, no_delivery=Proc.new{}
-  #   open_url vendor::URLS[:cart] or click_on vendor::CART[:button]
-  #   wait_for [vendor::CART[:submit]]
-  #   click_on vendor::CART[:cgu], check:true
-  #   wait_ajax(4)
-  #   before_submit.call if before_submit
-  #   click_on vendor::CART[:submit]
-  #   
-  #   in_stock = wait_for(vendor::CART[:submit_success]) do 
-  #     terminate_on_error(:out_of_stock)
-  #   end
-  #   
-  #   if no_delivery = no_delivery.call
-  #     terminate_on_error(:no_delivery)
-  #   end
-  #   
-  #   if in_stock && !no_delivery
-  #     if exists? vendor::LOGIN[:submit]
-  #       fill vendor::LOGIN[:email], with:account.login, check:true
-  #       fill vendor::LOGIN[:password], with:account.password
-  #       click_on vendor::LOGIN[:submit]
-  #     end
-  #     run_step('fill shipping form') if fill_shipping_form.call
-  #     
-  #     wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]])
-  #     click_on vendor::SHIPMENT[:option], check:true
-  #     click_on vendor::SHIPMENT[:submit_packaging]
-  #     access_payment.call
-  #     run_step('build final billing')
-  #     assess
-  #   end
-  # end
-  
-  def submit_credit_card
-    exp_month = order.credentials.exp_month.to_s
-    exp_month = exp_month.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
-    exp_year =  order.credentials.exp_year.to_s
-    exp_year = exp_year[2..-1] if vendor::PAYMENT[:trunc_year]
-    
-    if order.credentials.number =~ /^5/
-      click_on vendor::PAYMENT[:mastercard], check:true
-    else
-      click_on vendor::PAYMENT[:visa], check:true
-    end
-    if order.credentials.number =~ /^5/
-      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
-    else
-      select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
-    end
-    fill vendor::PAYMENT[:number], with:order.credentials.number
-    fill vendor::PAYMENT[:holder], with:order.credentials.holder
-    select_option vendor::PAYMENT[:exp_month], exp_month
-    select_option vendor::PAYMENT[:exp_year], exp_year
-    fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
-    click_on vendor::PAYMENT[:submit]
-  end
-  
-  # def build_final_billing
-  #   return if self.billing
-  #   price, shipping, total = [:price, :shipping, :total].map do |key| 
-  #     PRICES_IN_TEXT.(get_text vendor::BILL[key]).first
-  #   end
-  #   price ||= products.last['price_product']
-  #   info = get_text(vendor::BILL[:info])
-  #   self.billing = { product:price, shipping:shipping, total:total, shipping_info:info}
-  # end
-  
-  def validate_order opts={}
-    submit_credit_card unless opts[:skip_credit_card]
-    wait_for(['//body'])
-    click_on vendor::PAYMENT[:validate], check:true
-    
-    page = wait_for([vendor::PAYMENT[:status]]) do
-      screenshot
-      page_source
-      terminate_on_error(:order_validation_failed)
-    end
-    
-    if page
-      screenshot
-      page_source
-      status = get_text vendor::PAYMENT[:status]
-      if status =~ vendor::PAYMENT[:succeed]
-        run_step('remove credit card')
-        terminate({ billing:self.billing})
-      else
-        run_step('remove credit card')
-        terminate_on_error(:order_validation_failed)
-      end
-    end
   end
   
 end

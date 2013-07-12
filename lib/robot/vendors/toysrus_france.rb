@@ -104,17 +104,15 @@ class ToysrusFrance
       end
       
       step('finalize order') do
-        # fill_shipping_form = Proc.new {
-        #   exists? SHIPMENT[:first_name]
-        # }
-        access_payment = Proc.new {
+        payment = RobotCore::Payment.instance(self)
+        payment.access_payment = Proc.new {
           if exists? PAYMENT[:access]
             click_on PAYMENT[:access]
             click_on_link_with_text "Supprimer cette carte"
             click_on PAYMENT[:confirm_remove]
           end
         }
-        finalize_order(fill_shipping_form, access_payment)
+        RobotCore::Order.instance(self).finalize(payment)
       end
       
     end
