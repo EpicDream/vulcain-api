@@ -36,6 +36,7 @@ class Robot
     @product_url_index = 0
     @products = []
     @billing = nil
+    @skip_assess = false
     load_common_steps
     self.instance_eval(&@block)
   end
