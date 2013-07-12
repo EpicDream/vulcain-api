@@ -114,8 +114,8 @@ class StrategyTest < ActiveSupport::TestCase
     @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
     robot.run_step('finalize order')
 
-    puts robot.products.inspect
-    puts robot.billing.inspect
+    # puts robot.products.inspect
+    # puts robot.billing.inspect
     assert_equal products, robot.products
     assert_equal billing, robot.billing
   end

@@ -19,7 +19,6 @@ module RobotCore
     end
     
     def checkout
-      
     end
     
     private
