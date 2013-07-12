@@ -1,0 +1,164 @@
+# encoding: utf-8
+module <%= vendor_name %>Constants
+  
+  URLS = {
+    base:'',
+    home:'',
+    account:'',
+    login:'',
+    payments:'',
+    cart:''
+  }
+  
+  REGISTER = {
+    mister:'',
+    madam:'',
+    miss:'',
+    last_name:'',
+    first_name:'',
+    land_phone:'',
+    mobile_phone:'',
+    address_1:'',
+    address_2:'',
+    email:'',
+    zip:'',
+    password:'',
+    password_confirmation:'',
+    address_option:'',
+    submit: ''
+  }
+  
+  LOGIN = {
+    link:'',
+    email:'',
+    password:'',
+    submit: '',
+    logout:'',
+    captcha:'',
+    captcha_submit:'',
+    captcha_input:''
+  }
+  
+  SHIPMENT = {
+    full_name: '',
+    address_1: '',
+    address_2: '',
+    additionnal_address: '',
+    city: '',
+    zip: '',
+    mobile_phone: '',
+    submit_packaging: '',
+    submit: '',
+    select_this_address: '',
+    address_option: '',
+    address_submit: ''
+  }
+  
+  CART = {
+    add:'',
+    button:'',
+    remove_item:'',
+    empty_message:'',
+    empty_message_match:/panier\s+est\s+vide/i,
+    submit: '',
+    submit_success: [],
+  }
+  
+  PRODUCT = {
+    price_text:'',
+    title:'',
+    image:''
+  }
+  
+  BILL = {
+    price:'',
+    shipping:'',
+    total:'',
+    info:''
+  }
+  
+  PAYMENT = {
+    remove: '',
+    remove_confirmation: '',
+    access: '',
+    invoice_address: '',
+    validate: '',
+    holder:'',
+    number:'',
+    exp_month:'',
+    exp_year:'',
+    cvv:'',
+    submit: '',
+    status: '',
+    succeed: //,
+  }
+  
+  CRAWLING = {
+    title:'', 
+    price:'',
+    image_url:'',
+    shipping_info: '',
+    available:'',
+    options:''
+  }
+  
+end
+
+module <%= vendor_name %>Crawler
+  class ProductCrawler
+    
+    attr_reader :product
+    
+    def initialize robot, xpaths
+      @robot = robot
+      @xpaths = xpaths
+      @product = {:options => {}}
+    end
+    
+    def crawl url
+      @url = url
+      @robot.open_url url
+      @page = Nokogiri::HTML.parse @robot.driver.page_source
+      build_options
+      build_product
+    end
+    
+    def build_options
+    end
+    
+    def build_product
+    end
+    
+  end
+end
+
+class <%= vendor_name %>
+  include <%= vendor_name %>Constants
+  include <%= vendor_name %>Crawler
+  
+  attr_accessor :context, :robot
+  
+  def initialize context
+    @context = context
+    @robot = instanciate_robot
+    @robot.vendor = <%= vendor_name %>
+  end
+  
+  def instanciate_robot
+    Robot.new(@context) do
+      
+      step('empty cart') do |args|
+        #TODO : REMOVE IF NO SPECIFICITY
+      end
+
+      step('finalize order') do
+      end
+      
+      step('validate order') do
+        #TODO : REMOVE IF NO SPECIFICITY
+      end
+      
+    end
+  end
+  
+end

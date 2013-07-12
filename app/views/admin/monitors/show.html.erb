@@ -1,0 +1,18 @@
+<% @pool.each do |vulcain| %>
+	<% running = !vulcain.idle && !vulcain.blocked %>
+	<tr class="<%= "running" if running %> <%= "blocked" if vulcain.blocked %>">
+		<td><%= vulcain.host %></td>
+		<td>
+		  <%= vulcain.pid %>
+		  <%= check_box_tag "vulcain-#{vulcain.id}" %>
+		</td>
+		<td><%= vulcain.uuid %></td>
+		<td><%= vulcain.idle %></td>
+		<td><%= vulcain.ack_ping %></td>
+		<td><%= l(vulcain.run_since) if  vulcain.run_since %></td>
+		<td><%= vulcain.callback_url %></td>
+		<td><%= vulcain.blocked %></td>
+		<td><%= vulcain.stale %></td>
+	</tr>
+<% end %>
+

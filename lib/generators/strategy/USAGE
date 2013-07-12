@@ -1,0 +1,9 @@
+Description:
+    Generate templates for strategies.
+    VENDOR_NAME argument must be in camel case.
+
+Example:
+    rails generate strategy Fnac
+
+    This will create:
+        lib/robot/vendors/fnac.rb and test/integration/robot/fnac_test.rb

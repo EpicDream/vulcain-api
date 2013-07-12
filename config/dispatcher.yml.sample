@@ -1,0 +1,23 @@
+production:
+  user: "guest"
+  password: "guest"
+  host: "127.0.0.1"
+  vulcains:
+    user: "guest"
+    password: "guest"
+    
+development:
+  user: "guest"
+  password: "guest"
+  host: "127.0.0.1"
+  vulcains:
+    user: "guest"
+    password: "guest"
+
+test:
+  user: "guest"
+  password: "guest"
+  host: "127.0.0.1"
+  vulcains:
+    user: "guest"
+    password: "guest"
