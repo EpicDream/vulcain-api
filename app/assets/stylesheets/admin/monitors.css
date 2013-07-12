@@ -1,0 +1,29 @@
+#idleGraph{
+	width:100%;
+	height:200px;
+	margin: 100px 0 0 0;
+}
+
+.xchart .idles .line{
+	stroke: #4DA944 !important;
+}
+#dispatcher-state span{
+	border-radius:4px;
+	padding:5px;
+}
+#dispatcher-state span.running{
+	background:#5EB017;
+}
+#dispatcher-state span.down{
+	background:#BD0D09;
+}
+
+tr.running {
+	background: #839962 !important;
+}
+tr.blocked {
+	background: #C24247;
+}
+input[name^=vulcain]{
+	float:right;
+}

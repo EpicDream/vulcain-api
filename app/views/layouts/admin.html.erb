@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <%= stylesheet_link_tag "admin/application" %>
+  <%= javascript_include_tag "admin/application" %>
+  <%= yield :head %>
+</head>
+
+<body>
+ <div class="container-fluid top">
+   <div class="row-fluid">
+     <div class="span2">
+       <div class="well" id="nav-well">
+       <ul class="nav nav-list">
+         <li class="nav-header">Admin Vulcain</li>
+         <li><%= link_to("Monitor",admin_monitors_path) %></li>
+         <li><%= link_to("Logs",admin_logs_path) %></li>
+       </ul>
+       </div>
+     </div>
+     <div class="span10">
+       <%= yield %>
+     </div>
+   </div>
+ </div>
+</body>
+</html>

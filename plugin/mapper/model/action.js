@@ -1,0 +1,68 @@
+
+var Action = function(_step, args) {
+  
+  var that = this;
+  this.step = _step;
+
+  function init() {
+    if (! args || typeof(args) != "object") throw "'args' must be set as an object."
+
+    that.desc = args.desc || "";
+    // To delete
+    if (args.contexts && ! args.contexts instanceof Array)
+      that.contexts = [args.contexts];
+    else
+      that.contexts = args.contexts || [];
+    that.xpath = args.xpath || (that.contexts ? that.contexts.xpath : null);
+    that.type = or(args.type, null);
+    that.arg = or(args.arg, null);
+    that.url = or(args.url, null);
+    that.pass = args.pass || false;
+    that.code = args.code || "";
+    that.classified = args.classified || false;
+  };
+
+  this.toHash = function(args) {
+    var res = {};
+    res.desc = this.desc;
+    res.xpath = this.xpath;
+    if (! args || ! args.noContexts)
+      res.contexts = this.contexts;
+    res.type = this.type;
+    res.arg = this.arg;
+    res.url = this.url;
+    res.pass = this.pass;
+    res.code = this.code;
+    res.classified = this.classified;
+    return res;
+  };
+
+  this.edit = function(action) {
+    this.desc = or(action.desc, this.desc);
+    this.xpath = or(action.xpath, this.xpath);
+    if (action.context) {
+      this.contexts.push(action.context);
+      if (this.contexts.length > 5)
+        this.contexts.shift();
+    }
+    this.type = or(action.type, this.type);
+    this.arg = or(action.arg, this.arg);
+    this.url = or(action.url, this.url);
+    this.pass = or(action.pass, this.pass);
+    this.code = or(action.code, this.code);
+    this.classified = or(action.classified, this.classified);
+    model.setModified();
+    return this;
+  };
+
+  this.index = function() {
+    return _step.actions.indexOf(this);
+  };
+
+  for (var f in this) {
+    if (typeof(this[f]) == "function")
+      this[f] = this[f].bind(this);
+  }
+
+  init();
+};

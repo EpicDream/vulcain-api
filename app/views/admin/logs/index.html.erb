@@ -1,0 +1,7 @@
+<% content_for :head do %>
+	<%= javascript_include_tag "admin/logs" %>
+<% end %>
+
+<%= select_tag 'uuid-select', options_for_select(["uuid"] + @uuids) %>
+<%= label_tag 'crash-status', 'Crashed'%>
+<%= check_box_tag 'crash-status', value = "1", checked = params[:crash] == "true" %>
