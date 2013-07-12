@@ -19,6 +19,7 @@ module RobotCore
     def click_on xpath, opts={}
       return unless xpath
       unless xpath =~ /\/\//
+        return if opts[:check] && !exists?(xpath)
         click_on_button_with_name(xpath)
       else
         return if opts[:check] && !exists?(xpath)
@@ -207,8 +208,10 @@ module RobotCore
       wait_for(['//body'])
       if xpath.is_a?(Regexp)
         element = @driver.find_elements_by_attribute_matching("input", "id", xpath, nowait:true)
-      else
+      elsif xpath =~ /\/\//
         element = @driver.find_element(xpath, nowait:true)
+      else
+        element = @driver.find_element_with_text(xpath, nowait:true)
       end
       !!element && element.displayed?
     end
