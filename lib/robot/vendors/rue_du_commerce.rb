@@ -27,6 +27,12 @@ module RueDuCommerceConstants
     submit: '//*[@id="login-form"]/fieldset/div[2]/input'
   }
   
+  PRODUCT = {
+    price_text:'//ul[@class="total-cart-price-list"]',
+    title:'/html/body/div/div[2]/div/div[4]/section[1]',
+    image:'/html/body/div/div[2]/div/div[4]/img',
+  }
+  
   SHIPMENT = {
     submit: '//input[@value="Valider"]',
     address_1:'//*[@id="account_address1"]',
@@ -39,22 +45,18 @@ module RueDuCommerceConstants
     birthdate_year:'//*[@id="account_birthdate_year"]',
     mobile_phone:'//*[@id="optin_mobile_phone"]',
     address_submit:'//input[@value="Valider"]',
-    submit_packaging: '//input[@value="Choix du transporteur"]'
+    select_this_address: '//input[@value="Choix du transporteur"]',
+    submit_packaging: '//*[@id="carrier-submit"]',
+    submit_success: [PRODUCT[:price_text]]
   }
   
   CART = {
     add: '//section[@class="cart-buttons"]/a',
     remove_item: '//a[@class="delete-fav-search"]',
     submit: 'Finaliser ma commande',
-    submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address]],
     empty_message: '//html/body/div/div[2]/div',
     empty_message_match: /Votre panier est vide/i
-  }
-  
-  PRODUCT = {
-    price_text:'//ul[@class="total-cart-price-list"]',
-    title:'/html/body/div/div[2]/div/div[4]/section[1]',
-    image:'/html/body/div/div[2]/div/div[4]/img',
   }
   
   BILL = {
@@ -65,9 +67,8 @@ module RueDuCommerceConstants
   }
   
   PAYMENT = {
-    access:'//*[@id="carrier-submit"]',
     gold_contract_checkbox: '//*[@id="agree"]',
-    finalize:'Finaliser ma commande',
+    access:'Finaliser ma commande',
     credit_card:'//*[@id="inpMop1"] | //*[@id="inpMop2"]',
     visa:'//*[@id="inpMop_VISA"]',
     mastercard:'//*[@id="inpMop_MASTERCARD"]',
@@ -80,7 +81,7 @@ module RueDuCommerceConstants
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
     zero_fill: true,
-    trunc_year: true
+    trunc_year: true,
   }
   
   CRAWLING = {
@@ -160,28 +161,28 @@ class RueDuCommerce
         end
       end
       
-      step('finalize order') do
-        # fill_shipping_form = Proc.new do
-        #   exists? SHIPMENT[:submit]
-        # end
-        access_payment = Proc.new do
-          click_on PAYMENT[:access]
-          wait_for ['//body']
-          run_step 'remove contract options'
-          run_step 'build product'
-          run_step 'build final billing'
-          click_on PAYMENT[:finalize]
-          click_on PAYMENT[:credit_card]
-          if order.credentials.number =~ /^5/
-            click_on PAYMENT[:mastercard]
-          else
-            click_on PAYMENT[:visa]
-          end
-          
-        end
-        
-        finalize_order(fill_shipping_form, access_payment)
-      end
+      # step('finalize order') do
+      #   # fill_shipping_form = Proc.new do
+      #   #   exists? SHIPMENT[:submit]
+      #   # end
+      #   access_payment = Proc.new do
+      #     click_on PAYMENT[:access]
+      #     wait_for ['//body']
+      #     run_step 'remove contract options'
+      #     run_step 'build product'
+      #     run_step 'build final billing'
+      #     click_on PAYMENT[:finalize]
+      #     click_on PAYMENT[:credit_card]
+      #     if order.credentials.number =~ /^5/
+      #       click_on PAYMENT[:mastercard]
+      #     else
+      #       click_on PAYMENT[:visa]
+      #     end
+      #     
+      #   end
+      #   
+      #   finalize_order(fill_shipping_form, access_payment)
+      # end
 
     end
   end

@@ -82,6 +82,7 @@ module RobotCore
     end
 
     def click_on_all xpaths, options={}
+      return if xpaths.compact.empty?
       start = Time.now
       start_index = options[:start_index] || 0
       begin
@@ -101,13 +102,7 @@ module RobotCore
     end
 
     def click_on_button_with_name name
-      button = @driver.find_links_with_text(name, nowait:true).first
-      button ||= @driver.find_input_with_value(name)
-      @driver.click_on button
-    end
-
-    def click_on_button_with_text text
-      button = find_elements_by_attribute("button", "text()", text).first
+      button = @driver.find_element_with_text(name)
       @driver.click_on button
     end
 
@@ -219,6 +214,7 @@ module RobotCore
     end
 
     def wait_for xpaths, &rescue_block
+      return if xpaths.nil? || xpaths.empty?
       if xpaths.first.is_a?(Regexp)
         @driver.find_elements_by_attribute_matching("input", "id", xpaths.first)
       elsif xpaths.first =~ /\/\//

@@ -111,8 +111,16 @@ class Driver
     }
   end
   
-  def find_input_with_value value
-    waiting { driver.find_elements(:xpath => "//input[@value='#{value}']").first }
+  def find_input_with_value value, options={}
+    waiting(options[:nowait]) { 
+      driver.find_elements(:xpath => "//input[@value='#{value}']").first 
+    }
+  end
+  
+  def find_element_with_text text
+    waiting { 
+      find_links_with_text(text, nowait:true).first || find_input_with_value(text, nowait:true)
+    }
   end
   
   def find_elements_by_attribute tag, attribute, value

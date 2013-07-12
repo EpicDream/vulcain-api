@@ -138,15 +138,6 @@ class Darty
         RobotCore::Registration.new(self, zip:zip).run
       end
       
-      step('finalize order') do
-        # fill_shipping_form = Proc.new {}
-        # access_payment = Proc.new {}
-        # no_delivery = Proc.new {
-        #   !exists?(SHIPMENT[:submit_packaging])
-        # }
-        finalize_order(fill_shipping_form, access_payment, nil, no_delivery)
-      end
-      
     end
   end
 end

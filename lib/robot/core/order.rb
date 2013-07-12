@@ -16,7 +16,6 @@ module RobotCore
       robot.terminate_on_error(:out_of_stock) and return if cart.out_of_stock?
 
       RobotCore::Login.new(robot).relog
-      
       shipping = RobotCore::Shipping.new(robot)
       shipping.run
       robot.terminate_on_error(:no_delivery) and return unless shipping.submit_packaging

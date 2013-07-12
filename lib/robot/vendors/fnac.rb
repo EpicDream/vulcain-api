@@ -161,35 +161,6 @@ class Fnac
         }
         cart.fill
       end
-      
-      # step('empty cart') do |args|
-      #   remove = Proc.new {
-      #     if exists? CART[:quantity]
-      #       fill_all CART[:quantity], with:"0"
-      #       click_on CART[:recompute]
-      #     end
-      #   }
-      #   check = Proc.new { !(exists? CART[:quantity])}
-      #   next_step = args && args[:next_step]
-      #   empty_cart(remove, check, next_step)
-      # end
-
-      step('finalize order') do
-        # fill_shipping_form = Proc.new {
-        #   !click_on(SHIPMENT[:select_this_address], check:true)
-        # }
-        # access_payment = Proc.new {
-        #   click_on PAYMENT[:credit_card]
-        #   if order.credentials.number =~ /^5/
-        #     click_on PAYMENT[:mastercard]
-        #   else
-        #     click_on PAYMENT[:visa]
-        #   end
-        #   click_on PAYMENT[:cgu]
-        #   click_on PAYMENT[:access]
-        # }
-        finalize_order(fill_shipping_form, access_payment)
-      end
      
       step('cancel order') do
         click_on PAYMENT[:cancel]

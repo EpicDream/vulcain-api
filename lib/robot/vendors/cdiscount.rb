@@ -162,16 +162,6 @@ class Cdiscount
         cart.fill
       end
       
-      # step('finalize order') do
-      #   # fill_shipping_form = Proc.new {
-      #   #   exists? SHIPMENT[:submit]
-      #   # }
-      #   access_payment = Proc.new {
-      #     click_on PAYMENT[:access]
-      #   }
-      #   finalize_order(fill_shipping_form, access_payment)
-      # end
-      
     end 
   end
   
