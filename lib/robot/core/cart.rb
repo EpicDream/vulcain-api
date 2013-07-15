@@ -43,7 +43,10 @@ module RobotCore
     end
     
     def remove_options
-      robot.click_on_all([vendor::CART[:remove_item]], start_index:1) { |e| !e.nil? }
+      robot.click_on_all([vendor::CART[:remove_item]], start_index:1) { |e|
+        robot.wait_ajax
+        !e.nil? 
+      }
     end
     
     def open

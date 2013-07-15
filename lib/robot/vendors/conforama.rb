@@ -7,7 +7,7 @@ module ConforamaConstants
     register:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&toRegisterForm=true&device=MOBILE#UserRegistrationUpdateForm',
     login:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&device=MOBILE',
     payments:'',
-    cart:''
+    cart:'http://www.conforama.fr/webapp/wcs/stores/servlet/OrderItemDisplay?updatePrices=1&calculationUsageId=-1&catalogId=10602&device=MOBILE&langId=-2&storeId=10001&ddkey=http:OrderCalculate'
   }
   
   REGISTER = {

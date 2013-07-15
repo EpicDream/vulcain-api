@@ -66,8 +66,8 @@ class RueDuCommerceTest < StrategyTest
     run_spec("complete order process", [PRODUCT_5_URL])
   end
   
-  test "validate order" do
-    run_spec("validate order", [PRODUCT_5_URL])
+  test "validate order removing contract option on payment step" do
+    run_spec("validate order", [PRODUCT_1_URL])
   end
   
   test "cancel order" do

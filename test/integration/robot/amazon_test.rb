@@ -76,6 +76,7 @@ class AmazonTest < StrategyTest
   end
   
   test "something interesting" do
+    skip
     @context['account']['login'] = 'eric.shopelia.com.2@shopelia.fr'
     @context['account']['password'] = '34c59d8e'
     @robot.context = @context

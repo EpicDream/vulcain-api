@@ -67,7 +67,7 @@ module RueDuCommerceConstants
   }
   
   PAYMENT = {
-    gold_contract_checkbox: '//*[@id="agree"]',
+    contract_option: '//*[@id="agree"]',
     access:'Finaliser ma commande',
     credit_card:'//*[@id="inpMop1"] | //*[@id="inpMop2"]',
     visa:'//*[@id="inpMop_VISA"]',
@@ -153,38 +153,6 @@ class RueDuCommerce
         cart.fill
       end
       
-      step('remove contract options') do
-        if exists? PAYMENT[:gold_contract_checkbox]
-          click_on PAYMENT[:gold_contract_checkbox]
-          checkbox = find_elements(PAYMENT[:gold_contract_checkbox]).first
-          raise unless checkbox.attribute('checked').nil?
-        end
-      end
-      
-      # step('finalize order') do
-      #   # fill_shipping_form = Proc.new do
-      #   #   exists? SHIPMENT[:submit]
-      #   # end
-      #   access_payment = Proc.new do
-      #     click_on PAYMENT[:access]
-      #     wait_for ['//body']
-      #     run_step 'remove contract options'
-      #     run_step 'build product'
-      #     run_step 'build final billing'
-      #     click_on PAYMENT[:finalize]
-      #     click_on PAYMENT[:credit_card]
-      #     if order.credentials.number =~ /^5/
-      #       click_on PAYMENT[:mastercard]
-      #     else
-      #       click_on PAYMENT[:visa]
-      #     end
-      #     
-      #   end
-      #   
-      #   finalize_order(fill_shipping_form, access_payment)
-      # end
-
     end
   end
-
 end

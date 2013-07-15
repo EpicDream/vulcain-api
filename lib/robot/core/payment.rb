@@ -21,6 +21,8 @@ module RobotCore
       else
         RobotCore::Product.new(robot).build
         RobotCore::Billing.new(robot).build
+        robot.wait_for [vendor::PAYMENT[:access]]
+        remove_contracts_options
         robot.click_on vendor::PAYMENT[:access]
         RobotCore::CreditCard.instance(robot).select
         robot.click_on vendor::PAYMENT[:cgu], check:true
@@ -56,6 +58,12 @@ module RobotCore
       robot.page_source
       status = robot.get_text vendor::PAYMENT[:status]
       !!(status =~ vendor::PAYMENT[:succeed])
+    end
+    
+    private
+    
+    def remove_contracts_options
+      robot.click_on vendor::PAYMENT[:contract_option], check:true
     end
     
   end
