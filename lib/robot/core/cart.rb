@@ -90,6 +90,7 @@ module RobotCore
     def access_product_file
       robot.open_url robot.next_product_url
       before_add.call
+      robot.click_on vendor::CART[:popup], check:true
       robot.click_on vendor::CART[:extra_offers], check:true
     end
     

@@ -94,15 +94,6 @@ class ToysrusFrance
   def instanciate_robot
     Robot.new(@context) do
       
-      step('add to cart') do
-        cart = RobotCore::Cart.new(self)
-        cart.before_add = Proc.new {
-          wait_ajax
-          click_on CART[:popup], check:true
-        }
-        cart.fill
-      end
-      
       step('finalize order') do
         payment = RobotCore::Payment.instance(self)
         payment.access_payment = Proc.new {
