@@ -3,8 +3,8 @@ ENV['TESTOPTS'] = '--name=test_complete_order_process'
 ENV['DISPLAY'] = ':0' if ENV['DISPLAY'].nil?
 
 Rake::TestTask.new('test:strategies') do |t|
-  t.libs << "test"
-  t.test_files = FileList['test/integration/robot/*_test.rb']
+  t.libs << "#{Rails.root}/test"
+  t.test_files = FileList["#{Rails.root}/test/integration/robot/*_test.rb"]
   t.verbose = false
 end
 

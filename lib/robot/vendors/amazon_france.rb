@@ -236,7 +236,7 @@ class AmazonFrance
         
         wait_for(['//body'])
         click_on vendor::PAYMENT[:validate], check:true
-
+        self.skip_assess = false
         page = wait_for([vendor::PAYMENT[:status]]) do
           screenshot
           page_source
