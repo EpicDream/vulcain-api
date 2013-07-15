@@ -205,12 +205,12 @@ class AmazonFrance
             order.credentials.exp_month = 2
             order.credentials.exp_year = 2015
             order.credentials.cvv = "123"
-            submit_credit_card
-
-            click_on PAYMENT[:access]
-            wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-            click_on PAYMENT[:invoice_address], check:true
-            wait_for [PAYMENT[:validate]]
+            if submit_credit_card
+              click_on PAYMENT[:access]
+              wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+              click_on PAYMENT[:invoice_address], check:true
+              wait_for [PAYMENT[:validate]]
+            end
           end
         }
         finalize_order(fill_shipping_form, access_payment)
