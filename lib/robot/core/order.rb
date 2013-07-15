@@ -46,6 +46,8 @@ module RobotCore
     
     def cancel
       robot.click_on vendor::PAYMENT[:cancel], check:true
+      robot.wait_ajax
+      robot.accept_alert
       robot.open_url vendor::URLS[:base]
       robot.run_step('empty cart', next_step:'cancel')
     end

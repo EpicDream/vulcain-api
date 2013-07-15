@@ -153,20 +153,12 @@ class Fnac
           if click_on_link_with_attribute("@title", "Neuf")
             click_on CART[:offer]
             RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
-            # update_product_with PRODUCT[:offer_price_text]
             click_on CART[:add_offer]
           else
             terminate_on_error(:out_of_stock)
           end
         }
         cart.fill
-      end
-     
-      step('cancel order') do
-        click_on PAYMENT[:cancel]
-        accept_alert
-        open_url URLS[:home]
-        run_step('empty cart', next_step:'cancel')
       end
       
     end

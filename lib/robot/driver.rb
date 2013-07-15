@@ -35,7 +35,7 @@ class Driver
   end
   
   def accept_alert
-    waiting { @driver.switch_to.alert.accept }
+    @driver.switch_to.alert.accept
   end
   
   def screenshot

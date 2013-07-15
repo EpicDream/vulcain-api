@@ -245,6 +245,7 @@ module RobotCore
 
     def accept_alert
       @driver.accept_alert
+    rescue Selenium::WebDriver::Error::NoAlertPresentError
     end
 
     def execute_script script
