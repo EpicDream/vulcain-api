@@ -143,18 +143,6 @@ class Conforama
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('create account') do
-        city = Proc.new do
-          wait_ajax
-          city = user.address.city.gsub(/-/, ' ').downcase.strip
-          options = options_of_select(REGISTER[:city])
-          option = options.detect { |value, text|  text.downcase.strip == city}
-          select_option(REGISTER[:city], option[0])
-        end
-        RobotCore::Registration.new(self, city:city).run
-      end
-
     end
   end
   

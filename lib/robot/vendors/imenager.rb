@@ -146,20 +146,6 @@ class Imenager
   
   def instanciate_robot
     Robot.new(@context) do
-
-      step('finalize order') do
-        # fill_shipping_form = Proc.new do
-        # end
-        # access_payment = Proc.new do
-        # end
-        
-        finalize_order(fill_shipping_form, access_payment)
-      end
-      
-      step('validate order') do
-        #TODO : REMOVE IF NO SPECIFICITY
-      end
-      
     end
   end
   

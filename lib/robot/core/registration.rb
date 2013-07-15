@@ -6,12 +6,11 @@ module RobotCore
     
     attr_reader :user, :account, :vendor, :robot, :deviances
     
-    def initialize robot, deviances={}
+    def initialize robot
       @robot = robot
       @user = robot.user
       @account = robot.account
       @vendor = robot.vendor
-      @deviances = deviances
     end
     
     def run
@@ -99,26 +98,44 @@ module RobotCore
     end
     
     def address
-      unless deviances[:zip]
-        robot.fill vendor::REGISTER[:zip], with:user.address.zip, check:true
-      else
-        deviances[:zip].call
-      end
-
       properties = user.address.marshal_dump.keys
       properties.each do |property|
-        robot.fill vendor::REGISTER[property], with:user.address.send(property), check:true
+        begin
+          robot.fill vendor::REGISTER[property], with:user.address.send(property), check:true
+        rescue
+          if property == :city
+            select_city
+          else
+            raise
+          end
+        end
+        zip_popup if property == :zip && vendor::REGISTER[:zip_popup]
       end
-
       split_address if robot.exists? vendor::REGISTER[:address_type]
-
-      unless deviances[:city]
-        robot.fill vendor::REGISTER[:city], with:user.address.city, check:true
-      else
-        deviances[:city].call
-      end
-
       robot.fill vendor::REGISTER[:address_identifier], with:user.last_name, check:true
+    end
+    
+    def zip_popup
+      robot.wait_ajax
+      elements = robot.find_elements(vendor::REGISTER[:zip_popup])
+      elements.each do |e|
+        city = user.address.city.gsub(/-/, ' ').downcase.strip
+        robot.driver.click_on(e) if e.text.downcase.strip == city
+      end
+    end
+    
+    def select_city
+      robot.click_on vendor::REGISTER[:city]#leave focus
+
+      robot.wait_ajax
+      city = user.address.city.gsub(/-/, ' ').downcase.strip.unaccent
+      options = robot.options_of_select(vendor::REGISTER[:city])
+      option = options.detect do |value, text|
+        text.downcase.strip.unaccent == city ||
+        text.downcase.strip.unaccent =~ Regexp.new(city) ||
+        city =~ Regexp.new(text.downcase.strip.unaccent)
+      end
+      robot.select_option(vendor::REGISTER[:city], option[0])
     end
     
     def split_address
