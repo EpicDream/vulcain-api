@@ -29,6 +29,7 @@ class Vulcain
     @callback_url = nil
     @run_since = nil
     @uuid = nil
+    @ack_ping = true
     @blocked = false
   end
   
