@@ -5,12 +5,12 @@ class DriverTest < ActiveSupport::TestCase
   TEST_URL = "http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2"
   
   setup do
-    @driver = Driver.new
+    @driver = Driver.new(user_agent:Driver::DESKTOP_USER_AGENT)
     @driver.get TEST_URL
   end
   
   teardown do
-    @driver.quit rescue nil
+    #@driver.quit rescue nil
   end
   
   test "quit driver" do
@@ -65,6 +65,11 @@ class DriverTest < ActiveSupport::TestCase
     assert elements.count > 100 
   end
   
+  test "find element with class contains" do
+    elements = @driver.find_elements("nav-submit")
+    assert_equal ["input"], elements.map(&:tag_name)
+  end
+  
   test "find first element with xpath in xpaths" do
     element = @driver.find_any_element(["//comment", "//span"])
     
@@ -72,25 +77,18 @@ class DriverTest < ActiveSupport::TestCase
   end
   
   test "find links with text" do
-    elements = @driver.find_links_with_text("Oakley")
-    
-    assert elements.any?
-  end
-  
-  test "find input with value" do
-    element = @driver.find_input_with_value("")
-    
-    assert element
+    elements = @driver.find_elements("Oakley")
+    assert_equal ["a"], elements.map(&:tag_name)
   end
   
   test "find elements by attributes" do
-    elements = @driver.find_elements_by_attribute("input", "@title", "Rechercher")
+    elements = @driver.find_elements("Rechercher")
     
     assert elements.any?
   end
   
   test "find by attribute value matching regexp" do
-    elements = @driver.find_elements_by_attribute_matching("input", "title", /Rech/i)
+    elements = @driver.find_elements("Rech")
 
     assert elements.any?
   end

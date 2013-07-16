@@ -39,11 +39,11 @@ class Driver
   end
   
   def screenshot
-    driver.screenshot_as(:base64)
+    @driver.screenshot_as(:base64)
   end
   
   def page_source
-    driver.page_source
+    @driver.page_source
   end
 
   def options_of_select select
@@ -60,14 +60,15 @@ class Driver
   end
 
   def click_on element
-    @attempts = 0
+    return unless element
+    attempts = 0
     begin
       element.click
     rescue Timeout::Error
       #strange behaviour, the element is well clicked but this wait TIMEOUT and raise Timeout::Error
       return
     rescue => e
-      if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
+      if (attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
         sleep(0.5) and retry #wait element clickable
       else
         raise
@@ -77,68 +78,11 @@ class Driver
  
   def move_to_and_click_on element
     driver.action.move_to(element).click.perform
-  rescue => e
   end
   
-  def find_element xpath, options={}
-    waiting(options[:nowait]) { 
-    begin  
-      driver.find_elements(:xpath => xpath)[options[:index] || 0]
-    rescue Selenium::WebDriver::Error::UnhandledAlertError
-      accept_alert
-      return nil
-    end
-    }
-  end
-  
-  def find_elements xpath, options={}
-    waiting { driver.find_elements(:xpath => xpath) }
-  end
-  
-  def find_any_element xpaths
-    waiting { 
-      xpaths.inject(nil) do |element, xpath|
-        element = driver.find_elements(:xpath => xpath).first 
-        break element if element
-        element
-      end
-    }
-  end
-  
-  def find_links_with_text text, options={}
-    waiting(options[:nowait]) { 
-      driver.find_elements(:link_text => text) || []
-    }
-  end
-  
-  def find_input_with_value value, options={}
-    waiting(options[:nowait]) { 
-      driver.find_elements(:xpath => "//input[@value='#{value}']").first 
-    }
-  end
-  
-  def find_element_with_text text, options={}
-    waiting(options[:nowait]) { 
-      find_links_with_text(text, nowait:true).first || find_input_with_value(text, nowait:true)
-    }
-  end
-  
-  def find_elements_by_attribute tag, attribute, value
-    driver.find_elements(:xpath => "//#{tag}[#{attribute}='#{value}']")
-  end
-  
-  def find_elements_by_attribute_matching tag, attribute, regexp, options={}
-    waiting(options[:nowait]) {
-      nodes = driver.find_elements(:xpath => "//#{tag}")
-      elements = nodes.select { |node| node.attribute(attribute) =~ regexp }
-      break elements if elements.any?
-      nil
-    }
-  end
-  
-  def wait_leave xpath
+  def wait_leave identifier
     duration = 0
-    while find_element(xpath, nowait:true)
+    while find_element(identifier, nowait:true)
       sleep(0.5)
       duration += 0.5
       raise if duration >= LEAVE_PAGE_TIMEOUT
@@ -146,6 +90,56 @@ class Driver
     true
   end
   
+  def find_element identifier, options={}
+    elements = find_elements(identifier, options)
+    elements[options[:index] || 0]
+  end
+  
+  def find_elements identifier, options={}
+    return [] unless identifier
+    return find_elements_with_pattern(identifier, options) unless xpath?(identifier)
+    waiting(options[:nowait]) { 
+    begin  
+      @driver.find_elements(:xpath => identifier)
+    rescue Selenium::WebDriver::Error::UnhandledAlertError
+      accept_alert
+      return []
+    end
+    }
+  end
+  
+  def xpath? identifier
+    !!(identifier =~ /^\/\//)
+  end
+  
+  def find_any_element identifiers
+    return if identifiers.nil? || identifiers.empty?
+    waiting { 
+      identifiers.inject(nil) do |element, identifier|
+        element = find_element(identifier, nowait:true)
+        break element if element
+        nil
+      end
+    }
+  end
+
+  def find_elements_with_pattern pattern, options={}
+    waiting(options[:nowait]) { 
+    begin
+      ["a", "input", "button", "span"].each do |tag|
+        ["text()", "@id", "@class", "@value", "@title"].each do |attribute|
+          elements = @driver.find_elements(:xpath => "//#{tag}[contains(#{attribute}, '#{pattern}')]")
+          return elements if elements.any?
+        end
+      end
+      []
+    rescue Selenium::WebDriver::Error::UnhandledAlertError
+      accept_alert
+      return []
+    end
+    }
+  end
+ 
   private
   
   def switches options
@@ -161,7 +155,7 @@ class Driver
   end
   
   def waiting nowait=false
-    @attempts = 0
+    attempts = 0
     if nowait
       yield
     else
@@ -169,7 +163,7 @@ class Driver
         begin
           yield
         rescue => e
-          if (@attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
+          if (attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
             sleep(1) and retry
           else
             raise
