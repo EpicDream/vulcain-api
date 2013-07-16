@@ -181,7 +181,8 @@ class AmazonFrance
       end
       
       step('finalize order') do
-        access_payment = Proc.new {
+        payment = RobotCore::Payment.instance(self)
+        payment.access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
             self.skip_assess = true
@@ -200,7 +201,8 @@ class AmazonFrance
             end
           end
         }
-        finalize_order(fill_shipping_form, access_payment)
+        
+        RobotCore::Order.instance(self).finalize(payment)
       end
       
       step('validate order') do

@@ -6,7 +6,7 @@ module ConforamaConstants
     home:'http://m.conforama.fr/home.php',
     register:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&toRegisterForm=true&device=MOBILE#UserRegistrationUpdateForm',
     login:'http://www.conforama.fr/webapp/wcs/stores/servlet/LogonForm?storeId=10001&catalogId=10602&langId=-2&device=MOBILE',
-    payments:'',
+    payments:nil,
     cart:'http://www.conforama.fr/webapp/wcs/stores/servlet/OrderItemDisplay?updatePrices=1&calculationUsageId=-1&catalogId=10602&device=MOBILE&langId=-2&storeId=10001&ddkey=http:OrderCalculate'
   }
   
@@ -54,7 +54,7 @@ module ConforamaConstants
   CART = {
     add:'',
     button:'',
-    remove_item:'',
+    remove_item:nil,
     empty_message:'',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: '',

@@ -32,12 +32,12 @@ module CdiscountConstants
   }
   
   SHIPMENT = {
-    address_1: /DeliveryAddressLine1/,
-    additionnal_address: /DeliveryDoorCode/,
-    city: /DeliveryCity/,
-    zip: /DeliveryZipCode/,
-    mobile_phone: /DeliveryPhoneNumbers_MobileNumber/,
-    land_phone: /DeliveryPhoneNumbers_PhoneNumber/,
+    address_1: "DeliveryAddressLine1",
+    additionnal_address: "DeliveryDoorCode",
+    city: "DeliveryCity",
+    zip: "DeliveryZipCode",
+    mobile_phone: "DeliveryPhoneNumbers_MobileNumber",
+    land_phone: "DeliveryPhoneNumbers_PhoneNumber",
     submit_packaging: '//*[@id="ValidationSubmit"]',
     submit: '//*[@id="LoginButton"]',
     same_billing_address: '//*[@id="shippingOtherAddress"]',
@@ -50,7 +50,7 @@ module CdiscountConstants
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
     extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
-    add_from_vendor: /AddToBasketButtonOffer/,
+    add_from_vendor: "AddToBasketButtonOffer",
     steps:'//*[@id="masterCart"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
@@ -154,7 +154,7 @@ class Cdiscount
       step('add to cart') do
         cart = RobotCore::Cart.new(self)
         cart.best_offer = Proc.new {
-          button = find_element_by_attribute_matching("button", "id", CART[:add_from_vendor])
+          button = find_element CART[:add_from_vendor]
           script = button.attribute("onclick").gsub(/return/, '')
           @driver.driver.execute_script(script)
           wait_ajax 4

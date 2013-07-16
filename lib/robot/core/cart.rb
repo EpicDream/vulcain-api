@@ -27,6 +27,7 @@ module RobotCore
       remove
       open
       unless check
+        puts "HERE"
         robot.terminate_on_error(:cart_not_emptied) 
       else
         robot.message :cart_emptied, :next_step => opts[:next_step] || 'add to cart'
@@ -51,7 +52,7 @@ module RobotCore
     
     def open
       robot.open_url vendor::URLS[:cart] or robot.click_on vendor::CART[:button]
-      robot.wait_for [vendor::CART[:items_lists], vendor::CART[:submit]]
+      robot.wait_for [vendor::CART[:items_lists], vendor::CART[:submit], '//body']
     end
     
     def out_of_stock?
@@ -68,7 +69,10 @@ module RobotCore
           !element.nil? 
         }
       elsif vendor::CART[:remove_item]
-        robot.click_on_links_with_text(vendor::CART[:remove_item]) { robot.wait_ajax }
+        robot.click_on_all([vendor::CART[:remove_item]]){ |element|
+          robot.wait_ajax
+          !element.nil?
+        }
       elsif robot.exists? vendor::CART[:quantity]
         robot.fill_all vendor::CART[:quantity], with:"0"
         robot.click_on vendor::CART[:recompute]

@@ -30,10 +30,10 @@ module RobotCore
       robot.click_on vendor::PAYMENT[:credit_card]
       
       if mastercard?
-        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value]
+        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
         robot.click_on vendor::PAYMENT[:mastercard]
       else
-        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value]
+        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
         robot.click_on vendor::PAYMENT[:visa]
       end
       
@@ -51,6 +51,7 @@ module RobotCore
     end
     
     def access_form
+      puts vendor::URLS[:payments]
       robot.open_url vendor::URLS[:payments]
     end
     
