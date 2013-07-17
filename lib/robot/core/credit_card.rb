@@ -22,8 +22,8 @@ module RobotCore
     
     def select
       #TEMP FIX
-      wait_ajax 8
-      return unless exists?(vendor::PAYMENT[:credit_card])
+      robot.wait_ajax 8
+      return unless robot.exists?(vendor::PAYMENT[:credit_card])
       ##
       
       robot.click_on vendor::PAYMENT[:credit_card]
