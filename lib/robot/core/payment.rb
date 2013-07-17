@@ -39,7 +39,7 @@ module RobotCore
       RobotCore::CreditCard.instance(robot).select
       
       robot.fill vendor::PAYMENT[:number], with:order.credentials.number
-      robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder
+      robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder, check:true
       robot.select_option vendor::PAYMENT[:exp_month], order.credentials.exp_month
       robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
       robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv

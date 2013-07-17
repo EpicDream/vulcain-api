@@ -56,7 +56,7 @@ module RobotCore
     end
     
     def out_of_stock?
-      robot.wait_for(vendor::CART[:submit_success]) { return true }
+      robot.wait_for([vendor::CART[:submit_success]].flatten) { return true }
       false
     end
     
