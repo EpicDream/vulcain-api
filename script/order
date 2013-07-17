@@ -17,7 +17,7 @@ else
   ARGV.each do |vendor|
     email = "legrand_pierre_04@free.fr"
     products_urls = products_urls(vendor)
-    context = {"context"=>{"account"=>{"login"=>"#{email}","password"=>"shopelia2013"},"session"=>{"uuid"=>"#{vendor}","callback_url"=>"http=>//127.0.0.1:3000/shopelia"},"order"=>{"products_urls"=>products_urls},"user"=>{"birthdate"=>{"day"=>1,"month"=>4,"year"=>1985},"gender"=>1,"address"=>{"address_1"=>"12 rue des lilas","address_2"=>"","additionnal_address"=>"","first_name"=>"Pierre","last_name"=>"Legrand","zip"=>"75019","city"=>"Paris","mobile_phone"=>"0634562345","land_phone"=>"0134562345","country"=>"France"}}},"vendor"=>"#{vendor}"}
+    context = {"context"=>{"account"=>{"login"=>"#{email}","password"=>"shopelia2013"},"session"=>{"uuid"=>"#{vendor}","callback_url"=>"http=>//127.0.0.1:3000/shopelia"},"order"=>{"credentials" =>{'holder'=>'PierrePetit','number'=>'501290129019201','exp_month'=>5,'exp_year'=>2014,'cvv'=>123}, "products_urls"=>products_urls},"user"=>{"birthdate"=>{"day"=>1,"month"=>4,"year"=>1985},"gender"=>1,"address"=>{"address_1"=>"12 rue des lilas","address_2"=>"","additionnal_address"=>"","first_name"=>"Pierre","last_name"=>"Legrand","zip"=>"75019","city"=>"Paris","mobile_phone"=>"0634562345","land_phone"=>"0134562345","country"=>"France"}}},"vendor"=>"#{vendor}"}
     
     `curl -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d'#{context.to_json}' localhost:3000/orders`
   end
