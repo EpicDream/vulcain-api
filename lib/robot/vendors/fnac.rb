@@ -150,7 +150,7 @@ class Fnac
         cart = RobotCore::Cart.new(self)
         cart.best_offer = Proc.new {
           click_on CART[:offers]
-          if click_on_link_with_attribute("@title", "Neuf")
+          if click_on("Neuf")
             click_on CART[:offer]
             RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
             click_on CART[:add_offer]

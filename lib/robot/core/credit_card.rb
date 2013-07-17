@@ -28,7 +28,6 @@ module RobotCore
     def select
       return if @selected
       robot.click_on vendor::PAYMENT[:credit_card]
-      
       if mastercard?
         robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
         robot.click_on vendor::PAYMENT[:mastercard]
@@ -51,7 +50,6 @@ module RobotCore
     end
     
     def access_form
-      puts vendor::URLS[:payments]
       robot.open_url vendor::URLS[:payments]
     end
     

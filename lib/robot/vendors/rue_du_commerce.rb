@@ -28,9 +28,9 @@ module RueDuCommerceConstants
   }
   
   PRODUCT = {
-    price_text:'//ul[@class="total-cart-price-list"]',
-    title:'/html/body/div/div[2]/div/div[4]/section[1]',
-    image:'/html/body/div/div[2]/div/div[4]/img',
+    price_text:'//section[@class="price-details"]',
+    title:'//section[@class="info"]',
+    image:'//div[@class="recap-basket-list"]/img',
   }
   
   SHIPMENT = {
@@ -54,8 +54,8 @@ module RueDuCommerceConstants
     add: '//section[@class="cart-buttons"]/a',
     remove_item: '//a[@class="delete-fav-search"]',
     submit: 'Finaliser ma commande',
-    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address]],
-    empty_message: '//html/body/div/div[2]/div',
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
+    empty_message: '//body',
     empty_message_match: /Votre panier est vide/i
   }
   
@@ -63,15 +63,15 @@ module RueDuCommerceConstants
     price:'//ul[@class="total-cart-price-list"]/li[1]',
     shipping:'//ul[@class="total-cart-price-list"]/li[2]',
     total:'//ul[@class="total-cart-price-list"]/li[3]',
-    info:'/html/body/div/div[2]/div/div[5]'
+    info:'//div[@class="small-info"]'
   }
   
   PAYMENT = {
     contract_option: '//*[@id="agree"]',
     access:'Finaliser ma commande',
-    credit_card:'//*[@id="inpMop1"] | //*[@id="inpMop2"]',
-    visa:'//*[@id="inpMop_VISA"]',
-    mastercard:'//*[@id="inpMop_MASTERCARD"]',
+    credit_card:'//input[@id="inpMop1"] | //input[@id="inpMop2"]',
+    visa:'//*[@id="inpMop_VISA"] | //input[@name="CB"]',
+    mastercard:'//*[@id="inpMop_MASTERCARD"] | //input[@name="MASTERCARD"]',
     number:'//*[@id="CARD_NUMBER"]',
     exp_month:'//*[@id="contentsips"]/form[2]/select[1]',
     exp_year:'//*[@id="contentsips"]/form[2]/select[2]',

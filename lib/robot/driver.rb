@@ -91,7 +91,7 @@ class Driver
   end
   
   def find_element identifier, options={}
-    elements = find_elements(identifier, options)
+    elements = find_elements(identifier, options) || []
     elements[options[:index] || 0]
   end
   
@@ -100,7 +100,8 @@ class Driver
     return find_elements_with_pattern(identifier, options) unless xpath?(identifier)
     waiting(options[:nowait]) { 
     begin  
-      @driver.find_elements(:xpath => identifier)
+      elements = @driver.find_elements(:xpath => identifier)
+      elements.any? ? elements : nil
     rescue Selenium::WebDriver::Error::UnhandledAlertError
       accept_alert
       return []

@@ -43,7 +43,7 @@ module RobotCore
     end
 
     def find_element identifier
-      find_elements(identifier).first
+      @driver.find_element identifier
     end
     
     def find_first_element_in identifiers, options={}

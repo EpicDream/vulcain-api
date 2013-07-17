@@ -77,7 +77,7 @@ class CdiscountTest < StrategyTest
   end
 
   test "add to cart and finalize order with 4x payment option to avoid" do
-    @message.expects(:message).times(20)
+    @message.expects(:message).times(10..15)
     @context["order"]["products_urls"] = [PRODUCT_URL_4]
     robot.context = @context
     

@@ -27,7 +27,6 @@ module RobotCore
       remove
       open
       unless check
-        puts "HERE"
         robot.terminate_on_error(:cart_not_emptied) 
       else
         robot.message :cart_emptied, :next_step => opts[:next_step] || 'add to cart'
@@ -41,6 +40,7 @@ module RobotCore
       robot.wait_ajax(4)
       remove_options
       robot.click_on vendor::CART[:submit]
+      
     end
     
     def remove_options
