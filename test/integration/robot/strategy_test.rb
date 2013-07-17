@@ -123,7 +123,7 @@ class StrategyTest < ActiveSupport::TestCase
   def complete_order_process urls
     @context['order']['products_urls'] = urls
     @robot.context = @context
-    @message.expects(:message).times(14..17)
+    @message.expects(:message).times(12..17)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
