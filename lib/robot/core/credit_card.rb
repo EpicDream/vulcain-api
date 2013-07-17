@@ -18,7 +18,7 @@ module RobotCore
     def remove
       return if cannot_be_removed?
       access_form
-      login
+      RobotCore::Login.new(robot).relog
       robot.click_on vendor::PAYMENT[:remove], check:true, ajax:true
       robot.click_on vendor::PAYMENT[:remove_confirmation], check:true
       robot.wait_ajax 
@@ -51,12 +51,6 @@ module RobotCore
     
     def access_form
       robot.open_url vendor::URLS[:payments]
-    end
-    
-    def login
-      robot.fill vendor::LOGIN[:email], with:account.login, check:true
-      robot.fill vendor::LOGIN[:password], with:account.password, check:true
-      robot.click_on vendor::LOGIN[:submit], check:true
     end
     
   end

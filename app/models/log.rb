@@ -37,7 +37,7 @@ class Log
     console ? head + log : log
   end
   
-  def self.syslog data
+  def self.syslog data #TODO : utiliser ruby stdlib Syslog
     File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{Time.now} #{data}\n") }
   end
   
