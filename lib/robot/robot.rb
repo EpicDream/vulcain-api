@@ -173,7 +173,7 @@ class Robot
     end
     
     step('remove credit card') do
-      RobotCore::CreditCard.instance(self).remove
+      RobotCore::CreditCard.new(self).remove
     end
     
     step('empty cart') do |args|
@@ -190,11 +190,11 @@ class Robot
     end
     
     step('finalize order') do
-      RobotCore::Order.instance(self).finalize
+      RobotCore::Order.new(self).finalize
     end
     
     step('validate order') do
-      RobotCore::Order.instance(self).validate
+      RobotCore::Order.new(self).validate
     end
     
     step('cancel') do
@@ -202,7 +202,7 @@ class Robot
     end
     
     step('cancel order') do
-      RobotCore::Order.instance(self).cancel
+      RobotCore::Order.new(self).cancel
     end
     
     step('payment') do

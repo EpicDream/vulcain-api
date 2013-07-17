@@ -11,10 +11,6 @@ module RobotCore
       @access_payment = nil
     end
     
-    def self.instance robot
-      @@instance ||= new(robot)
-    end
-    
     def access
       if @access_payment
         @access_payment.call
@@ -24,7 +20,7 @@ module RobotCore
         robot.wait_for [vendor::PAYMENT[:access]]
         remove_contracts_options
         robot.click_on vendor::PAYMENT[:access]
-        RobotCore::CreditCard.instance(robot).select
+        RobotCore::CreditCard.new(robot).select
         robot.click_on vendor::PAYMENT[:cgu], check:true
         robot.click_on(vendor::PAYMENT[:access], check:true)
       end
@@ -36,7 +32,7 @@ module RobotCore
       order.credentials.exp_month = order.credentials.exp_month.to_s.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
       order.credentials.exp_year = order.credentials.exp_year.to_s[2..-1] if vendor::PAYMENT[:trunc_year]
       
-      RobotCore::CreditCard.instance(robot).select
+      RobotCore::CreditCard.new(robot).select
       
       robot.fill vendor::PAYMENT[:number], with:order.credentials.number
       robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder, check:true

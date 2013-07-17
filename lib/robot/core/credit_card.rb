@@ -3,16 +3,11 @@ module RobotCore
     
     attr_reader :account, :order, :vendor, :robot
     
-    def initialize robot, deviances={}
+    def initialize robot
       @robot = robot
       @account = robot.account
       @order = robot.order
       @vendor = robot.vendor
-      @selected = false
-    end
-    
-    def self.instance robot
-      @@instance ||= new(robot)
     end
     
     def remove
@@ -26,7 +21,6 @@ module RobotCore
     end
     
     def select
-      return if @selected
       robot.click_on vendor::PAYMENT[:credit_card]
       if mastercard?
         robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
@@ -35,8 +29,6 @@ module RobotCore
         robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
         robot.click_on vendor::PAYMENT[:visa]
       end
-      
-      @selected = true
     end
     
     private

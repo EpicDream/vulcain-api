@@ -181,7 +181,7 @@ class AmazonFrance
       end
       
       step('finalize order') do
-        payment = RobotCore::Payment.instance(self)
+        payment = RobotCore::Payment.new(self)
         payment.access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
@@ -202,7 +202,7 @@ class AmazonFrance
           end
         }
         
-        RobotCore::Order.instance(self).finalize(payment)
+        RobotCore::Order.new(self).finalize(payment)
       end
       
       step('validate order') do

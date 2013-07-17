@@ -95,7 +95,7 @@ class ToysrusFrance
     Robot.new(@context) do
       
       step('finalize order') do
-        payment = RobotCore::Payment.instance(self)
+        payment = RobotCore::Payment.new(self)
         payment.access_payment = Proc.new {
           if exists? PAYMENT[:access]
             click_on PAYMENT[:access]
@@ -103,7 +103,7 @@ class ToysrusFrance
             click_on PAYMENT[:confirm_remove]
           end
         }
-        RobotCore::Order.instance(self).finalize(payment)
+        RobotCore::Order.new(self).finalize(payment)
       end
       
     end
