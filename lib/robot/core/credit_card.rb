@@ -21,6 +21,11 @@ module RobotCore
     end
     
     def select
+      #TEMP FIX
+      wait_ajax 8
+      return unless exists?(vendor::PAYMENT[:credit_card])
+      ##
+      
       robot.click_on vendor::PAYMENT[:credit_card]
       if mastercard?
         robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
