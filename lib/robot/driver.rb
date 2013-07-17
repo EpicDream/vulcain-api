@@ -4,7 +4,7 @@ class Driver
   DESKTOP_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17"
   MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
   PROFILE_PATH = Dir.home + "/.config/google-chrome/Default"
-  TIMEOUT = Rails.env.test? ? 8 : 40
+  TIMEOUT = ENV["RAILS_ENV"] == "test" ? 8 : 40
   MAX_ATTEMPTS_ON_RAISE = 20
   LEAVE_PAGE_TIMEOUT = 10
   
