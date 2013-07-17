@@ -28,6 +28,7 @@ module RobotCore
     private
     
     def form_exists?
+      robot.click_on vendor::SHIPMENT[:add_address], check:true
       robot.click_on vendor::SHIPMENT[:select_this_address], check:true
       robot.exists? vendor::SHIPMENT[:city]
     end
