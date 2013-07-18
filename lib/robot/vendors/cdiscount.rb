@@ -52,21 +52,21 @@ module CdiscountConstants
     extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_from_vendor: "AddToBasketButtonOffer",
     steps:'//*[@id="masterCart"]',
+    quantity:'//td[@class="quantity txtGen"]/select',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
     empty_message_match: /.*/,
-    submit: '//*[@id="id_0__"]',
+    submit: 'Passer la commande',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
   }
   
   PRODUCT = {
-    price_text:'//td[@class="priceTotal"]',
-    title:'//dd[@class="productName"]',
-    image:'//img[@class="basketProductView"]'
+    price_text:'//div[@id="OfferList"]/div[1]//div[@class="ColPlPrice"]',
+    title:'//div[@class="MpProductContentDesc"]/h1',
+    image:'//span[@class="MpProductContentLeft"]//img'
   }
   
   BILL = {
-    price:'//*[@id="orderInfos"]/div[2]/div[2]',
     shipping:'//*[@id="orderInfos"]/div[2]/div[5]',
     total:'//*[@id="orderInfos"]/div[2]/div[8]'
   }
@@ -74,7 +74,7 @@ module CdiscountConstants
   PAYMENT = {
     visa:'//*[@id="cphMainArea_ctl01_optCardTypeVisa"]',
     mastercard: '//*[@id="cphMainArea_ctl01_optCardTypeMasterCard"]',
-    access: '//div[@class="paymentComptant"]//button',
+    access: '//div[@class="paymentComptant"]//button | //div[@class="paymentComptant"]//input[2]',
     holder:'//*[@id="cphMainArea_ctl01_txtCardOwner"]',
     number:'//*[@id="cphMainArea_ctl01_txtCardNumber"]',
     exp_month:'//*[@id="cphMainArea_ctl01_ddlMonth"]',
