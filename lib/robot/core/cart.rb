@@ -17,7 +17,7 @@ module RobotCore
           add_to_cart
         end
       end
-      
+
       if robot.products.empty?
         robot.message :no_product_available
         robot.terminate_on_error(:no_product_available)
@@ -72,7 +72,12 @@ module RobotCore
     
     def set_quantity
       return if robot.order.products.count > 1
-      robot.fill vendor::CART[:quantity], with:robot.order.products.last.quantity
+      node = robot.find_element(vendor::CART[:quantity])
+      if node.tag_name == 'select'
+        robot.select_option(vendor::CART[:quantity], robot.order.products.last.quantity)
+      else
+        robot.fill vendor::CART[:quantity], with:robot.order.products.last.quantity
+      end
       robot.click_on vendor::CART[:update], check:true, ajax:true
     end
     
