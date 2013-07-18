@@ -11,13 +11,21 @@ module RobotCore
     end
     
     def fill
-      access_product_file
-      if available?
-        RobotCore::Product.new(robot).build
-        add_product
-        robot.click_on vendor::CART[:validate], check:true
-        robot.message :cart_filled, :next_step => 'finalize order'
+      while product = robot.next_product
+        if access_product_file_of product
+          RobotCore::Product.new(robot).build
+          add_to_cart
+        end
       end
+      
+      if robot.products.empty?
+        robot.message :no_product_available
+        robot.terminate_on_error(:no_product_available)
+        return
+      end
+      
+      robot.click_on vendor::CART[:validate], check:true
+      robot.message :cart_filled, :next_step => 'finalize order'
     end
     
     def empty opts={}
@@ -35,12 +43,12 @@ module RobotCore
     
     def submit
       open
-      RobotCore::Product.new(robot).build
+      #RobotCore::Product.new(robot).build
+      remove_options
+      set_quantity
       robot.click_on vendor::CART[:cgu], check:true
       robot.wait_ajax(4)
-      remove_options
       robot.click_on vendor::CART[:submit]
-      
     end
     
     def remove_options
@@ -62,6 +70,12 @@ module RobotCore
     
     private
     
+    def set_quantity
+      return if robot.order.products.count > 1
+      robot.fill vendor::CART[:quantity], with:robot.order.products.last.quantity
+      robot.click_on vendor::CART[:update], check:true, ajax:true
+    end
+    
     def remove
       if vendor::CART[:remove_item] =~ /\/\//
         robot.click_on_all([vendor::CART[:remove_item]]) {|element|
@@ -75,7 +89,7 @@ module RobotCore
         }
       elsif robot.exists? vendor::CART[:quantity]
         robot.fill_all vendor::CART[:quantity], with:"0"
-        robot.click_on vendor::CART[:recompute]
+        robot.click_on vendor::CART[:update]
       end
     end
     
@@ -84,21 +98,15 @@ module RobotCore
       robot.get_text(vendor::CART[:empty_message]) =~ vendor::CART[:empty_message_match] 
     end
     
-    def available?
-      robot.wait_for [vendor::CART[:add], vendor::CART[:offers]] {
-        robot.message :no_product_available
-        robot.terminate_on_error(:no_product_available)
-      }
-    end
-    
-    def access_product_file
-      robot.open_url robot.next_product_url
+    def access_product_file_of product
+      robot.open_url product.url
       before_add.call
       robot.click_on vendor::CART[:popup], check:true
       robot.click_on vendor::CART[:extra_offers], check:true
+      robot.wait_for [vendor::CART[:add], vendor::CART[:offers]] {}
     end
     
-    def add_product
+    def add_to_cart
       if robot.exists? vendor::CART[:offers]
         best_offer.call
       else

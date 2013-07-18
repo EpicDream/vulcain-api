@@ -54,7 +54,7 @@ module FnacConstants
     offer: '//*[@id="offers_list"]/ul/li[1]',
     add_offer: '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a',
     quantity: '//div[@class="quantite"]/input',
-    recompute: '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]',
+    update: '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]',
     cgu:'//div[@class="ui-checkbox"]',
     submit: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],

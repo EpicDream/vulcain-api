@@ -41,53 +41,54 @@ class FnacTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new {}
-    run_spec("empty cart", [PRODUCT_5_URL, PRODUCT_2_URL], assert)
+    products = [{url:PRODUCT_5_URL, quantity:1}, {url:PRODUCT_2_URL, quantity:1}]
+    run_spec("empty cart", products, assert)
   end
   
   test "finalize order" do
-    products = [{"price_text"=>"13,02 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>13.02, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
-    billing = {:product=>12.71, :shipping=>2.39, :total=>15.1, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"12,45 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.45, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}, {"price_text"=>"29,99 €\nEN STOCK\n+ Frais de port\n3,89 €", "product_title"=>"", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", "price_product"=>29.99, "price_delivery"=>3.89, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"}]
+    billing = {:product=>29.99, :shipping=>6.28, :total=>48.72, :shipping_info=>nil}
+    products = [{url:PRODUCT_1_URL, quantity:1}, {url:PRODUCT_2_URL, quantity:1}]
 
-    run_spec("finalize order", [PRODUCT_1_URL], products, billing)
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
+  test "finalize order with one product and quantity > 1" do
+    expected_products = [{"price_text"=>"12,45 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.45, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
+    billing = {:shipping=>3.99, :total=>41.34, :shipping_info=>nil}
+    products = [{url:PRODUCT_1_URL, quantity:3}]
+
+    run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "finalize order with master card" do
-    products = [{"price_text"=>"12,71 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.71, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
-    billing = {:product=>13.02, :shipping=>2.39, :total=>15.41, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"12,71 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.71, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
+    billing = {:shipping=>2.39, :total=>15.41, :shipping_info=>nil}
     @context['order']['credentials']['number'] = '501290129019201'
     @robot.context = @context
+    products = [{url:PRODUCT_1_URL, quantity:1}]
     
-    run_spec("finalize order", [PRODUCT_1_URL], products, billing)
+    
+    run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "validate order" do
-    run_spec("validate order", [PRODUCT_1_URL])
+    run_spec("validate order", [{url:PRODUCT_1_URL, quantity:1}])
   end
   
   test "complete order process" do
-    run_spec("complete order process", [PRODUCT_2_URL])
-  end
-  
-  test "ensure cb payment if tab with fnac card payment mode" do
-    @context["order"]["products_urls"] = [PRODUCT_4_URL]
-    robot.context = @context
-    
-    @message.expects(:message).times(14..16)
-    robot.run_step('login')
-    robot.run_step('empty cart')
-    robot.run_step('add to cart')
-    robot.run_step('finalize order')
+    run_spec("complete order process", [{url:PRODUCT_2_URL, quantity:2}])
   end
   
   test "cancel order" do
-    run_spec("cancel order", [PRODUCT_4_URL])
+    run_spec("cancel order", [{url:PRODUCT_4_URL, quantity:1}])
   end
   
   test "ensure take the lowest price using new and used link" do
-    @context["order"]["products_urls"] = [PRODUCT_5_URL]
-    robot.context = @context
+    @context['order']['products'] = [{url:PRODUCT_5_URL, quantity:1}]
+    @robot.context = @context
     
-    @message.expects(:message).times(14..18)
+    @message.expects(:message).times(11..18)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')

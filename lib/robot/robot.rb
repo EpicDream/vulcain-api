@@ -31,7 +31,7 @@ class Robot
     @next_step = nil
     @steps = {}
     @questions = {}
-    @product_url_index = 0
+    @product_index = 0
     @products = []
     @billing = nil
     @skip_assess = false
@@ -125,12 +125,12 @@ class Robot
     { :text => question, :id => id, :options => args[:options] }
   end
   
-  def next_product_url
-    order.products_urls[(@product_url_index += 1) - 1]
+  def next_product
+    order.products[(@product_index += 1) - 1]
   end
  
-  def current_product_url
-    order.products_urls[@product_url_index - 1]
+  def current_product
+    order.products[@product_index - 1]
   end
   
   def context=context

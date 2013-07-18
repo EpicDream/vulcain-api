@@ -64,34 +64,30 @@ class StrategyTest < ActiveSupport::TestCase
     assert.call
   end
   
-  def add_to_cart urls, assert=Proc.new{}
+  def add_to_cart products, assert=Proc.new{}
     @message.expects(:message).times(6..16)
-    robot.run_step('login')
+    @context['order']['products'] = products
+    @robot.context = @context
     
-    urls.each do |url|
-      robot.stubs(:next_product_url).returns(url)
-      robot.stubs(:current_product_url).returns(url)
-      robot.run_step('add to cart')
-    end
+    robot.run_step('login')
+    robot.run_step('add to cart')
     assert.call
   end
   
-  def empty_cart urls, assert=Proc.new{}
+  def empty_cart products, assert=Proc.new{}
     @message.expects(:message).times(9..16)
-    robot.run_step('login')
+    @context['order']['products'] = products
+    @robot.context = @context
     
-    urls.each do |url|
-      robot.stubs(:next_product_url).returns(url)
-      robot.stubs(:current_product_url).returns(url)
-      robot.run_step('add to cart')
-    end
+    robot.run_step('login')
+    robot.run_step('add to cart')
     robot.run_step('empty cart')
     assert.call
   end
   
-  def delete_product_options urls, assert=Proc.new
+  def delete_product_options products, assert=Proc.new
     @message.expects(:message).times(9..11)
-    @context['order']['products_urls'] = urls
+    @context['order']['products'] = products
     @robot.context = @context
     
     robot.run_step('login')
@@ -102,8 +98,8 @@ class StrategyTest < ActiveSupport::TestCase
     cart.remove_options
   end
   
-  def finalize_order urls, products, billing
-    @context['order']['products_urls'] = urls
+  def finalize_order products, expected_products, billing
+    @context['order']['products'] = products
     @robot.context = @context
     
     @message.expects(:message).times(10..16)
@@ -111,27 +107,27 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     questions = [{:text => nil, :id => '1', :options => nil}]
-    @message.expects(:message).with(:assess, {:questions => questions, :products => products, :billing => billing})
+    @message.expects(:message).with(:assess, {:questions => questions, :products => expected_products, :billing => billing})
     robot.run_step('finalize order')
 
     puts robot.products.inspect
     puts robot.billing.inspect
-    assert_equal products, robot.products
+    assert_equal expected_products, robot.products
     assert_equal billing, robot.billing
   end
   
-  def complete_order_process urls
-    @context['order']['products_urls'] = urls
+  def complete_order_process products
+    @context['order']['products'] = products
     @robot.context = @context
-    @message.expects(:message).times(12..17)
+    @message.expects(:message).times(10..17)
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
   end
   
-  def validate_order urls
-    @context['order']['products_urls'] = urls
+  def validate_order products
+    @context['order']['products'] = products
     @robot.context = @context
     @message.expects(:message).times(15..18)
 
@@ -142,9 +138,9 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('validate order')
   end
   
-  def no_delivery_error url
+  def no_delivery_error products
     @message.expects(:message).times(12)
-    @context['order']['products_urls'] = [url]
+    @context['order']['products'] = products
     @robot.context = @context
     
     robot.expects(:terminate_on_error).with(:no_delivery)
@@ -155,8 +151,8 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
   end
   
-  def out_of_stock url
-    @context["order"]["products_urls"] = [url]
+  def out_of_stock products
+    @context["order"]["products"] = products
     robot.context = @context
     
     @message.expects(:message).times(12)
@@ -167,8 +163,8 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('finalize order')
   end
   
-  def cancel_order urls
-    @context['order']['products_urls'] = urls
+  def cancel_order products
+    @context["order"]["products"] = products
     @robot.context = @context
     @message.expects(:message).times(15..20)
     @message.expects(:message).with(:step, 'cancel order')
@@ -204,7 +200,7 @@ class StrategyTest < ActiveSupport::TestCase
 
     {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
-                'order' => {'products_urls' => [],
+                'order' => {'products' => [],
                             'credentials' => {
                               'holder' => 'Pierre Petit', 
                               'number' => '501290129019201', 
