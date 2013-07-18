@@ -11,12 +11,11 @@ module RobotCore
     def build
       return unless robot.exists? vendor::BILL[:total]
       return if robot.billing
-      price, shipping, total = [:price, :shipping, :total].map do |key| 
+      shipping, total = [:shipping, :total].map do |key| 
         Robot::PRICES_IN_TEXT.(robot.get_text vendor::BILL[key]).first
       end
-      price ||= robot.products.last['price_product']
       info = robot.get_text(vendor::BILL[:info])
-      robot.billing = { product:price, shipping:shipping, total:total, shipping_info:info}
+      robot.billing = { shipping:shipping, total:total, shipping_info:info}
     end
     
   end
