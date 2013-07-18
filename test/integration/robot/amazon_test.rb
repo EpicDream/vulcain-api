@@ -41,20 +41,28 @@ class AmazonTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new {}
-    run_spec("empty cart", [PRODUCT_URL_5, PRODUCT_URL_2], assert)
+    products = [{url:PRODUCT_URL_5, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    run_spec("empty cart", products, assert)
   end
   
   test "finalize order" do
     robot.expects(:submit_credit_card).returns(false)
-    robot.expects(:build_final_billing)
-    products = [{"price_text"=>"Prix: EUR 118,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir","product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg","price_product"=>118.0,"price_delivery"=>0,"url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}]
-
-    run_spec("finalize order", [PRODUCT_URL_5], products, nil)
+    expected_products = [{"price_text"=>"Prix: EUR 106,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg", "price_product"=>106.0, "price_delivery"=>0, "url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}, {"price_text"=>"Prix conseillé : EUR 46,70\nPrix: EUR 44,37\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 2,33 (5 %)", "product_title"=>"Poe : Oeuvres en prose", "product_image_url"=>"http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg", "price_product"=>46.7, "price_delivery"=>44.37, "url"=>"http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}]
+    products = [{url:PRODUCT_URL_5, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("finalize order", products, expected_products, nil)
   end
+  
+  test "finalize order with one product and quantity > 1" do
+    expected_products = [{"price_text"=>"Prix conseillé : EUR 17,90\nPrix: EUR 17,01\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 0,89 (5 %)", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY180_.jpg", "price_product"=>17.9, "price_delivery"=>17.01, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054"}]
+    products = [{url:PRODUCT_URL_6, quantity:3}]
+
+    run_spec("finalize order", products, expected_products, nil)
+  end  
 
   test "complete order process" do
-    robot.expects(:submit_credit_card).returns(false)
-    run_spec("complete order process", [PRODUCT_URL_6])
+    RobotCore::Payment.any_instance.expects(:checkout).returns(false)
+    run_spec("complete order process", [{url:PRODUCT_URL_6, quantity:2}])
   end
   
   test "crawl url of product with no options" do
@@ -68,10 +76,7 @@ class AmazonTest < StrategyTest
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
-    products = [{"price_text"=>"Prix conseillé : EUR 17,90\nPrix: EUR 17,01\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 0,89 (5 %)", "product_title"=>"Atelier dessins (Broché)", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY180_.jpg", "price_product"=>17.9, "price_delivery"=>17.01, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054"}]
-    billing = {:product=>17.01, :shipping=>0.0, :total=>17.01, :shipping_info=>"Date de livraison estimée :  15 juillet 2013"}
-    
-    run_spec('validate order', [PRODUCT_URL_6])
+    run_spec('validate order', [{url:PRODUCT_URL_6, quantity:1}])
   end
   
   test "something interesting" do

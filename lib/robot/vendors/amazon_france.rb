@@ -59,6 +59,8 @@ module AmazonFranceConstants
     button:'//*[@id="navbar-icon-cart"]',
     remove_item:'Supprimer',
     empty_message:'//*[@id="cart-active-items"]',
+    quantity:'//div[@class="quantity"]/p/input',
+    update:'//div[@class="quantity"]//a[1]',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: 'Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
@@ -193,7 +195,7 @@ class AmazonFrance
             order.credentials.exp_month = 2
             order.credentials.exp_year = 2015
             order.credentials.cvv = "123"
-            if submit_credit_card
+            if RobotCore::Payment.new(self).checkout
               click_on PAYMENT[:access]
               wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
               click_on PAYMENT[:invoice_address], check:true
