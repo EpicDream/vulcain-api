@@ -15,8 +15,8 @@ module RobotCore
       if @access_payment
         @access_payment.call
       else
-        RobotCore::Billing.new(robot).build
         robot.wait_for [vendor::PAYMENT[:access]]
+        RobotCore::Billing.new(robot).build
         remove_contracts_options
         robot.click_on vendor::PAYMENT[:access]
         RobotCore::CreditCard.new(robot).select
