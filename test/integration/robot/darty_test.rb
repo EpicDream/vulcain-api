@@ -64,9 +64,9 @@ class DartyTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801"}]
+    expected_products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801", "id"=>191919}]
     billing = {:shipping=>nil, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Lun. 22/07 et le Mer. 24/07"}
-    products = [{url:PRODUCT_URL_3, quantity:2}]
+    products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
     
     run_spec("finalize order", products, expected_products, billing)
   end

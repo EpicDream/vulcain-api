@@ -18,6 +18,7 @@ module RobotCore
       product['price_delivery'] = prices[1]
       product['price_delivery'] ||= vendor::DELIVERY_PRICE.(product) if defined?(vendor::DELIVERY_PRICE)
       product['url'] = robot.current_product.url
+      product['id'] = robot.current_product.id
       robot.products << product
     end
     
