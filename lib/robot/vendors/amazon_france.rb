@@ -193,7 +193,7 @@ class AmazonFrance
             order.credentials.exp_month = 2
             order.credentials.exp_year = 2015
             order.credentials.cvv = "123"
-            if submit_credit_card
+            if RobotCore::Payment.new(self).checkout
               click_on PAYMENT[:access]
               wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
               click_on PAYMENT[:invoice_address], check:true

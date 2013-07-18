@@ -53,7 +53,7 @@ class AmazonTest < StrategyTest
   end
 
   test "complete order process" do
-    robot.expects(:submit_credit_card).returns(false)
+    RobotCore::Payment.any_instance.expects(:checkout).returns(false)
     run_spec("complete order process", [PRODUCT_URL_6])
   end
   
