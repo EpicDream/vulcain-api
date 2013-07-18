@@ -139,7 +139,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def no_delivery_error products
-    @message.expects(:message).times(12)
+    @message.expects(:message).times(10..12)
     @context['order']['products'] = products
     @robot.context = @context
     

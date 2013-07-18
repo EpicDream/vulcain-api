@@ -45,6 +45,7 @@ module DartyConstants
     remove_item:'Supprimer',
     empty_message:'//*[@id="contentColOne"]',
     submit: '//*[@id="newbottomFinishButton"]',
+    quantity: '//div[@class="tunnel_mobile_panier_prix_content"]/div/select',
     empty_message_match: /Votre panier est actuellement vide/i,
     submit_success: [SHIPMENT[:bill]]
   }

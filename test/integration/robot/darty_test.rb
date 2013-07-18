@@ -46,7 +46,8 @@ class DartyTest < StrategyTest
     assert = Proc.new do
       assert_equal 2, robot.find_elements('//div[@class="tunnel_mobile_panier_produit "]').count
     end
-    run_spec("add to cart", [PRODUCT_URL_1, PRODUCT_URL_2], assert)
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    run_spec("add to cart", products, assert)
   end
   
   test "empty cart" do
@@ -55,17 +56,19 @@ class DartyTest < StrategyTest
   end
   
   test "no delivery error" do
-    run_spec("no delivery error", PRODUCT_URL_2)
+    run_spec("no delivery error", [{url:PRODUCT_URL_2, quantity:1}])
   end
   
   test "complete order process" do
-    run_spec("complete order process", [PRODUCT_URL_3])
+    run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}])
   end
   
   test "finalize order" do
-    products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801"}]
-    billing = {:product=>39.9, :shipping=>nil, :total=>39.9, :shipping_info=>"Livraison par Colissimo :\nEntre le Mer. 03/07 et le Ven. 05/07"}
-    run_spec("finalize order", [PRODUCT_URL_3], products, billing)
+    expected_products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801"}]
+    billing = {:shipping=>nil, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Lun. 22/07 et le Mer. 24/07"}
+    products = [{url:PRODUCT_URL_3, quantity:2}]
+    
+    run_spec("finalize order", products, expected_products, billing)
   end
   
   test "validate order" do
