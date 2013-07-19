@@ -28,42 +28,9 @@ module RueDuCommerceConstants
   }
   
   PRODUCT = {
-    price_text:'//section[@class="price-details"]',
-    title:'//section[@class="info"]',
-    image:'//div[@class="recap-basket-list"]/img',
-  }
-  
-  SHIPMENT = {
-    submit: '//input[@value="Valider"]',
-    address_1:'//*[@id="account_address1"]',
-    address_2:'//*[@id="account_address2"]',
-    additionnal_address:'//*[@id="account_access_code"]',
-    city:'//*[@id="account_city"]',
-    zip:'//*[@id="account_zip"]',
-    birthdate_day:'//*[@id="account_birthdate_day"]',
-    birthdate_month:'//*[@id="account_birthdate_month"]',
-    birthdate_year:'//*[@id="account_birthdate_year"]',
-    mobile_phone:'//*[@id="optin_mobile_phone"]',
-    address_submit:'//input[@value="Valider"]',
-    select_this_address: '//input[@value="Choix du transporteur"]',
-    submit_packaging: '//*[@id="carrier-submit"]',
-    submit_success: [PRODUCT[:price_text]]
-  }
-  
-  CART = {
-    add: '//section[@class="cart-buttons"]/a',
-    remove_item: '//a[@class="delete-fav-search"]',
-    submit: 'Finaliser ma commande',
-    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
-    empty_message: '//body',
-    empty_message_match: /Votre panier est vide/i
-  }
-  
-  BILL = {
-    price:'//ul[@class="total-cart-price-list"]/li[1]',
-    shipping:'//ul[@class="total-cart-price-list"]/li[2]',
-    total:'//ul[@class="total-cart-price-list"]/li[3]',
-    info:'//div[@class="small-info"]'
+    price_text:'//section[@class="product-info"]//p[@class="big-red-price"]',
+    title:'//div[@class="single-product-page"]/h3',
+    image:'//div[@id="slider"]//img',
   }
   
   PAYMENT = {
@@ -82,6 +49,39 @@ module RueDuCommerceConstants
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
     zero_fill: true,
     trunc_year: true,
+  }
+  
+  SHIPMENT = {
+    submit: '//input[@value="Valider"]',
+    address_1:'//*[@id="account_address1"]',
+    address_2:'//*[@id="account_address2"]',
+    additionnal_address:'//*[@id="account_access_code"]',
+    city:'//*[@id="account_city"]',
+    zip:'//*[@id="account_zip"]',
+    birthdate_day:'//*[@id="account_birthdate_day"]',
+    birthdate_month:'//*[@id="account_birthdate_month"]',
+    birthdate_year:'//*[@id="account_birthdate_year"]',
+    mobile_phone:'//*[@id="optin_mobile_phone"]',
+    address_submit:'//input[@value="Valider"]',
+    select_this_address: '//input[@value="Choix du transporteur"]',
+    submit_packaging: '//*[@id="carrier-submit"]',
+    submit_success: [PAYMENT[:access]]
+  }
+  
+  CART = {
+    add: '//section[@class="cart-buttons"]/a',
+    remove_item: '//a[@class="delete-fav-search"]',
+    submit: 'Finaliser ma commande',
+    quantity: '//select[@class="cart-item-quantity"]',
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
+    empty_message: '//body',
+    empty_message_match: /Votre panier est vide/i
+  }
+  
+  BILL = {
+    shipping:'//ul[@class="total-cart-price-list"]/li[2]',
+    total:'//ul[@class="total-cart-price-list"]/li[3]',
+    info:'//div[@class="small-info"]'
   }
   
   CRAWLING = {
@@ -146,7 +146,7 @@ class RueDuCommerce
       step('add to cart') do
         cart = RobotCore::Cart.new(self)
         cart.before_add = Proc.new {
-          if current_product_url =~ /www\.rueducommerce\.fr|ad\.zanox\.com/
+          if current_product.url =~ /www\.rueducommerce\.fr|ad\.zanox\.com/
             execute_script("redirect('http://m.rueducommerce.fr/fiche-produit/' + window.offer_reference)")
           end
         }

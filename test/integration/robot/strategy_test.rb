@@ -7,7 +7,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   teardown do
     begin
-      #robot.driver.quit
+      robot.driver.quit
     rescue
     end
   end
@@ -166,7 +166,7 @@ class StrategyTest < ActiveSupport::TestCase
   def cancel_order products
     @context["order"]["products"] = products
     @robot.context = @context
-    @message.expects(:message).times(15..20)
+    @message.expects(:message).times(13..20)
     @message.expects(:message).with(:step, 'cancel order')
     @message.expects(:message).with(:step, 'empty cart')
     
