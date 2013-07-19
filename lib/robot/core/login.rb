@@ -24,7 +24,7 @@ module RobotCore
     
     def renew
       robot.run_step('logout')
-      robot.open_url robot.order.products_urls[0]
+      robot.open_url robot.order.products[0].url
       run
     end
     
