@@ -2,104 +2,104 @@
 module <%= vendor_name %>Constants
   
   URLS = {
-    base:'',
-    home:'',
-    account:'',
-    login:'',
-    payments:'',
-    cart:''
+    base:nil,
+    home:nil,
+    account:nil,
+    login:nil,
+    payments:nil,
+    cart:nil
   }
   
   REGISTER = {
-    mister:'',
-    madam:'',
-    miss:'',
-    last_name:'',
-    first_name:'',
-    land_phone:'',
-    mobile_phone:'',
-    address_1:'',
-    address_2:'',
-    email:'',
-    zip:'',
-    password:'',
-    password_confirmation:'',
-    address_option:'',
-    submit: ''
+    mister:nil,
+    madam:nil,
+    miss:nil,
+    last_name:nil,
+    first_name:nil,
+    land_phone:nil,
+    mobile_phone:nil,
+    address_1:nil,
+    address_2:nil,
+    email:nil,
+    zip:nil,
+    password:nil,
+    password_confirmation:nil,
+    address_option:nil,
+    submit: nil
   }
   
   LOGIN = {
-    link:'',
-    email:'',
-    password:'',
-    submit: '',
-    logout:'',
-    captcha:'',
-    captcha_submit:'',
-    captcha_input:''
+    link:nil,
+    email:nil,
+    password:nil,
+    submit: nil,
+    logout:nil,
+    captcha:nil,
+    captcha_submit:nil,
+    captcha_input:nil
   }
   
   SHIPMENT = {
-    full_name: '',
-    address_1: '',
-    address_2: '',
-    additionnal_address: '',
-    city: '',
-    zip: '',
-    mobile_phone: '',
-    submit_packaging: '',
-    submit: '',
-    select_this_address: '',
-    address_option: '',
-    address_submit: ''
+    full_name: nil,
+    address_1: nil,
+    address_2: nil,
+    additionnal_address: nil,
+    city: nil,
+    zip: nil,
+    mobile_phone: nil,
+    submit_packaging: nil,
+    submit: nil,
+    select_this_address: nil,
+    address_option: nil,
+    address_submit: nil
   }
   
   CART = {
-    add:'',
-    button:'',
-    remove_item:'',
-    empty_message:'',
+    add:nil,
+    button:nil,
+    remove_item:nil,
+    empty_message:nil,
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: '',
+    submit: nil,
     submit_success: [],
   }
   
   PRODUCT = {
-    price_text:'',
-    title:'',
-    image:''
+    price_text:nil,
+    title:nil,
+    image:nil
   }
   
   BILL = {
-    price:'',
-    shipping:'',
-    total:'',
-    info:''
+    price:nil,
+    shipping:nil,
+    total:nil,
+    info:nil
   }
   
   PAYMENT = {
-    remove: '',
-    remove_confirmation: '',
-    access: '',
-    invoice_address: '',
-    validate: '',
-    holder:'',
-    number:'',
-    exp_month:'',
-    exp_year:'',
-    cvv:'',
-    submit: '',
-    status: '',
-    succeed: //,
+    remove: nil,
+    remove_confirmation: nil,
+    access: nil,
+    invoice_address: nil,
+    validate: nil,
+    holder:nil,
+    number:nil,
+    exp_month:nil,
+    exp_year:nil,
+    cvv:nil,
+    submit: nil,
+    status: nil,
+    succeed: nil,
   }
   
   CRAWLING = {
-    title:'', 
-    price:'',
-    image_url:'',
-    shipping_info: '',
-    available:'',
-    options:''
+    title:nil, 
+    price:nil,
+    image_url:nil,
+    shipping_info: nil,
+    available:nil,
+    options:nil
   }
   
 end
@@ -146,18 +146,6 @@ class <%= vendor_name %>
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('empty cart') do |args|
-        #TODO : REMOVE IF NO SPECIFICITY
-      end
-
-      step('finalize order') do
-      end
-      
-      step('validate order') do
-        #TODO : REMOVE IF NO SPECIFICITY
-      end
-      
     end
   end
   

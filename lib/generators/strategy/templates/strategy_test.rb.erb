@@ -37,28 +37,33 @@ class <%= vendor_name %>Test < StrategyTest
   test "add to cart" do
     assert = Proc.new do
     end
-    run_spec("add to cart", [PRODUCT_URL_1], assert)
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("add to cart", products, assert)
   end
   
   test "empty cart" do
     assert = Proc.new do
     end
-    run_spec("empty cart", [PRODUCT_URL_1], assert)
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("empty cart", products, assert)
   end
   
   test "finalize order" do
-    products = []
+    expected_products = []
     billing = {}
+    products = [{url:PRODUCT_URL_1, quantity:2}]
 
-    run_spec("finalize order", [PRODUCT_URL_1], products, billing)
+    run_spec("finalize order", products, expected_products, billing)
   end
   
   test "validate order" do
-    run_spec("validate order", [PRODUCT_URL_1])
+    run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end
   
   test "complete order process" do
-    run_spec("complete order process", [PRODUCT_URL_1])
+    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:2}])
   end
   
 end
