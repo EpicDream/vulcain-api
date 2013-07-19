@@ -43,17 +43,20 @@ module EveilEtJeuxConstants
   
   SHIPMENT = {
     full_name: nil,
-    address_1: nil,
+    address_1: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__txtNumVoie"]',
     address_2: nil,
     additionnal_address: nil,
-    city: nil,
-    zip: nil,
-    mobile_phone: nil,
+    city: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__txtVille"]',
+    zip: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__txtCP"]',
+    mobile_phone: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__tbTelPort"]',
+    land_phone: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__tbTelFixe"]',
     submit_packaging: nil,
-    submit: nil,
+    submit: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__btSubmit"]',
     select_this_address: nil,
-    address_option: nil,
-    address_submit: nil
+    address_option: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__rbQASKeep"]',
+    address_submit: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__btQas"]',
+    address_confirm: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__btSubmit"]',
+    sms_options: ['//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__rblSMS_1"]', '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__rblSMSPartenaires_1"]'],
   }
   
   CART = {
