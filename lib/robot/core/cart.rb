@@ -83,6 +83,7 @@ module RobotCore
     def remove
       if vendor::CART[:remove_item] =~ /\/\//
         robot.click_on_all([vendor::CART[:remove_item]]) {|element|
+          robot.wait_ajax
           robot.open_url vendor::URLS[:cart]
           !element.nil? 
         }

@@ -8,7 +8,6 @@ module RobotCore
     end
     
     def build
-      return unless build_now?
       product = Hash.new
       product['price_text'] = robot.get_text vendor::PRODUCT[:price_text]
       product['product_title'] = robot.get_text vendor::PRODUCT[:title]
@@ -28,12 +27,6 @@ module RobotCore
       prices = Robot::PRICES_IN_TEXT.(product['price_text'])
       product['price_product'] = prices[0]
       product['price_delivery'] = prices[1]
-    end
-    
-    private
-    
-    def build_now?
-      robot.exists? vendor::PRODUCT[:price_text]
     end
     
   end

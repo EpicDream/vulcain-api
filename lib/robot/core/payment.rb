@@ -41,6 +41,7 @@ module RobotCore
       robot.click_on vendor::PAYMENT[:submit]
       robot.wait_for(['//body'])
       robot.click_on vendor::PAYMENT[:validate], check:true
+      true
     end
     
     def succeed?
