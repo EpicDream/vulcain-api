@@ -48,6 +48,7 @@ module RobotCore
       robot.click_on vendor::CART[:cgu], check:true
       robot.wait_ajax(4)
       robot.click_on vendor::CART[:submit]
+      robot.open_url vendor::URLS[:after_submit_cart]
     end
     
     def remove_options
@@ -74,6 +75,12 @@ module RobotCore
       node = robot.find_element(vendor::CART[:quantity])
       if node.tag_name == 'select'
         robot.select_option(vendor::CART[:quantity], robot.order.products.last.quantity)
+      elsif node.attribute("type") == "submit"
+        click_count = robot.order.products.last.quantity - 1
+        click_count.times {
+          robot.click_on vendor::CART[:quantity]
+          robot.wait_ajax
+        }
       else
         robot.fill vendor::CART[:quantity], with:robot.order.products.last.quantity
       end
