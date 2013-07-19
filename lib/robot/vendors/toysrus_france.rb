@@ -57,6 +57,8 @@ module ToysrusFranceConstants
     add:'//*[@id="addItemToCartOption"]',
     remove_item: 'Supprimer',
     empty_message: '//*[@id="main"]',
+    quantity:'//table[@class="shopping-cart"]//td[@class="qty"]/input',
+    update:'//*[@id="update"]',
     empty_message_match: /Votre panier ne contient aucun article/i,
     items_lists:'//*[@id="yourShoppingCart"]',
     submit: '//*[@id="proceed-to-checkout"]',
