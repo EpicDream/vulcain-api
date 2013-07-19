@@ -25,6 +25,7 @@ module RobotCore
       gender
       birthdate
       address
+      password
       submit
       submit_options
       
@@ -39,6 +40,10 @@ module RobotCore
     
     def fails?
       !robot.wait_leave(vendor::REGISTER[:submit])
+    end
+    
+    def password
+      robot.fill vendor::REGISTER[:password], with:account.password, check:true
     end
     
     def submit
