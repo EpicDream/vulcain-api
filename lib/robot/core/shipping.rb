@@ -37,6 +37,7 @@ module RobotCore
       robot.fill vendor::SHIPMENT[:mobile_phone], with:user.address.mobile_phone, check:true
       robot.click_on vendor::SHIPMENT[:address_option], check:true
       robot.click_on vendor::SHIPMENT[:address_submit], check:true
+      robot.click_on vendor::SHIPMENT[:address_confirm], check:true
       robot.click_on vendor::SHIPMENT[:option], check:true
     end
     
@@ -50,6 +51,11 @@ module RobotCore
       properties = user.address.marshal_dump.keys
       properties.each do |property|
         robot.fill vendor::SHIPMENT[property], with:user.address.send(property), check:true
+        if property == :mobile_phone && vendor::SHIPMENT[:sms_options]
+          robot.click_on vendor::SHIPMENT[:city] #lose focus
+          robot.wait_ajax
+          vendor::SHIPMENT[:sms_options].each { |identifier| robot.click_on identifier}
+        end
       end
       birthdate if vendor::SHIPMENT[:birthdate_day]
     end
