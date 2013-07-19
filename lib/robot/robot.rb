@@ -140,9 +140,11 @@ class Robot
       next unless context[ivar]
       instance_variable_set "@#{ivar}", context[ivar].to_openstruct
     end
-    user.address.land_phone ||= "04" + user.address.mobile_phone[2..-1]
-    user.address.mobile_phone ||= "06" + user.address.land_phone[2..-1]
-    user.address.full_name = "#{user.address.first_name} #{user.address.last_name}"
+    if user #no user for crawl step
+      user.address.land_phone ||= "04" + user.address.mobile_phone[2..-1]
+      user.address.mobile_phone ||= "06" + user.address.land_phone[2..-1]
+      user.address.full_name = "#{user.address.first_name} #{user.address.last_name}"
+    end
     @session = context['session']
   end
   
