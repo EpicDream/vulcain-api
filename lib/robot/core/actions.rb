@@ -38,8 +38,8 @@ module RobotCore
       !!element && element.displayed?
     end
     
-    def find_elements identifier
-      @driver.find_elements identifier
+    def find_elements identifier, options={}
+      @driver.find_elements identifier, options
     end
 
     def find_element identifier
