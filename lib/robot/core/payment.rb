@@ -34,11 +34,12 @@ module RobotCore
       RobotCore::CreditCard.new(robot).select
       
       if vendor::PAYMENT[:number].is_a?(Array)
+        robot.click_on vendor::PAYMENT[:number][0] #hack
+        robot.wait_ajax
         0.upto(3) { |i|  
           robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i..(i + 3)]
           robot.wait_ajax
         }
-        robot.fill vendor::PAYMENT[:number][0], with:order.credentials.number[0..3]#hack or not hack, that's the question!
       else
         robot.fill vendor::PAYMENT[:number], with:order.credentials.number
       end
@@ -47,6 +48,7 @@ module RobotCore
       robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
       robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
       robot.click_on vendor::PAYMENT[:submit]
+      sleep 100
       robot.wait_for(['//body'])
       robot.click_on vendor::PAYMENT[:validate], check:true
       true
