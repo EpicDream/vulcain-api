@@ -1,5 +1,4 @@
 # encoding: UTF-8
-ENV['TESTOPTS'] = '--name=test_complete_order_process'
 ENV['DISPLAY'] = ':0' if ENV['DISPLAY'].nil?
 
 Rake::TestTask.new('test:strategies') do |t|
@@ -8,12 +7,22 @@ Rake::TestTask.new('test:strategies') do |t|
   t.verbose = false
 end
 
+Rake::TestTask.new('test:crawlers') do |t|
+  t.libs << "#{Rails.root}/test"
+  t.test_files = FileList["#{Rails.root}/test/integration/robot/*_test.rb"]
+  t.verbose = false
+end
+
+
 namespace :strategies do
   desc "regression test which run complete ordering until payment for each strategy"
   task :test => :environment do
     io = File.open("/tmp/strategies_rake_test_output.txt", "w+")
     stdout_to(io) do
+      ENV['TESTOPTS'] = '--name=test_complete_order_process'
       Rake::Task["test:strategies"].invoke rescue nil
+      ENV['TESTOPTS'] = '--name=test_crawl_action'
+      Rake::Task["test:crawlers"].invoke rescue nil
     end
     output = File.read("/tmp/strategies_rake_test_output.txt")
     StrategiesTestsReport.new(output).report

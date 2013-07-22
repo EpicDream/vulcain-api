@@ -181,7 +181,7 @@ class StrategyTest < ActiveSupport::TestCase
     crawler = @vendor::ProductCrawler.new(@robot, @vendor::CRAWLING)
     crawler.crawl url
     [:product_title, :product_price, :shipping_price, :product_image_url, :delivery].each do |key|
-      assert_equal expected_product[key], crawler.product[key], "fail with #{key}"
+      assert_equal expected_product[key], crawler.product[key], "fail with #{key} and url : #{url}"
     end
   end
   

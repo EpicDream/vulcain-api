@@ -10,6 +10,7 @@ class FnacTest < StrategyTest
   PRODUCT_5_URL = "http://livre.fnac.com/a5715697/Dan-Brown-Inferno-Version-francaise?ectrans=1&Origin=zanox1464273#fnac.com"
   PRODUCT_6_URL = "http://www.fnac.com/mp13051465/Machine-a-coudre-835-Sapphire-Husqvarna/w-4"
   PRODUCT_7_URL = "http://ad.zanox.com/ppc/?25134383C1552684717T&ULP=[[video.fnac.com%2Fa1772597%2FLa-Belle-et-le-Clochard-Edition-simple-DVD-Zone-2]]"
+  PRODUCT_8_URL = "http://www4.fnac.com/Samsung-Galaxy-S3-Mini-i8190-Bleu-GadgetsInfinity/w-4/oref3a832154-673a-178f-4391-1ccbc8969db7"
 
   setup do
     initialize_robot_for Fnac
@@ -97,20 +98,13 @@ class FnacTest < StrategyTest
     assert_equal 21.7, robot.products.last["price_product"]
   end
   
-  test "crawl url of product with no options" do
-    product = {:options=>{}, :product_title=>"Donkey Kong Country Returns 3DS", :product_price=>35.9, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", :shipping_info=>"Pour être livré le \tsamedi 15 juin \t \tcommandez avant 13h \t \tet choisissez la livraison express (http://www.fnac.com/help/A06-5.asp?NID=-11&RNID=-11)", :available=>true}
-    run_spec("crawl", PRODUCT_2_URL, product)
-  end
-
-  test "crawl url of product with shipping price" do
-    product = {:options=>{}, :product_title=>"Machine à coudre 835 Sapphire Husqvarna", :product_price=>890.0, :shipping_price=>12.99, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/MC/Grandes%2090x100/8/0/3/8962800008308.jpg", :shipping_info=>"", :available=>true}
-    run_spec("crawl", PRODUCT_6_URL, product)
-  end
-  
-  test "crawl with different markup for tecnhic products" do
-    url = "http://www4.fnac.com/Samsung-Galaxy-S3-Mini-i8190-Bleu-GadgetsInfinity/w-4/oref3a832154-673a-178f-4391-1ccbc8969db7"
-    product = {:options=>{}, :product_title=>"Samsung Galaxy S3 Mini (i8190) - Bleu", :product_price=>258, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/0/5/2/8806085347250.jpg", :available=>true}
-    run_spec("crawl", url, product)
+  test "crawl action" do
+    products = [{:options=>{}, :product_title=>"Donkey Kong Country Returns 3DS", :product_price=>35.9, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", :shipping_info=>"Pour être livré le \tsamedi 15 juin \t \tcommandez avant 13h \t \tet choisissez la livraison express (http://www.fnac.com/help/A06-5.asp?NID=-11&RNID=-11)", :available=>true}]
+    products << {:options=>{}, :product_title=>"Machine à coudre 835 Sapphire Husqvarna", :product_price=>890.0, :shipping_price=>12.99, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/MC/Grandes%2090x100/8/0/3/8962800008308.jpg", :shipping_info=>"", :available=>true}
+    products << {:options=>{}, :product_title=>"Samsung Galaxy S3 Mini (i8190) - Bleu", :product_price=>258, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/0/5/2/8806085347250.jpg", :available=>true}
+    [PRODUCT_2_URL, PRODUCT_6_URL, PRODUCT_8_URL].each_with_index do |url, index|
+      run_spec("crawl", url, products[index])
+    end
   end
   
 end
