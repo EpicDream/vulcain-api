@@ -94,8 +94,8 @@ module FnacConstants
   
   CRAWLING = {
     title:'//*[@id="content"]//div/h1', 
-    price:'//div[@class="ui-block-b"]',
-    image_url:'//div[@class="visuel"]//img',
+    price:'//div[@class="ui-block-b"] | //div[@class="bigPricerFA"]',
+    image_url:'//div[@class="visuel"]//img | //div[@class="visuelArticle"]//img',
     shipping_info: '//span[@class="shippinginfo"]',
     available:'//div[@class="availability"]'
   }

@@ -107,4 +107,10 @@ class FnacTest < StrategyTest
     run_spec("crawl", PRODUCT_6_URL, product)
   end
   
+  test "crawl with different markup for tecnhic products" do
+    url = "http://www4.fnac.com/Samsung-Galaxy-S3-Mini-i8190-Bleu-GadgetsInfinity/w-4/oref3a832154-673a-178f-4391-1ccbc8969db7"
+    product = {:options=>{}, :product_title=>"Samsung Galaxy S3 Mini (i8190) - Bleu", :product_price=>258, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/0/5/2/8806085347250.jpg", :available=>true}
+    run_spec("crawl", url, product)
+  end
+  
 end
