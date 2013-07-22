@@ -379,6 +379,8 @@ class Plugin::IRobot < Robot
         return self.send(meth_name, *args, &block) || true
       rescue NoSuchElementError
         return false
+      rescue ArgumentError
+        return false
       end
     else
       return super(methSym, *args, &block)
@@ -563,6 +565,16 @@ class Plugin::IRobot < Robot
     raise
   end
 
+  def pl_set_product_price_strikeout!(path)
+    text = get_text(path)
+    @pl_current_product['price_strikeout'] = get_price(text)
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = find(path)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
   def pl_set_product_delivery_price!(xpath)
     text = get_text(xpath)
     @pl_current_product['shipping_price'] = get_price(text)
@@ -590,6 +602,15 @@ class Plugin::IRobot < Robot
   rescue ArgumentError
     puts "#{xpath.inspect} => #{text.inspect}"
     elems = find(xpath)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_description!(path)
+    @pl_current_product['description'] = get_text(path)
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = find(path)
     puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
     raise
   end
@@ -815,9 +836,10 @@ class Plugin::IRobot < Robot
       @pl_driver.current_url
     end
 
-    def get_text xpath
-      e = find(xpath).first
-      return (e.nil? ? "" : e.text)
+    def get_text path
+      e = find(path).first
+      raise NoSuchElementError, "No element found, cannot extract text." if e.nil?
+      return e.text
     end
 
     def images xpath
@@ -1029,14 +1051,20 @@ class PriceministerMobile
         pl_click_on!(plarg_xpath)
         wait_ajax(2)
         # Indiquer le prix de l'article
-        plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[2]/span[1]'
+        plarg_xpath = 'div.ui-page-active div.adv_list article:nth-of-type(1) .price.value'
         pl_set_product_price(plarg_xpath)
+        # Indiquer le prix barré de l'article
+        plarg_xpath = 'div.ui-page-active div.adv_list article:nth-of-type(1) .discount .old_price'
+        pl_set_product_price_strikeout(plarg_xpath)
         # Indiquer le prix de livraison de l'article
-        plarg_xpath = '//div[contains(concat(" ",@class," ")," ui-page-active ")]//div[contains(concat(" ",@class," ")," adv_list ")]/article[1]/div[@id]/ul/li[3]/span'
+        plarg_xpath = "div.ui-page-active div.adv_list article:nth-of-type(1) .shipping_amount .value"
         pl_set_product_delivery_price(plarg_xpath)
         # Indiquer les informations de livraison de l'article
-        plarg_xpath = 'div.adv_list article:nth-child(1) div ul li.more_details div.shipping'
+        plarg_xpath = 'div.ui-page-active div.adv_list article:nth-of-type(1) .more_details .shipping .value'
         pl_set_product_shipping_info(plarg_xpath)
+        # Indiquer la description
+        # plarg_xpath = 'div.ui-page-active div.adv_list article:nth-of-type(1)'
+        # pl_set_product_description(plarg_xpath)
       end
       step('add_to_cart') do
         # Retourner sur le site mobile
