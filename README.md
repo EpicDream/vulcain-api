@@ -10,9 +10,9 @@ Note : Le password est géré par défaut pour le moment et est "shopelia"
     curl -d"user[email]=elarch%2B3@gmail.com&cb[number]=&cb[month_expire]=&cb[year_expire]=15&cb[crypto]=&product_url=http://m.rueducommerce.fr/fiche-produit/TRANS-TS8GJF600" 127.0.0.1:8080/orders
 
 
-# Installation-Dev
+### Installation-Dev
 
-## Linux
+#### Linux
 
 Avant d'appeler bundle, il faut penser à installer mongodb
 
@@ -32,6 +32,19 @@ Faites le puis réexécutez bundle.
     gem install bson_ext
     bundle
 
+##### Selenium
+
 Si vous voulez lancer des Selenium en local vous devez aussi l'installer.
 Aller sur la page http://code.google.com/p/chromedriver/downloads/list pour télécharger la version du driver correspondante.
 Installez la où la gem pourra la trouver (/usr/bin/ par exemple).
+
+##### RabbitMQ
+
+Si vous voulez utiliser le dispatcher, il vous faut aussi installer RabbitMQ.
+
+    sudo apt-get install rabbitmq-server
+
+Vous devrez aussi créer des fichiers et répertoires :
+
+    sudo mkdir -p /var/log/vulcain-dispatcher/ && cd /var/log/vulcain-dispatcher/ && sudo touch vulcain-dispatcher.log && sudo chmod o+rw vulcain-dispatcher.log
+    sudo mkdir -p /var/run/vulcain-dispatcher/vulcain-dispatcher && sudo chmod o+rw /var/run/vulcain-dispatcher/vulcain-dispatcher
