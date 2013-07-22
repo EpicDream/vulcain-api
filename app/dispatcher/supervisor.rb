@@ -105,7 +105,9 @@ module Dispatcher
       EM.add_periodic_timer(CONFIG[:check_timeouts_every], check_timeouts)
       EM.add_periodic_timer(CONFIG[:dump_pool_every], dump_pool)
       EM.add_periodic_timer(CONFIG[:ping_vulcains_every], ping_vulcains)
-      EM.add_periodic_timer(CONFIG[:touch_dispatcher_running_every], touch_dispatcher_running)
+      if Rails.env.production?
+        EM.add_periodic_timer(CONFIG[:touch_dispatcher_running_every], touch_dispatcher_running)
+      end
     end
     
     def unbind_queues
