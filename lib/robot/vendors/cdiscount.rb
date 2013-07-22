@@ -87,12 +87,11 @@ module CdiscountConstants
   }
   
   CRAWLING = {
-    title:'//h1[@class="productTitle"]', 
-    price:'//p[@class="prix big"]',
-    image_url:'//div[@id="main"]//a[2]/img',
-    shipping_info: '//div[@class="livraison"]',
-    available:'//div[@id="main"]',
-    options:'//div[@id="main"]//select'
+    title:'//*[@id="fpBlocProduct"]/h1', 
+    price:'//div[@class="price priceXL"]',
+    image_url:'//*[@id="fpBlocProduct"]/div[1]/a/img',
+    shipping_info: '//div[@class="fpShipping"]',
+    available:'//div[@class="fpStock_0"]',
   }
   
 end
@@ -108,11 +107,6 @@ module CdiscountCrawler
     end
     
     def crawl url
-      @robot.driver.get url
-      url = @robot.driver.current_url
-      @robot.driver.quit
-      @robot.driver = Driver.new(user_agent:Driver::MOBILE_USER_AGENT)
-      
       @url = url
       @robot.open_url url
       @page = Nokogiri::HTML.parse @robot.driver.page_source
@@ -126,7 +120,7 @@ module CdiscountCrawler
       @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
       @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
       @product[:shipping_price] = nil
-      @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /disponible/i)
+      @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en stock/i)
     end
     
     def build_options
