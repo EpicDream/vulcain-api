@@ -203,7 +203,7 @@ class StrategyTest < ActiveSupport::TestCase
                 'order' => {'products' => [],
                             'credentials' => {
                               'holder' => 'Pierre Petit', 
-                              'number' => '501290129019201', 
+                              'number' => '5012901290192012', 
                               'exp_month' => 5,
                               'exp_year' => 2014,
                               'cvv' => 123}},

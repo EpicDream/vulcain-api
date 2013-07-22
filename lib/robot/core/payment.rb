@@ -37,7 +37,7 @@ module RobotCore
         0.upto(3) { |i|  
           robot.click_on vendor::PAYMENT[:number][i]
           robot.wait_ajax
-          robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i..(i + 3)]
+          robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i*4..(i*4 + 3)]
           robot.wait_ajax
         }
       else
