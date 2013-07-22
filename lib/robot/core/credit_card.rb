@@ -27,6 +27,7 @@ module RobotCore
       ##
       
       robot.click_on vendor::PAYMENT[:credit_card]
+      robot.wait_ajax
       if mastercard?
         robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
         robot.click_on vendor::PAYMENT[:mastercard]

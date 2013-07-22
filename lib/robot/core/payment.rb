@@ -33,7 +33,15 @@ module RobotCore
       
       RobotCore::CreditCard.new(robot).select
       
-      robot.fill vendor::PAYMENT[:number], with:order.credentials.number
+      if vendor::PAYMENT[:number].is_a?(Array)
+        0.upto(3) { |i|  
+          robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i..(i + 3)]
+          robot.wait_ajax
+        }
+        robot.fill vendor::PAYMENT[:number][0], with:order.credentials.number[0..3]#hack or not hack, that's the question!
+      else
+        robot.fill vendor::PAYMENT[:number], with:order.credentials.number
+      end
       robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder, check:true
       robot.select_option vendor::PAYMENT[:exp_month], order.credentials.exp_month
       robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
