@@ -76,8 +76,8 @@ module DartyConstants
   }
   
   CRAWLING = {
-    title:'//div[@class="mts"]/div[1]', 
-    price:'//div[@class="mts"]/div[3]/span',
+    title:'//*[@id="no_zoom"]/div[2]/div[2]/div[2]/div[1] |//*[@id="no_zoom"]/div[2]/div[2]/div/div[1]', 
+    price:'//*[@id="no_zoom"]/div[2]/div[2]/div[2]/div[3]/span | //*[@id="no_zoom"]/div[2]/div[2]/div/div[3]/span',
     image_url:'//*[@id="zoom-opener"]/img',
     shipping_info: '//*[@id="delivery_tab"]',
   }
