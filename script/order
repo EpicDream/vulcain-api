@@ -7,6 +7,7 @@ def products_urls vendor
   when "AmazonFrance" then ["http://www.amazon.fr/C%C3%A9line-Romans-2-Louis-Ferdinand/dp/2070107973/ref=pd_sim_b_2"]
   when "Fnac" then ["http://ad.zanox.com/ppc/?25134383C1552684717T&ULP=[[video.fnac.com%2Fa1772597%2FLa-Belle-et-le-Clochard-Edition-simple-DVD-Zone-2]]"]
   when "Cdiscount" then ["http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html"]
+  when "EveilEtJeux" then ["http://www.eveiletjeux.com/brainbox-voyage-autour-du-monde/produit/122996#xtatc=INT-2151-||"]
   end
 end
 
