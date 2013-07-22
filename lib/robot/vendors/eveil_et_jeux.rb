@@ -50,13 +50,15 @@ module EveilEtJeuxConstants
     zip: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__txtCP"]',
     mobile_phone: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__tbTelPort"]',
     land_phone: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__tbTelFixe"]',
-    submit_packaging: nil,
+    submit_packaging: '//*[@id="ctl00_ContentPlaceHolder1__bDelivery"]',
     submit: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__btSubmit"]',
     select_this_address: nil,
     address_option: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__rbQASKeep"]',
     address_submit: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__qasLocation__btQas"]',
     address_confirm: '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__btSubmit"]',
     sms_options: ['//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__rblSMS_1"]', '//*[@id="ctl00_ContentPlaceHolder1__ucModifyAddress__ucCustomerTelephoneInformation__rblSMSPartenaires_1"]'],
+    option:'//*[@id="ctl00_ContentPlaceHolder1__lbStandardAtHome"]',
+    packaging:'//*[@id="_rbDeliveryMode"]',
   }
   
   CART = {
@@ -79,26 +81,32 @@ module EveilEtJeuxConstants
   }
   
   BILL = {
-    price:nil,
-    shipping:nil,
-    total:nil,
-    info:nil
+    shipping:'//*[@id="ctl00_ContentPlaceHolder1__ucPaymentOrderTable__ucPaymentOrderTotal__liFraisLivraison"]',
+    total:'//div[@class="totalCmd"]',
+    info:'//td[@class="dateLivraisonCmd"]'
   }
   
   PAYMENT = {
+    credit_card:'//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__divBtnCarteSelect"]',
+    visa:'//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte_lnkbVisa"]',
+    mastercard: '//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte_lnkbMasterCard"]',
     remove: nil,
     remove_confirmation: nil,
     access: nil,
     invoice_address: nil,
     validate: nil,
     holder:nil,
-    number:nil,
-    exp_month:nil,
-    exp_year:nil,
-    cvv:nil,
-    submit: nil,
+    number:['//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__txtZone1"]', 
+            '//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__txtZone2"]',
+            '//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__txtZone3"]',
+            '//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__txtZone4"]'],  
+    exp_month:'//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__ddlMois"]',
+    exp_year:'//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__ddlAnnee"]',
+    cvv:'//*[@id="ctl00_ContentPlaceHolder1__ucPaiementCarte__ctrlCarteMasqueSaisie__txtCrypto"]',
+    submit: '//*[@id="ctl00_ContentPlaceHolder1__bPaiement"]',
     status: nil,
     succeed: //,
+    zero_fill:true
   }
   
   CRAWLING = {

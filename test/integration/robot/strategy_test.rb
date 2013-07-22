@@ -129,7 +129,7 @@ class StrategyTest < ActiveSupport::TestCase
   def validate_order products
     @context['order']['products'] = products
     @robot.context = @context
-    @message.expects(:message).times(15..18)
+    @message.expects(:message).times(12..18)
 
     robot.run_step('login')
     robot.run_step('empty cart')
