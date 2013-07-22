@@ -34,9 +34,9 @@ module RobotCore
       RobotCore::CreditCard.new(robot).select
       
       if vendor::PAYMENT[:number].is_a?(Array)
-        robot.click_on vendor::PAYMENT[:number][0] #hack
-        robot.wait_ajax
         0.upto(3) { |i|  
+          robot.click_on vendor::PAYMENT[:number][i]
+          robot.wait_ajax
           robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i..(i + 3)]
           robot.wait_ajax
         }
