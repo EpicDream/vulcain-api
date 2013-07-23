@@ -13,4 +13,7 @@ VulcainApi::Application.routes.draw do
     resources :monitors, :only => [:index, :show, :create]
     resources :logs, :only => [:show, :index]
   end
+
+  match '/ping' => 'application#ping'    
+
 end

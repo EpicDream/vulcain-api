@@ -6,4 +6,8 @@ class ApplicationController < ActionController::API
     expected.to_set.subset?(keys.to_set)
   end
 
+  def ping
+    render text: "OK #{Time.now}"
+  end
+
 end
