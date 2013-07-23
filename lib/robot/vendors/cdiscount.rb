@@ -61,9 +61,9 @@ module CdiscountConstants
   }
   
   PRODUCT = {
-    price_text:'//div[@id="OfferList"]/div[1]//div[@class="ColPlPrice"]',
-    title:'//div[@class="MpProductContentDesc"]/h1',
-    image:'//span[@class="MpProductContentLeft"]//img'
+    price_text:'//div[@class="price priceXL"]',
+    title:'//*[@id="fpBlocProduct"]/h1',
+    image:'//*[@id="fpBlocProduct"]/div[1]/a/img'
   }
   
   BILL = {
