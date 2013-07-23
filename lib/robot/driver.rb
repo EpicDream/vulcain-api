@@ -145,7 +145,7 @@ class Driver
   
   def switches options
     mkdir_profile if options[:profile_dir].nil?
-    user_agent = options[:user_agent] || MOBILE_USER_AGENT
+    user_agent = options[:user_agent] || DESKTOP_USER_AGENT
     user_data_dir = options[:profile_dir] || @profile_path
     ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}"]
   end
