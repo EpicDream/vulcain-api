@@ -124,7 +124,6 @@ module RueDuCommerceCrawler
       keys = @page.xpath(@xpaths[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
       values = @page.xpath(@xpaths[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
       keys.each_with_index { |key, index| product[:options][key] = values[index]}
-      puts product.inspect
     end
   end
 end
