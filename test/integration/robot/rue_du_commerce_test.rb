@@ -9,7 +9,8 @@ class RueDuCommerceTest < StrategyTest
   PRODUCT_4_URL = "http://www.rueducommerce.fr/TV-Hifi-Home-Cinema/showdetl.cfm?product_id=4872804#xtor=AL-67-75%5Blien_catalogue%5D-120001%5Bzanox%5D-%5B1532882"
   PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
   PRODUCT_6_URL = "http://www.rueducommerce.fr/m/ps/mpid:MP-050B5M9378958#moid:MO-050B5M15723442"
-
+  PRODUCT_7_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5Bm/ps/mpid:MP-4CE8FM4915673%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
+  
   setup do
     initialize_robot_for RueDuCommerce
   end
@@ -79,14 +80,13 @@ class RueDuCommerceTest < StrategyTest
     run_spec("cancel order", [{url:PRODUCT_5_URL, quantity:1}])
   end
   
-  test "crawl url of product with no options" do
-    product = {:product_title => 'PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436', :product_price => 16.99, :product_image_url => 'http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg', :shipping_info => %Q{So Colissimo (2 à 4 jours). 5.49 €\nExpédié sous 24h}, :shipping_price => 5.49, :available => true, :options => {}}
-    run_spec("crawl", PRODUCT_5_URL, product)
-  end
-  
-  test "crawl url of product with options" do
-    product = {:product_title=>"Armani T-shirt Emporio homme manches courtes blanc", :product_price=>29.9, :product_image_url=>"http://s3.static69.com/m/image-offre/f/3/6/c/f36cdd33e7ca4cf8473865fb424ac437-300x300.jpg", :shipping_info=>"Expédié sous 24h\n* Lettre max avec suivi A partir de 4,90 €", :shipping_price=>4.9, :available=>true, :options=>{"Couleur"=>["Blanc", "Noir"], "Taille"=>["S", "M", "L", "XL"], "Matière"=>["95% coton et 05% élasthanne"]}}
-    run_spec("crawl", PRODUCT_6_URL, product)
+  test "crawl action" do
+    products = [{:options=>{}, :product_title=>%Q{PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436}, :product_price=>17.9, :product_image_url=>"http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg", :shipping_info=>"", :shipping_price=>nil, :available=>true}]
+    products << {:product_title=>"Armani T-shirt Emporio homme manches courtes blanc", :product_price=>29.9, :product_image_url=>"http://s3.static69.com/m/image-offre/f/3/6/c/f36cdd33e7ca4cf8473865fb424ac437-300x300.jpg", :shipping_info=>"Expédié sous 24h\n* Lettre max avec suivi A partir de 4,90 €", :shipping_price=>4.9, :available=>true, :options=>{"Couleur"=>["Blanc", "Noir"], "Taille"=>["S", "M", "L", "XL"], "Matière"=>["95% coton et 05% élasthanne"]}}
+    products << {:product_title => 'Seb P 4301406 Autocuiseur Acticook 8 Litres', :product_price => 129, :product_image_url => 'http://s3.static69.com/m/image-offre/d/8/c/f/d8cf0b50842ff11048ce2df72a97f47d-300x300.jpg', :shipping_info => %Q{Expédié sous 24h\n* Livraison Gls A partir de 8,90 €\n* Livraison colissimo 48H A partir de 10,50 €}, :shipping_price => 8.9, :available => true, :options => {}}
+    [PRODUCT_5_URL, PRODUCT_7_URL, PRODUCT_6_URL].each_with_index do |url, index|
+      run_spec("crawl", url, products[index])
+    end
   end
 
 end

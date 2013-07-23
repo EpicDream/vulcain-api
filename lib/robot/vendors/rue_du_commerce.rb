@@ -86,7 +86,7 @@ module RueDuCommerceConstants
   
   CRAWLING = {
     title:'//*[@itemprop="name"]', 
-    price:'//div[@class="prices"]//td[@class="px_ctc"] | //div[@id="zm_prices_information"]',
+    price:'//*[@id="zm_price_final"] | //*[@class="px_ctc"]',
     image_url:'//img[@itemprop="image"]',
     shipping_info: '//div[@class="trsp"]/div[@class="desc"]/ul/li[1] | //*[@id="zm_shipments_information"]',
     available:'//div[@id="zm_availability"] | //div[@id="dispo"]',
@@ -116,14 +116,15 @@ module RueDuCommerceCrawler
     
     def build_product
       product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).first
+      product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).last
       product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
       product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
       product[:shipping_price] = Robot::PRICES_IN_TEXT.(product[:shipping_info]).first
-      product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
+      product[:available] = true#!!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
       keys = @page.xpath(@xpaths[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
       values = @page.xpath(@xpaths[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
       keys.each_with_index { |key, index| product[:options][key] = values[index]}
+      puts product.inspect
     end
   end
 end
