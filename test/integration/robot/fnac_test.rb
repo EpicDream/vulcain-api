@@ -47,29 +47,18 @@ class FnacTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"12,45 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.45, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}, {"price_text"=>"29,99 €\nEN STOCK\n+ Frais de port\n3,89 €", "product_title"=>"", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", "price_product"=>29.99, "price_delivery"=>3.89, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1"}]
-    billing = {:product=>29.99, :shipping=>6.28, :total=>48.72, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"12,33€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.33, "price_delivery"=>nil, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil}, {"price_text"=>"32€", "product_title"=>"Donkey Kong Country Returns 3DS", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/8/5/5/0045496523558.jpg", "price_product"=>32.0, "price_delivery"=>nil, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1", "id"=>nil}]
+    billing = {:shipping=>6.28, :total=>50.61, :shipping_info=>nil}
     products = [{url:PRODUCT_1_URL, quantity:1}, {url:PRODUCT_2_URL, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "finalize order with one product and quantity > 1" do
-    expected_products = [{"price_text"=>"12,45 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.45, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
-    billing = {:shipping=>3.99, :total=>41.34, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"12,33€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.33, "price_delivery"=>nil, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil}]
+    billing = {:shipping=>3.99, :total=>40.98, :shipping_info=>nil}
     products = [{url:PRODUCT_1_URL, quantity:3}]
 
-    run_spec("finalize order", products, expected_products, billing)
-  end  
-  
-  test "finalize order with master card" do
-    expected_products = [{"price_text"=>"12,71 €\nEN STOCK\n+ Frais de port\n2,39 €", "product_title"=>"DELTA MACHINE - EDITION DELUXE", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/7/2/3/0887654606327.jpg", "price_product"=>12.71, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1"}]
-    billing = {:shipping=>2.39, :total=>15.41, :shipping_info=>nil}
-    @context['order']['credentials']['number'] = '501290129019201'
-    @robot.context = @context
-    products = [{url:PRODUCT_1_URL, quantity:1}]
-    
-    
     run_spec("finalize order", products, expected_products, billing)
   end  
   

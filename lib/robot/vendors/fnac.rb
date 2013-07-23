@@ -3,84 +3,79 @@ module FnacConstants
   URLS = {
     base:'http://www.fnac.com/',
     home:'http://www.fnac.com/',
-    login:'https://secure.fnac.com/Mobile/LogonPage.aspx?pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fMobile%2fDefaultAccount.aspx&PageAuth=X&LogonType=WebMobile',
-    register: 'https://secure.fnac.com/Mobile/LogonPage.aspx?pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fMobile%2fDefaultAccount.aspx&PageAuth=X&LogonType=WebMobile',
-    payments:'https://secure.fnac.com/Mobile/AccountPaymentBookPage.aspx',
-    cart:'https://secure.fnac.com/mobile/OrderPipe/Default.aspx?pipe=webmobile&APP=webmobile',
+    login:'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fAccount%2fProfil%2fDefault.aspx&PageAuth=X',
+    register: 'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fAccount%2fProfil%2fDefault.aspx&PageAuth=X',
+    payments:'https://secure.fnac.com/Account/Profil/Default.aspx?AID=f4dc3c57-2b16-2d6b-73eb-2fb19a86b4af#creditcards',
+    cart:'http://www4.fnac.com/Account/Basket/IntermediaryBasket.aspx',
   }
   
   REGISTER = {
-    mister:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[3]/label/span/span[2]',
-    madam:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[2]/label/span/span[2]',
-    miss:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender"]/div[1]/label/span/span[2]',
+    mister:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender_2"]',
+    madam:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender_1"]',
+    miss:'//*[@id="RegistrationMemberId_registrationContainer_gender_rbGender_0"]',
     last_name:'//*[@id="RegistrationMemberId_registrationContainer_lastName_txtLastname"]',
     first_name:'//*[@id="RegistrationMemberId_registrationContainer_firstName_txtFirstName"]',
-    birthdate_day:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlDay"]',
-    birthdate_month:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlMonth"]',
-    birthdate_year:'//*[@id="RegistrationMemberId_registrationContainer_birthDate_dpBirthDate_ddlYear"]',
     mobile_phone: '//*[@id="RegistrationMemberId_registrationContainer_cellPhone_txtCellPhone"]',
-    email:'//*[@id="RegistrationControl_txtEmail"]',
-    password:'//*[@id="RegistrationControl_txtPassword1"]',
-    password_confirmation:'//*[@id="RegistrationControl_txtPassword2"]',
-    submit_login: '//*[@id="RegistrationControl_lnkBtnValidate"]',
+    email:'//*[@id="RegistrationSteamRollPlaceHolder_ctl00_txtEmail"]',
+    password:'//*[@id="RegistrationSteamRollPlaceHolder_ctl00_txtPassword1"]',
+    password_confirmation:'//*[@id="RegistrationSteamRollPlaceHolder_ctl00_txtPassword2"]',
+    submit_login: '//*[@id="RegistrationSteamRollPlaceHolder_ctl00_lnkBtnValidate"]',
+    option:'//*[@id="RegistrationMemberId_registrationContainer_NewsLetterWithPref_chkTermsAndPreferences_Refuse"]',
     submit: '//*[@id="RegistrationMemberId_submitButton"]'
   }
   
   LOGIN = {
-    email:'//*[@id="logonControl_txtEmail"] | //*[@id="OPControl1_ctl00_LoginControl1_txtEmail"]',
-    password:'//*[@id="logonControl_txtPassword"] | //*[@id="OPControl1_ctl00_LoginControl1_txtPassword"]',
-    submit: '//*[@id="logonControl_btnPoursuivre"] | //*[@id="OPControl1_ctl00_LoginControl1_btnPoursuivre"]'
+    email:'//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtEmail"] | //*[@id="OPControl1_ctl00_LoginControlSlot_ctl00_txtEmail"]',
+    password:'//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtPassword"] | //*[@id="OPControl1_ctl00_LoginControlSlot_ctl00_txtPassword"]',
+    submit: '//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_btnPoursuivre"] | //*[@id="OPControl1_ctl00_LoginControlSlot_ctl00_btnPoursuivre"]'
   }
   
   SHIPMENT = {
-    first_name:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtFirstName"]',
-    last_name:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtLastName"]',
-    add_address:'//*[@id="OPControl1_ctl00_AddressManager_AddressBook_btnNewAddress"]/div/div[1]',
-    address_1: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine1"]',
-    address_2: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtAddressLine2"]',
-    city: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCity"]',
-    zip: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtZipCode"]',
-    mobile_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtCellPhone"]',
-    land_phone:'//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_txtPhone"]',
+    address_1: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_address_txtAdress"]',
+    address_2: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_address_txtAdressComplement"]',
+    city: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_city_txtVille"]',
+    zip: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_zipcode_txtPostalCode"]',
+    mobile_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumMobile"]',
+    land_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumFixe"]',
     select_this_address: '//*[@id="form1"]/div[3]/div[1]/div/div',
-    submit: '//*[@id="OPControl1_ctl00_AddressManager_AddressForm_FormView_btnUpdate"]',
+    submit: '//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]',
     submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    address_option:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_qas_qsDataList_rdChoix_2"]',
+    address_submit:'//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]'
   }
   
   CART = {
-    add:'//div[@class="addbasket"]',
-    validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
-    offers: '//span[@class="mpoffer"]/a',
-    offer: '//*[@id="offers_list"]/ul/li[1]',
-    add_offer: '//*[@id="offers_list"]/ul/li[1]//div[@class="addbasket"]/a',
-    quantity: '//div[@class="quantite"]/input',
-    update: '//*[@id="OPControl1_ctl00_DisplayBasket1_BtnRecalc"]',
-    cgu:'//div[@class="ui-checkbox"]',
-    submit: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    add:'//div[@class="faHeadRight"]/div/div/a',
+    validate:'//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
+    offers:'Neuf',
+    remove_item:'Supprimer',
+    add_offer: 'Ajout au panier',
+    cgu:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]',
+    cgu_submit:'//*[@id="btnOcbContinue"]',
+    submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
-    empty_message: '//*[@id="form1"]',
+    empty_message: '//*[@id="ShoppingCartDiv"]',
+    quantity:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_MPBasketLineRepeater_inner_0_DisplayMPBasketLine1_0_btnPlusQuantity_0"]',
     empty_message_match: /Votre panier est vide/i,
   }
   
   PRODUCT = {
-    price_text:'//div[@class="buybox"]/fieldset',
-    title:'//*[@id="content"]/div/section[1]/div[1]',
-    image:'//*[@id="content"]/div/section[2]/div[1]/a/img',
-    offer_price_text:'//*[@id="offers_list"]/ul/li[1]//div[@class="offer-pricer"]'
+    price_text:'//*[@class="userPrice"]',
+    title:'//span[@itemprop="name"]',
+    image:'//*[@id="imgMainVisual"]',
+    offer_price_text:'//*[@class="userPrice"]'
   }
   
   BILL = {
-    shipping:'//*[@id="home"]/div/div[3]/div[1]/span[2]',
-    total:'//*[@id="home"]/div/div[3]/div[1]/span[6]',
+    shipping:'//table[@class="recapCmd"]/tfoot/tr[1]',
+    total:'//table[@class="recapCmd"]/tfoot/tr[2]',
   }
   
   PAYMENT = {
-    remove: '//*[@id="AccountPaymentBook"]/section/ul/li/div/a',
-    credit_card:'//*[@id="magicalGNIIIII"]/div[1]/a[1]',
-    visa:'//*[@id="divNewCard"]/div[2]/div[1]/label/span',
-    mastercard: '//*[@id="divNewCard"]/div[2]/div[2]/label/span',
-    cgu:'//*[@id="divNewCard"]/div[3]/div',
-    access:'//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    visa:'//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_0"]',
+    mastercard: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_1"]',
+    cgu:'//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_1"]',
+    access:'//*[@id="addressManager_btnChoixAddressPostal"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     cancel:'//*[@id="ncol_cancel"]',
     number:'//*[@id="Ecom_Payment_Card_Number"]',
     exp_month:'//*[@id="Ecom_Payment_Card_ExpDate_Month"]',
@@ -150,13 +145,8 @@ class Fnac
         cart = RobotCore::Cart.new(self)
         cart.best_offer = Proc.new {
           click_on CART[:offers]
-          if click_on("Neuf")
-            click_on CART[:offer]
-            RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
-            click_on CART[:add_offer]
-          else
-            terminate_on_error(:out_of_stock)
-          end
+          RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
+          click_on CART[:add_offer]
         }
         cart.fill
       end
