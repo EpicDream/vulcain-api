@@ -26,6 +26,7 @@ module RobotCore
       birthdate
       address
       password
+      options
       submit
       submit_options
       
@@ -37,6 +38,10 @@ module RobotCore
     end
     
     private
+    
+    def options
+      robot.click_on vendor::REGISTER[:option], check:true
+    end
     
     def fails?
       !robot.wait_leave(vendor::REGISTER[:submit])
