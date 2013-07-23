@@ -1,13 +1,14 @@
 module RobotCore
   class Cart
     attr_reader :vendor, :robot
-    attr_accessor :before_add, :best_offer
+    attr_accessor :before_add, :best_offer, :retry_set_quantity
     
     def initialize robot
       @robot = robot
       @vendor = robot.vendor
       @before_add = Proc.new{}
       @best_offer = Proc.new{}
+      @retry_set_quantity = false
     end
     
     def fill
@@ -48,11 +49,16 @@ module RobotCore
       robot.click_on vendor::CART[:cgu], check:true
       robot.wait_ajax(4)
       robot.click_on vendor::CART[:submit]
+      set_quantity if retry_set_quantity
+      
+      robot.click_on vendor::CART[:cgu], check:true
+      robot.click_on vendor::CART[:submit], check:true
       robot.open_url vendor::URLS[:after_submit_cart]
     end
     
     def remove_options
-      robot.click_on_all([vendor::CART[:remove_item]], start_index:1) { |e|
+      count = robot.find_elements(vendor::CART[:remove_item]).count
+      robot.click_on_all([vendor::CART[:remove_item]], start_index:count) { |e|
         robot.wait_ajax
         !e.nil? 
       }
@@ -72,7 +78,9 @@ module RobotCore
     
     def set_quantity
       return if robot.order.products.count > 1
-      node = robot.find_element(vendor::CART[:quantity])
+      node = robot.find_element(vendor::CART[:quantity], nowait:!retry_set_quantity)
+      @retry_set_quantity = true and return unless node
+
       if node.tag_name == 'select'
         robot.select_option(vendor::CART[:quantity], robot.order.products.last.quantity)
       elsif node.attribute("type") == "submit"
@@ -124,7 +132,8 @@ module RobotCore
       else
         robot.click_on vendor::CART[:add]
       end
-      
+      robot.click_on vendor::CART[:cgu], check:true
+      robot.click_on vendor::CART[:cgu_submit], check:true
       robot.wait_ajax(4)
     end
     
