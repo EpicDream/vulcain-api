@@ -128,6 +128,7 @@ module AmazonFranceCrawler
     def build_options
       return if @page.xpath(@xpaths[:options]).none?
       @robot.click_on @xpaths[:options]
+      @robot.wait_ajax
       1.upto(2) {
         parse_options
         @robot.click_on "//ul/li[1]"
