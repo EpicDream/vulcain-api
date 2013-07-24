@@ -72,7 +72,8 @@ module RobotCore
     
     def set_quantity
       return if robot.order.products.count > 1
-      node = robot.find_element(vendor::CART[:quantity])
+      node = robot.find_element(vendor::CART[:quantity], nowait:true)
+      return unless node
       if node.tag_name == 'select'
         robot.select_option(vendor::CART[:quantity], robot.order.products.last.quantity)
       elsif node.attribute("type") == "submit"
