@@ -61,9 +61,9 @@ module CdiscountConstants
   }
   
   PRODUCT = {
-    price_text:'//div[@class="price priceXL"]',
-    title:'//*[@id="fpBlocProduct"]/h1',
-    image:'//*[@id="fpBlocProduct"]/div[1]/a/img'
+    price_text:'//div[@class="price priceXL"] | //div[@class="priceContainer"]',
+    title:'//*[@id="fpBlocProduct"]/h1 | //div[@class="MpProductContentDesc"]',
+    image:'//*[@id="fpBlocProduct"]/div[1]/a/img | //span[@class="MpProductContentLeft"]//img'
   }
   
   BILL = {
@@ -137,7 +137,7 @@ class Cdiscount
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context.merge!({ options: {user_agent:Driver::DESKTOP_USER_AGENT } })
+    @context = context
     @robot = instanciate_robot
     @robot.vendor = Cdiscount
   end
