@@ -37,9 +37,9 @@ module FnacConstants
     zip: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_zipcode_txtPostalCode"]',
     mobile_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumMobile"]',
     land_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumFixe"]',
-    select_this_address: '//*[@id="form1"]/div[3]/div[1]/div/div',
+    # select_this_address: '//*[@id="addressManager_btnChoixAddressPostal"]',
     submit: '//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]',
-    submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    # submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     address_option:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_qas_qsDataList_rdChoix_2"]',
     address_submit:'//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]'
   }

@@ -69,6 +69,9 @@ module RobotCore
     
     def remove_contracts_options
       robot.click_on vendor::PAYMENT[:contract_option], check:true
+      robot.wait_for([vendor::PAYMENT[:contract_option_confirm]])
+      robot.click_on vendor::PAYMENT[:contract_option], check:true
+      robot.click_on vendor::PAYMENT[:contract_option_confirm], check:true
     end
     
   end

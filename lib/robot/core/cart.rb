@@ -56,9 +56,8 @@ module RobotCore
       robot.open_url vendor::URLS[:after_submit_cart]
     end
     
-    def remove_options
-      count = robot.find_elements(vendor::CART[:remove_item]).count
-      robot.click_on_all([vendor::CART[:remove_item]], start_index:count) { |e|
+    def remove_options #TODO:may not work if several products and severa options
+      robot.click_on_all([vendor::CART[:remove_item]], start_index:robot.order.products.count) { |e|
         robot.wait_ajax
         !e.nil? 
       }

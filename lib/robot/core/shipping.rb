@@ -18,7 +18,7 @@ module RobotCore
     end
     
     def submit_packaging
-      robot.wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit]]) { return false }
+      robot.wait_for([vendor::SHIPMENT[:submit_packaging], vendor::PAYMENT[:submit], vendor::PAYMENT[:access]]) { return false }
       robot.click_on vendor::SHIPMENT[:option], check:true
       robot.click_on vendor::SHIPMENT[:packaging], check:true
       success = robot.click_on vendor::SHIPMENT[:submit_packaging]

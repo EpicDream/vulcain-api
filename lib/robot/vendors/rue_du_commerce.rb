@@ -1,49 +1,59 @@
 # encoding: UTF-8
 module RueDuCommerceConstants
   URLS = {
-    base:'http://m.rueducommerce.fr',
-    account:'http://m.rueducommerce.fr/mon-compte',
-    login:'http://m.rueducommerce.fr/identification',
+    base:'http://www.rueducommerce.fr/home/index.htm',
+    login:'https://auth.rueducommerce.fr/client/login.cfm',
     logout: 'http://m.rueducommerce.fr/deconnexion',
-    cart:'http://m.rueducommerce.fr/panier',
-    register:'http://m.rueducommerce.fr/creation-compte'
+    cart:'http://cart.rueducommerce.fr/Cart/',
+    register:'https://auth.rueducommerce.fr/client/login.cfm',
+    payments:'https://eptica.rueducommerce.fr/espaceClient/wallet/CardsManagementController.php'
   }
   
   REGISTER = {
-    mister:'//*[@id="account_gender_M"]',
-    madam:'//*[@id="account_gender_Mme"]',
-    miss:'//*[@id="account_gender_Mlle"]',
-    last_name:'//*[@id="account_lastname"]',
-    first_name:'//*[@id="account_firstname"]',
-    email:'//*[@id="account_email"]',
-    password:'//*[@id="account_password"]',
-    password_confirmation:'//*[@id="account_password_again"]',
-    submit: '//input[@name="express-account"]',
+    mister:'//input[@name="AUT_shipGender"][1]',
+    madam:'//input[@name="AUT_shipGender"][2]',
+    email:'//*[@id="loginNewAccEmail"]',
+    miss:'//input[@name="AUT_shipGender"][3]',
+    last_name:'//input[@name="AUT_shipLastName"]',
+    first_name:'//input[@name="AUT_shipFirstName"]',
+    address_1:'//input[@name="AUT_shipAddress1"]',
+    address_2:'//input[@name="AUT_shipAddress2"]',
+    password:'//*[@id="AUT_password"]',
+    zip:'//input[@name="AUT_shipZip"]',
+    city:'//input[@name="AUT_shipCity"]',
+    birthdate_day:'//select[@name="AUT_birthdateDD"]',
+    birthdate_month:'//select[@name="AUT_birthdateMM"]',
+    birthdate_year:'//select[@name="AUT_birthdateYY"]',
+    mobile_phone:'//input[@name="AUT_shipPhone"]',
+    password_confirmation:'//input[@name="AUT_passwordverify"]',
+    submit: '//*[@id="content"]/form/div/input',
+    submit_login: '//*[@id="loginNewAccSubmit"]',
+    option:'//input[@name="aut_newsletter"]',
   }
   
   LOGIN = {
-    email:'//*[@id="login_email"]',
-    password:'//*[@id="login_password"]',
-    submit: '//*[@id="login-form"]/fieldset/div[2]/input'
+    email:'//*[@id="loginAutEmail"]',
+    password:'//*[@id="loginAutPassword"]',
+    submit: '//*[@id="loginAutSubmit"]'
   }
   
   PRODUCT = {
-    price_text:'//section[@class="product-info"]//p[@class="big-red-price"]',
-    title:'//div[@class="single-product-page"]/h3',
-    image:'//div[@id="slider"]//img',
+    price_text:'//*[@id="zm_price_final"] | //td[@class="px_ctc"]',
+    title:'//h1[@itemprop="name"] | //div[@class="headTit"]',
+    image:'//*[@id="zm_main_image"] | //img[@itemprop="image"]',
   }
   
   PAYMENT = {
-    contract_option: '//*[@id="agree"]',
-    access:'Finaliser ma commande',
-    credit_card:'//input[@id="inpMop1"] | //input[@id="inpMop2"]',
-    visa:'//*[@id="inpMop_VISA"] | //input[@name="CB"]',
-    mastercard:'//*[@id="inpMop_MASTERCARD"] | //input[@name="MASTERCARD"]',
+    contract_option: '//a[@href="/Contract/"] | //*[@id="golden_contract_none"]',
+    contract_option_confirm:'//button[@name="goldContractValidation"]',
+    access:'//*[@id="inpMop1"]',
+    visa:'//input[@name="VISA"]',
+    mastercard:'//input[@name="MASTERCARD"]',
     number:'//*[@id="CARD_NUMBER"]',
-    exp_month:'//*[@id="contentsips"]/form[2]/select[1]',
-    exp_year:'//*[@id="contentsips"]/form[2]/select[2]',
+    exp_month:'//select[@name="CARD_VAL_MONTH"]',
+    exp_year:'//select[@name="CARD_VAL_YEAR"]',
     cvv:'//*[@id="CVV_KEY"]',
-    submit: '//*[@id="contentsips"]/form[2]/input[9]',
+    submit: '//input[@name="PAIEMENT"]',
     status: '//html/body/div',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
@@ -52,36 +62,27 @@ module RueDuCommerceConstants
   }
   
   SHIPMENT = {
-    submit: '//input[@value="Valider"]',
-    address_1:'//*[@id="account_address1"]',
-    address_2:'//*[@id="account_address2"]',
-    additionnal_address:'//*[@id="account_access_code"]',
-    city:'//*[@id="account_city"]',
-    zip:'//*[@id="account_zip"]',
-    birthdate_day:'//*[@id="account_birthdate_day"]',
-    birthdate_month:'//*[@id="account_birthdate_month"]',
-    birthdate_year:'//*[@id="account_birthdate_year"]',
-    mobile_phone:'//*[@id="optin_mobile_phone"]',
-    address_submit:'//input[@value="Valider"]',
-    select_this_address: '//input[@value="Choix du transporteur"]',
-    submit_packaging: '//*[@id="carrier-submit"]',
+    submit: '//button[@name="shippingValidation"]',
+    submit_packaging: '//button[@name="shippingValidation"]',
+    select_this_address: '//button[@name="adressValidation"]',
     submit_success: [PAYMENT[:access]]
   }
   
   CART = {
-    add: '//section[@class="cart-buttons"]/a',
-    remove_item: '//a[@class="delete-fav-search"]',
+    add:'//*[@id="bt_submit"] | //div[@class="buy"]/div',
+    remove_item:'Cart/delete',
     submit: 'Finaliser ma commande',
-    quantity: '//select[@class="cart-item-quantity"]',
+    quantity:'//input[@class="numberOfProduct"]',
+    update:'actualiser', 
     submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
     empty_message: '//body',
-    empty_message_match: /Votre panier est vide/i
+    empty_message_match: /Votre panier ne contient aucun article/i
   }
   
   BILL = {
-    shipping:'//ul[@class="total-cart-price-list"]/li[2]',
-    total:'//ul[@class="total-cart-price-list"]/li[3]',
-    info:'//div[@class="small-info"]'
+    shipping:'//div[@class="shippingValue"]',
+    total:'//div[@class="finalAmountValue"]',
+    info:'//span[@class="cartShipping"]'
   }
   
   CRAWLING = {
@@ -142,17 +143,6 @@ class RueDuCommerce
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('add to cart') do
-        cart = RobotCore::Cart.new(self)
-        cart.before_add = Proc.new {
-          if current_product.url =~ /www\.rueducommerce\.fr|ad\.zanox\.com/
-            execute_script("redirect('http://m.rueducommerce.fr/fiche-produit/' + window.offer_reference)")
-          end
-        }
-        cart.fill
-      end
-      
     end
   end
 end

@@ -128,7 +128,7 @@ class Driver
     waiting(options[:nowait]) { 
     begin
       ["a", "input", "button", "span"].each do |tag|
-        ["text()", "@id", "@class", "@value", "@title"].each do |attribute|
+        ["text()", "@id", "@class", "@value", "@title", "@href"].each do |attribute|
           elements = @driver.find_elements(:xpath => "//#{tag}[contains(#{attribute}, '#{pattern}')]")
           return elements if elements.any?
         end

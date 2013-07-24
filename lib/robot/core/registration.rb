@@ -23,6 +23,7 @@ module RobotCore
       end
       
       gender
+      phone
       birthdate
       address
       password
@@ -49,6 +50,7 @@ module RobotCore
     
     def password
       robot.fill vendor::REGISTER[:password], with:account.password, check:true
+      robot.fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
     end
     
     def submit
@@ -96,14 +98,19 @@ module RobotCore
       end
     end
     
+    def phone
+      robot.fill vendor::REGISTER[:mobile_phone], with:user.address.mobile_phone, check:true
+      robot.fill vendor::REGISTER[:land_phone], with:user.address.land_phone, check:true
+    end
+    
     def birthdate
       if vendor::REGISTER[:birthdate]
         robot.fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
       end
       if vendor::REGISTER[:birthdate_day]
-        robot.select_option vendor::REGISTER[:birthdate_day], user.birthdate.day.to_s.rjust(2, "0")
-        robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month.to_s.rjust(2, "0")
-        robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year.to_s.rjust(2, "0")
+        robot.select_option vendor::REGISTER[:birthdate_day], user.birthdate.day
+        robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month
+        robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year
       end
     end
     
