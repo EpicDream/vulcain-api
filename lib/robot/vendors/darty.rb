@@ -75,10 +75,10 @@ module DartyConstants
   }
   
   CRAWLING = {
-    title:'//*[@id="no_zoom"]/div[2]/div[2]/div[2]/div[1] |//*[@id="no_zoom"]/div[2]/div[2]/div/div[1]', 
-    price:'//*[@id="no_zoom"]/div[2]/div[2]/div[2]/div[3]/span | //*[@id="no_zoom"]/div[2]/div[2]/div/div[3]/span',
-    image_url:'//*[@id="zoom-opener"]/img',
-    shipping_info: '//*[@id="delivery_tab"]',
+    title:'//*[@id="darty_product_base_info"]/h2', 
+    price:'//div[@class="darty_price_product_page"]',
+    image_url:'//div[@class="darty_product_picture"]//img',
+    shipping_info: '//*[@id="sliding_basket_product_availability"]',
   }
   
 end
@@ -108,7 +108,6 @@ module DartyCrawler
       product[:shipping_price] = Robot::PRICES_IN_TEXT.(deliveries).first
       product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
       product[:shipping_info] = deliveries
-      product[:delivery] = !!(product[:shipping_info] =~ /Colissimo/)
     end
   end
 end
