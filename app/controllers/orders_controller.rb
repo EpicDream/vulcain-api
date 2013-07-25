@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   ACCOUNT_KEYS = ['login', 'password']
   SESSION_KEYS = ['uuid', 'callback_url']
   ORDER_KEYS = ['products']
-  VENDORS = ['AmazonFrance', 'RueDuCommerce', 'Fnac']
+  VENDORS = VulcainApi::Application.config.dispatcher[:strategies]
   
   before_filter :set_context
   
@@ -23,7 +23,7 @@ class OrdersController < ApplicationController
   end
   
   def check_parameters
-    @context && @vendor && VENDORS.include?(@vendor)
+    @context && @vendor && VENDORS.include?(@vendor) &&
     assert_keys(@context['account'].keys, ACCOUNT_KEYS) && 
     assert_keys(@context['order'].keys, ORDER_KEYS) &&
     assert_keys(@context['session'].keys, SESSION_KEYS)
