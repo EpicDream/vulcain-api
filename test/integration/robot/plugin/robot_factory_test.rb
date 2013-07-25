@@ -10,6 +10,7 @@ class Plugin::RobotFactoryTest < ActiveSupport::TestCase
 
   def test(create_account=false)
     Plugin::RobotFactory.make_rb_file("www.priceminister.com")
+    Plugin::RobotFactory.merge("www.priceminister.com")
     Plugin.send(:remove_const, :Priceminister) if Plugin.const_defined?(:Priceminister)
     load "lib/robot/vendors/priceminister.rb"
 
@@ -17,8 +18,8 @@ class Plugin::RobotFactoryTest < ActiveSupport::TestCase
                               profile_dir: "config/chromium/Default"},
                 'account' => {'email' => 'timmy75@yopmail.com', 'login' => "timmy751", 'password' => 'paterson'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-                'order' => {'products_urls' => ["http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html",
-                                                "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"],
+                'order' => {'products' => [{url: "http://www.priceminister.com/offer/buy/18405935/Les-Choristes-CD-Album.html"},
+                                           {url: "http://www.priceminister.com/offer/buy/182392736/looper-de-rian-johnson.html"}],
                             'credentials' => {
                               'holder' => 'TIMMY DUPONT',
                               'number' => '101290129019201',

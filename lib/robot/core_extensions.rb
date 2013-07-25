@@ -115,3 +115,11 @@ class String
     _str
   end
 end
+
+class OpenStruct
+  # instead of obj.key,
+  # can also do obj[:key] or obj["key"].
+  def [](name)
+    self.send(name) if self.methods.include?((name.to_s+"=").to_sym) rescue nil
+  end
+end
