@@ -90,7 +90,7 @@ module FnacConstants
   CRAWLING = {
     title:'//span[@itemprop="name"]', 
     price:'//table[@id="colsMP"]//td[1]',
-    image_url:'//*[@id="headMenu"]//img',
+    image_url:'//*[@id="imgMainVisual"]',
     shipping_info: '//table[@id="colsMP"]/tbody/tr/td/p[2]',
     available:'//table[@id="colsMP"]/tbody/tr/td[4]/p'
   }
@@ -115,13 +115,14 @@ module FnacCrawler
     end
     
     def build_product
-      @robot.click_on "Neuf"
+      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
+      
+      @robot.click_on '//p[@class="offerListBtn pdg_t_sm"] | //*[@class="OffersSumary clearfix"]/dd/a'
       @robot.wait_for [@xpaths[:title]]
       product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
       prices = Robot::PRICES_IN_TEXT.(@robot.get_text @xpaths[:price])
       product[:product_price] = prices[0]
       product[:shipping_price] = prices[1]
-      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s rescue nil
       product[:shipping_info] = @robot.get_text @xpaths[:shipping_info]
       product[:available] = !!(@robot.get_text(@xpaths[:available]) =~ /en\s+stock/i)
     end
