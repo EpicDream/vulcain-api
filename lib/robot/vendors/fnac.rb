@@ -117,7 +117,6 @@ module FnacCrawler
     def build_product
       @robot.click_on "Neuf"
       @robot.wait_for [@xpaths[:title]]
-      puts @robot.get_text @xpaths[:price]
       product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
       prices = Robot::PRICES_IN_TEXT.(@robot.get_text @xpaths[:price])
       product[:product_price] = prices[0]
