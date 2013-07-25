@@ -2,8 +2,8 @@
 module EveilEtJeuxConstants
   
   URLS = {
-    base:'http://m.oxybul.com',
-    home:'http://m.oxybul.com',
+    base:'http://www.eveiletjeux.com',
+    home:'http://www.eveiletjeux.com',
     account:'https://secure.eveiletjeux.com/Basket/Page/Account/LoginAccount.aspx',
     login:'https://secure.eveiletjeux.com/Basket/Page/Account/LoginAccount.aspx',
     logout:'http://www.eveiletjeux.com/Basket/Handler/Deconn.ashx',
@@ -62,22 +62,22 @@ module EveilEtJeuxConstants
   }
   
   CART = {
-    add:'//div[@itemprop="offers"]/a',
+    add:'Ajouter au panier',
     button:nil,
     remove_item:'//*[@id="ctl00_ContentPlaceHolder1__ucBasketProductTable__rptProduct_ctl00__bDelete"]',
     quantity:'//*[@id="ctl00_ContentPlaceHolder1__ucBasketProductTable__rptProduct_ctl00__bQuantityMore"]',
     update:nil,
     empty_message:'//*[@id="ctl00_ContentPlaceHolder1__ucBasketEmpty__divBasketEmpty"]/p[1]',
     empty_message_match:/Votre panier ne contient aucun article/i,
-    submit: '//*[@id="ctl00_ContentPlaceHolder1__hlResumeCommande"]',
+    submit: '//*[@id="ctl00_ContentPlaceHolder1__pValidateCommande"]',
     confirm: '//a[@class="buttonVert"]',
     submit_success: [],
   }
   
   PRODUCT = {
-    price_text:'//span[@itemprop="price"]',
-    title:'//h1[@itemprop="name"]',
-    image:'//*[@id="productCarousel"]/img[1]'
+    price_text:'//div[@class="prix"]',
+    title:'//div[@xtcz="FP_Produit_Infos"]/h1',
+    image:'//div[@class="zoomPup"]/img'
   }
   
   BILL = {
