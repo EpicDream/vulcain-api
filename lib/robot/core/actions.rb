@@ -66,8 +66,8 @@ module RobotCore
       begin
         element = @driver.find_element(identifier)
         @driver.click_on element
-        wait_ajax if opts[:ajax]
-        true
+      rescue Selenium::WebDriver::Error::UnknownError
+        move_to_and_click_on(identifier)
       rescue Selenium::WebDriver::Error::StaleElementReferenceError
         attempts += 1
         if attempts < 20
@@ -75,8 +75,10 @@ module RobotCore
         else
           raise
         end
+      ensure
+        wait_ajax if opts[:ajax]
+        true
       end
-        
     end
 
     def click_on_all identifiers, options={}
