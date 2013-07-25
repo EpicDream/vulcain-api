@@ -77,7 +77,7 @@ module RobotCore
     
     def set_quantity
       return if robot.order.products.count > 1
-      node = robot.find_element(vendor::CART[:quantity], nowait:!retry_set_quantity)
+      node = robot.find_element(vendor::CART[:quantity], nowait:true)
       @retry_set_quantity = true and return unless node
 
       if node.tag_name == 'select'

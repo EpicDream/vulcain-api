@@ -1,12 +1,12 @@
 # encoding: utf-8
 module DartyConstants
   URLS = {
-    base:'http://m.darty.com',
-    home:'http://m.darty.com/m/home',
+    base:'http://www.darty.com',
+    home:'http://www.darty.com',
     register:'https://secure.darty.com/webapp/wcs/stores/controller/UserAccountCreateDisplayView',
-    login:'https://secure.darty.com/mobile/UserLogonDisplayView',
+    login:'https://secure.darty.com/webapp/wcs/stores/controller/UserLogonDisplayView?storeId=10001&espaceclient=0&org=head',
     cart:'http://www.darty.com/webapp/wcs/stores/servlet/DartyCaddieView',
-    logout:'https://secure.darty.com/webapp/wcs/stores/servlet/UserLogoff?storeId=10001&org=logout&urlRedirect=%2Fmobile%2FUserLogonDisplayView'
+    logout:'http://www.darty.com/webapp/wcs/stores/servlet/UserLogoff?storeId=10001&org=logout&unsetClient=true'
   }
   
   REGISTER = {
@@ -29,10 +29,9 @@ module DartyConstants
   }
   
   LOGIN = {
-    email:'//*[@id="login-field"]',
-    password:'//*[@id="password-field"]',
-    submit: '//*[@id="connexion"]',
-    logout:'//*[@id="deconnexion_item"]'
+    email:'//*[@id="ec-log"]',
+    password:'//*[@id="ec-pass"]',
+    submit: '//*[@id="ec_logon"]',
   }
   
   SHIPMENT = {
@@ -41,19 +40,19 @@ module DartyConstants
   }
   
   CART = {
-    add:'//*[@id="darty_com_add_basket_form"]/input[2]',
+    add:'//*[@id="sliding_basket_form"]//button',
     remove_item:'Supprimer',
     empty_message:'//*[@id="contentColOne"]',
     submit: '//*[@id="newbottomFinishButton"]',
-    quantity: '//div[@class="tunnel_mobile_panier_prix_content"]/div/select',
+    quantity: '//table[@class="dataPanier"]//td//select',
     empty_message_match: /Votre panier est actuellement vide/i,
     submit_success: [SHIPMENT[:bill]]
   }
   
   PRODUCT = {
-    price_text:'//*[@id="no_zoom"]/div[2]/div[2]/div',
-    title:'//*[@id="no_zoom"]/div[2]/div[2]/div/div[1]',
-    image:'//*[@id="zoom-opener"]/img'
+    price_text:'//div[@class="darty_price_product_page"]',
+    title:'//*[@id="darty_product_base_info"]/h2',
+    image:'//div[@class="darty_product_picture"]//img'
   }
   
   BILL = {

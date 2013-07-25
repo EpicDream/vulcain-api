@@ -5,8 +5,8 @@ require_robot 'darty'
 class DartyTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.darty.com/nav/achat/informatique/portables/tablette/it_works_tm703.html'
   PRODUCT_URL_2 = 'http://www.darty.com/nav/achat/informatique/calculatrice/pile_rechargeable/sony_pilre_ceb_aa_x4_aaa.html'
-  PRODUCT_URL_3 = 'http://m.darty.com/m/produit?codic=3752801'
-  PRODUCT_URL_4 = 'http://m.darty.com/m/produit?codic=1331116'
+  PRODUCT_URL_3 = 'http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html'
+  PRODUCT_URL_4 = 'http://www.darty.com/nav/achat/petit_electromenager/chauffage_ventilation/purificateur/okoia_bulle.html'
   
   setup do
     initialize_robot_for Darty
@@ -24,7 +24,6 @@ class DartyTest < StrategyTest
     @context['user']['address']['zip'] = '18500'
     @context['user']['address']['address_1'] = '17bis rue Jean Graczyk'    
     @context['user']['address']['city'] = 'Vignoux-sur-Barangeon'    
-    
     @robot.context = @context
     
     run_spec("register", false)
@@ -44,7 +43,7 @@ class DartyTest < StrategyTest
   
   test "add to cart" do
     assert = Proc.new do
-      assert_equal 2, robot.find_elements('//div[@class="tunnel_mobile_panier_produit "]').count
+      assert_equal 2, robot.find_elements('//td[@class="libellePrix"]').count
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     run_spec("add to cart", products, assert)
@@ -52,7 +51,9 @@ class DartyTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new { assert !(robot.exists? Darty::CART[:remove_item]) }
-    run_spec("empty cart", [PRODUCT_URL_1, PRODUCT_URL_2], assert)
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("empty cart", products, assert)
   end
   
   test "no delivery error" do
@@ -64,15 +65,16 @@ class DartyTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"Moulin à poivre / sel\nCole And Mason BOBBI\nGarantie 1 an\n39,90 €\nDisponible\nen magasin ?", "product_title"=>"Cole And Mason BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_f1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://m.darty.com/m/produit?codic=3752801", "id"=>191919}]
-    billing = {:shipping=>nil, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Lun. 22/07 et le Mer. 24/07"}
+    expected_products = [{"price_text"=>"39,90 € ", "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>191919}]
+    billing = {:shipping=>nil, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Lun. 29/07 et le Mer. 31/07"}
     products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
     
     run_spec("finalize order", products, expected_products, billing)
   end
   
   test "validate order" do
-    run_spec("validate order", [PRODUCT_URL_3])
+    products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
+    run_spec("validate order", products)
   end
   
   test "crawl action" do
