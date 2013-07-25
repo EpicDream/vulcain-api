@@ -170,19 +170,21 @@ class Plugin::IRobot < Robot
         message :cart_emptied
 
         # Fill cart
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {'url' => url}
-          run_step('extract') if @steps['extract']
-          run_step('add_to_cart')
-          products << @pl_current_product
+        order.products.each do |p|
+          (p.quantity || 1).times do
+            pl_open_url! p.url
+            @pl_current_product = p.clone
+            run_step('extract') if @steps['extract']
+            run_step('add_to_cart')
+            products << @pl_current_product
+          end
         end
         message :cart_filled
 
         # Finalize
         run_step('finalize_order')
-        @billing[:product] = products.map { |p| p['price_product'] }.inject(:+) if @billing[:product].nil?
-        @billing[:shipping] = products.map { |p| p['price_delivery'] }.inject(:+) if @billing[:shipping].nil?
+        @billing[:product] = products.map { |p| p['price_product'] || 0.0 }.inject(:+) if @billing[:product].nil?
+        @billing[:shipping] = products.map { |p| p['price_delivery'] || 0.0 }.inject(:+) if @billing[:shipping].nil?
         @billing[:total] = @billing[:product] + @billing[:shipping] if @billing[:total].nil?
         pl_assess next_step:'run_waitAck'
       end
@@ -233,20 +235,24 @@ class Plugin::IRobot < Robot
 
           throw :pass if ! @steps['add_to_cart']
           if ! @steps['finalize_order']
-            order.products_urls.each do |url|
-              pl_open_url! url
-              run_step('add_to_cart')
+            order.products.each do |p|
+              (p.quantity || 1).times do
+                pl_open_url! p.url
+                @pl_current_product = p.clone
+                run_step('add_to_cart')
+              end
             end
             @messager.message :cart_filled
             run_step('empty_cart')
             @messager.message :cart_emptied
           end
-          order.products_urls.each do |url|
-            pl_open_url! url
-            @pl_current_product = {}
-            @pl_current_product['url'] = url
-            run_step('add_to_cart')
-            products << @pl_current_product
+          order.products.each do |p|
+            (p.quantity || 1).times do
+              pl_open_url! p.url
+              @pl_current_product = p.clone
+              run_step('add_to_cart')
+              products << @pl_current_product
+            end
           end
           @messager.message :cart_filled
 
@@ -269,10 +275,10 @@ class Plugin::IRobot < Robot
   end
 
   def pl_assess(args)
-    if products.all? { |p| p['price_product'].kind_of?(Numeric) && p['price_delivery'].kind_of?(Numeric) }
+    if @billing[:total].kind_of?(Numeric) && @billing[:total] > 0
       assess(args)
     else
-      raise StrategyError.new("Impossible de faire un résumé : il manque des informations sur les prix de certains produits.\n#{products}")
+      raise StrategyError.new("Il manque des informations de billing.\n#{products}\n#{@billing}")
     end
   end
 
@@ -321,7 +327,7 @@ class Plugin::IRobot < Robot
         e.set_backtrace(err.backtrace)
         e.source = @driver.page_source
         e.screenshot = @driver.screenshot
-        e.logs = @messager.logs
+        e.logs = @messager.logs if @messager.kind_of?(FakeMessenger)
         e.stepstrace << "in step `#{id}'"
         raise e
       end

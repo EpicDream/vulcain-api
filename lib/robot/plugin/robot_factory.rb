@@ -6,7 +6,7 @@ class Plugin::RobotFactory
   CONTEXT = { options: {},
               'account' => {'login' => 'timmy001@yopmail.com', 'password' => 'shopelia2013', new_account: false},
               'session' => {'uuid' => '0129801H', 'callback_url' => 'http://', 'state' => 'dzjdzj2102901'},
-              'order' => {'products_urls' => [],
+              'order' => {'products' => [],
                           'credentials' => {
                             'holder' => 'TIMMY DUPONT',
                             'number' => '401290129019201',
@@ -96,11 +96,11 @@ require "robot/vendors/#{vendor.underscore}.rb"
 class #{vendor.camelize}Test < ActiveSupport::TestCase
   setup do
     @context = #{CONTEXT.inspect}
-    @products_url = #{strategy[:productsUrl].inspect}
+    @products = #{strategy[:productsUrl]}.inspect}
   end
 
   test 'it should raise nothing on normal test' do
-    @context['order']['products_urls'] = @products_url.shuffle
+    @context['order']['products'] = @products.shuffle
     robot = #{vendor.camelize}.new(@context).robot
     assert_nothing_raised "#{$!}" do
       robot.pl_fake_run
@@ -109,7 +109,7 @@ class #{vendor.camelize}Test < ActiveSupport::TestCase
 
   test 'it should raise nothing on account creation test' do
     skip("Comment this line to manually test account creation")
-    @context['order']['products_urls'] = @products_url.sample
+    @context['order']['products'] = @products.sample
     @context['account']['new_account'] = true
     robot = #{vendor.camelize}.new(@context).robot
     robot.messager = Plugin::IRobot::FakeMessager.new
@@ -138,10 +138,11 @@ INIT
       # end
       CONTEXT['account'][:new_account] = true
     end
+    CONTEXT["account"]['login'] = 'timmy84@yopmail.com' if strategy['steps'].size > 1
     CONTEXT[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT if strategy['mobility']
     CONTEXT[:options][:profile_dir] = nil if strategy['mobility']
 
-    CONTEXT['order']['products_urls'] = strategy[:productsUrl].sample(2)
+    CONTEXT['order']['products'] = (strategy[:productsUrl] || []).sample(2)
 
     robot = Plugin::IRobot.new(CONTEXT)
     robot.pl_add_strategy(strategy)
