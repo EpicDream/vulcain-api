@@ -63,11 +63,11 @@ class ToysrusFranceTest < StrategyTest
   end
   
   test "finalize order with shipments choice" do
-    expected_products = [{"price_text"=>"Prix : \n15,99 €", "product_title"=>"Playmobil - Nouveautés 2013 - Elévateur avec ouvrier - 5257\nPar : Playmobil\nLivraison moins chère en relais Kiala (voir Détails)\n0.0\n0.0\n  (0 Avis)\nSoyez le premier à Evaluer et commenter cet article\nÂge recommandé : 4 - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7136042reg.jpg", "price_product"=>15.99, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?18920697C1372641144&ULP=[[http://www.toysrus.fr/redirect_znx.jsp?url=http://www.toysrus.fr/product/index.jsp?productId=11721451]]#toysrus.fr"}]
-    billing = {:product=>15.99, :shipping=>7.2, :total=>23.19, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"Prix : \n15,99 €", "product_title"=>"Playmobil - Nouveautés 2013 - Elévateur avec ouvrier - 5257\nPar : Playmobil\nLivraison moins chère en relais Kiala (voir Détails)\n0.0\n0.0\n  (0 Avis)\nSoyez le premier à Evaluer et commenter cet article\nÂge recommandé : 4 - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7136042reg.jpg", "price_product"=>15.99, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?18920697C1372641144&ULP=[[http://www.toysrus.fr/redirect_znx.jsp?url=http://www.toysrus.fr/product/index.jsp?productId=11721451]]#toysrus.fr", "id"=>nil}]
+    billing = {:shipping=>7.4, :total=>39.38, :shipping_info=>nil}
     products = [{url:PRODUCT_URL_3, quantity:2}]
 
-    run_spec("finalize order", [PRODUCT_URL_3], expected_products, billing)
+    run_spec("finalize order", products, expected_products, billing)
   end
   
   test "validate order" do
