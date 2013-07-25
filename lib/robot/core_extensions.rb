@@ -116,7 +116,7 @@ class String
   end
 end
 
-class OpenStruct
+class OpenStruct #INUTILE , openstruct.marshal_dump => Hash
   # instead of obj.key,
   # can also do obj[:key] or obj["key"].
   def [](name)
