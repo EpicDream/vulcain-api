@@ -1,6 +1,25 @@
 <table id="no-more-tables"  class="table table-striped table-bordered ">
 	<thead>
     <tr>
+      <th>Url</th>
+      <th>Quantité</th>
+      <th>Id</th>
+    </tr>
+	</thead>
+  <tbody>
+    <% @order && @order["products"].each do |product|%>
+      <tr>
+        <td><%= link_to URI.unescape(product["url"]), URI.unescape(product["url"]) %></td>
+        <td><%= product["quantity"]%></td>
+        <td><%= product["id"]%></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table id="no-more-tables"  class="table table-striped table-bordered ">
+	<thead>
+    <tr>
       <th>Time</th>
       <th>Session</th>
       <th>Verb</th>
@@ -9,7 +28,6 @@
 	</thead>
 	<tbody>
 		<% @logs.each do |log| %>
-		  <% next if !log.respond_to?(:verb) || log.verb == 'page_source' || log.verb.nil? %>
 			<tr>
 				<td>
 					<%= log.created_at.strftime("%m/%d/%Y at %I:%M%p") %>
