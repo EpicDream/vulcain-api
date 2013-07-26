@@ -46,6 +46,11 @@
 				<td>
 					<% if log.verb == 'screenshot'%>
 						<img src="data:image/jpeg;base64,<%=log.content%>" class='screenshot'></img>
+					<% elsif log.verb == 'page_source' %>
+					  <p id="page_source" style="display:none"><%= log.content%></p>
+					  <%= link_to "Show html as text", "javascript:PageSource.show(true)"%>
+					  <br/>
+					  <%= link_to "Show evaluated html", "javascript:PageSource.show(false)"%>
 					<% else %>
 						<% if log.content.is_a?(Hash) %>
 							<pre><%= JSON.pretty_generate(log.content).strip %></pre>

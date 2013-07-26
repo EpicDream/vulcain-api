@@ -7,7 +7,7 @@ class Admin::LogsController < ApplicationController
   end
   
   def show
-    @logs = Log.where('session.uuid' => params[:id], :verb.ne => "page_source", :verb.ne => nil)
+    @logs = Log.where('session.uuid' => params[:id], :verb.ne => nil)
                .sort(:created_at => 'asc')
                
     render 'show', :layout => 'layouts/admin'
