@@ -44,6 +44,7 @@ module RobotCore
     
     def submit
       open
+      robot.click_on vendor::CART[:popup], check:true
       remove_options
       set_quantity
       robot.click_on vendor::CART[:cgu], check:true
