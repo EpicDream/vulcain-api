@@ -137,7 +137,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
-    {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_price_shipping', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
     {id: 'pl_set_product_shipping_info', desc: "Indiquer les informations de livraison", args: {xpath: true}},
     {id: 'pl_set_product_available', desc: "Indiquer la disponibilité de l'article", args: {xpath: true}},
     {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
@@ -443,6 +443,8 @@ class Plugin::IRobot < Robot
         return self.send(meth_name, *args, &block) || true
       rescue NoSuchElementError
         return false
+      rescue ArgumentError
+        return false
       end
     else
       return super(methSym, *args, &block)
@@ -607,7 +609,17 @@ class Plugin::IRobot < Robot
     raise
   end
 
-  def pl_set_product_delivery_price!(xpath)
+  def pl_set_product_price_strikeout!(path)
+    text = get_text(path)
+    @pl_current_product['price_strikeout'] = get_price(text)
+  rescue ArgumentError
+    puts "#{path.inspect} => #{text.inspect}"
+    elems = find(path)
+    puts "nbElem = #{elems.size}, texts => '#{elems.to_a.map{|e| e.text}.join("', '")}'"
+    raise
+  end
+
+  def pl_set_product_price_shipping!(xpath)
     text = get_text(xpath)
     @pl_current_product['delivery_text'] = text
     @pl_current_product['price_delivery'] = get_price(text)
