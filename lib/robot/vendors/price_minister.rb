@@ -1169,7 +1169,7 @@ class PriceMinister
         plarg_xpath = 'a#validate_card span'
         pl_click_to_validate_payment!(plarg_xpath)
 				# Vérifier que la transaction est passée
-				plarg_xpath = 'div.notification.success'
+				plarg_xpath = '#checkout_pay_success'
 				pl_check!(plarg_xpath)
 			end
 		end
