@@ -120,6 +120,7 @@ class StrategyTest < ActiveSupport::TestCase
     @context['order']['products'] = products
     @robot.context = @context
     @message.expects(:message).times(10..17)
+    @robot.expects(:terminate_on_error).never
     robot.run_step('login')
     robot.run_step('empty cart')
     robot.run_step('add to cart')
