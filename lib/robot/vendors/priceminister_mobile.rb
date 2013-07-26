@@ -64,11 +64,11 @@ end
 module Plugin
 end
 
-if Plugin.const_defined?(:IRobot)
-  Plugin.send(:remove_const, :IRobot)
+if Plugin.const_defined?(:IRobotOld)
+  Plugin.send(:remove_const, :IRobotOld)
 end
 
-class Plugin::IRobot < Robot
+class Plugin::IRobotOld < Robot
   NoSuchElementError = Selenium::WebDriver::Error::NoSuchElementError
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
@@ -112,7 +112,7 @@ class Plugin::IRobot < Robot
     {id: 'pl_set_product_title', desc: "Indiquer le titre de l'article", args: {xpath: true}},
     {id: 'pl_set_product_image_url', desc: "Indiquer l'url de l'image de l'article", args: {xpath: true}},
     {id: 'pl_set_product_price', desc: "Indiquer le prix de l'article", args: {xpath: true}},
-    {id: 'pl_set_product_delivery_price', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
+    {id: 'pl_set_product_price_shipping', desc: "Indiquer le prix de livraison de l'article", args: {xpath: true}},
     {id: 'pl_set_tot_products_price', desc: "Indiquer le prix total des articles", args: {xpath: true}},
     {id: 'pl_set_tot_shipping_price', desc: "Indiquer le prix total de livraison", args: {xpath: true}},
     {id: 'pl_set_tot_price', desc: "Indiquer le prix total", args: {xpath: true}},
@@ -177,6 +177,7 @@ class Plugin::IRobot < Robot
       end
 
       step('run') do
+        pl_open_url! order.products.first.url
         begin
           pl_open_url! @shop_base_url
           if account.new_account
@@ -207,9 +208,9 @@ class Plugin::IRobot < Robot
       end
 
       step('run_fill_cart') do
-        order.products_urls.each do |url|
-          pl_open_url! url
-          @pl_current_product = {'url' => url}
+        order.products.each do |p|
+          pl_open_url! p.url
+          @pl_current_product = p.marshall_dump
           run_step('extract') if @steps['extract']
           run_step('add_to_cart')
           products << @pl_current_product
@@ -288,18 +289,17 @@ class Plugin::IRobot < Robot
 
           throw :pass if ! @steps['add_to_cart']
           if ! @steps['finalize_order']
-            order.products_urls.each do |url|
-              pl_open_url! url
+            order.products.each do |p|
+              pl_open_url! p.url
               run_step('add_to_cart')
             end
             @messager.message :cart_filled
             run_step('empty_cart')
             @messager.message :cart_emptied
           end
-          order.products_urls.each do |url|
-            pl_open_url! url
-            @pl_current_product = {}
-            @pl_current_product['url'] = url
+          order.products.each do |p|
+            pl_open_url! p.url
+            @pl_current_product = p.marshall_dump
             run_step('add_to_cart')
             products << @pl_current_product
           end
@@ -575,7 +575,7 @@ class Plugin::IRobot < Robot
     raise
   end
 
-  def pl_set_product_delivery_price!(xpath)
+  def pl_set_product_price_shipping!(xpath)
     text = get_text(xpath)
     @pl_current_product['shipping_price'] = get_price(text)
   rescue ArgumentError
@@ -649,9 +649,9 @@ class Plugin::IRobot < Robot
     return binding
   end
 
-  # Raise if nb elements matched by path is different of order.products_url.size.
+  # Raise if nb elements matched by path is different of order.products.size.
   def pl_check_cart_nb_products!(path)
-    waited_nb = order.products_urls.size
+    waited_nb = order.products.size
     elems = find(path)
     if waited_nb != elems.size
       raise NoSuchElementError, "Fail assertion : wait #{waited_nb} but found #{elems.size} elements for path #{path.inspect}"
@@ -886,7 +886,7 @@ class PriceministerMobile
   def initialize context
     @context = context
     @context[:options] ||= {}
-    @context[:options][:user_agent] = Plugin::IRobot::MOBILE_USER_AGENT
+    @context[:options][:user_agent] = Plugin::IRobotOld::MOBILE_USER_AGENT
     @robot = instanciate_robot
   end
 
@@ -896,7 +896,7 @@ class PriceministerMobile
   end
 
   def instanciate_robot
-    r = Plugin::IRobot.new(@context) do
+    r = Plugin::IRobotOld.new(@context) do
       step('account_creation') do
         # Aller sur le site mobile
         plarg_xpath = '//div[@id]/div[1]/div[3]/a'
@@ -986,7 +986,7 @@ class PriceministerMobile
               plarg_xpath = '//form/div/button[@id="submitbtn"]/span/span'
               pl_click_on!(plarg_xpath)
             else
-              e = Plugin::IRobot::StrategyError.new("Notification d'erreurs non gérés : "+elems.map(&:text).inspect)
+              e = Plugin::IRobotOld::StrategyError.new("Notification d'erreurs non gérés : "+elems.map(&:text).inspect)
               raise e
             end
           end
@@ -995,7 +995,7 @@ class PriceministerMobile
             plarg_xpath = '//ul[@id="my_account_nav"]/li/a'
             pl_check!(plarg_xpath)
           rescue NoSuchElementError => err
-            raise Plugin::IRobot::StrategyError.new("Erreur inconnue après la création du compte")
+            raise Plugin::IRobotOld::StrategyError.new("Erreur inconnue après la création du compte")
           end
         end
         # Retourner sur le site mobile
@@ -1058,7 +1058,7 @@ class PriceministerMobile
         pl_set_product_price_strikeout(plarg_xpath)
         # Indiquer le prix de livraison de l'article
         plarg_xpath = "div.ui-page-active div.adv_list article:nth-of-type(1) .shipping_amount .value"
-        pl_set_product_delivery_price(plarg_xpath)
+        pl_set_product_price_shipping(plarg_xpath)
         # Indiquer les informations de livraison de l'article
         plarg_xpath = 'div.ui-page-active div.adv_list article:nth-of-type(1) .more_details .shipping .value'
         pl_set_product_shipping_info(plarg_xpath)
@@ -1126,10 +1126,6 @@ class PriceministerMobile
         plarg_xpath = '//input[@id="cardNumber"]'
         plarg_argument = order.credentials.number
         pl_fill_text!(plarg_xpath, plarg_argument)
-        # CVC
-        plarg_xpath = '//input[@id="securityCode"]'
-        plarg_argument = order.credentials.cvv
-        pl_fill_text!(plarg_xpath, plarg_argument)
         # Mois d'expiration
         plarg_xpath = '//select[@name="expMonth"]'
         plarg_argument = order.credentials.exp_month
@@ -1138,6 +1134,10 @@ class PriceministerMobile
         plarg_xpath = '//select[@id="expYear"]'
         plarg_argument = order.credentials.exp_year
         pl_select_option!(plarg_xpath, plarg_argument)
+        # CVC
+        plarg_xpath = '//input[@id="securityCode"]'
+        plarg_argument = order.credentials.cvv
+        pl_fill_text!(plarg_xpath, plarg_argument)
         # Décocher sauvegarder la carte
         plarg_xpath = '//div[@id]/div/label/span/span[1]'
         pl_click_on_exact!(plarg_xpath)
