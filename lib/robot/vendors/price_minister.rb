@@ -66,9 +66,7 @@ end
 
 
 
-unless Object.const_defined?(:Plugin)
-  module Plugin
-  end
+module Plugin
 end
 
 if Plugin.const_defined?(:IRobot)
@@ -207,6 +205,7 @@ class Plugin::IRobot < Robot
       end
 
       pl_step('run') do
+        pl_open_url! order.products.first.url
         if account.new_account
           begin
             pl_open_url! @shop_base_url
@@ -237,7 +236,7 @@ class Plugin::IRobot < Robot
         order.products.each do |p|
           (p.quantity || 1).times do
             pl_open_url! p.url
-            @pl_current_product = p.clone
+            @pl_current_product = p.marshal_dump
             run_step('extract') if @steps['extract']
             run_step('add_to_cart')
             products << @pl_current_product
@@ -302,7 +301,7 @@ class Plugin::IRobot < Robot
             order.products.each do |p|
               (p.quantity || 1).times do
                 pl_open_url! p.url
-                @pl_current_product = p.clone
+                @pl_current_product = p.marshal_dump
                 run_step('add_to_cart')
               end
             end
@@ -313,7 +312,7 @@ class Plugin::IRobot < Robot
           order.products.each do |p|
             (p.quantity || 1).times do
               pl_open_url! p.url
-              @pl_current_product = p.clone
+              @pl_current_product = p.marshal_dump
               run_step('add_to_cart')
               products << @pl_current_product
             end

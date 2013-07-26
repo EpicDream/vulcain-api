@@ -174,7 +174,7 @@ class Plugin::IRobot < Robot
         order.products.each do |p|
           (p.quantity || 1).times do
             pl_open_url! p.url
-            @pl_current_product = p.clone.marshal_dump
+            @pl_current_product = p.marshal_dump
             run_step('extract') if @steps['extract']
             run_step('add_to_cart')
             products << @pl_current_product
@@ -239,7 +239,7 @@ class Plugin::IRobot < Robot
             order.products.each do |p|
               (p.quantity || 1).times do
                 pl_open_url! p.url
-                @pl_current_product = p.clone.marshal_dump
+                @pl_current_product = p.marshal_dump
                 run_step('add_to_cart')
               end
             end
@@ -250,7 +250,7 @@ class Plugin::IRobot < Robot
           order.products.each do |p|
             (p.quantity || 1).times do
               pl_open_url! p.url
-              @pl_current_product = p.clone.marshal_dump
+              @pl_current_product = p.marshal_dump
               run_step('add_to_cart')
               products << @pl_current_product
             end
