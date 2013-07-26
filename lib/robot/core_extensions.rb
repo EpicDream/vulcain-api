@@ -116,10 +116,15 @@ class String
   end
 end
 
-class OpenStruct #INUTILE , openstruct.marshal_dump => Hash
+class OpenStruct
   # instead of obj.key,
   # can also do obj[:key] or obj["key"].
   def [](name)
     self.send(name) if self.methods.include?((name.to_s+"=").to_sym) rescue nil
+  end
+  # instead of obj.key = value,
+  # can also do obj[:key] = value or obj["key"] = value.
+  def []=(name, value)
+    self.send((name.to_s+"=").to_sym, value) rescue nil
   end
 end
