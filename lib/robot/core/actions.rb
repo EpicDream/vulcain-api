@@ -77,7 +77,7 @@ module RobotCore
         end
       ensure
         wait_ajax if opts[:ajax]
-        true
+        return true
       end
     end
 
