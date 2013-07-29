@@ -118,7 +118,7 @@ module RobotCore
       properties = user.address.marshal_dump.keys
       properties.each do |property|
         begin
-          robot.fill vendor::REGISTER[property], with:user.address.send(property), check:true
+          robot.fill vendor::REGISTER[property], with:user.address.send(property).unaccent, check:true
         rescue
           if property == :city
             select_city

@@ -48,7 +48,8 @@ module RobotCore
       robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
       robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
       robot.click_on vendor::PAYMENT[:submit]
-      robot.wait_for(['//body'])
+      robot.wait_leave vendor::PAYMENT[:submit]
+      robot.click_on vendor::PAYMENT[:cgu], check:true
       robot.click_on vendor::PAYMENT[:validate], check:true
       true
     end

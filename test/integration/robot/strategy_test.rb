@@ -181,7 +181,6 @@ class StrategyTest < ActiveSupport::TestCase
   def crawl url, expected_product
     crawler = @vendor::ProductCrawler.new(@robot, @vendor::CRAWLING)
     crawler.crawl url
-    puts crawler.product.inspect
     assert !crawler.product[:product_title].blank?
     assert !crawler.product[:product_image_url].blank?
     assert crawler.product[:product_price]

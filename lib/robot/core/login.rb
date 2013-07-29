@@ -59,6 +59,7 @@ module RobotCore
     
     def access_form
       robot.open_url vendor::URLS[:login]
+      robot.click_on vendor::LOGIN[:popup]
       robot.click_on vendor::LOGIN[:link], check:true
     end
     
