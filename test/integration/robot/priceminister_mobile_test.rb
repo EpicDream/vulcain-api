@@ -52,13 +52,13 @@ class PriceministerMobileTest < ActiveSupport::TestCase
       "http://www.priceminister.com/offer/buy/159162121/avengers-de-joss-whedon.html"]
   end
 
-  test 'complete order process' do
-    @context['order']['products_urls'] = @products_url.shuffle
-    robot = PriceministerMobile.new(@context).robot
-    assert_nothing_raised "#{$!}" do
-      robot.pl_fake_run
-    end
-  end
+  # test 'complete order process' do
+  #   @context['order']['products_urls'] = @products_url.shuffle
+  #   robot = PriceministerMobile.new(@context).robot
+  #   assert_nothing_raised "#{$!}" do
+  #     robot.pl_fake_run
+  #   end
+  # end
 
   test 'it should raise nothing on account creation test' do
     skip("Comment this line to manually test account creation")
