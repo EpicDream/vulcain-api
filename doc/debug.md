@@ -57,6 +57,15 @@ pour comprendre ce qui est recherché quand on met une chaine de caractères com
 
 Lorsqu'il y a check:true comme paramètre, cela signifie que l'on avance si le xpath n'est pas présent dans le dictionnaire du Vendor, où si le xpath est dans le dico mais qu'aucun élément n'est trouvé … sans check:true, le robot attend l'élement et lève une exception si non trouvé.
 
+###Tâche lançé par le cron strategies:test
+
+Toutes les 6h le test 'complete order process' de chaque stratégie est lançé.
+Il teste login/add to cart/empty cart ... jusqu'à l'écran de paiement CB non compris.
+Un processus de commande 'normale' sans le paiement en fait.
+Il lançe aussi les test des crawlers pour certaines stratégies.
+
+Les résultats des tests sont sous "/tmp/strategies\_rake\_test_output.txt"
+
 
 
 
