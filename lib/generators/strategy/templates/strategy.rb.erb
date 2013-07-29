@@ -21,8 +21,11 @@ module <%= vendor_name %>Constants
     address_1:nil,
     address_2:nil,
     email:nil,
+    email_confirmation:nil,
     zip:nil,
     password:nil,
+    city:nil,
+    cgu:nil,
     password_confirmation:nil,
     address_option:nil,
     submit: nil
@@ -57,6 +60,8 @@ module <%= vendor_name %>Constants
   CART = {
     add:nil,
     button:nil,
+    quantity:nil,
+    update:nil,
     remove_item:nil,
     empty_message:nil,
     empty_message_match:/panier\s+est\s+vide/i,
@@ -71,7 +76,6 @@ module <%= vendor_name %>Constants
   }
   
   BILL = {
-    price:nil,
     shipping:nil,
     total:nil,
     info:nil
@@ -82,6 +86,9 @@ module <%= vendor_name %>Constants
     remove_confirmation: nil,
     access: nil,
     invoice_address: nil,
+    credit_card_select:nil,
+    master_card_value:nil,
+    visa_value:nil,
     validate: nil,
     holder:nil,
     number:nil,
@@ -91,6 +98,7 @@ module <%= vendor_name %>Constants
     submit: nil,
     status: nil,
     succeed: nil,
+    cgu:nil
   }
   
   CRAWLING = {
