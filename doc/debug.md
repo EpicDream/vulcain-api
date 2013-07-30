@@ -65,6 +65,8 @@ Un processus de commande 'normale' sans le paiement en fait.
 Il lançe aussi les test des crawlers pour certaines stratégies.
 
 Les résultats des tests sont sous "/tmp/strategies\_rake\_test_output.txt"
+Pour les stratégies avec erreurs, le mieux est de relançer le test unitaire en local avec une visu
+navigateur.
 
 
 
