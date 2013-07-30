@@ -69,6 +69,8 @@ module ZalandoFRConstants
     add:'//*[@id="addToCartBtn"]',
     button:nil,
     quantity:'//select[@name="quantity"]',
+    color_option:'//ul[@class="colorList"]//img[@src="color_option_value"]',
+    size_option:"//*[@id='listProductSizes']//li[normalize-space(text())='size_option_value']",
     update:nil,
     remove_item:'//input[@name="deleteFromCart"]',
     empty_message:'//*[@id="cart"]',

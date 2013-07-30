@@ -13,9 +13,9 @@ module RobotCore
     
     def fill
       while product = robot.next_product
-        if access_product_file_of product
+        if access_product_file_of(product)
           RobotCore::Product.new(robot).build
-          add_to_cart
+          add_to_cart(product)
         end
       end
 
@@ -125,7 +125,9 @@ module RobotCore
       robot.wait_for [vendor::CART[:add], vendor::CART[:offers]] {}
     end
     
-    def add_to_cart
+    def add_to_cart product
+      RobotCore::Options.new(robot, product).run
+      
       if robot.exists? vendor::CART[:offers]
         best_offer.call
       else

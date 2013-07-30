@@ -5,6 +5,7 @@ require_robot 'zalando_fr'
 class ZalandoFRTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.zalando.fr/light-living-willmore-lampe-de-table-noir-ll973d002-802.html'
   PRODUCT_URL_2 = 'http://www.zalando.fr/light-living-kaya-plafonnier-noir-ll973b007-802.html'
+  PRODUCT_URL_3 = 'http://www.zalando.fr/tommy-hilfiger-chiara-polo-jaune-to121d01b-206.html'
   
   setup do
     initialize_robot_for ZalandoFR
@@ -36,18 +37,28 @@ class ZalandoFRTest < StrategyTest
   
   test "add to cart" do
     assert = Proc.new do
-      robot.open_url Zalando::URLS[:cart]
-      assert_equal 2, robot.find_elements(Zalando::CART[:remove_item]).count
+      robot.open_url ZalandoFR::URLS[:cart]
+      assert_equal 2, robot.find_elements(ZalandoFR::CART[:remove_item]).count
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     
     run_spec("add to cart", products, assert)
   end
   
+  test "add to cart with color and size options" do
+    assert = Proc.new do
+      robot.open_url ZalandoFR::URLS[:cart]
+      assert_equal 1, robot.find_elements(ZalandoFR::CART[:remove_item]).count
+    end
+    products = [{url:PRODUCT_URL_3, quantity:1, color:'http://i1.ztat.net/selector/TO/12/1D/01/B2/06/TO121D01B-206@1.1.jpg', size:'L'}]
+    
+    run_spec("add to cart", products, assert)
+  end
+  
   test "empty cart" do
     assert = Proc.new do
-      robot.open_url Zalando::URLS[:cart]
-      assert robot.get_text(Zalando::CART[:empty_message]) =~ Zalando::CART[:empty_message_match]
+      robot.open_url ZalandoFR::URLS[:cart]
+      assert robot.get_text(ZalandoFR::CART[:empty_message]) =~ ZalandoFR::CART[:empty_message_match]
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     
