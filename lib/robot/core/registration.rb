@@ -112,6 +112,7 @@ module RobotCore
         robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month
         robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year
       end
+      robot.fill vendor::REGISTER[:birth_department], with:user.address.zip[0..1]
     end
     
     def address

@@ -21,6 +21,7 @@ module CdiscountConstants
     password:'//*[@id="cphMainArea_UserRegistrationCtl_txtPassWord"]',
     password_confirmation:'//*[@id="cphMainArea_UserRegistrationCtl_txtCheckPassWord"]',
     cgu:'//*[@id="cphMainArea_UserRegistrationCtl_CheckBoxSellCondition"]',
+    birth_department:'//*[@id="cphMainArea_UserRegistrationCtl_txtBirthDepartment"]',
     submit: '//*[@id="cphMainArea_UserRegistrationCtl_btnValidate"]'
   }
   
