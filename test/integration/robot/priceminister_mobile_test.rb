@@ -17,7 +17,7 @@ class PriceministerMobileTest < ActiveSupport::TestCase
           "state"=>"dzjdzj2102901"
         },
         "order"=>{
-          "products_urls"=>[],
+          "products"=>[],
           "credentials"=>{
             "holder"=>"TIMMY DUPONT",
             "number"=>"401290129019201",
@@ -45,20 +45,23 @@ class PriceministerMobileTest < ActiveSupport::TestCase
             "land_phone"=>"0134562345",
             "country"=>"France"
     }}}
-    @products_url = [
-      "http://www.priceminister.com/offer/buy/205972101/random-access-memories-daft-punk.html",
-      "http://www.priceminister.com/offer/buy/191000746/the-last-of-us.html",
-      "http://www.priceminister.com/offer/buy/202202539/hpson-pill-bt-blk.html",
-      "http://www.priceminister.com/offer/buy/159162121/avengers-de-joss-whedon.html"]
+    @products = [
+      {url: "http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", quantity: 2},
+      {url: "http://www.priceminister.com/offer/buy/189010393/tube-vidange-pour-baignoire-babymoov.html"},
+      {url: "http://www.priceminister.com/offer/buy/60516923/KENWOOD-KMX51--Rouge-Robots-Mixeurs.html#xtatc=PUB-[PMC]-[H]-[Maison_Petit-Electromenager]-[Push]-[2]-[Pdts]-[]"},
+      {url: "http://www.priceminister.com/offer/buy/185236642/cigarette-electronique-ce4.html"},
+      {url: "http://www.priceminister.com/offer/buy/195259320/lit-140-x-190-cm-passo.html", quantity: 1},
+      {url: "http://www.priceminister.com/offer/buy/182365979/helicoptere-rc-syma-s107g-gyro-infrarouge-3-voies-rouge.html"},
+    ]
   end
 
-  # test 'complete order process' do
-  #   @context['order']['products_urls'] = @products_url.shuffle
-  #   robot = PriceministerMobile.new(@context).robot
-  #   assert_nothing_raised "#{$!}" do
-  #     robot.pl_fake_run
-  #   end
-  # end
+  test 'complete order process' do
+    @context['order']['products'] = @products.shuffle
+    robot = PriceministerMobile.new(@context).robot
+    assert_nothing_raised "#{$!}" do
+      robot.pl_fake_run
+    end
+  end
 
   test 'it should raise nothing on account creation test' do
     skip("Comment this line to manually test account creation")
