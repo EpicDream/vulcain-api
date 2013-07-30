@@ -15,6 +15,7 @@ module RobotCore
       access_form
       RobotCore::Login.new(robot).relog
       robot.click_on vendor::PAYMENT[:remove], check:true, ajax:true
+      robot.accept_alert
       robot.click_on vendor::PAYMENT[:remove_confirmation], check:true
       robot.wait_ajax 
       robot.open_url vendor::URLS[:base]
