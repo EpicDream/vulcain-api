@@ -67,7 +67,7 @@ module AmazonFranceConstants
   }
   
   PRODUCT = {
-    price_text:'//*[@id="prices"]',
+    price_text:'//td[@class=" a-color-price a-size-medium"]',
     title:'//*[@id="universal-product-title-features"] | //*[@id="product-title"]',
     image:'//*[@id="previous-image"]'
   }
