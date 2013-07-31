@@ -74,47 +74,10 @@ module DartyConstants
     access:nil
   }
   
-  CRAWLING = {
-    title:'//*[@id="darty_product_base_info"]/h2', 
-    price:'//div[@class="darty_price_product_page"]',
-    image_url:'//div[@class="darty_product_picture"]//img',
-    shipping_info: '//*[@id="sliding_basket_product_availability"]',
-  }
-  
-end
-
-module DartyCrawler
-  class ProductCrawler
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_product
-    end
-    
-    def build_product
-      product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      prices = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page)
-      deliveries = "#{@robot.scraped_text @xpaths[:shipping_info] , @page}"
-      product[:product_price] = prices[0]
-      product[:shipping_price] = Robot::PRICES_IN_TEXT.(deliveries).first
-      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
-      product[:shipping_info] = deliveries
-    end
-  end
 end
 
 class Darty
   include DartyConstants
-  include DartyCrawler
   attr_accessor :context, :robot
   
   def initialize context

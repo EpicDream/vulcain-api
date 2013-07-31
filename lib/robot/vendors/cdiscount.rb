@@ -87,54 +87,10 @@ module CdiscountConstants
     succeed: /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
   }
   
-  CRAWLING = {
-    title:'//*[@id="fpBlocProduct"]/h1', 
-    price:'//div[@class="price priceXL"]',
-    image_url:'//*[@id="fpBlocProduct"]/div[1]/a/img',
-    shipping_info: '//div[@class="fpShipping"]',
-    available:'//div[@class="fpStock_0"]',
-  }
-  
-end
-
-module CdiscountCrawler
-  class ProductCrawler
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_product
-      build_options
-    end
-    
-    def build_product
-      @product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      @product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).first
-      @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
-      @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
-      @product[:shipping_price] = nil
-      @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en stock/i)
-    end
-    
-    def build_options
-      options = @page.xpath(@xpaths[:options]).map {|e| e.xpath(".//option").map(&:text) }
-      options.each {|option| @product[:options].merge!({option[0] => option[1..-1]})}
-    end
-    
-  end
 end
 
 class Cdiscount
   include CdiscountConstants
-  include CdiscountCrawler
   attr_accessor :context, :robot
   
   def initialize context

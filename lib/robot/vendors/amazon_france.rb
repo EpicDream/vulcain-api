@@ -73,7 +73,6 @@ module AmazonFranceConstants
   }
   
   BILL = {
-    price:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[1]/td[2]',
     shipping:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[2]/td[2]',
     total:'//*[@id="subtotals-marketplace-table"]/table/tbody/tr[3]/td[2]',
     info:'//*[@id="promise-summary"]'
@@ -95,73 +94,10 @@ module AmazonFranceConstants
     succeed: /votre\s+commande\s+a\s+été\s+passée/i
   }
   
-  CRAWLING = {
-    title:'//*[@id="main"]//h1', 
-    price:'//*[@id="prices"]',
-    image_url:'//div[@id="main-image"]/img',
-    shipping_info: '//*[@id="prices"]/tbody/tr[2]',
-    available:'//*[@id="twister-availability-features"]',
-    options:'//*[@id="variation-glance"]'
-  }
-  
-end
-
-module AmazonFranceCrawler
-  class ProductCrawler
-    
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_options
-      build_product
-    end
-    
-    def build_options
-      return if @page.xpath(@xpaths[:options]).none?
-      @robot.click_on @xpaths[:options]
-      @robot.wait_ajax
-      1.upto(2) {
-        parse_options
-        @robot.click_on "//ul/li[1]"
-      }
-    end
-    
-    def parse_options
-      @robot.wait_for(['//i[@class="a-icon a-icon-touch-select"]'])
-      page = Nokogiri::HTML.parse @robot.driver.page_source
-      option = page.xpath('//div[@class="a-row"]//h2').text.gsub(/\n/, '')
-      options = page.xpath('//div[@class="a-box"]//li').map { |e| e.text.gsub(/\n/, '')}
-      @product[:options][option] = options
-    end
-    
-    def build_product
-      @robot.open_url @url
-      @product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      prices = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page)
-      @product[:product_price] = prices[0]
-      @product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
-      @product[:shipping_price] = nil
-      @product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
-      if @product[:options].empty?
-        @product[:available] = !!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
-      end
-    end
-    
-  end
 end
 
 class AmazonFrance
   include AmazonFranceConstants
-  include AmazonFranceCrawler
   
   attr_accessor :context, :robot
   

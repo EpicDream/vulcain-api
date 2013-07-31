@@ -178,14 +178,6 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('cancel order')
   end
   
-  def crawl url, expected_product
-    crawler = @vendor::ProductCrawler.new(@robot, @vendor::CRAWLING)
-    crawler.crawl url
-    assert !crawler.product[:product_title].blank?
-    assert !crawler.product[:product_image_url].blank?
-    assert crawler.product[:product_price]
-  end
-  
   def initialize_robot_for vendor
     @context = common_context
     @vendor = vendor

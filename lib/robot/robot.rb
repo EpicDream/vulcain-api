@@ -218,12 +218,6 @@ class Robot
       end
     end
     
-    step('crawl') do
-      crawler = vendor::ProductCrawler.new(self, vendor::CRAWLING)
-      crawler.crawl @context['url']
-      terminate(crawler.product)
-    end
-    
   end
   
 end

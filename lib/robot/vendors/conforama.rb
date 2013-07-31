@@ -90,48 +90,10 @@ module ConforamaConstants
     succeed: //,
   }
   
-  CRAWLING = {
-    title:'', 
-    price:'',
-    image_url:'',
-    shipping_info: '',
-    available:'',
-    options:''
-  }
-  
-end
-
-module ConforamaCrawler
-  class ProductCrawler
-    
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_options
-      build_product
-    end
-    
-    def build_options
-    end
-    
-    def build_product
-    end
-    
-  end
 end
 
 class Conforama
   include ConforamaConstants
-  include ConforamaCrawler
   
   attr_accessor :context, :robot
   

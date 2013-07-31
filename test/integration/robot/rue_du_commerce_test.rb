@@ -80,13 +80,4 @@ class RueDuCommerceTest < StrategyTest
     run_spec("cancel order", [{url:PRODUCT_5_URL, quantity:1}])
   end
   
-  test "crawl action" do
-    products = [{:options=>{}, :product_title=>%Q{PHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436}, :product_price=>17.9, :product_image_url=>"http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg", :shipping_info=>"", :shipping_price=>nil, :available=>true}]
-    products << {:product_title=>"Armani T-shirt Emporio homme manches courtes blanc", :product_price=>29.9, :product_image_url=>"http://s3.static69.com/m/image-offre/f/3/6/c/f36cdd33e7ca4cf8473865fb424ac437-300x300.jpg", :shipping_info=>"Expédié sous 24h\n* Lettre max avec suivi A partir de 4,90 €", :shipping_price=>4.9, :available=>true, :options=>{"Couleur"=>["Blanc", "Noir"], "Taille"=>["S", "M", "L", "XL"], "Matière"=>["95% coton et 05% élasthanne"]}}
-    products << {:product_title => 'Seb P 4301406 Autocuiseur Acticook 8 Litres', :product_price => 129, :product_image_url => 'http://s3.static69.com/m/image-offre/d/8/c/f/d8cf0b50842ff11048ce2df72a97f47d-300x300.jpg', :shipping_info => %Q{Expédié sous 24h\n* Livraison Gls A partir de 8,90 €\n* Livraison colissimo 48H A partir de 10,50 €}, :shipping_price => 8.9, :available => true, :options => {}}
-    [PRODUCT_5_URL, PRODUCT_7_URL, PRODUCT_6_URL].each_with_index do |url, index|
-      run_spec("crawl", url, products[index])
-    end
-  end
-
 end

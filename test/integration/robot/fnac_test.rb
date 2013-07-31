@@ -87,13 +87,4 @@ class FnacTest < StrategyTest
     assert_equal 21.7, robot.products.last["price_product"]
   end
   
-  test "crawl action" do
-    products = [{:options=>{}, :product_title=>"Donkey Kong Country Returns 3DS", :product_price=>35.9, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Grandes110_110/8/5/5/0045496523558.jpg", :shipping_info=>"Pour être livré le \tsamedi 15 juin \t \tcommandez avant 13h \t \tet choisissez la livraison express (http://www.fnac.com/help/A06-5.asp?NID=-11&RNID=-11)", :available=>true}]
-    products << {:options=>{}, :product_title=>"Machine à coudre 835 Sapphire Husqvarna", :product_price=>890.0, :shipping_price=>12.99, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/MC/Grandes%2090x100/8/0/3/8962800008308.jpg", :shipping_info=>"", :available=>true}
-    products << {:options=>{}, :product_title=>"Samsung Galaxy S3 Mini (i8190) - Bleu", :product_price=>258, :shipping_price=>0, :product_image_url=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/0/5/2/8806085347250.jpg", :available=>true}
-    [PRODUCT_2_URL, PRODUCT_6_URL, PRODUCT_8_URL].each_with_index do |url, index|
-      run_spec("crawl", url, products[index])
-    end
-  end
-  
 end

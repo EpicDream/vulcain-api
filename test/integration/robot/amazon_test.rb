@@ -79,12 +79,4 @@ class AmazonTest < StrategyTest
     run_spec('validate order', [{url:PRODUCT_URL_6, quantity:1}])
   end
   
-  test "crawl action" do
-    products = [{:options=>{}, :product_title=>"Lampe frontale 4 Leds TIKKA®² de Petzl", :product_price=>21.1, :product_image_url=>"http://ecx.images-amazon.com/images/I/81hxtcySPYL._SX150_.jpg", :shipping_price=>nil, :shipping_info=>"|  | Livraison gratuite (en savoir plus)  |", :available=>true}]
-    products << {:options => {'Sélectionner Taille' => ['FR : 28 (Taille Fabricant : 1)', '28', '30', '38', '40'], 'Sélectionner Couleur' => ['FR : 28 (Taille Fabricant : 1) - Stone GrayEUR 39,95Seulement 1 en stock', 'FR : 28 (Taille Fabricant : 1) - New KhakiEUR 39,95Seulement 1 en stock']}, :product_title => 'Oakley Represent Short homme', :product_price => 32.0, :product_image_url => 'http://ecx.images-amazon.com/images/I/81E%2B2Jr80TL._SY180_.jpg', :shipping_price => nil, :shipping_info => ''}
-    [PRODUCT_URL_4, PRODUCT_URL_3].each_with_index do |url, index|
-      run_spec("crawl", url, products[index])
-    end
-  end
-  
 end

@@ -109,48 +109,10 @@ module EveilEtJeuxConstants
     zero_fill:true
   }
   
-  CRAWLING = {
-    title:nil, 
-    price:nil,
-    image_url:nil,
-    shipping_info: nil,
-    available:nil,
-    options:nil
-  }
-  
-end
-
-module EveilEtJeuxCrawler
-  class ProductCrawler
-    
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_options
-      build_product
-    end
-    
-    def build_options
-    end
-    
-    def build_product
-    end
-    
-  end
 end
 
 class EveilEtJeux
   include EveilEtJeuxConstants
-  include EveilEtJeuxCrawler
   
   attr_accessor :context, :robot
   

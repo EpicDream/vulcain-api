@@ -85,53 +85,10 @@ module RueDuCommerceConstants
     info:'//span[@class="cartShipping"]'
   }
   
-  CRAWLING = {
-    title:'//*[@itemprop="name"]', 
-    price:'//*[@id="zm_price_final"] | //*[@class="px_ctc"]',
-    image_url:'//img[@itemprop="image"]',
-    shipping_info: '//div[@class="trsp"]/div[@class="desc"]/ul/li[1] | //*[@id="zm_shipments_information"]',
-    available:'//div[@id="zm_availability"] | //div[@id="dispo"]',
-    options_keys:'//dl[@class="attMenu"]//dt',
-    options_values:'//dl[@class="attMenu"]//dd'
-  }
-  
-end
-
-module RueDuCommerceCrawler
-  class ProductCrawler
-    
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_product
-    end
-    
-    def build_product
-      product[:product_title] =  @robot.scraped_text @xpaths[:title], @page
-      product[:product_price] = Robot::PRICES_IN_TEXT.(@robot.scraped_text @xpaths[:price], @page).last
-      product[:product_image_url] = @page.xpath(@xpaths[:image_url]).attribute("src").to_s
-      product[:shipping_info] = @robot.scraped_text @xpaths[:shipping_info], @page
-      product[:shipping_price] = Robot::PRICES_IN_TEXT.(product[:shipping_info]).first
-      product[:available] = true#!!(@robot.scraped_text(@xpaths[:available], @page) =~ /en\s+stock/i)
-      keys = @page.xpath(@xpaths[:options_keys]).map { |node| node.text.gsub(/\n|\t/, '') }
-      values = @page.xpath(@xpaths[:options_values]).map {|dd| dd.xpath(".//li").map(&:text)}
-      keys.each_with_index { |key, index| product[:options][key] = values[index]}
-    end
-  end
 end
 
 class RueDuCommerce
   include RueDuCommerceConstants
-  include RueDuCommerceCrawler
   
   attr_accessor :context, :robot
   
