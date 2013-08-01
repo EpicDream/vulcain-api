@@ -3,9 +3,7 @@ module Robots
   VENDORS = Dir.glob("#{ROBOT_PATH}/vendors/*.rb")
   
   class Loader
-    REQUIRES = ['undef_klasses', 'core_extensions', 'driver', 'core/actions', 'core/registration', 
-      'core/login', 'core/logout', 'core/credit_card', 'core/cart', 'core/product', 'core/shipping',
-      'core/order', 'core/payment', 'core/billing', 'core/options', 'robot']
+    REQUIRES = ['undef_klasses', 'core_extensions'] + core_modules + ['driver', 'robot']
     
     def initialize vendors
       @vendors = vendors
@@ -18,6 +16,12 @@ module Robots
     end
     
     private
+    
+    def core_modules
+      Dir.foreach("#{Rails.root}/lib/robot/core").map { |filename|
+        "core/#{filename}" unless filename =~ /^\.{1,2}$/
+      }.compact - ["core/core.rb"]
+    end
     
     def vendors_require
       @vendors.map { |vendor| "vendors/#{vendor.underscore}"}
