@@ -4,7 +4,7 @@ module RobotCore
     def run
       return unless form_exists?
       access_form
-      fill_properties
+      Address.new(robot).fill_using(vendor::SHIPMENT)
       submit
       submit_options
     end
@@ -39,26 +39,6 @@ module RobotCore
       robot.click_on vendor::SHIPMENT[:same_billing_address], check:true
       robot.click_on vendor::SHIPMENT[:submit]
       robot.wait_for [vendor::SHIPMENT[:submit_packaging], vendor::SHIPMENT[:address_submit]]
-    end
-    
-    def fill_properties
-      properties = user.address.marshal_dump.keys
-      properties.each do |property|
-        robot.fill vendor::SHIPMENT[property], with:user.address.send(property), check:true
-        if property == :mobile_phone && vendor::SHIPMENT[:sms_options]
-          robot.click_on vendor::SHIPMENT[:city] #lose focus
-          robot.wait_ajax
-          vendor::SHIPMENT[:sms_options].each { |identifier| robot.click_on identifier}
-        end
-      end
-      birthdate if vendor::SHIPMENT[:birthdate_day]
-    end
-    
-    def birthdate
-      [:day, :month, :year].each do |property|
-        xpath = vendor::SHIPMENT["birthdate_#{property}".to_sym]
-        robot.select_option xpath, user.birthdate.send(property).to_s.rjust(2, "0")
-      end
     end
     
     def access_form
