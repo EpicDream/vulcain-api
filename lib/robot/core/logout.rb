@@ -1,12 +1,5 @@
 module RobotCore
-  class Logout
-    
-    attr_reader :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @vendor = robot.vendor
-    end
+  class Logout < RobotModule
 
     def run
       robot.open_url vendor::URLS[:home]

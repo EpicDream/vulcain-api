@@ -1,14 +1,5 @@
 module RobotCore
-  class Order
-    
-    attr_reader :user, :account, :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @user = robot.user
-      @account = robot.account
-      @vendor = robot.vendor
-    end
+  class Order < RobotModule
     
     def finalize payment=nil
       cart = RobotCore::Cart.new(robot)

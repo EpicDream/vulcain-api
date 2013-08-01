@@ -1,13 +1,10 @@
 module RobotCore
-  class Payment
+  class Payment < RobotModule
     
-    attr_reader :order, :vendor, :robot
     attr_accessor :access_payment
     
     def initialize robot
-      @robot = robot
-      @order = robot.order
-      @vendor = robot.vendor
+      super(robot)
       @access_payment = nil
     end
     

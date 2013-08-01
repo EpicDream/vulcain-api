@@ -1,10 +1,9 @@
 module RobotCore
-  class Options
-    attr_reader :vendor, :robot, :product
+  class Options < RobotModule
+    attr_reader :product
     
     def initialize robot, product
-      @robot = robot
-      @vendor = robot.vendor
+      super(robot)
       @product = product
     end
     

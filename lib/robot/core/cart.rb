@@ -1,11 +1,9 @@
 module RobotCore
-  class Cart
-    attr_reader :vendor, :robot
+  class Cart < RobotModule
     attr_accessor :before_add, :best_offer, :retry_set_quantity
     
     def initialize robot
-      @robot = robot
-      @vendor = robot.vendor
+      super(robot)
       @before_add = Proc.new{}
       @best_offer = Proc.new{}
       @retry_set_quantity = false

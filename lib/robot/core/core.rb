@@ -1,3 +1,4 @@
+require_relative '_robot_module'
 require_relative 'actions'
 require_relative 'registration'
 require_relative 'login'

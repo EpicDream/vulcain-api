@@ -1,14 +1,5 @@
 module RobotCore
-  class CreditCard
-    
-    attr_reader :account, :order, :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @account = robot.account
-      @order = robot.order
-      @vendor = robot.vendor
-    end
+  class CreditCard < RobotModule
     
     def remove
       return if cannot_be_removed?

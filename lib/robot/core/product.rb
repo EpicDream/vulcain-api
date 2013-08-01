@@ -1,11 +1,5 @@
 module RobotCore
-  class Product
-    attr_reader :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @vendor = robot.vendor
-    end
+  class Product < RobotModule
     
     def build
       product = Hash.new

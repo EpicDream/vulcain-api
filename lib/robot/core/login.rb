@@ -1,13 +1,5 @@
 module RobotCore
-  class Login
-    
-    attr_reader :account, :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @account = robot.account
-      @vendor = robot.vendor
-    end
+  class Login < RobotModule
 
     def run
       access_form

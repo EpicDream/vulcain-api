@@ -1,13 +1,5 @@
 module RobotCore
-  class Shipping
-    
-    attr_reader :user, :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @user = robot.user
-      @vendor = robot.vendor
-    end
+  class Shipping < RobotModule
     
     def run
       return unless form_exists?

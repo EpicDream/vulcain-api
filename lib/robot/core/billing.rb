@@ -1,12 +1,5 @@
 module RobotCore
-  class Billing
-    
-    attr_reader :user, :account, :vendor, :robot
-    
-    def initialize robot
-      @robot = robot
-      @vendor = robot.vendor
-    end
+  class Billing < RobotModule
     
     def build
       return unless robot.exists? vendor::BILL[:total]
