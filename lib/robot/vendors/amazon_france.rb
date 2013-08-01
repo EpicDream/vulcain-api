@@ -1,13 +1,5 @@
 # encoding: utf-8
 module AmazonFranceConstants
-  DELIVERY_PRICE = lambda do |product|
-    pattern = /Livraison\s+gratuite\s+dès\s+15\s+euros/
-    if product['product_title'] =~ pattern && product['price_product'] < 15.0
-      2.79
-    else
-      0
-    end
-  end
   
   URLS = {
     base:'http://www.amazon.fr/',

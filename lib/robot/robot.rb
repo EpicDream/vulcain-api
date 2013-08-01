@@ -6,14 +6,7 @@ require_relative "core/core" unless ENV['VULCAIN-CORE']
 
 class Robot
   include RobotCore::Actions
-  
   YES_ANSWER = true
-  PRICES_IN_TEXT = lambda do |text| 
-    break [] unless text
-    text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
-      price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
-    end
-  end
   
   attr_accessor :context, :driver, :messager, :vendor
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
