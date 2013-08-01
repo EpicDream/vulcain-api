@@ -3,7 +3,7 @@ module RobotCore
     
     attr_reader :vendor, :robot
     
-    def initialize robot, deviances={}
+    def initialize robot
       @robot = robot
       @vendor = robot.vendor
     end

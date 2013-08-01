@@ -4,7 +4,7 @@ module RobotCore
       [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
     end
     
-    attr_reader :user, :account, :vendor, :robot, :deviances
+    attr_reader :user, :account, :vendor, :robot
     
     def initialize robot
       @robot = robot

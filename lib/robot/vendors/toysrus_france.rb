@@ -78,8 +78,6 @@ module ToysrusFranceConstants
     total:'//*[@id="content"]/div[2]/div[1]/div/table/tbody/tr[3]',
   }
   
-  
-  
 end
 
 class ToysrusFrance
@@ -88,7 +86,7 @@ class ToysrusFrance
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context.merge!({ options: {user_agent:Driver::DESKTOP_USER_AGENT } })
+    @context = context
     @robot = instanciate_robot
     @robot.vendor = ToysrusFrance
   end
