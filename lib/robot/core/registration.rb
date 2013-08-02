@@ -10,13 +10,13 @@ module RobotCore
         return
       end
       
-      Address.new(robot).fill_using(vendor::REGISTER)
+      Address.new.fill_using(vendor::REGISTER)
       
       phone
       birthdate
       password
-      
       options
+
       submit
       submit_options
       

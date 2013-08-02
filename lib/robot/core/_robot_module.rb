@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module RobotCore
   class RobotModule
     PRICES_IN_TEXT = lambda do |text| 
@@ -11,10 +13,10 @@ module RobotCore
       [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
     end
     
-    attr_reader :user, :account, :vendor, :robot, :order
+    attr_reader :robot, :user, :account, :vendor, :order
     
-    def initialize robot
-      @robot = robot
+    def initialize
+      @robot = Robot.instance
       @user = robot.user
       @account = robot.account
       @vendor = robot.vendor

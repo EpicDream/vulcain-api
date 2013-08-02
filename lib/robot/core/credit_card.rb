@@ -4,7 +4,7 @@ module RobotCore
     def remove
       return if cannot_be_removed?
       access_form
-      RobotCore::Login.new(robot).relog
+      RobotCore::Login.new.relog
       robot.click_on vendor::PAYMENT[:remove], check:true, ajax:true
       robot.accept_alert
       robot.click_on vendor::PAYMENT[:remove_confirmation], check:true

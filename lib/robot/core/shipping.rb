@@ -4,7 +4,7 @@ module RobotCore
     def run
       return unless form_exists?
       access_form
-      Address.new(robot).fill_using(vendor::SHIPMENT)
+      Address.new.fill_using(vendor::SHIPMENT)
       submit
       submit_options
     end

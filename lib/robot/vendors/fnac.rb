@@ -104,10 +104,10 @@ class Fnac
     Robot.new(@context) do
       
       step('add to cart') do
-        cart = RobotCore::Cart.new(self)
+        cart = RobotCore::Cart.new
         cart.best_offer = Proc.new {
           click_on CART[:offers]
-          RobotCore::Product.new(self).update_with(get_text PRODUCT[:offer_price_text])
+          RobotCore::Product.new.update_with(get_text PRODUCT[:offer_price_text])
           click_on CART[:add_offer]
         }
         cart.fill

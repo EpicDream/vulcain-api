@@ -30,6 +30,11 @@ class Robot
     @skip_assess = false
     load_common_steps
     self.instance_eval(&@block)
+    @@instance = self
+  end
+  
+  def self.instance
+    @@instance
   end
   
   def next_step?
@@ -152,44 +157,44 @@ class Robot
     end
     
     step('create account') do
-      RobotCore::Registration.new(self).run
+      RobotCore::Registration.new.run
     end
     
     step('login') do
-      RobotCore::Login.new(self).run
+      RobotCore::Login.new.run
     end
     
     step('renew login') do
-      RobotCore::Login.new(self).renew
+      RobotCore::Login.new.renew
     end
     
     step('logout') do
-      RobotCore::Logout.new(self).run
+      RobotCore::Logout.new.run
     end
     
     step('remove credit card') do
-      RobotCore::CreditCard.new(self).remove
+      RobotCore::CreditCard.new.remove
     end
     
     step('empty cart') do |args|
       next_step = args && args[:next_step]
-      RobotCore::Cart.new(self).empty(next_step:next_step)
+      RobotCore::Cart.new.empty(next_step:next_step)
     end
 
     step('add to cart') do
-      RobotCore::Cart.new(self).fill
+      RobotCore::Cart.new.fill
     end
     
     step('fill shipping form') do
-      RobotCore::Shipping.new(self).run
+      RobotCore::Shipping.new.run
     end
     
     step('finalize order') do
-      RobotCore::Order.new(self).finalize
+      RobotCore::Order.new.finalize
     end
     
     step('validate order') do
-      RobotCore::Order.new(self).validate
+      RobotCore::Order.new.validate
     end
     
     step('cancel') do
@@ -197,7 +202,7 @@ class Robot
     end
     
     step('cancel order') do
-      RobotCore::Order.new(self).cancel
+      RobotCore::Order.new.cancel
     end
     
     step('payment') do

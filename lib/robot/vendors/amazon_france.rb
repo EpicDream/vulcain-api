@@ -112,7 +112,7 @@ class AmazonFrance
       end
       
       step('finalize order') do
-        payment = RobotCore::Payment.new(self)
+        payment = RobotCore::Payment.new
         payment.access_payment = Proc.new {
           gift = run_step('check promotional code')
           if gift
@@ -124,7 +124,7 @@ class AmazonFrance
             order.credentials.exp_month = 2
             order.credentials.exp_year = 2015
             order.credentials.cvv = "123"
-            if RobotCore::Payment.new(self).checkout
+            if RobotCore::Payment.new.checkout
               click_on PAYMENT[:access]
               wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
               click_on PAYMENT[:invoice_address], check:true
@@ -133,7 +133,7 @@ class AmazonFrance
           end
         }
         
-        RobotCore::Order.new(self).finalize(payment)
+        RobotCore::Order.new.finalize(payment)
       end
       
       step('validate order') do

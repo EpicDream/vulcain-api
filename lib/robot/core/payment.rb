@@ -3,8 +3,8 @@ module RobotCore
     
     attr_accessor :access_payment
     
-    def initialize robot
-      super(robot)
+    def initialize
+      super
       @access_payment = nil
     end
     
@@ -13,22 +13,22 @@ module RobotCore
         @access_payment.call
       else
         robot.wait_for [vendor::PAYMENT[:access]]
-        RobotCore::Billing.new(robot).build
+        RobotCore::Billing.new.build
         remove_contracts_options
         robot.click_on vendor::PAYMENT[:access]
-        RobotCore::CreditCard.new(robot).select
+        RobotCore::CreditCard.new.select
         robot.click_on vendor::PAYMENT[:cgu], check:true
         robot.click_on(vendor::PAYMENT[:access], check:true)
       end
     end
     
     def checkout
-      RobotCore::Billing.new(robot).build
+      RobotCore::Billing.new.build
       
       order.credentials.exp_month = order.credentials.exp_month.to_s.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
       order.credentials.exp_year = order.credentials.exp_year.to_s[2..-1] if vendor::PAYMENT[:trunc_year]
       
-      RobotCore::CreditCard.new(robot).select
+      RobotCore::CreditCard.new.select
       
       if vendor::PAYMENT[:number].is_a?(Array)
         0.upto(3) { |i|  

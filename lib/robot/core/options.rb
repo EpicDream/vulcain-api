@@ -2,8 +2,8 @@ module RobotCore
   class Options < RobotModule
     attr_reader :product
     
-    def initialize robot, product
-      super(robot)
+    def initialize product
+      super()
       @product = product
     end
     

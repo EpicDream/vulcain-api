@@ -103,7 +103,7 @@ class Cdiscount
     Robot.new(@context) do
 
       step('add to cart') do
-        cart = RobotCore::Cart.new(self)
+        cart = RobotCore::Cart.new
         cart.best_offer = Proc.new {
           button = find_element CART[:add_from_vendor]
           script = button.attribute("onclick").gsub(/return/, '')

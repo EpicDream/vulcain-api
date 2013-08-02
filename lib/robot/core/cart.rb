@@ -2,8 +2,8 @@ module RobotCore
   class Cart < RobotModule
     attr_accessor :before_add, :best_offer, :retry_set_quantity
     
-    def initialize robot
-      super(robot)
+    def initialize
+      super
       @before_add = Proc.new{}
       @best_offer = Proc.new{}
       @retry_set_quantity = false
@@ -12,7 +12,7 @@ module RobotCore
     def fill
       while product = robot.next_product
         if access_product_file_of(product)
-          RobotCore::Product.new(robot).build
+          RobotCore::Product.new.build
           add_to_cart(product)
         end
       end
@@ -28,7 +28,7 @@ module RobotCore
     end
     
     def empty opts={}
-      RobotCore::CreditCard.new(robot).remove
+      RobotCore::CreditCard.new.remove
       robot.products = []
       open
       remove
@@ -124,7 +124,7 @@ module RobotCore
     end
     
     def add_to_cart product
-      RobotCore::Options.new(robot, product).run
+      RobotCore::Options.new(product).run
       
       if robot.exists? vendor::CART[:offers]
         best_offer.call
