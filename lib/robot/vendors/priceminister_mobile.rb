@@ -1070,6 +1070,10 @@ class PriceministerMobile
         # Retourner sur le site mobile
         plarg_xpath = '//div[@id="footer"]/a[@class="mobile_website"]'
         pl_click_on(plarg_xpath)
+        # Cliquer sur Produits Neufs
+        plarg_xpath = 'li.advtype_new > a.ui-btn'
+        pl_click_on!(plarg_xpath)
+        wait_ajax(1)
         # Bouton ajouter au panier
         plarg_xpath = '//div[contains(concat(" ", @class, " "), " ui-page-active ")]//div[contains(concat(" ", @class, " "), " adv_list ")]/article[1]/div[@id]/ul/li[1]/form/div'
         plarg_css = {css: 'div.adv_list article:nth-child(1) li.add_to_cart form.pm_frm div.ui-btn'}
