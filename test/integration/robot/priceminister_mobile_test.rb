@@ -47,7 +47,6 @@ class PriceministerMobileTest < ActiveSupport::TestCase
     }}}
     @products = [
       {url: "http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", quantity: 2},
-      {url: "http://www.priceminister.com/offer/buy/189010393/tube-vidange-pour-baignoire-babymoov.html"},
       {url: "http://www.priceminister.com/offer/buy/60516923/KENWOOD-KMX51--Rouge-Robots-Mixeurs.html#xtatc=PUB-[PMC]-[H]-[Maison_Petit-Electromenager]-[Push]-[2]-[Pdts]-[]"},
       {url: "http://www.priceminister.com/offer/buy/185236642/cigarette-electronique-ce4.html", quantity: 1},
       {url: "http://www.priceminister.com/offer/buy/182365979/helicoptere-rc-syma-s107g-gyro-infrarouge-3-voies-rouge.html"},
