@@ -90,7 +90,7 @@ module AmazonFranceConstants
     exp_year:'//*[@id="ccYear"]',
     cvv:'//*[@id="addCreditCardVerificationNumber"]',
     submit: '//*[@id="ccAddCard"]',
-    status: '//*[@id="thank-you-header"]',
+    status: '//*[@id="thank-you-header"] | //div[@id="content"]',
     succeed: /votre\s+commande\s+a\s+été\s+passée/i
   }
   
