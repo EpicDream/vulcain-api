@@ -1067,7 +1067,7 @@ class PriceMinister
 				pl_check!(plarg_xpath)
 			end
 			step('add_to_cart') do
-				if pl_check("div#display_by")
+				if pl_check("div.display_by")
 					# Aller sur produit neuf
 					plarg_xpath = 'div#nav_toolbar div.display_by ul li ul.l_line li a.filter10'
 					pl_click_on!(plarg_xpath)
