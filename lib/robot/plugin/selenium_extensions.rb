@@ -59,4 +59,33 @@ class Selenium::WebDriver::Support::Select
   rescue Selenium::WebDriver::Error::NoSuchElementError
     return nil
   end
+
+  def select_on_value!(value)
+    if value.kind_of?(Array)
+      return value.find { |v| select_on_value(v) }
+    end
+
+    if value.kind_of?(Integer) && value != 0
+      o = options.detect do |o|
+        o.enabled? && o.value.to_i == value
+      end
+    elsif value.kind_of?(Regexp)
+      o = options.detect do |o|
+        o.enabled? && o.value =~ value
+      end
+    else
+      o = options.detect do |o|
+        o.enabled? && o.value == value.to_s
+      end
+    end
+    if o.nil?
+      raise Selenium::WebDriver::Error::NoSuchElementError, "cannot locate option with value: #{value.inspect}" 
+    end
+    select_options [o]
+  end
+  def select_on_value(value)
+    return select_on_value!(value)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    return nil
+  end
 end

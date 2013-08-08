@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require "country_hash"
 require "robot/robot"
 require "robot/plugin/selenium_extensions"
 require "robot/core_extensions"
@@ -16,12 +17,13 @@ class Plugin::IRobot < Robot
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :code, :message
+    attr_reader :code, :message, :url
     attr_accessor :source, :screenshot, :logs, :stepstrace, :step, :args
     def initialize(err,args={})
       @message = "#{err.class}: #{err.to_s}"
       super(@message)
       @step = args[:step]
+      @url = args[:url]
       @code = args[:code]
       @action_name = args[:action_name]
       @args = args[:args] || {}
@@ -207,6 +209,7 @@ class Plugin::IRobot < Robot
       end
 
       pl_step('run_test') do
+      begin
         @isTest = true
         catch :pass do
           pl_open_url! @shop_base_url
@@ -271,7 +274,15 @@ class Plugin::IRobot < Robot
           run_step('empty_cart')
           @messager.message :cart_emptied
         end
-      end
+      rescue => err
+        if @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+        end
+        pl_open_url err.url if err.method_exists?(:url)
+        raise
+      end # begin
+      end # step do
     end
   end
 
@@ -469,6 +480,23 @@ class Plugin::IRobot < Robot
   # If xpath isn't a select, search for a single select child.
   def pl_select_option!(xpath, value)
     Selenium::WebDriver::Support::Select.new(input!(xpath, 'select')).select!(value)
+  end
+
+  # Select option.
+  # If path isn't a select, search for a single select child.
+  def pl_select_country!(path, country, args={})
+    value = if country == "FR" && args[:with] == :num then /250|249/
+            else
+              country_hash = COUNTRY_HASH[country]
+              args[:with] ? country_hash[args[:with]] : country_hash[:name]
+            end
+    value = Regexp.new(value.sub(/^0*/, "0*")) if args[:with] == :num
+
+    if args[:on_value] && ! args[:on_text]
+      Selenium::WebDriver::Support::Select.new(input!(path, 'select')).select_on_value!(value)
+    else
+      Selenium::WebDriver::Support::Select.new(input!(path, 'select')).select!(value)
+    end
   end
 
   # Click on radio button.
