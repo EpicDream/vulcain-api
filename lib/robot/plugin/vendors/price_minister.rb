@@ -157,7 +157,7 @@ class PriceMinister
 				pl_check!(plarg_xpath)
 			end
 			step('add_to_cart') do
-				if pl_check("div#display_by")
+				if pl_check("div.display_by")
 					# Aller sur produit neuf
 					plarg_xpath = 'div#nav_toolbar div.display_by ul li ul.l_line li a.filter10'
 					pl_click_on!(plarg_xpath)
@@ -204,6 +204,9 @@ class PriceMinister
 				# Aller sur mon panier
 				plarg_url = 'http://www.priceminister.com/cart'
 				pl_open_url!(plarg_url)
+        # Selectionner le pays de destination
+        plarg_path = "#dest_country"
+        pl_select_country!(plarg_path, user.address.country, with: :num, on_value: true)
 				# Indiquer le prix total
 				plarg_xpath = 'div#purchase_summary_item_include div ul li.total_amount span.value strong'
 				pl_set_tot_price!(plarg_xpath)
@@ -226,6 +229,10 @@ class PriceMinister
 				plarg_xpath = 'input#city'
 				plarg_argument = user.address.city
 				pl_fill_text!(plarg_xpath, plarg_argument)
+				# State
+				plarg_xpath = 'select[name="state_id"]'
+				plarg_argument = user.address.state
+				pl_select_option(plarg_xpath, plarg_argument)
 				# Télephone fixe
 				plarg_xpath = 'input#phone_1'
 				plarg_argument = user.address.land_phone
@@ -238,12 +245,12 @@ class PriceMinister
 				plarg_xpath = 'form#chck_addr_reg_frm div.pm_action button span span'
 				pl_click_on!(plarg_xpath)
 				# Décocher les assurances
-				plarg_xpath = 'div#check_coupon div form div input:nth-child(9)'
-				if pl_check(plarg_xpath)
+				if pl_check("div#check_coupon")
+          plarg_xpath = 'div#check_coupon form input[type="checkbox"]:not([disabled])'
 					pl_untick_checkbox(plarg_xpath)
 					wait_ajax(2)
 					# Bouton continuer
-					plarg_xpath = 'div#check_coupon div table tbody tr td a'
+					plarg_xpath = 'div#check_coupon a.bluelinksmall'
 					pl_click_on(plarg_xpath)
 				end
 			end
