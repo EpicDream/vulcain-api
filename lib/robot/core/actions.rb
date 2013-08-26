@@ -67,6 +67,7 @@ module RobotCore
         element = @driver.find_element(identifier)
         @driver.click_on element
       rescue Selenium::WebDriver::Error::UnknownError
+        @driver.scroll(0, 200)
         move_to_and_click_on(identifier)
       rescue Selenium::WebDriver::Error::StaleElementReferenceError
         attempts += 1

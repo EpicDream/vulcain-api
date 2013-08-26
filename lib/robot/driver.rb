@@ -18,8 +18,8 @@ class Driver
   end
   
   def quit
-    @driver.quit
-    FileUtils.rm_rf(@profile_path) if @profile_path
+    # @driver.quit
+    # FileUtils.rm_rf(@profile_path) if @profile_path
   end
   
   def get url
@@ -32,6 +32,10 @@ class Driver
   
   def execute_script script
     @driver.execute_script script
+  end
+  
+  def scroll x, y
+    execute_script("window.scrollBy(#{x},#{y})")
   end
   
   def accept_alert
@@ -77,7 +81,10 @@ class Driver
   end
  
   def move_to_and_click_on element
-    driver.action.move_to(element).click.perform
+    driver.action.move_to(element)
+   # driver.action.move_to(element).click.perform
+  rescue => e
+    puts e.inspect
   end
   
   def wait_leave identifier
