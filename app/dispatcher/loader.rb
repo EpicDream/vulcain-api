@@ -10,7 +10,7 @@ module Robots
       }.compact - ["core/core.rb"]
     end
     
-    REQUIRES = ['undef_klasses', 'core_extensions'] + core_modules + ['driver', 'robot']
+    REQUIRES = ['undef_klasses.rb', 'core_extensions.rb'] + core_modules + ['driver.rb', 'robot.rb']
     
     def initialize vendors
       @vendors = vendors
@@ -25,7 +25,7 @@ module Robots
     private
     
     def vendors_require
-      @vendors.map { |vendor| "vendors/#{vendor.underscore}"}
+      @vendors.map { |vendor| "vendors/#{vendor.underscore}.rb"}
     end
     
     def vendors_as_string_array
@@ -33,7 +33,7 @@ module Robots
     end
     
     def robot_file name
-      File.read("#{ROBOT_PATH}/#{name}.rb")
+      File.read("#{ROBOT_PATH}/#{name}")
     end
     
   end
