@@ -82,7 +82,7 @@ module ZalandoFRConstants
   PRODUCT = {
     price_text:'//*[@id="articlePrice"]',
     title:'//h1[@class="productName"]',
-    image:'//*[@id="image"]/img'
+    image:'//*[@id="image"]//img'
   }
   
   BILL = {

@@ -18,8 +18,8 @@ class Driver
   end
   
   def quit
-    # @driver.quit
-    # FileUtils.rm_rf(@profile_path) if @profile_path
+    @driver.quit
+    FileUtils.rm_rf(@profile_path) if @profile_path
   end
   
   def get url
