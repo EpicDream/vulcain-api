@@ -34,9 +34,9 @@ module TheBodyShopFranceConstants
   
   LOGIN = {
     link:'//a[@class="login"]',
-    email:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_ctl00_ctl02_ctl00_ctl00_ctl00_ctl00_ctl00_ctl03_ctl00_ctl00_login"]',
-    password:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_ctl00_ctl02_ctl00_ctl00_ctl00_ctl00_ctl00_ctl03_ctl00_ctl00_password"]',
-    submit: '//*[@id="ctl00_ctl00_brandlayout0_ctl00_ctl00_ctl02_ctl00_ctl00_ctl00_ctl00_ctl00_ctl03_ctl00_ctl00_login_submit"]',
+    email:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl01_ctl00_ctl00_ctl00_ctl00_login"]',
+    password:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl01_ctl00_ctl00_ctl00_ctl00_password"]',
+    submit: '//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl01_ctl00_ctl00_ctl00_ctl00_submitlogin"]',
     logout:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_ctl00_ctl02_ctl00_ctl00_ctl00_ctl00_ctl00_ctl00_ctl00_ctl01_ctl00_LogoutSubmit"]',
     captcha:nil,
     captcha_submit:nil,
@@ -78,9 +78,9 @@ module TheBodyShopFranceConstants
   }
   
   BILL = {
-    shipping:'//*[@id="onepagebasketrefresh"]/div[3]/div[10]',
+    shipping:'//*[@id="onepagebasketrefresh"]/div[@class="float_L vertical_padding_bloc"]/div[10]',
     total:'//*[@id="basket_total"]',
-    info:'//*[@id="onepagebasketrefresh"]/div[3]/div[11]'
+    info:'//*[@id="onepagebasketrefresh"]/div[@class="float_L vertical_padding_bloc"]/div[11]'
   }
   
   PAYMENT = {
