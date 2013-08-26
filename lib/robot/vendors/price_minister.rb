@@ -59,8 +59,38 @@ class Selenium::WebDriver::Support::Select
   rescue Selenium::WebDriver::Error::NoSuchElementError
     return nil
   end
+
+  def select_on_value!(value)
+    if value.kind_of?(Array)
+      return value.find { |v| select_on_value(v) }
+    end
+
+    if value.kind_of?(Integer) && value != 0
+      o = options.detect do |o|
+        o.enabled? && o.value.to_i == value
+      end
+    elsif value.kind_of?(Regexp)
+      o = options.detect do |o|
+        o.enabled? && o.value =~ value
+      end
+    else
+      o = options.detect do |o|
+        o.enabled? && o.value == value.to_s
+      end
+    end
+    if o.nil?
+      raise Selenium::WebDriver::Error::NoSuchElementError, "cannot locate option with value: #{value.inspect}" 
+    end
+    select_options [o]
+  end
+  def select_on_value(value)
+    return select_on_value!(value)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    return nil
+  end
 end
 # encoding: utf-8
+
 
 
 
@@ -78,12 +108,13 @@ class Plugin::IRobot < Robot
   MOBILE_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 
   class StrategyError < StandardError
-    attr_reader :code, :message
+    attr_reader :code, :message, :url
     attr_accessor :source, :screenshot, :logs, :stepstrace, :step, :args
     def initialize(err,args={})
       @message = "#{err.class}: #{err.to_s}"
       super(@message)
       @step = args[:step]
+      @url = args[:url]
       @code = args[:code]
       @action_name = args[:action_name]
       @args = args[:args] || {}
@@ -269,6 +300,7 @@ class Plugin::IRobot < Robot
       end
 
       pl_step('run_test') do
+      begin
         @isTest = true
         catch :pass do
           pl_open_url! @shop_base_url
@@ -333,7 +365,15 @@ class Plugin::IRobot < Robot
           run_step('empty_cart')
           @messager.message :cart_emptied
         end
-      end
+      rescue => err
+        if @steps['empty_cart']
+          run_step('empty_cart')
+          @messager.message :cart_emptied
+        end
+        pl_open_url err.url if err.method_exists?(:url)
+        raise
+      end # begin
+      end # step do
     end
   end
 
@@ -531,6 +571,23 @@ class Plugin::IRobot < Robot
   # If xpath isn't a select, search for a single select child.
   def pl_select_option!(xpath, value)
     Selenium::WebDriver::Support::Select.new(input!(xpath, 'select')).select!(value)
+  end
+
+  # Select option.
+  # If path isn't a select, search for a single select child.
+  def pl_select_country!(path, country, args={})
+    value = if country == "FR" && args[:with] == :num then /250|249/
+            else
+              country_hash = COUNTRY_HASH[country]
+              args[:with] ? country_hash[args[:with]] : country_hash[:name]
+            end
+    value = Regexp.new(value.sub(/^0*/, "0*")) if args[:with] == :num && country != "FR"
+
+    if args[:on_value] && ! args[:on_text]
+      Selenium::WebDriver::Support::Select.new(input!(path, 'select')).select_on_value!(value)
+    else
+      Selenium::WebDriver::Support::Select.new(input!(path, 'select')).select!(value)
+    end
   end
 
   # Click on radio button.
@@ -1067,7 +1124,7 @@ class PriceMinister
 				pl_check!(plarg_xpath)
 			end
 			step('add_to_cart') do
-				if pl_check("div#display_by")
+				if pl_check("div.display_by")
 					# Aller sur produit neuf
 					plarg_xpath = 'div#nav_toolbar div.display_by ul li ul.l_line li a.filter10'
 					pl_click_on!(plarg_xpath)
@@ -1114,6 +1171,9 @@ class PriceMinister
 				# Aller sur mon panier
 				plarg_url = 'http://www.priceminister.com/cart'
 				pl_open_url!(plarg_url)
+        # Selectionner le pays de destination
+        plarg_path = "#dest_country"
+        pl_select_country!(plarg_path, user.address.country, with: :num, on_value: true)
 				# Indiquer le prix total
 				plarg_xpath = 'div#purchase_summary_item_include div ul li.total_amount span.value strong'
 				pl_set_tot_price!(plarg_xpath)
@@ -1136,6 +1196,10 @@ class PriceMinister
 				plarg_xpath = 'input#city'
 				plarg_argument = user.address.city
 				pl_fill_text!(plarg_xpath, plarg_argument)
+				# State
+				plarg_xpath = 'select[name="state_id"]'
+				plarg_argument = user.address.state
+				pl_select_option(plarg_xpath, plarg_argument)
 				# Télephone fixe
 				plarg_xpath = 'input#phone_1'
 				plarg_argument = user.address.land_phone
@@ -1148,12 +1212,12 @@ class PriceMinister
 				plarg_xpath = 'form#chck_addr_reg_frm div.pm_action button span span'
 				pl_click_on!(plarg_xpath)
 				# Décocher les assurances
-				plarg_xpath = 'div#check_coupon div form div input:nth-child(9)'
-				if pl_check(plarg_xpath)
+				if pl_check("div#check_coupon")
+          plarg_xpath = 'div#check_coupon div form div input[type="checkbox"]:not([disabled])'
 					pl_untick_checkbox(plarg_xpath)
 					wait_ajax(2)
 					# Bouton continuer
-					plarg_xpath = 'div#check_coupon div table tbody tr td a'
+					plarg_xpath = 'div#check_coupon a.bluelinksmall'
 					pl_click_on(plarg_xpath)
 				end
 			end

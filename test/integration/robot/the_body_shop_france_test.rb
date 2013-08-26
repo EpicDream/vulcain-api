@@ -56,7 +56,7 @@ class TheBodyShopFranceTest < StrategyTest
   
   test "finalize order" do
     expected_products = [{"price_text"=>"28,00 €", "product_title"=>"EAU DE PARFUM WHITE MUSK®", "product_image_url"=>"http://www.thebodyshop.fr/images/packshot/products/large/11121m_l.jpg", "price_product"=>28.0, "price_delivery"=>nil, "url"=>"http://www.thebodyshop.fr/parfums/eaux-de-toilette-parfums/eau-de-parfum-white-musk.aspx", "id"=>nil}]
-    billing = {:shipping=>0.0, :total=>46.0, :shipping_info=>"Livraison sous 6 à 10 jours ouvrables"}
+    billing = {:shipping=>0.0, :total=>42.0, :shipping_info=>"Livraison sous 6 à 10 jours ouvrables"}
     products = [{url:PRODUCT_URL_1, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)

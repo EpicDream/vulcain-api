@@ -67,7 +67,7 @@ class ZalandoFRTest < StrategyTest
   
   test "finalize order" do
     expected_products = [{"price_text"=>"50,00 €", "product_title"=>"Lightmakers\nWILLMORE - Lampe de table - noir", "product_image_url"=>"http://i1.ztat.net/detail/LL/97/3D/00/28/02/LL973D002-802@1.1.jpg", "price_product"=>50.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/light-living-willmore-lampe-de-table-noir-ll973d002-802.html", "id"=>nil}]
-    billing = {}
+    billing = {:shipping=>0.0, :total=>100.0, :shipping_info=>"Date de livraison estimée :\nentre le vendredi 30 août 2013 et le lundi 2 septembre 2013\nLivraison rapide\nProtection du client\nProtection des données\nRetour sous 30 jours\nPaiement sécurisé par le protocole SSL\nLIVRAISON ET RETOUR GRATUITS"}
     products = [{url:PRODUCT_URL_1, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)

@@ -24,7 +24,7 @@ class Plugin::RobotFactory
                                         'city' => 'Paris',
                                         'mobile_phone' => '0634562345',
                                         'land_phone' => '0134562345',
-                                        'country' => 'France'}
+                                        'country' => 'FR'}
             }
   }
 

@@ -61,7 +61,7 @@ module AmazonFranceConstants
   PRODUCT = {
     price_text:'//td[@class=" a-color-price a-size-medium"]',
     title:'//*[@id="universal-product-title-features"] | //*[@id="product-title"]',
-    image:'//*[@id="previous-image"]'
+    image:'//*[@id="previous-image"] | //*[@id="main-image"]'
   }
   
   BILL = {
@@ -82,7 +82,7 @@ module AmazonFranceConstants
     exp_year:'//*[@id="ccYear"]',
     cvv:'//*[@id="addCreditCardVerificationNumber"]',
     submit: '//*[@id="ccAddCard"]',
-    status: '//*[@id="thank-you-header"]',
+    status: '//*[@id="thank-you-header"] | //div[@id="content"]',
     succeed: /votre\s+commande\s+a\s+été\s+passée/i
   }
   
