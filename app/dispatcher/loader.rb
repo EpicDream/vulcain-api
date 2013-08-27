@@ -7,10 +7,10 @@ module Robots
     def self.core_modules
       Dir.foreach("#{Rails.root}/lib/robot/core").map { |filename|
         "core/#{filename}" unless filename =~ /^\.{1,2}$/
-      }.compact - ["core/core.rb"]
+      }.compact - ["core/core.rb", "core/robot_module.rb"]
     end
     
-    REQUIRES = ['undef_klasses.rb', 'core_extensions.rb'] + core_modules + ['driver.rb', 'robot.rb']
+    REQUIRES = ['undef_klasses.rb', 'core_extensions.rb', 'core/robot_module.rb'] + core_modules + ['driver.rb', 'robot.rb']
     
     def initialize vendors
       @vendors = vendors
