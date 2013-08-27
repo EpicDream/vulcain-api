@@ -22,7 +22,6 @@ module RobotCore
         robot.terminate_on_error(:no_product_available)
         return
       end
-      
       robot.click_on vendor::CART[:validate], check:true
       robot.message :cart_filled, :next_step => 'finalize order'
     end

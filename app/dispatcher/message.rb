@@ -68,8 +68,6 @@ module Dispatcher
       @message[:session] = session
       self
     end
-        
-    private
 
     def request url, data
       Log.create({request:url, data:data})
