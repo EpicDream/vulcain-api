@@ -3,7 +3,7 @@ require_relative 'strategy_test'
 require_robot 'the_body_shop_france'
 
 class TheBodyShopFranceTest < StrategyTest
-  PRODUCT_URL_1 = 'http://www.thebodyshop.fr/parfums/eaux-de-toilette-parfums/eau-de-parfum-white-musk.aspx'
+  PRODUCT_URL_1 = 'http://www.thebodyshop.fr/corps-bain/gels-douche/creme-de-douche-beurre-de-cacao.aspx'
   PRODUCT_URL_2 = 'http://www.thebodyshop.fr/corps-bain/coups-de-coeur/creme-exfoliante-corporelle-noix-du-bresil.aspx'
   
   setup do
