@@ -8,7 +8,7 @@ namespace :strategies do
     reporter = StrategiesTestsReport.new
     
     test_files.each do |vendor, test_file|
-      output = `rake test:units TEST=test/integration/robot/#{test_file}  TESTOPTS=--name=test_complete_order_process`
+      output = `rake test:units TEST=test/integration/robot/#{test_file}  TESTOPTS=--name=test_complete_order_process --trace`
       reporter.analyze(vendor, output)
     end
     reporter.terminate
@@ -54,6 +54,7 @@ class StrategiesTestsReport
   
   def analyze vendor, output
     errors = GREP_TRACE.(output)
+    errors << ["rake aborted!"] if output =~ /rake aborted!/
     if errors.any?
       trace = errors[0]
       @errors[vendor] = trace
