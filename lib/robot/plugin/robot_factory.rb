@@ -99,7 +99,7 @@ class #{vendor.camelize}Test < ActiveSupport::TestCase
     @products = #{strategy[:productsUrl]}.inspect}
   end
 
-  test 'it should raise nothing on normal test' do
+  test 'complete order process' do
     @context['order']['products'] = @products.shuffle
     robot = #{vendor.camelize}.new(@context).robot
     assert_nothing_raised "#{$!}" do

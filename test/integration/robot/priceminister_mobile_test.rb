@@ -53,7 +53,7 @@ class PriceministerMobileTest < ActiveSupport::TestCase
     ]
   end
 
-  test 'complete order process' do
+  test 'it should raise nothing on normal test' do
     @context['order']['products'] = @products.shuffle
     robot = PriceministerMobile.new(@context).robot
     robot.pl_fake_run
