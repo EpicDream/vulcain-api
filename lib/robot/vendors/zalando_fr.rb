@@ -108,7 +108,9 @@ module ZalandoFRConstants
     submit: '//input[@name="postPaymentMethod"]',
     status: nil,
     succeed: nil,
-    cgu:nil
+    cgu:nil,
+    coupon:'//*[@id="couponCode"]',
+    coupon_recompute:'//*[@id="codeRedeemButton"]'
   }
   
 end

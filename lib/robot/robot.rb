@@ -10,7 +10,7 @@ class Robot
   
   attr_accessor :context, :driver, :messager, :vendor
   attr_accessor :account, :order, :user, :questions, :answers, :steps_options, :products, :billing
-  attr_accessor :skip_assess
+  attr_accessor :skip_assess, :has_coupon
   
   def initialize context, &block
     begin
@@ -82,6 +82,7 @@ class Robot
       @next_step = state[:next_step] || 'payment'
       message = {:questions => [new_question(nil, {action:"answer.answer == Robot::YES_ANSWER"})],
                  :products => products, 
+                 :has_coupon => self.has_coupon,
                  :billing => self.billing }
       messager.dispatcher.message(:assess, message)
     end

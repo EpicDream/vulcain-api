@@ -59,6 +59,8 @@ module RueDuCommerceConstants
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
     zero_fill: true,
     trunc_year: true,
+    coupon:'//*[@id="bhaInputText"]',
+    coupon_recompute:'//*[@id="bhaInputSubmit"]'
   }
   
   SHIPMENT = {

@@ -81,8 +81,7 @@ class Driver
   end
  
   def move_to_and_click_on element
-    driver.action.move_to(element)
-   # driver.action.move_to(element).click.perform
+    driver.action.move_to(element).click.perform
   rescue => e
     puts e.inspect
   end

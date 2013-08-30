@@ -44,11 +44,14 @@ module RobotCore
       robot.click_on vendor::CART[:popup], check:true
       remove_options
       set_quantity
+      insert_coupon
       robot.click_on vendor::CART[:cgu], check:true
       robot.wait_ajax(4)
       robot.click_on vendor::CART[:submit]
-      set_quantity if retry_set_quantity
-      
+      if retry_set_quantity
+        set_quantity 
+        insert_coupon 
+      end
       robot.click_on vendor::CART[:cgu], check:true
       robot.click_on vendor::CART[:submit], check:true
       robot.open_url vendor::URLS[:after_submit_cart]
@@ -72,6 +75,12 @@ module RobotCore
     end
     
     private
+    
+    def insert_coupon
+      robot.has_coupon = robot.has_coupon || !!robot.find_element(vendor::CART[:coupon], nowait:true)
+      robot.fill vendor::CART[:coupon], with:order.coupon, check:true
+      robot.click_on vendor::CART[:coupon_recompute], check:true
+    end
     
     def set_quantity
       return if robot.order.products.count > 1

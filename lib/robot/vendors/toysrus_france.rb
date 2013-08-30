@@ -63,7 +63,9 @@ module ToysrusFranceConstants
     items_lists:'//*[@id="yourShoppingCart"]',
     submit: '//*[@id="proceed-to-checkout"]',
     submit_success: [SHIPMENT[:submit], PAYMENT[:submit]],
-    popup: '//*[@id="decline"]'
+    popup: '//*[@id="decline"]',
+    coupon:'//*[@id="promoCode"]',
+    coupon_recompute:'//*[@id="promoApply"]'
   }
   
   PRODUCT = {

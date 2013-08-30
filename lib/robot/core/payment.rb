@@ -15,6 +15,7 @@ module RobotCore
         robot.wait_for [vendor::PAYMENT[:access]]
         RobotCore::Billing.new.build
         remove_contracts_options
+        insert_coupon
         robot.click_on vendor::PAYMENT[:access]
         RobotCore::CreditCard.new.select
         robot.click_on vendor::PAYMENT[:cgu], check:true
@@ -64,6 +65,12 @@ module RobotCore
     end
     
     private
+    
+    def insert_coupon
+      robot.has_coupon = robot.has_coupon || !!robot.find_element(vendor::PAYMENT[:coupon], nowait:true)
+      robot.fill vendor::PAYMENT[:coupon], with:order.coupon, check:true
+      robot.click_on vendor::PAYMENT[:coupon_recompute], check:true
+    end
     
     def remove_contracts_options
       robot.click_on vendor::PAYMENT[:contract_option], check:true

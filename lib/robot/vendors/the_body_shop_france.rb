@@ -69,6 +69,8 @@ module TheBodyShopFranceConstants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: '//img[@title="Commander"]',
     submit_success: [],
+    coupon:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl05_ctl00_ctl00_ctl00_keycode"]',
+    coupon_recompute:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl05_ctl00_ctl00_ctl00_submitkc"]/img'
   }
   
   PRODUCT = {

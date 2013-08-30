@@ -69,7 +69,7 @@ class RueDuCommerceTest < StrategyTest
   end  
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_5_URL, quantity:1}])
+    run_spec("complete order process", [{url:PRODUCT_5_URL, quantity:1}], has_coupon:true)
   end
   
   test "validate order removing contract option on payment step" do

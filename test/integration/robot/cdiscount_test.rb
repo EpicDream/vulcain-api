@@ -11,6 +11,7 @@ class CdiscountTest < StrategyTest
   PRODUCT_URL_6 = 'http://www.cdiscount.com/pret-a-porter/vetements-femme/l-amie-de-paris-t-shirt-femme-bleu/f-11302173234-s303bleu.html'
   PRODUCT_URL_7 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-persica-peche-210-pieces/f-127010208-haribopersica.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
   PRODUCT_URL_8 = 'http://www.cdiscount.com/dvd/coffrets-dvd/dvd-la-panthere-rose-et-cie/f-1042104-3700259833028.html'
+  PRODUCT_URL_9 = 'http://www.cdiscount.com/informatique/ordinateurs-pc-portables/toshiba-satellite-c850-1nn/f-107092212-pscbwe0kj00pfr.html'
   
   setup do
     initialize_robot_for Cdiscount
@@ -77,7 +78,11 @@ class CdiscountTest < StrategyTest
   end
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}])
+    run_spec("complete order process", [{url:PRODUCT_URL_9, quantity:1}], has_coupon:true)
+  end
+  
+  test "complete order process with product without coupon" do
+    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}], has_coupon:false)
   end
   
 end  

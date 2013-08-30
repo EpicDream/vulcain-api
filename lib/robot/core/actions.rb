@@ -104,7 +104,7 @@ module RobotCore
     end
 
     def fill identifier, args={}
-      return if args[:check] && !exists?(identifier)
+      return false if args[:check] && !exists?(identifier)
       input = @driver.find_element(identifier)
       input.clear
       input.send_key args[:with]

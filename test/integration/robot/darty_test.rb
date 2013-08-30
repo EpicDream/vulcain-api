@@ -60,10 +60,6 @@ class DartyTest < StrategyTest
     run_spec("no delivery error", [{url:PRODUCT_URL_2, quantity:1}])
   end
   
-  test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}])
-  end
-  
   test "finalize order" do
     expected_products = [{"price_text"=>"39,90 € ", "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>191919}]
     billing = {:shipping=>nil, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Mer. 28/08 et le Ven. 30/08"}
@@ -75,6 +71,10 @@ class DartyTest < StrategyTest
   test "validate order" do
     products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
     run_spec("validate order", products)
+  end
+  
+  test "complete order process" do
+    run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}], has_coupon:true)
   end
   
 end

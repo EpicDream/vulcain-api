@@ -57,6 +57,8 @@ module FnacConstants
     empty_message: '//*[@id="ShoppingCartDiv"]',
     quantity:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_MPBasketLineRepeater_inner_0_DisplayMPBasketLine1_0_btnPlusQuantity_0"]',
     empty_message_match: /Votre panier est vide/i,
+    coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',
+    coupon_recompute:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_btnSubmit"]'
   }
   
   PRODUCT = {
@@ -84,7 +86,7 @@ module FnacConstants
     submit:  '//*[@id="submit3"]',
     status: '//*[@id="thank-you"]',
     succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
-    zero_fill: true
+    zero_fill: true,
   }
   
 end

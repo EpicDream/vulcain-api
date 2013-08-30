@@ -72,6 +72,8 @@ module EveilEtJeuxConstants
     submit: '//*[@id="ctl00_ContentPlaceHolder1__pValidateCommande"]',
     confirm: '//a[@class="buttonVert"]',
     submit_success: [],
+    coupon:'//*[@id="ctl00_ContentPlaceHolder1__ucGetCodeAvantageHome__tbCodeAvantage"]',
+    coupon_recompute:'//*[@id="ctl00_ContentPlaceHolder1__ucGetCodeAvantageHome__bGetCodeAvantage"]'
   }
   
   PRODUCT = {

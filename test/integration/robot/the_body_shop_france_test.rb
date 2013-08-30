@@ -67,7 +67,7 @@ class TheBodyShopFranceTest < StrategyTest
   end
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:2}])
+    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:2}], has_coupon:true)
   end
   
 end

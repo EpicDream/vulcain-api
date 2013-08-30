@@ -84,7 +84,9 @@ module CdiscountConstants
     submit: '//*[@id="cphMainArea_ctl01_ValidateButton"]',
     remove: '//*[@id="mainCz"]//input[@title="Supprimer"]',
     status: '//*[@id="mainContainer"]',
-    succeed: /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i
+    succeed: /VOTRE\s+COMMANDE\s+EST\s+ENREGISTR/i,
+    coupon:'//*[@id="blocVoucher"]//input[1]',
+    coupon_recompute:'//input[@name="VoucherButton"]'
   }
   
 end

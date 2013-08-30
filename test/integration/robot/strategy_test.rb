@@ -116,7 +116,7 @@ class StrategyTest < ActiveSupport::TestCase
     assert_equal billing, robot.billing
   end
   
-  def complete_order_process products
+  def complete_order_process products, opts={}
     @context['order']['products'] = products
     @robot.context = @context
     @message.expects(:message).times(10..17)
@@ -125,6 +125,7 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
+    assert !!opts[:has_coupon] == !!robot.has_coupon, "Coupon checking failure"
   end
   
   def validate_order products
@@ -194,6 +195,7 @@ class StrategyTest < ActiveSupport::TestCase
     {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products' => [],
+                            'coupon' => 'magic-09',
                             'credentials' => {
                               'holder' => 'Pierre Petit', 
                               'number' => '4561003435926735', 

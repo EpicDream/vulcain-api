@@ -46,7 +46,9 @@ module DartyConstants
     submit: '//*[@id="newbottomFinishButton"]',
     quantity: '//table[@class="dataPanier"]//td//select',
     empty_message_match: /Votre panier est actuellement vide/i,
-    submit_success: [SHIPMENT[:bill]]
+    submit_success: [SHIPMENT[:bill]],
+    coupon:'//*[@id="codePromoInput"]',
+    coupon_recompute:'//*[@id="applyCodePromoBtn"]'
   }
   
   PRODUCT = {
