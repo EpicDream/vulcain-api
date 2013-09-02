@@ -1,41 +1,86 @@
-# encoding: utf-8
+# encoding: UTF-8
+require_relative 'strategy_test'
+require_robot 'price_minister'
 
-require 'test_helper'
-require "robot/vendors/price_minister.rb"
-
-class PriceMinisterTest < ActiveSupport::TestCase
+class PriceMinisterTest < StrategyTest
+  PRODUCT_URL_1 = 'http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html'
+  PRODUCT_URL_2 = 'http://www.priceminister.com/offer/buy/182365979/helicoptere-rc-syma-s107g-gyro-infrarouge-3-voies-rouge.html'
+  PRODUCT_URL_3 = 'http://www.priceminister.com/offer/buy/162872475/s1PM07047148/s2M27533'
+  PRODUCT_URL_4 = 'http://www.priceminister.com/offer/buy/118134048/s1PM07047277/s2PM07862054'
+  
   setup do
-    @context = {:options=>{}, "account"=>{"login"=>"timmy84@yopmail.com", "password"=>"shopelia2013", :new_account=>false}, "session"=>{"uuid"=>"0129801H", "callback_url"=>"http://", "state"=>"dzjdzj2102901"}, "order"=>{"credentials"=>{"holder"=>"TIMMY DUPONT", "number"=>"401290129019201", "exp_month"=>1, "exp_year"=>2014, "cvv"=>123}}, "user"=>{"birthdate"=>{"day"=>1, "month"=>4, "year"=>1985}, "gender"=>0, "address"=>{"address_1"=>"12 rue des lilas", "address_2"=>"", "first_name"=>"Timmy", "last_name"=>"Dupont", "additionnal_address"=>"", "zip"=>"75019", "city"=>"Paris", "mobile_phone"=>"0634562345", "land_phone"=>"0134562345", "country"=>"FR"}}}
-    @products = [
-      {url: "http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", quantity: 2},
-      {url: "http://www.priceminister.com/offer/buy/60516923/KENWOOD-KMX51--Rouge-Robots-Mixeurs.html#xtatc=PUB-[PMC]-[H]-[Maison_Petit-Electromenager]-[Push]-[2]-[Pdts]-[]"},
-      {url: "http://www.priceminister.com/offer/buy/185236642/cigarette-electronique-ce4.html"},
-      {url: "http://www.priceminister.com/offer/buy/182365979/helicoptere-rc-syma-s107g-gyro-infrarouge-3-voies-rouge.html", quantity: 1},
-      {url: "http://www.priceminister.com/offer/buy/156963640/sac-a-main-cuir-veau-velours-ref-lolita-main-et-epaule-promo-nouvelle-collection-sac-destock.html#xtatc=PUB-[PMC]-[H]-[Mode_bagageries-maroquinerie]-[Push]-[1]-[Pdts]-[]", color: "Bleu"},
-      {url: "http://www.priceminister.com/offer/buy/208348391/s1PM07071359/s2", size: 46},
-      {url: "http://www.priceminister.com/offer/buy/118134048/cpl118141667/polo-jm-ht-polo-uni-tailles-s-m-l-xl-xxl-pret-a-porter.html", color: "Bleu", size: "XXL"}
-    ]
+    initialize_robot_for PriceMinister
+  end
+  
+  test "register" do
+    run_spec("register")
+  end
+  
+  test "register failure" do
+    run_spec("register failure")
   end
 
-  test 'complete order process' do
-    @context['order']['products'] = @products.shuffle
-    robot = PriceMinister.new(@context).robot
-    robot.pl_fake_run
+  test "login" do
+    run_spec("login")
   end
-
-  test 'it should raise nothing on account creation test' do
-    skip("Comment this line to manually test account creation")
-    @context['order']['products'] = @products.sample
-    @context['account']['new_account'] = true
-    robot = PriceMinister.new(@context).robot
-    robot.messager = Plugin::IRobot::FakeMessager.new
-
-    assert robot.questions.empty?
-    assert ! robot.next_step?
-    assert_nothing_raised "#{$!.inspect}" do
-      robot.run
+  
+  test "login failure" do
+    run_spec("login failure")
+  end
+  
+  test "logout" do
+    run_spec("logout")
+  end
+  
+  test "remove credit card" do
+    #TODO? run_spec("remove credit card")
+  end
+  
+  test "add to cart" do
+    assert = Proc.new do
+      @robot.open_url PriceMinister::URLS[:cart]
+      assert_equal 2, @robot.find_elements(PriceMinister::CART[:remove_item]).count
     end
-    assert ! robot.questions.empty?
-    assert robot.next_step?
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("add to cart", products, assert)
   end
+  
+  test "add to cart products with color and size options" do
+    assert = Proc.new do
+      @robot.open_url PriceMinister::URLS[:cart]
+      assert_equal 2, @robot.find_elements(PriceMinister::CART[:remove_item]).count
+    end
+    products = [{url:PRODUCT_URL_3, quantity:1, color:'K01698', size:'PM07071359'},
+                {url:PRODUCT_URL_4, quantity:1, color:'PM02162243', size:'PM07047278'}]
+    
+    run_spec("add to cart", products, assert)
+  end
+  
+  test "empty cart" do
+    assert = Proc.new do
+      @robot.open_url PriceMinister::URLS[:cart]
+      assert_equal 0, @robot.find_elements(PriceMinister::CART[:remove_item]).count
+    end
+    products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    
+    run_spec("empty cart", products, assert)
+  end
+  
+  test "finalize order" do
+    expected_products = [{"price_text"=>"14,94 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>14.94, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}, {"price_text"=>"17,90 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>17.9, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}]
+    billing = {:shipping=>nil, :total=>35.74, :shipping_info=>"Pour une livraison en France"}
+    products = [{url:PRODUCT_URL_1, quantity:2}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end
+  
+  test "validate order" do
+    run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
+  end
+  
+  test "complete order process" do
+    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:2}], has_coupon:true)
+  end
+  
 end
