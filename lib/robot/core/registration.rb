@@ -30,7 +30,9 @@ module RobotCore
     private
     
     def options
-      robot.click_on vendor::REGISTER[:option], check:true
+      [vendor::REGISTER[:option]].flatten.each { |option|
+        robot.click_on option, check:true
+      }
     end
     
     def fails?
@@ -38,6 +40,9 @@ module RobotCore
     end
     
     def password
+      pseudonym = account.login.match(/(.*?)@.*/).captures.first.each_char.to_a.shuffle.join
+      robot.fill vendor::REGISTER[:pseudonym], with:pseudonym, check:true
+      robot.fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
       robot.fill vendor::REGISTER[:password], with:account.password, check:true
       robot.fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
     end
@@ -84,11 +89,20 @@ module RobotCore
         robot.fill vendor::REGISTER[:birthdate], with:BIRTHDATE_AS_STRING.(user.birthdate)
       end
       if vendor::REGISTER[:birthdate_day]
+        zero_fill?
         robot.select_option vendor::REGISTER[:birthdate_day], user.birthdate.day
         robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month
         robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year
       end
       robot.fill vendor::REGISTER[:birth_department], with:user.address.zip[0..1], check:true
+    end
+    
+    def zero_fill?
+      options = robot.options_of_select(vendor::REGISTER[:birthdate_day])
+      if options.keys.include?("01")
+        user.birthdate.day = user.birthdate.day.to_s.rjust(2, "0")
+        user.birthdate.month = user.birthdate.month.to_s.rjust(2, "0")
+      end
     end
     
   end
