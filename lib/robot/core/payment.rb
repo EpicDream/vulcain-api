@@ -45,8 +45,10 @@ module RobotCore
       robot.select_option vendor::PAYMENT[:exp_month], order.credentials.exp_month
       robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
       robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
+      robot.click_on vendor::PAYMENT[:option], check:true
       robot.click_on vendor::PAYMENT[:submit]
       robot.wait_leave vendor::PAYMENT[:submit]
+
       robot.click_on vendor::PAYMENT[:cgu], check:true
       robot.click_on vendor::PAYMENT[:validate], check:true
       true
@@ -74,9 +76,11 @@ module RobotCore
     
     def remove_contracts_options
       robot.click_on vendor::PAYMENT[:contract_option], check:true
-      robot.wait_for([vendor::PAYMENT[:contract_option_confirm]])
-      robot.click_on vendor::PAYMENT[:contract_option], check:true
-      robot.click_on vendor::PAYMENT[:contract_option_confirm], check:true
+      if vendor::PAYMENT[:contract_option_confirm]
+        robot.wait_for([vendor::PAYMENT[:contract_option_confirm]])
+        robot.click_on vendor::PAYMENT[:contract_option], check:true
+        robot.click_on vendor::PAYMENT[:contract_option_confirm], check:true
+      end
     end
     
   end
