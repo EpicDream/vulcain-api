@@ -88,7 +88,7 @@ module PriceMinisterConstants
     price_text:'//ul[@class="priceInfos"] | //li[@itemprop="price"]',
     title:'//div[@class="productTitle"]/h1 | //div[@class="fn"]',
     image:'//img[@itemprop="image"]',
-    shipping:'//li[@class="shipping_amount default_shipping"] | //li[@class="shipping_amount free_shipping_eligible"]'
+    shipping:'//li[@class="shipping_amount default_shipping"] | //li[@class="shipping_amount free_shipping_eligible"] | //li[@class="shipping_amount free_shipping"]'
   }
   
   BILL = {

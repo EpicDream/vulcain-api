@@ -7,6 +7,7 @@ class PriceMinisterTest < StrategyTest
   PRODUCT_URL_2 = 'http://www.priceminister.com/offer/buy/182365979/helicoptere-rc-syma-s107g-gyro-infrarouge-3-voies-rouge.html'
   PRODUCT_URL_3 = 'http://www.priceminister.com/offer/buy/162872475/s1PM07047148/s2M27533'
   PRODUCT_URL_4 = 'http://www.priceminister.com/offer/buy/118134048/s1PM07047277/s2PM07862054'
+  PRODUCT_URL_5 = 'http://www.priceminister.com/offer/buy/132498077/nounours-45-kiki-marron-t3ab.html'
   
   setup do
     initialize_robot_for PriceMinister
@@ -70,7 +71,7 @@ class PriceMinisterTest < StrategyTest
   test "finalize order" do
     expected_products = [{"price_text"=>"12,40 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>12.4, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}]
     billing = {:shipping=>2.9, :total=>15.3, :shipping_info=>"Pour une livraison en France"}
-    products = [{url:PRODUCT_URL_1, quantity:1}]
+    products = [{url:PRODUCT_URL_5, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end
