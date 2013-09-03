@@ -14,7 +14,9 @@ module RobotCore
     private
     
     def shipping_from_products
-      robot.billing[:shipping] = robot.products.sum { |product| product["price_delivery"] || 0 }
+      robot.billing[:shipping] = robot.products.inject(0) { |total, product| 
+        total += product["price_delivery"] || 0 
+      }
     end
     
     def build?
