@@ -83,7 +83,9 @@ module AmazonFranceConstants
     cvv:'//*[@id="addCreditCardVerificationNumber"]',
     submit: '//*[@id="ccAddCard"]',
     status: '//*[@id="thank-you-header"] | //div[@id="content"]',
-    succeed: /votre\s+commande\s+a\s+été\s+passée/i
+    succeed: /votre\s+commande\s+a\s+été\s+passée/i,
+    coupon:'//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]',
+    coupon_recompute:'//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
   }
   
 end
@@ -119,6 +121,10 @@ class AmazonFrance
             self.skip_assess = true
             click_on '//*[@id="continueButton"]'
           else
+            self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
+            fill PAYMENT[:coupon], with:order.coupon
+            click_on PAYMENT[:coupon_recompute]
+            
             order.credentials.number = "4561110175016641"
             order.credentials.holder = "M ERIC LARCHEVEQUE"
             order.credentials.exp_month = 2
@@ -148,8 +154,8 @@ class AmazonFrance
           if gift
             click_on '//*[@id="continueButton"]'
           else
-            fill '//*[@id="gcpromoinput"] | //*[@id="spc-gcpromoinput"]', with:order.credentials.voucher
-            click_on '//*[@id="button-add-gcpromo"] | //*[@id="apply-text"]'
+            fill PAYMENT[:coupon], with:order.credentials.voucher
+            click_on PAYMENT[:coupon_recompute]
             click_on '//*[@id="continueButton"]'
           end
         end

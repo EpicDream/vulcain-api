@@ -64,15 +64,16 @@ class AmazonTest < StrategyTest
   
   test "finalize order with one product and quantity > 1" do
     robot.expects(:submit_credit_card).returns(false)
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY180_.jpg", "price_product"=>17.01, "price_delivery"=>0, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054", "id"=>nil}]
+    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY200_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054", "id"=>nil}]
+    billing = {:shipping=>0.0, :total=>51.03, :shipping_info=>"Date de livraison estimée :  18 septembre 2013 - 19 septembre 2013"}
     products = [{url:PRODUCT_URL_6, quantity:3}]
 
-    run_spec("finalize order", products, expected_products, nil)
+    run_spec("finalize order", products, expected_products, billing)
   end  
 
   test "complete order process" do
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
-    run_spec("complete order process", [{url:PRODUCT_URL_6, quantity:2}])
+    run_spec("complete order process", [{url:PRODUCT_URL_6, quantity:2}], has_coupon:true)
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
