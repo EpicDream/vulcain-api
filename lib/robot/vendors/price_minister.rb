@@ -166,11 +166,6 @@ class PriceMinister
   def instanciate_robot
     Robot.new(@context) do
       step('add to cart') do
-        if order.products.count == 1
-          (order.products.last.quantity - 1).times do
-            order.products << order.products.last
-          end
-        end
         cart = RobotCore::Cart.new
         cart.best_offer = Proc.new {
           if exists?(CART[:offers])
