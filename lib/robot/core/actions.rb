@@ -2,7 +2,10 @@ module RobotCore
   module Actions
     
     def get_text identifier
-      identifier && @driver.find_element(identifier).text
+      return unless identifier
+      element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+      element ||= @driver.find_element(identifier)
+      element.text
     end
     
     def image_url identifier
@@ -56,15 +59,17 @@ module RobotCore
     end
 
     def move_to_and_click_on identifier
-      element = @driver.find_element(identifier)
+      element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+      element ||= @driver.find_element(identifier)
       element && @driver.move_to_and_click_on(element) 
     end
 
     def click_on identifier, opts={}
-      return if opts[:check] && !exists?(identifier)
+      return if !identifier.is_a?(Selenium::WebDriver::Element) && opts[:check] && !exists?(identifier)
       attempts = 0
       begin
-        element = @driver.find_element(identifier)
+        element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+        element ||= @driver.find_element(identifier)
         @driver.click_on element
       rescue Selenium::WebDriver::Error::UnknownError
         @driver.scroll(0, 200)
@@ -104,8 +109,9 @@ module RobotCore
     end
 
     def fill identifier, args={}
-      return false if args[:check] && !exists?(identifier)
-      input = @driver.find_element(identifier)
+      return false if !identifier.is_a?(Selenium::WebDriver::Element) && args[:check] && !exists?(identifier)
+      input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+      input ||= @driver.find_element(identifier)
       input.clear
       input.send_key args[:with]
     end
@@ -119,7 +125,8 @@ module RobotCore
     end
 
     def select_option identifier, value, opts={}
-      select = @driver.find_element(identifier)
+      select = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+      select ||= @driver.find_element(identifier)
       return if opts[:check] && !select
       @driver.select_option(select, value.to_s)
     end

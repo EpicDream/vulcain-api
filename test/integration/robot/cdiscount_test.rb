@@ -66,6 +66,14 @@ class CdiscountTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "finalize order with n products and m quantity" do
+    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY200_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054", "id"=>nil}, {"price_text"=>"EUR 8,74", "product_title"=>"Le capital : Livre 1, sections 1 à 4", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY200_.jpg", "price_product"=>8.74, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil}]
+    billing = {:shipping=>0.0, :total=>60.24, :shipping_info=>"Date de livraison estimée :  16 septembre 2013 - 19 septembre 2013"}
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order with mastercard" do
     @context['order']['credentials']['number'] = '501290129019201'
     @robot.context = @context

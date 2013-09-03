@@ -1,12 +1,13 @@
 module RobotCore
   class Cart < RobotModule
-    attr_accessor :before_add, :best_offer, :retry_set_quantity
+    attr_accessor :before_add, :best_offer, :retry_set_quantities
     
     def initialize
       super
       @before_add = Proc.new{}
       @best_offer = Proc.new{}
-      @retry_set_quantity = false
+      @retry_set_quantities = false
+      @amount = 0
     end
     
     def fill
@@ -43,14 +44,18 @@ module RobotCore
       open
       robot.click_on vendor::CART[:popup], check:true
       remove_options
-      set_quantity
+      set_quantities
       insert_coupon
       robot.click_on vendor::CART[:cgu], check:true
       robot.wait_ajax(4)
+      unless retry_set_quantities
+        robot.terminate_on_error(:cart_amount_error) and return unless check_cart_amount
+      end
       robot.click_on vendor::CART[:submit]
-      if retry_set_quantity
-        set_quantity 
-        insert_coupon 
+      if retry_set_quantities
+        set_quantities 
+        insert_coupon
+        robot.terminate_on_error(:cart_amount_error) and return unless check_cart_amount
       end
       robot.click_on vendor::CART[:cgu], check:true
       robot.click_on vendor::CART[:submit], check:true
@@ -82,22 +87,35 @@ module RobotCore
       robot.click_on vendor::CART[:coupon_recompute], check:true
     end
     
-    def set_quantity
-      return if robot.order.products.count > 1
-      node = robot.find_element(vendor::CART[:quantity], nowait:true)
-      @retry_set_quantity = true and return unless node
+    def set_quantities
+      robot.order.products.each_with_index do |product, index|
+        nodes = robot.find_elements(vendor::CART[:quantity], nowait:true)
+        @retry_set_quantities = true and return unless nodes.any?
+        @amount += product.quantity * robot.products[index]["price_product"]
+        set_quantity(nodes[index], product.quantity)
+      end
+    end
+    
+    def set_quantity node, quantity
       if node.tag_name == 'select'
-        robot.select_option(vendor::CART[:quantity], robot.order.products.last.quantity)
+        robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
-        click_count = robot.order.products.last.quantity - 1
-        click_count.times {
-          robot.click_on vendor::CART[:quantity]
-          robot.wait_ajax
-        }
+        (quantity - 1).times { robot.click_on node}
       else
-        robot.fill vendor::CART[:quantity], with:robot.order.products.last.quantity
+        robot.fill node, with:quantity
       end
       robot.click_on vendor::CART[:update], check:true, ajax:true
+      robot.wait_ajax
+    end
+    
+    def check_cart_amount
+      if vendor::CART[:total_line] 
+        totals = robot.find_elements(vendor::CART[:total_line], nowait:true)
+        amount = totals.inject(0) { |sum, total| sum += PRICES_IN_TEXT.(robot.get_text total).first}
+      else
+        amount = PRICES_IN_TEXT.(robot.get_text vendor::CART[:total]).first
+      end
+      amount == @amount
     end
     
     def remove
@@ -133,7 +151,7 @@ module RobotCore
     
     def add_to_cart product
       RobotCore::Options.new(product).run
-      
+      robot.wait_ajax
       if robot.exists? vendor::CART[:offers]
         best_offer.call
       else

@@ -3,6 +3,7 @@ module RobotCore
     
     def build
       return unless build?
+      
       shipping, total = [:shipping, :total].map { |key| 
         PRICES_IN_TEXT.(robot.get_text vendor::BILL[key]).first
       }

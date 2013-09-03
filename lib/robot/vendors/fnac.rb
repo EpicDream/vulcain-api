@@ -55,7 +55,9 @@ module FnacConstants
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
     empty_message: '//*[@id="ShoppingCartDiv"]',
-    quantity:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_MPBasketLineRepeater_inner_0_DisplayMPBasketLine1_0_btnPlusQuantity_0"]',
+    quantity:'TxtQuantity_',
+    update:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]', #for lose focus,find better
+    total_line:'totalTTC',
     empty_message_match: /Votre panier est vide/i,
     coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',
     coupon_recompute:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_btnSubmit"]'
@@ -70,7 +72,7 @@ module FnacConstants
   
   BILL = {
     shipping:'//table[@class="recapCmd"]/tfoot/tr[1]',
-    total:'//table[@class="recapCmd"]/tfoot/tr[2]',
+    total:'//table[@class="recapCmd"]/tfoot/tr[last()]',
   }
   
   PAYMENT = {

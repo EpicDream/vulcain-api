@@ -18,8 +18,8 @@ class Driver
   end
   
   def quit
-    @driver.quit
-    FileUtils.rm_rf(@profile_path) if @profile_path
+    # @driver.quit
+    # FileUtils.rm_rf(@profile_path) if @profile_path
   end
   
   def get url
@@ -133,8 +133,8 @@ class Driver
   def find_elements_with_pattern pattern, options={}
     waiting(options[:nowait]) { 
     begin
-      ["a", "input", "button", "span"].each do |tag|
-        ["text()", "@id", "@class", "@value", "@title", "@href"].each do |attribute|
+      ["a", "input", "button", "span", "td"].each do |tag|
+        ["text()", "@id", "@name", "@class", "@value", "@title", "@href"].each do |attribute|
           elements = @driver.find_elements(:xpath => "//#{tag}[contains(#{attribute}, '#{pattern}')]")
           return elements if elements.any?
         end
