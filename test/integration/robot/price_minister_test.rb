@@ -68,8 +68,8 @@ class PriceMinisterTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"14,94 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>14.94, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}, {"price_text"=>"17,90 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>17.9, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}]
-    billing = {:shipping=>nil, :total=>35.74, :shipping_info=>"Pour une livraison en France"}
+    expected_products = [{"price_text"=>"12,90 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>12.9, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}, {"price_text"=>"12,90 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>12.9, "price_delivery"=>1.0, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}]
+    billing = {:shipping=>3.9, :total=>29.7, :shipping_info=>"Pour une livraison en France"}
     products = [{url:PRODUCT_URL_1, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)

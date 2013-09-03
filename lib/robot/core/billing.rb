@@ -8,9 +8,14 @@ module RobotCore
       }
       info = robot.get_text(vendor::BILL[:info]) if robot.exists?(vendor::BILL[:info])
       robot.billing = { shipping:shipping, total:total, shipping_info:info}
+      shipping_from_products if shipping.nil?
     end
     
     private
+    
+    def shipping_from_products
+      robot.billing[:shipping] = robot.products.sum { |product| product["price_delivery"] || 0 }
+    end
     
     def build?
       robot.exists?(vendor::BILL[:total]) && !robot.billing
