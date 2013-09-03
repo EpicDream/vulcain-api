@@ -37,6 +37,8 @@ module PriceMinisterConstants
     birthdate_year:'//select[@name="birth_year"]',
     submit: '//*[@id="submitbtn"]/span/span',
     pseudonym:'//*[@id="login"]',
+    error:'//div[@id="user_block"]',
+    pseudonym_error_match:/Ce pseudo est déjà utilisé/i,
     submit_login:'//*[@id="submit_register"]',
   }
   
