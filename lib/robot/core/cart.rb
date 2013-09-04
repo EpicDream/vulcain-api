@@ -91,7 +91,7 @@ module RobotCore
     
     def set_quantities
       robot.order.products.each_with_index do |product, index|
-        lines = robot.find_elements(vendor::CART[:line], nowait:true)
+        lines = robot.find_elements(vendor::CART[:line], nowait:true) || []
         lines.reverse! if vendor::CART[:inverse_order]
         @retry_set_quantities = true and return if lines.empty?
         line = lines[index]
