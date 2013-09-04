@@ -64,8 +64,8 @@ module RobotCore
       true
     end
     
-    def remove_options #TODO:may not work if several products and severa options
-      robot.click_on_all([vendor::CART[:remove_item]], start_index:robot.order.products.count) { |e|
+    def remove_options
+      robot.click_on_all([vendor::CART[:remove_option]], start_index:0) { |e|
         robot.wait_ajax
         !e.nil? 
       }
@@ -106,7 +106,7 @@ module RobotCore
       if node.tag_name == 'select'
         robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
-        (quantity - 1).times { robot.click_on node}
+        (quantity - 1).times { robot.click_on(node)}
       elsif node.tag_name == 'input'
         robot.fill node, with:quantity
       else
@@ -119,7 +119,7 @@ module RobotCore
     def check_cart_amount
       if vendor::CART[:total_line] 
         totals = robot.find_elements(vendor::CART[:total_line], nowait:true)
-        amount = totals.inject(0) { |sum, total| sum += PRICES_IN_TEXT.(robot.get_text total).first}
+        amount = totals.inject(0) { |sum, total| sum += (PRICES_IN_TEXT.(robot.get_text total).first || 0)}
       else
         amount = PRICES_IN_TEXT.(robot.get_text vendor::CART[:total]).first
       end
