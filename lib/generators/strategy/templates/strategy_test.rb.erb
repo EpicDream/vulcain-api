@@ -58,6 +58,14 @@ class <%= vendor_name %>Test < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "finalize order with n products and m quantity" do
+    expected_products = []
+    billing = {}
+    products = []
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order" do
     run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end
