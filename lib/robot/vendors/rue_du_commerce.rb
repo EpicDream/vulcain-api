@@ -38,8 +38,8 @@ module RueDuCommerceConstants
   }
   
   PRODUCT = {
-    price_text:'//*[@id="zm_price_final"] | //td[@class="px_ctc"]',
-    title:'//h1[@itemprop="name"] | //div[@class="headTit"]',
+    price_text:'//*[@id="zm_price_final"] | //div[@class="prices"]/table[2]//td[@class="px_ctc"] | //span[@class="priceAmount"]',
+    title:'//*[@itemprop="name"] | //div[@class="headTit"]',
     image:'//*[@id="zm_main_image"] | //img[@itemprop="image"]',
   }
   
@@ -71,10 +71,13 @@ module RueDuCommerceConstants
   }
   
   CART = {
-    add:'//*[@id="bt_submit"] | //div[@class="buy"]/div',
-    remove_item:'Cart/delete',
+    add:'//*[@id="bt_submit"] | //div[@class="buy"]/div | //*[@id="productPurchaseButton"]',
+    remove_item:'//a[@class="cartProductRemove fR"]',
+    remove_option:'//a[@class="cartServiceRemove fR"]',
     submit: 'Finaliser ma commande',
-    quantity:'//input[@class="numberOfProduct"]',
+    line:'//div[@class="cartProductDescription"]/ancestor::div[1]',
+    total_line:'//span[@class="totalPrice"]',
+    quantity:'.//input[@class="numberOfProduct"]',
     update:'actualiser', 
     submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
     empty_message: '//body',

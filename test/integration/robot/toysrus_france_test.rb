@@ -70,12 +70,22 @@ class ToysrusFranceTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "finalize order with n products and m quantity" do
+    expected_products = [{"price_text"=>"Prix :  29,99 €", "product_title"=>"Toys R Us - Lapin en peluche 55cm\nPar : Toys R Us\n5.0\n5.0\n  (1 Avis)\nEvaluer et commenter cet article\nLire 1 avis\nÂge recommandé : 12 mois - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7052550reg.jpg", "price_product"=>29.99, "price_delivery"=>nil, "url"=>"http://www.toysrus.fr/product/index.jsp?productId=8207381", "id"=>nil}, {"price_text"=>"Prix :  15,99 €", "product_title"=>"Playmobil - Nouveautés 2013 - Elévateur avec ouvrier - 5257\nPar : Playmobil\nLivraison moins chère en relais Kiala (voir Détails)\n0.0\n0.0\n  (0 Avis)\nSoyez le premier à Evaluer et commenter cet article\nÂge recommandé : 4 - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7136042reg.jpg", "price_product"=>15.99, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?18920697C1372641144&ULP=[[http://www.toysrus.fr/redirect_znx.jsp?url=http://www.toysrus.fr/product/index.jsp?productId=11721451]]#toysrus.fr", "id"=>nil}]
+    billing = {:shipping=>23.5, :total=>131.45, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_3, quantity:3}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order" do
     run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:2}], has_coupon:true)
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_3, quantity:3}]
+    
+    run_spec("complete order process", products, has_coupon:true)
   end
 
 end

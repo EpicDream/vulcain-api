@@ -46,7 +46,6 @@ module DartyConstants
     submit: '//*[@id="newbottomFinishButton"]',
     line:'//table[@class="dataPanier"]//td//select/ancestor::tr[1]',
     quantity:'.//select',
-    inverse_order:true,
     total_line:'//td[@class="somme"]/p[@class="nomPdt"]',
     empty_message_match: /Votre panier est actuellement vide/i,
     submit_success: [SHIPMENT[:bill]],

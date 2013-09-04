@@ -83,7 +83,7 @@ class DartyTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_URL_1, quantity:3}, {url:PRODUCT_URL_3, quantity:2}]
+    products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
     
     run_spec("complete order process", products, has_coupon:true)
   end

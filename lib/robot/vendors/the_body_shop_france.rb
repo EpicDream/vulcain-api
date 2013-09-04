@@ -62,7 +62,9 @@ module TheBodyShopFranceConstants
   
   CART = {
     add:'//a[@class="button-buy"]',
-    quantity:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl04_ctl02_itemquantity"]',
+    line:'//div[@class="float_L other_block"]',
+    total_line:'//div[@class="product_info basket_column terms_font total"]',
+    quantity:'.//select[1]',
     update:'//*[@id="ctl00_ctl00_brandlayout0_ctl00_mainbody0_ctl00_ctl04_ctl02_updatebutton"]',
     remove_item:'//img[@title="supprimer"]',
     empty_message:'//body',

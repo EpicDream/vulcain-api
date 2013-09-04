@@ -62,6 +62,14 @@ class TheBodyShopFranceTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "finalize order with n products and m quantity" do
+    expected_products = []
+    billing = {}
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order" do
     run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end
