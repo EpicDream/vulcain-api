@@ -4,6 +4,7 @@ module RobotCore
   class RobotModule
     PRICES_IN_TEXT = lambda do |text| 
       break [] unless text
+      text.gsub!(/\n/, ' ')
       text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
         price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
       end

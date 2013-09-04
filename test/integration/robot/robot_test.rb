@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'test_helper'
+require "#{Rails.root}/lib/robot/core/robot_module"
 
 class RobotTest < ActiveSupport::TestCase
   
@@ -22,6 +23,7 @@ class RobotTest < ActiveSupport::TestCase
   
   test "with cr" do
     assert_equal [945, 12.99], RobotCore::RobotModule::PRICES_IN_TEXT.("945 €\nEn Stock\n+ Frais de port\n12,99€")
+    assert_equal [14.99], RobotCore::RobotModule::PRICES_IN_TEXT.("14\n€99")
   end
   
 end

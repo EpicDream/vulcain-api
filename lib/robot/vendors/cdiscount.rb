@@ -53,7 +53,9 @@ module CdiscountConstants
     extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_from_vendor: "AddToBasketButtonOffer",
     steps:'//*[@id="masterCart"]',
-    quantity:'//td[@class="quantity txtGen"]/select',
+    line:'//tbody[@class="border"]',
+    quantity:'.//td[@class="quantity txtGen"]/select',
+    total_line:'//td[@class="priceTotal"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
     empty_message_match: /.*/,
@@ -107,9 +109,7 @@ class Cdiscount
       step('add to cart') do
         cart = RobotCore::Cart.new
         cart.best_offer = Proc.new {
-          button = find_element CART[:add_from_vendor]
-          script = button.attribute("onclick").gsub(/return/, '')
-          @driver.driver.execute_script(script)
+          click_on CART[:add_from_vendor]
           wait_ajax 4
         }
         cart.fill

@@ -55,7 +55,8 @@ module FnacConstants
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
     empty_message: '//*[@id="ShoppingCartDiv"]',
-    quantity:'TxtQuantity_',
+    line:'//tr[@class="borderedProduct"]',
+    quantity:'.//input[@type="text"]',
     update:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]', #for lose focus,find better
     total_line:'totalTTC',
     empty_message_match: /Votre panier est vide/i,

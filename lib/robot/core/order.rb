@@ -3,8 +3,7 @@ module RobotCore
     
     def finalize payment=nil
       cart = RobotCore::Cart.new
-      cart.submit
-      robot.terminate_on_error(:out_of_stock) and return if cart.out_of_stock?
+      return unless cart.submit
 
       RobotCore::Login.new.relog
       shipping = RobotCore::Shipping.new

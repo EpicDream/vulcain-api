@@ -63,8 +63,8 @@ class FnacTest < StrategyTest
   end  
   
   test "finalize order with n products and m quantity" do
-    expected_products = [{"price_text"=>"12,33€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.33, "price_delivery"=>nil, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil}, {"price_text"=>"31,99€", "product_title"=>"Donkey Kong Country Returns 3DS", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/8/5/5/0045496523558.jpg", "price_product"=>31.99, "price_delivery"=>nil, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1", "id"=>nil}]
-    billing = {:shipping=>3.99, :total=>104.96, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"12,41€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.41, "price_delivery"=>nil, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil}, {"price_text"=>"31,99€", "product_title"=>"Donkey Kong Country Returns 3DS", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/8/5/5/0045496523558.jpg", "price_product"=>31.99, "price_delivery"=>nil, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1", "id"=>nil}]
+    billing = {:shipping=>3.99, :total=>105.2, :shipping_info=>nil}
     products = [{url:PRODUCT_1_URL, quantity:3}, {url:PRODUCT_2_URL, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)

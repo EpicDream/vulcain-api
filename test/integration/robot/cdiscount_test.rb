@@ -12,6 +12,7 @@ class CdiscountTest < StrategyTest
   PRODUCT_URL_7 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-persica-peche-210-pieces/f-127010208-haribopersica.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
   PRODUCT_URL_8 = 'http://www.cdiscount.com/dvd/coffrets-dvd/dvd-la-panthere-rose-et-cie/f-1042104-3700259833028.html'
   PRODUCT_URL_9 = 'http://www.cdiscount.com/informatique/ordinateurs-pc-portables/toshiba-satellite-c850-1nn/f-107092212-pscbwe0kj00pfr.html'
+  PRODUCT_URL_10 = 'http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html'
   
   setup do
     initialize_robot_for Cdiscount
@@ -67,9 +68,9 @@ class CdiscountTest < StrategyTest
   end
   
   test "finalize order with n products and m quantity" do
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY200_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054", "id"=>nil}, {"price_text"=>"EUR 8,74", "product_title"=>"Le capital : Livre 1, sections 1 à 4", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY200_.jpg", "price_product"=>8.74, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil}]
-    billing = {:shipping=>0.0, :total=>60.24, :shipping_info=>"Date de livraison estimée :  16 septembre 2013 - 19 septembre 2013"}
-    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    expected_products = [{"price_text"=>"13 €99", "product_title"=>"Tortues Ninja - Raphael - Figurine 12cm +\naccess\nGiochi Preziosi - Tortues Ninja - Figurine 12 cm Raphael - Retrouve Raphael l'un des personnages de la série animée Tortues Ninja avec son arme... - Garçon - A partir de 3 ans - Livré à l'unité\n  Avis clients\n5,0/5 (2 avis)\nDonnez votre avisLire les avis\nPartagez le !", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/5/1/200x200/gio5505/rw/tortues-ninja-raphael-figurine-12cm-access.jpg", "price_product"=>13.99, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html", "id"=>nil}, {"price_text"=>"18€69", "product_title"=>"Blu-Ray Django unchained", "product_image_url"=>"http://i2.cdscdn.com/pdt2/9/9/0/1/300x300/3333299202990/rw/blu-ray-django-unchained.jpg", "price_product"=>18.69, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html", "id"=>nil}]
+    billing = {:shipping=>6.99, :total=>91.04, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_10, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  
@@ -86,7 +87,9 @@ class CdiscountTest < StrategyTest
   end
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_9, quantity:1}], has_coupon:true)
+    products = [{url:PRODUCT_URL_10, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("complete order process", products, has_coupon:true)
   end
   
   test "complete order process with product without coupon" do

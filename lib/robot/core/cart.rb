@@ -60,6 +60,8 @@ module RobotCore
       robot.click_on vendor::CART[:cgu], check:true
       robot.click_on vendor::CART[:submit], check:true
       robot.open_url vendor::URLS[:after_submit_cart]
+      robot.terminate_on_error(:out_of_stock) and return if out_of_stock?
+      true
     end
     
     def remove_options #TODO:may not work if several products and severa options
@@ -89,10 +91,14 @@ module RobotCore
     
     def set_quantities
       robot.order.products.each_with_index do |product, index|
-        nodes = robot.find_elements(vendor::CART[:quantity], nowait:true)
-        @retry_set_quantities = true and return unless nodes.any?
+        lines = robot.find_elements(vendor::CART[:line], nowait:true)
+        lines.reverse! if vendor::CART[:inverse_order]
+        @retry_set_quantities = true and return unless lines
+        line = lines[index]
+        qnode = line.find_elements(xpath:vendor::CART[:quantity]).first
         @amount += product.quantity * robot.products[index]["price_product"]
-        set_quantity(nodes[index], product.quantity)
+        next unless qnode
+        set_quantity(qnode, product.quantity)
       end
     end
     
@@ -101,11 +107,13 @@ module RobotCore
         robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
         (quantity - 1).times { robot.click_on node}
-      else
+      elsif node.tag_name == 'input'
         robot.fill node, with:quantity
+      else
+        return
       end
       robot.click_on vendor::CART[:update], check:true, ajax:true
-      robot.wait_ajax
+      robot.wait_ajax(4)
     end
     
     def check_cart_amount
@@ -115,7 +123,7 @@ module RobotCore
       else
         amount = PRICES_IN_TEXT.(robot.get_text vendor::CART[:total]).first
       end
-      amount == @amount
+      amount.round(2) == @amount.round(2)
     end
     
     def remove
