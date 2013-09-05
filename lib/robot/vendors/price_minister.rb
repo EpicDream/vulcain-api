@@ -87,10 +87,11 @@ module PriceMinisterConstants
   
   PRODUCT = {
     offer_price_text:'//li[@class="price"][1] | //li[@itemprop="price"]',
+    offer_shipping_text:'//div[@id="advert_list"]//ul[@class="details1"]/li[2]',
     price_text:'//ul[@class="priceInfos"] | //li[@itemprop="price"]',
     title:'//div[@class="productTitle"]/h1 | //div[@class="fn"]',
     image:'//img[@itemprop="image"]',
-    shipping:'//li[@class="shipping_amount default_shipping"] | //li[@class="shipping_amount free_shipping_eligible"] | //li[@class="shipping_amount free_shipping"]'
+    shipping:'//li[@class="shipping"]'
   }
   
   BILL = {
@@ -173,7 +174,9 @@ class PriceMinister
           if exists?(CART[:offers])
             click_on CART[:offers]
             wait_ajax
-            RobotCore::Product.new.update_with(get_text PRODUCT[:offer_price_text])
+            offer_price_text = get_text PRODUCT[:offer_price_text]
+            offer_shipping_text = get_text PRODUCT[:offer_shipping_text]
+            RobotCore::Product.new.update_with(offer_price_text, offer_shipping_text)
           end
           click_on CART[:add]
           
