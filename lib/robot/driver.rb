@@ -20,6 +20,7 @@ class Driver
   def quit
     @driver.quit
     FileUtils.rm_rf(@profile_path) if @profile_path
+    true
   end
   
   def get url
