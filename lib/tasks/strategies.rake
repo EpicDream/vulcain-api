@@ -36,7 +36,6 @@ namespace :strategies do
       test_file =~ /(.*?)_test.rb/
       [$1, test_file]
     }
-    [["PriceMinister", "price_minister_test.rb"]]
   end
   
 end

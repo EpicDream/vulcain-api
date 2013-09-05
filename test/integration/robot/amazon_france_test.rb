@@ -77,7 +77,7 @@ class AmazonTest < StrategyTest
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
-    run_spec('validate order', [{url:'http://www.amazon.fr/Provence-Outillage-Eponge-de-rechange/dp/B007F85CVC?tag=shopelia-21', quantity:4}])
+    run_spec('validate order', [{url:PRODUCT_URL_6, quantity:4}])
   end
   
 end
