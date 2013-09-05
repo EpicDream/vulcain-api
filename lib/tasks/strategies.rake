@@ -36,6 +36,7 @@ namespace :strategies do
       test_file =~ /(.*?)_test.rb/
       [$1, test_file]
     }
+    [["PriceMinister", "price_minister_test.rb"]]
   end
   
 end
@@ -53,6 +54,7 @@ class StrategiesTestsReport
   end
   
   def analyze vendor, output
+    @outputs[vendor] = output
     errors = GREP_TRACE.(output)
     if errors.any?
       trace = errors[0]
