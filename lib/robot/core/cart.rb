@@ -167,6 +167,8 @@ module RobotCore
       end
       robot.click_on vendor::CART[:cgu], check:true
       robot.click_on vendor::CART[:cgu_submit], check:true
+      robot.click_on vendor::CART[:warranty], check:true
+      robot.click_on vendor::CART[:warranty_submit], check:true
       robot.wait_ajax(4)
     end
     

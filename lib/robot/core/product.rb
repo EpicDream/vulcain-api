@@ -13,10 +13,15 @@ module RobotCore
       robot.products << product
     end
     
-    def update_with price_text
+    def update_with price_text, shipping_text
       product = robot.products.last
       product['price_text'] = price_text
-      product['price_product'] = PRICES_IN_TEXT.(product['price_text']).first
+      product['price_product'] = PRICES_IN_TEXT.(price_text).first
+      unless shipping_text =~ /Livraison gratuite à partir/i
+        product['price_delivery'] = PRICES_IN_TEXT.(shipping_text).first
+      else
+        product['price_delivery'] = 0
+      end
     end
     
   end

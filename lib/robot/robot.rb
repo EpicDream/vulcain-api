@@ -118,6 +118,12 @@ class Robot
     @driver.quit
   end
   
+  def assert error_type=:assert_failure, &block
+    unless block.call
+      terminate_on_error(error_type)
+    end
+  end
+  
   def new_question question, args
     id = (questions.count + 1).to_s
     questions.merge!({id => args[:action]})

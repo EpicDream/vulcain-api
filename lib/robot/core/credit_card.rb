@@ -8,7 +8,8 @@ module RobotCore
       robot.click_on vendor::PAYMENT[:remove], check:true, ajax:true
       robot.accept_alert
       robot.click_on vendor::PAYMENT[:remove_confirmation], check:true
-      robot.wait_ajax 
+      robot.wait_ajax
+      robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }
       robot.open_url vendor::URLS[:base]
     end
     

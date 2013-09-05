@@ -87,7 +87,7 @@ class AmazonTest < StrategyTest
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
-    run_spec('validate order', [{url:PRODUCT_URL_6, quantity:1}])
+    run_spec('validate order', [{url:PRODUCT_URL_6, quantity:4}])
   end
   
 end

@@ -68,7 +68,8 @@ module FnacConstants
     price_text:'//*[@class="userPrice"]',
     title:'//span[@itemprop="name"]',
     image:'//*[@id="imgMainVisual"]',
-    offer_price_text:'//*[@class="userPrice"]'
+    offer_price_text:'//*[@class="userPrice"]',
+    offer_shipping_text:'//p[@class="fontnormal gris7 mrg_no"]',
   }
   
   BILL = {
@@ -90,6 +91,7 @@ module FnacConstants
     status: '//*[@id="thank-you"]',
     succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
     zero_fill: true,
+    remove_must_match: /Vous n'avez pas indiqué de carte de paiement/i
   }
   
 end
@@ -112,7 +114,9 @@ class Fnac
         cart = RobotCore::Cart.new
         cart.best_offer = Proc.new {
           click_on CART[:offers]
-          RobotCore::Product.new.update_with(get_text PRODUCT[:offer_price_text])
+          offer_price_text = get_text PRODUCT[:offer_price_text]
+          offer_shipping_text = get_text PRODUCT[:offer_shipping_text]
+          RobotCore::Product.new.update_with(offer_price_text, offer_shipping_text)
           click_on CART[:add_offer]
         }
         cart.fill

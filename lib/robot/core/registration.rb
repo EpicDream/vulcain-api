@@ -15,12 +15,13 @@ module RobotCore
       phone
       birthdate
       password
+      pseudonym
       options
-
+      
       submit
       submit_options
       
-      if fails? 
+      if fails? && !submit_with_new_pseudonym
         robot.terminate_on_error :account_creation_failed
       else
         robot.message :account_created, :next_step => 'renew login'
@@ -40,17 +41,36 @@ module RobotCore
     end
     
     def password
-      pseudonym = account.login.match(/(.*?)@.*/).captures.first.each_char.to_a.shuffle.join
-      robot.fill vendor::REGISTER[:pseudonym], with:pseudonym, check:true
       robot.fill vendor::REGISTER[:email_confirmation], with:account.login, check:true
       robot.fill vendor::REGISTER[:password], with:account.password, check:true
       robot.fill vendor::REGISTER[:password_confirmation], with:account.password, check:true
+    end
+    
+    def pseudonym n=0
+      return unless vendor::REGISTER[:pseudonym]
+      pseudonym = account.login.match(/(.*?)@.*/).captures.first.gsub(/\.|_|-/, '')[0..9]
+      pseudonym += n.to_s.rjust(2, "0")
+      robot.fill vendor::REGISTER[:pseudonym], with:pseudonym, check:true
     end
     
     def submit
       robot.click_on vendor::REGISTER[:cgu], check:true
       robot.click_on vendor::REGISTER[:submit]
       robot.wait_ajax
+    end
+    
+    def submit_with_new_pseudonym
+      return unless vendor::REGISTER[:pseudonym]
+      10.times do |n|
+        node = robot.find_element vendor::REGISTER[:error], nowait:true
+        error = !!node && robot.get_text(vendor::REGISTER[:error])
+        if error =~ vendor::REGISTER[:pseudonym_error_match]
+          pseudonym(n + 1)
+          submit
+        else
+          return !node
+        end
+      end
     end
     
     def submit_options

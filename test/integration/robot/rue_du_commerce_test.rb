@@ -35,6 +35,10 @@ class RueDuCommerceTest < StrategyTest
     run_spec("logout")
   end
   
+  test "remove credit card" do
+    run_spec("remove credit card")
+  end
+  
   test "empty cart" do
     assert = Proc.new { assert !(robot.exists? RueDuCommerce::CART[:remove_item]) }
     products = [{url:PRODUCT_1_URL, quantity:1}, {url:PRODUCT_2_URL, quantity:1}]

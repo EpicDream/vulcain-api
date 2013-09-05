@@ -76,6 +76,7 @@ module AmazonFranceConstants
   PAYMENT = {
     remove: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
     remove_confirmation: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input',
+    remove_must_match:/Vous n'avez actuellement aucun mode de paiement/i,
     access: '//*[@id="continueButton"]',
     invoice_address: '//html/body/div[4]/div[2]/div[1]/form/div/div/div/div[2]/span/a | //html/body/div[4]/div[2]/div[1]/form/div/div[1]/div/div[2]/div/span',
     validate: '//*[@id="spc-form"]/div/span[1]/span/input',

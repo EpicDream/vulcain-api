@@ -155,6 +155,11 @@ module RobotCore
     rescue
       return false
     end
+    
+    def checked? identifier
+      return unless element = find_element(identifier)
+      element.selected?
+    end
 
   end
 end
