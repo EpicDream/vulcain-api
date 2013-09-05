@@ -50,6 +50,7 @@ class StrategiesTestsReport
   
   def initialize
     @errors = {}
+    @outputs = {}
   end
   
   def analyze vendor, output
@@ -90,7 +91,7 @@ class StrategiesTestsReport
   
   def output_tests_result
     File.open(TESTS_RESULT_FILE_PATH, "w+") { |file| 
-      @errors.each{ |vendor, trace| 
+      @outputs.each{ |vendor, trace| 
         file.write("\n==#{vendor}==\n#{trace}")
       }
     }
