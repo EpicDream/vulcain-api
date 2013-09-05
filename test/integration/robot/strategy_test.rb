@@ -59,6 +59,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   def remove_credit_card assert=Proc.new{}
     @message.expects(:message).times(4)
+    robot.expects(:terminate_on_error).never
     robot.run_step('login')
     robot.run_step('remove credit card')
     assert.call

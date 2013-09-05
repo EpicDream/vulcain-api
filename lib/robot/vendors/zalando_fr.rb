@@ -110,7 +110,8 @@ module ZalandoFRConstants
     succeed: nil,
     cgu:nil,
     coupon:'//*[@id="couponCode"]',
-    coupon_recompute:'//*[@id="codeRedeemButton"]'
+    coupon_recompute:'//*[@id="codeRedeemButton"]',
+    remove_must_match: /Aucun moyen de paiement choisi/i
   }
   
 end

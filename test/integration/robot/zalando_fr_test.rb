@@ -32,7 +32,7 @@ class ZalandoFRTest < StrategyTest
   end
   
   test "remove credit card" do
-    #TODO? run_spec("remove credit card")
+    run_spec("remove credit card")
   end
   
   test "add to cart" do

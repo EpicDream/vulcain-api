@@ -60,7 +60,8 @@ module RueDuCommerceConstants
     zero_fill: true,
     trunc_year: true,
     coupon:'//*[@id="bhaInputText"]',
-    coupon_recompute:'//*[@id="bhaInputSubmit"]'
+    coupon_recompute:'//*[@id="bhaInputSubmit"]',
+    remove_must_match: /Votre portefeuille est vide/i,
   }
   
   SHIPMENT = {
