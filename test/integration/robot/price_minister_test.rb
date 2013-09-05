@@ -9,6 +9,7 @@ class PriceMinisterTest < StrategyTest
   PRODUCT_URL_4 = 'http://www.priceminister.com/offer/buy/118134048/s1PM07047277/s2PM07862054'
   PRODUCT_URL_5 = 'http://www.priceminister.com/offer/buy/132498077/nounours-45-kiki-marron-t3ab.html'
   PRODUCT_URL_6 = 'http://www.priceminister.com/offer/buy/58876592/Le-Pire-Du-Morning-Live-2-DVD-Zone-2.html'
+  PRODUCT_URL_7 = 'http://www.priceminister.com/offer/buy/200868187/nikon-coolpix-p330-compact-12-2-mpix-blanc.html'
   
   setup do
     initialize_robot_for PriceMinister
@@ -73,6 +74,14 @@ class PriceMinisterTest < StrategyTest
     expected_products = [{"price_text"=>"12,40 €", "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>12.4, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil}]
     billing = {:shipping=>2.9, :total=>15.3, :shipping_info=>"Pour une livraison en France"}
     products = [{url:PRODUCT_URL_6, quantity:1}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end
+  
+  test "finalize order product with warranty option" do
+    expected_products = [{"price_text"=>"289,00 € ou 60,03 € x 5", "product_title"=>"Nikon Coolpix P330 Compact 12.2 Mpix Blanc", "product_image_url"=>"http://pmcdn.priceminister.com/photo/nikon-coolpix-p330-compact-12-2-mpix-blanc-938644490_ML.jpg", "price_product"=>289.0, "price_delivery"=>10.7, "url"=>"http://www.priceminister.com/offer/buy/200868187/nikon-coolpix-p330-compact-12-2-mpix-blanc.html", "id"=>nil}]
+    billing = {:shipping=>10.7, :total=>299.7, :shipping_info=>"Pour une livraison en France"}
+    products = [{url:PRODUCT_URL_7, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end

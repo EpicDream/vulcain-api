@@ -83,6 +83,8 @@ module PriceMinisterConstants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: '//*[@id="terminerHaut"]/span',
     submit_success: [],
+    warranty:'//*[@id="guarantee_0"]',
+    warranty_submit:'Continuer'
   }
   
   PRODUCT = {
