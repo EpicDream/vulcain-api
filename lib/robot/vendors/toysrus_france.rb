@@ -51,6 +51,7 @@ module ToysrusFranceConstants
     validate: '//*[@id="proceed"]/button',
     status: '//*[@id="thankYou"]',
     succeed: /Merci de votre commande/i,
+    remove_must_match: //
   }
   
   CART = {
