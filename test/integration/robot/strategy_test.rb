@@ -108,13 +108,20 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     questions = [{:text => nil, :id => '1', :options => nil}]
-    @message.expects(:message).with(:assess, {:questions => questions, :products => expected_products, :billing => billing})
+    @message.expects(:message).with() { |p1, p2|  p1 == :assess}
     robot.run_step('finalize order')
 
     puts robot.products.inspect
     puts robot.billing.inspect
-    assert_equal expected_products, robot.products
-    assert_equal billing, robot.billing
+
+    expected_products.each_with_index { |product, index|
+      ["price_product", "price_delivery"].each { |key|  
+        assert_equal product[key], robot.products[index][key]
+      }
+    }
+    [:shipping, :total].each { |key|  
+      assert_equal billing[key], robot.billing[key]
+    }
   end
   
   def complete_order_process products, opts={}

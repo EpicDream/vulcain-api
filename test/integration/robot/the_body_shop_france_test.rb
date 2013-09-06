@@ -63,8 +63,8 @@ class TheBodyShopFranceTest < StrategyTest
   end
   
   test "finalize order with n products and m quantity" do
-    expected_products = []
-    billing = {}
+    expected_products = [{"price_text"=>"4,80 €", "product_title"=>"CRÈME DE DOUCHE BEURRE DE CACAO", "product_image_url"=>"http://www.thebodyshop.fr/images/packshot/products/large/29420m_l.jpg", "price_product"=>4.8, "price_delivery"=>nil, "url"=>"http://www.thebodyshop.fr/corps-bain/gels-douche/creme-de-douche-beurre-de-cacao.aspx", "id"=>nil}, {"price_text"=>"11,20 €", "product_title"=>"CRÈME EXFOLIANTE CORPORELLE NOIX DU BRÉSIL", "product_image_url"=>"http://www.thebodyshop.fr/images/packshot/products/large/98302m_l.jpg", "price_product"=>11.2, "price_delivery"=>nil, "url"=>"http://www.thebodyshop.fr/corps-bain/coups-de-coeur/creme-exfoliante-corporelle-noix-du-bresil.aspx", "id"=>nil}]
+    billing = {:shipping=>0.0, :total=>43.2, :shipping_info=>"Livraison sous 6 à 10 jours ouvrables"}
     products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)

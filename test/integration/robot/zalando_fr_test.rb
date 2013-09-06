@@ -3,7 +3,7 @@ require_relative 'strategy_test'
 require_robot 'zalando_fr'
 
 class ZalandoFRTest < StrategyTest
-  PRODUCT_URL_1 = 'http://www.zalando.fr/light-living-willmore-lampe-de-table-noir-ll973d002-802.html'
+  PRODUCT_URL_1 = 'http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html'
   PRODUCT_URL_2 = 'http://www.zalando.fr/nordlux-funk-27-abat-jour-noir-nl173b001-802.html'
   PRODUCT_URL_3 = 'http://www.zalando.fr/tommy-hilfiger-chiara-polo-jaune-to121d01b-206.html'
   
@@ -74,8 +74,8 @@ class ZalandoFRTest < StrategyTest
   end
   
   test "finalize order with n products and m quantity" do
-    expected_products = [{"price_text"=>"50,00 €", "product_title"=>"Lightmakers\nWILLMORE - Lampe de table - noir", "product_image_url"=>"http://i1.ztat.net/detail/LL/97/3D/00/28/02/LL973D002-802@1.1.jpg", "price_product"=>50.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/light-living-willmore-lampe-de-table-noir-ll973d002-802.html", "id"=>nil}, {"price_text"=>"115,00 €", "product_title"=>"Nordlux\nFUNK 27 - Plafonnier - noir", "product_image_url"=>"http://i1.ztat.net/detail/NL/17/3B/00/18/02/NL173B001-802@1.1.jpg", "price_product"=>115.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/nordlux-funk-27-abat-jour-noir-nl173b001-802.html", "id"=>nil}]
-    billing = {:shipping=>0.0, :total=>445.0, :shipping_info=>"Date de livraison estimée :\nentre le lundi 9 septembre 2013 et le mercredi 11 septembre 2013\nLivraison rapide\nProtection du client\nProtection des données\nRetour sous 30 jours\nPaiement sécurisé par le protocole SSL\nLIVRAISON ET RETOUR GRATUITS"}
+    expected_products = [{"price_text"=>"145,00 €", "product_title"=>"Salt & Pepper\nLIV MOOD - Lampe de table - marron", "product_image_url"=>"http://i1.ztat.net/detail/PS/87/3D/00/27/01/PS873D002-701@1.1.jpg", "price_product"=>145.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html", "id"=>nil}, {"price_text"=>"115,00 €", "product_title"=>"Nordlux\nFUNK 27 - Plafonnier - noir", "product_image_url"=>"http://i1.ztat.net/detail/NL/17/3B/00/18/02/NL173B001-802@1.1.jpg", "price_product"=>115.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/nordlux-funk-27-abat-jour-noir-nl173b001-802.html", "id"=>nil}]
+    billing = {:shipping=>0.0, :total=>635.0, :shipping_info=>"Date de livraison estimée :\nentre le mercredi 11 septembre 2013 et le vendredi 13 septembre 2013\nLivraison rapide\nProtection du client\nProtection des données\nRetour sous 30 jours\nPaiement sécurisé par le protocole SSL\nLIVRAISON ET RETOUR GRATUITS"}
     products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
