@@ -90,6 +90,7 @@ module RobotCore
     end
     
     def set_quantities
+      return unless vendor::CART[:quantity]
       robot.order.products.each_with_index do |product, index|
         lines = robot.find_elements(vendor::CART[:line], nowait:true) || []
         lines.reverse! if vendor::CART[:inverse_order]
