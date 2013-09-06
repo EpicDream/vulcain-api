@@ -54,11 +54,13 @@ module AmazonFranceConstants
     inverse_order:true,
     line:'//div[@class="cart-item"]',
     quantity:'.//div[@class="quantity"]/p/input',
-    update:'Mettre à jour',
+    quantity_exceed_alert:'.//div[@class="update-quantity-message"]',
+    update:'.//div[@class="quantity"]/p[2]/a[1]',
     total:'//span[@class="ourprice"]',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: 'Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
+    
   }
   
   PRODUCT = {

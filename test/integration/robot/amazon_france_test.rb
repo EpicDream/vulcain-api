@@ -78,6 +78,14 @@ class AmazonTest < StrategyTest
 
     run_spec("finalize order", products, expected_products, billing)
   end  
+  
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = []
+    billing = {}
+    products = [{url:PRODUCT_URL_7, quantity:100}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
 
   test "complete order process" do
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)

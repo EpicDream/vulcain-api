@@ -79,7 +79,7 @@ module RueDuCommerceConstants
     line:'//div[@class="cartProductDescription"]/ancestor::div[1]',
     total_line:'//span[@class="totalPrice"]',
     quantity:'.//input[@class="numberOfProduct"]',
-    update:'actualiser', 
+    update:'//div[@class="cartProductQuantity fR"]/button[1]', 
     submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
     empty_message: '//body',
     empty_message_match: /Votre panier ne contient aucun article/i

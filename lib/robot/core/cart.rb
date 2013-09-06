@@ -99,11 +99,12 @@ module RobotCore
         qnode = line.find_elements(xpath:vendor::CART[:quantity]).first
         @amount += product.quantity * robot.products[index]["price_product"]
         next unless qnode
-        set_quantity(qnode, product.quantity)
+        set_quantity(line, qnode, product.quantity)
+        check_quantity_exceed(product)
       end
     end
     
-    def set_quantity node, quantity
+    def set_quantity line, node, quantity
       if node.tag_name == 'select'
         robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
@@ -113,8 +114,13 @@ module RobotCore
       else
         return
       end
-      robot.click_on vendor::CART[:update], check:true, ajax:true
+      quantity_update = line.find_elements(xpath:vendor::CART[:update]).first
+      robot.click_on quantity_update, check:true, ajax:true
       robot.wait_ajax(4)
+    end
+    
+    def check_quantity_exceed
+      
     end
     
     def check_cart_amount
