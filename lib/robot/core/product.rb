@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 module RobotCore
   class Product < RobotModule
     
@@ -17,7 +19,7 @@ module RobotCore
       product = robot.products.last
       product['price_text'] = price_text
       product['price_product'] = PRICES_IN_TEXT.(price_text).first
-      unless shipping_text =~ /Livraison gratuite à partir/i
+      unless shipping_text =~ /Livraison gratuite . partir/i
         product['price_delivery'] = PRICES_IN_TEXT.(shipping_text).first
       else
         product['price_delivery'] = 0
