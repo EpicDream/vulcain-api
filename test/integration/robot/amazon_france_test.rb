@@ -8,7 +8,7 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
   PRODUCT_URL_4 = 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'
   PRODUCT_URL_5 = 'http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75' #avec prix livraison
-  PRODUCT_URL_6 = 'http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378397862&sr=8-1&keywords=ateliers+dessin'
+  PRODUCT_URL_6 = 'http://www.amazon.fr/gp/aw/d/2747034054/'
   PRODUCT_URL_7 = 'http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU'
   PRODUCT_URL_8 = 'http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21'
   
