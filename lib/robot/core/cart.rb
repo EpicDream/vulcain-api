@@ -92,35 +92,47 @@ module RobotCore
     def set_quantities
       return unless vendor::CART[:quantity]
       robot.order.products.each_with_index do |product, index|
-        lines = robot.find_elements(vendor::CART[:line], nowait:true) || []
-        lines.reverse! if vendor::CART[:inverse_order]
-        @retry_set_quantities = true and return if lines.empty?
-        line = lines[index]
-        qnode = line.find_elements(xpath:vendor::CART[:quantity]).first
-        @amount += product.quantity * robot.products[index]["price_product"]
-        next unless qnode
-        set_quantity(line, qnode, product.quantity)
-        check_quantity_exceed(product)
+        line, node = line_and_node_of_quantity_at_index(index)
+        @retry_set_quantities = true and return unless node
+        next unless node #fixed quantity, can't be changed
+        set_quantity(line, node, product.quantity)
+        check_quantity_exceed(index, product)
       end
+    end
+    
+    def line_and_node_of_quantity_at_index index
+      lines = robot.find_elements(vendor::CART[:line], nowait:true) || []
+      lines.reverse! if vendor::CART[:inverse_order]
+      line = lines[index]
+      node = line.find_elements(xpath:vendor::CART[:quantity]).first if line
+      [line, node]
     end
     
     def set_quantity line, node, quantity
       if node.tag_name == 'select'
         robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
-        (quantity - 1).times { robot.click_on(node)}
+        (quantity - 1).times { robot.click_on(node) }
       elsif node.tag_name == 'input'
         robot.fill node, with:quantity
       else
         return
       end
-      quantity_update = line.find_elements(xpath:vendor::CART[:update]).first
+      quantity_update = line.find_elements(xpath:vendor::CART[:update]).first if vendor::CART[:update]
       robot.click_on quantity_update, check:true, ajax:true
-      robot.wait_ajax(4)
+      robot.wait_ajax 4
     end
     
-    def check_quantity_exceed
-      
+    def check_quantity_exceed index, product
+      exceed = robot.find_element(vendor::CART[:quantity_exceed], nowait:true)
+      if exceed
+        robot.click_on exceed
+        line, node = line_and_node_of_quantity_at_index(index)
+        effective_quantity = node.attribute("value").to_i
+        robot.order.products[index].quantity = effective_quantity
+        RobotCore::Product.new.update_quantity_of(robot.products[index], effective_quantity)
+      end
+      @amount += product.quantity * robot.products[index]["price_product"]
     end
     
     def check_cart_amount

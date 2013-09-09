@@ -54,7 +54,7 @@ module AmazonFranceConstants
     inverse_order:true,
     line:'//div[@class="cart-item"]',
     quantity:'.//div[@class="quantity"]/p/input',
-    quantity_exceed_alert:'.//div[@class="update-quantity-message"]',
+    quantity_exceed:'//div[@class="update-quantity-message"]/span[@class="close-button"]',
     update:'.//div[@class="quantity"]/p[2]/a[1]',
     total:'//span[@class="ourprice"]',
     empty_message_match:/panier\s+est\s+vide/i,

@@ -115,7 +115,7 @@ class StrategyTest < ActiveSupport::TestCase
     puts robot.billing.inspect
 
     expected_products.each_with_index { |product, index|
-      ["price_product", "price_delivery"].each { |key|  
+      ["price_product", "price_delivery", "expected_quantity", "quantity"].each { |key|  
         assert_equal product[key], robot.products[index][key]
       }
     }

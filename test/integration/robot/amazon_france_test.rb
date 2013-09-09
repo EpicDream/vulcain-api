@@ -80,8 +80,8 @@ class AmazonTest < StrategyTest
   end  
   
   test "finalize order with quantity exceed disponibility" do
-    expected_products = []
-    billing = {}
+    expected_products = [{"price_text"=>"EUR 17,66", "product_title"=>"Ravensburger - 12613 - Puzzle XXL 200 Pièces - Princesse et son Cheval", "product_image_url"=>"http://ecx.images-amazon.com/images/I/91PhJmvxubL._SY600_.jpg", "price_product"=>17.66, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU", "id"=>nil, "expected_quantity"=>100, "quantity"=>2}]
+    billing = {:shipping=>0.0, :total=>35.32, :shipping_info=>"Date de livraison estimée :  13 septembre 2013"}
     products = [{url:PRODUCT_URL_7, quantity:100}]
 
     run_spec("finalize order", products, expected_products, billing)
