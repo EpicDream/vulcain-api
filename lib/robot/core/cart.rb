@@ -92,44 +92,55 @@ module RobotCore
     def set_quantities
       return unless vendor::CART[:quantity]
       robot.order.products.each_with_index do |product, index|
-        line, node = line_and_node_of_quantity_at_index(index)
-        @retry_set_quantities = true and return unless node
-        next unless node #fixed quantity, can't be changed
+        line, quantity_set, quantity = nodes_of_quantity_at_index(index)
+        @retry_set_quantities = true and return unless quantity_set
+        next unless quantity_set #fixed quantity, can't be changed
         set_quantity(index, product)
         check_quantity_exceed(index, product)
       end
     end
     
-    def line_and_node_of_quantity_at_index index
+    def nodes_of_quantity_at_index index
       lines = robot.find_elements(vendor::CART[:line], nowait:true) || []
       lines.reverse! if vendor::CART[:inverse_order]
       line = lines[index]
-      node = line.find_elements(xpath:vendor::CART[:quantity]).first if line
-      [line, node]
+      if line
+        quantity_set = line.find_elements(xpath:vendor::CART[:quantity_set]).first if vendor::CART[:quantity_set]
+        quantity_set ||= line.find_elements(xpath:vendor::CART[:quantity]).first
+        quantity = line.find_elements(xpath:vendor::CART[:quantity]).first
+      end
+      [line, quantity_set, quantity]
     end
     
     def set_quantity index, product
-      line, node = line_and_node_of_quantity_at_index(index)
+      line, quantity_set, quantity = nodes_of_quantity_at_index(index)
       quantity = product.quantity
       
-      if node.tag_name == 'select'
-        options = robot.options_of_select(node).keys.map(&:to_i)
+      if quantity_set.tag_name == 'select'
+        options = robot.options_of_select(quantity_set).keys.map(&:to_i)
         unless options.include?(quantity)
           quantity = options.max 
           RobotCore::Product.new.update_quantity(index, quantity)
         end
-        robot.select_option(node, quantity)
-      elsif node.attribute("type") == "submit"
-        (quantity - 1).times { robot.click_on(node) }
-      elsif node.tag_name == 'input'
-        robot.fill node, with:quantity
+        robot.select_option(quantity_set, quantity)
+      elsif quantity_set.attribute("type") == "submit"
+        (quantity - 1).times { 
+          robot.click_on(quantity_set)
+          robot.wait_ajax
+          line, quantity_set, quantity = nodes_of_quantity_at_index(index)
+        }
+      elsif quantity_set.tag_name == 'input'
+        robot.fill quantity_set, with:quantity
       else
         return
       end
       
       robot.wait_ajax
       robot.click_on vendor::CART[:popup], check:true
-      quantity_update = line.find_elements(xpath:vendor::CART[:update]).first if vendor::CART[:update]
+      quantity_update = if vendor::CART[:update]
+        line.find_elements(xpath:vendor::CART[:update]).first ||
+        robot.find_elements(vendor::CART[:update]).first
+      end
       robot.click_on quantity_update, check:true, ajax:true
       robot.wait_ajax
     end
@@ -138,8 +149,12 @@ module RobotCore
       exceed = robot.find_element(vendor::CART[:quantity_exceed], nowait:true)
       if exceed
         robot.click_on exceed
-        line, node = line_and_node_of_quantity_at_index(index)
-        effective_quantity = node.attribute("value").to_i
+        line, quantity_set, quantity = nodes_of_quantity_at_index(index)
+        effective_quantity = quantity.attribute("value").to_i
+        if effective_quantity == product.quantity #no set to max auto.
+          effective_quantity = product.quantity = 1
+          set_quantity(index, product)
+        end
         RobotCore::Product.new.update_quantity(index, effective_quantity)
       end
       @amount += product.quantity * robot.products[index]["price_product"]
@@ -194,10 +209,9 @@ module RobotCore
       else
         robot.click_on vendor::CART[:add]
       end
-      robot.click_on vendor::CART[:cgu], check:true
-      robot.click_on vendor::CART[:cgu_submit], check:true
-      robot.click_on vendor::CART[:warranty], check:true
-      robot.click_on vendor::CART[:warranty_submit], check:true
+      [:cgu, :cgu_submit, :warranty, :warranty_submit].each { |key| 
+        robot.click_on vendor::CART[key], check:true 
+      }
       robot.wait_ajax(4)
     end
     

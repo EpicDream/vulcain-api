@@ -70,6 +70,14 @@ class TheBodyShopFranceTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end  
   
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = [{"price_text"=>"4,80 €", "product_title"=>"CRÈME DE DOUCHE BEURRE DE CACAO", "product_image_url"=>"http://www.thebodyshop.fr/images/packshot/products/large/29420m_l.jpg", "price_product"=>4.8, "price_delivery"=>nil, "url"=>"http://www.thebodyshop.fr/corps-bain/gels-douche/creme-de-douche-beurre-de-cacao.aspx", "id"=>nil, "expected_quantity"=>100, "quantity"=>20}]
+    billing = {:shipping=>0.0, :total=>96.0, :shipping_info=>"Livraison sous 6 à 10 jours ouvrables"}
+    products = [{url:PRODUCT_URL_1, quantity:100}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order" do
     run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end

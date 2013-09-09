@@ -81,6 +81,14 @@ class ZalandoFRTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end  
   
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = [{"price_text"=>"145,00 €", "product_title"=>"Salt & Pepper\nLIV MOOD - Lampe de table - marron", "product_image_url"=>"http://i1.ztat.net/detail/PS/87/3D/00/27/01/PS873D002-701@1.1.jpg", "price_product"=>145.0, "price_delivery"=>nil, "url"=>"http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html", "id"=>nil, "expected_quantity"=>999, "quantity"=>2}]
+    billing = {:shipping=>0.0, :total=>290.0, :shipping_info=>"Date de livraison estimée :\nentre le vendredi 13 septembre 2013 et le lundi 16 septembre 2013\nLivraison rapide\nProtection du client\nProtection des données\nRetour sous 30 jours\nPaiement sécurisé par le protocole SSL\nLIVRAISON ET RETOUR GRATUITS"}
+    products = [{url:PRODUCT_URL_1, quantity:999}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order" do
     run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
   end

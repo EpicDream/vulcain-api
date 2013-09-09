@@ -57,7 +57,8 @@ module FnacConstants
     empty_message: '//*[@id="ShoppingCartDiv"]',
     line:'//tr[@class="borderedProduct"]',
     quantity:'.//input[@type="text"]',
-    update:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]', #for lose focus,find better
+    quantity_set:'.//input[@value="+"][last()]',
+    quantity_exceed:'//div[@class="inError"]',
     total_line:'totalTTC',
     empty_message_match: /Votre panier est vide/i,
     coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',

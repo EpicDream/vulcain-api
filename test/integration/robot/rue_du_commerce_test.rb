@@ -69,6 +69,14 @@ class RueDuCommerceTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end  
   
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = [{"price_text"=>"19,99 €", "product_title"=>"PHILIPS-PTA436\nPHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436", "product_image_url"=>"http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg", "price_product"=>19.99, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr", "id"=>nil, "expected_quantity"=>100, "quantity"=>1}]
+    billing = {:shipping=>6.99, :total=>28.56, :shipping_info=>"Livraison estimée entre le jeudi 12 septembre et le vendredi 13 septembre par Livraison Rapide à domicile par Colissimo"}
+    products = [{url:PRODUCT_5_URL, quantity:100}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "finalize order with master card" do
     expected_products = [{"price_text"=>"17€90", "product_title"=>"Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs easy 3d - pta436", "product_image_url"=>"http://s2.static69.com/hifi/images/produits/medium/PHILIPS-PTA436.jpg", "price_product"=>17.9, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr", "id"=>nil}]
     billing = {:shipping=>2.0, :total=>21.31, :shipping_info=>"Date de livraison estimée : le mercredi 24 juillet par Livraison Rapide à domicile par Colissimo"}

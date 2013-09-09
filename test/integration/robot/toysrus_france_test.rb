@@ -77,6 +77,14 @@ class ToysrusFranceTest < StrategyTest
     products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_3, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
+  end
+  
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = [{"price_text"=>"29,99 €", "product_title"=>"Toys R Us - Lapin en peluche 55cm\nPar : Toys R Us\n5.0\n5.0\n  (1 Avis)\nEvaluer et commenter cet article\nLire 1 avis\nÂge recommandé : 12 mois - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7052550reg.jpg", "price_product"=>29.99, "price_delivery"=>nil, "url"=>"http://www.toysrus.fr/product/index.jsp?productId=8207381", "id"=>nil, "expected_quantity"=>999, "quantity"=>197}]
+    billing = {:shipping=>1576.0, :total=>7484.03, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_1, quantity:999}]
+
+    run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "validate order" do

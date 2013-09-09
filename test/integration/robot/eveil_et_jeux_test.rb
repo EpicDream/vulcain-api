@@ -56,7 +56,7 @@ class EveilEtJeuxTest < StrategyTest
   test "finalize order" do
     expected_products = [{"price_text"=>"16,00€", "product_title"=>"Brainbox Voyage autour du monde Asmodée", "product_image_url"=>"http://images.eveiletjeux.net/Photo/IMG_FICHE_PRODUIT/Image/500x500/1/122996.jpg", "price_product"=>16.0, "price_delivery"=>nil, "url"=>"http://www.eveiletjeux.com/brainbox-voyage-autour-du-monde/produit/122996#xtatc=INT-2151-||", "id"=>nil}]
     billing = {:shipping=>5.9, :total=>37.9, :shipping_info=>"Au plus tard\nle 05/08/2013"}
-    products = [{url:PRODUCT_URL_1, quantity:2}]
+    products = [{url:PRODUCT_URL_1, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
   end

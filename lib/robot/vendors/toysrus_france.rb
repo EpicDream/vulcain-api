@@ -61,6 +61,7 @@ module ToysrusFranceConstants
     line:'//tr[@class="orderItem"]',
     total_line:'//tr[@class="orderItem"]/td[@class="currency"][2]',
     quantity:'.//td[@class="qty"]/input',
+    quantity_exceed:'//div[@class="error"]',
     update:'//*[@id="update"]',
     empty_message_match: /Votre panier ne contient aucun article/i,
     items_lists:'//*[@id="yourShoppingCart"]',
