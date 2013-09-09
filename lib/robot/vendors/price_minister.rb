@@ -100,7 +100,7 @@ module PriceMinisterConstants
   
   BILL = {
     shipping:nil,
-    total:'//div[@class="orderSummary"]/div',
+    total:'//div[@class="orderSummary"]//*[@class="totalAmount"]',
     info:'//div[@class="orderSummary"]/p'
   }
   
