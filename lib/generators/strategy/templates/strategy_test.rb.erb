@@ -64,6 +64,14 @@ class <%= vendor_name %>Test < StrategyTest
     products = []
 
     run_spec("finalize order", products, expected_products, billing)
+  end
+  
+  test "finalize order with quantity exceed availability" do
+    expected_products = []
+    billing = {}
+    products = []
+
+    run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "validate order" do
