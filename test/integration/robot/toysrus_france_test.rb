@@ -6,6 +6,7 @@ class ToysrusFranceTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.toysrus.fr/product/index.jsp?productId=8207381'
   PRODUCT_URL_2 = 'http://www.toysrus.fr/product/index.jsp?productId=15352501'
   PRODUCT_URL_3 = 'http://ad.zanox.com/ppc/?18920697C1372641144&ULP=[[http://www.toysrus.fr/redirect_znx.jsp?url=http://www.toysrus.fr/product/index.jsp?productId=11721451]]#toysrus.fr'
+  PRODUCT_URL_4 = 'http://www.toysrus.fr/product/index.jsp?productId=4223871'
   
   setup do
     initialize_robot_for ToysrusFrance
@@ -57,7 +58,7 @@ class ToysrusFranceTest < StrategyTest
   test "finalize order" do
     expected_products = [{"price_text"=>"Prix : \n29,99 €", "product_title"=>"Toys R Us - Lapin en peluche 55cm\nPar : Toys R Us\n5.0\n5.0\n  (1 Avis)\nEvaluer et commenter cet article\nLire 1 avis\nÂge recommandé : 12 mois - 10 ans (détails)\nPartager :", "product_image_url"=>"http://www.toysrus.fr/graphics/product_images/pTRUFR1-7052550reg.jpg", "price_product"=>29.99, "price_delivery"=>nil, "url"=>"http://www.toysrus.fr/product/index.jsp?productId=8207381", "id"=>nil}]
     billing = {:shipping=>16.0, :total=>75.98, :shipping_info=>nil}
-    products = [{url:PRODUCT_URL_1, quantity:2}]
+    products = [{url:PRODUCT_URL_4, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end
