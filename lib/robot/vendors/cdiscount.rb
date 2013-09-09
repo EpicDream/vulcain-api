@@ -61,6 +61,7 @@ module CdiscountConstants
     empty_message_match: /.*/,
     submit: 'Passer la commande',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
+    popup:'//div[@class="popin-buttons"]/button'
   }
   
   PRODUCT = {

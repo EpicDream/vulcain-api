@@ -95,7 +95,7 @@ module RobotCore
         line, node = line_and_node_of_quantity_at_index(index)
         @retry_set_quantities = true and return unless node
         next unless node #fixed quantity, can't be changed
-        set_quantity(line, node, product.quantity)
+        set_quantity(index, product)
         check_quantity_exceed(index, product)
       end
     end
@@ -108,8 +108,16 @@ module RobotCore
       [line, node]
     end
     
-    def set_quantity line, node, quantity
+    def set_quantity index, product
+      line, node = line_and_node_of_quantity_at_index(index)
+      quantity = product.quantity
+      
       if node.tag_name == 'select'
+        options = robot.options_of_select(node).keys.map(&:to_i)
+        unless options.include?(quantity)
+          quantity = options.max 
+          RobotCore::Product.new.update_quantity(index, quantity)
+        end
         robot.select_option(node, quantity)
       elsif node.attribute("type") == "submit"
         (quantity - 1).times { robot.click_on(node) }
@@ -118,9 +126,12 @@ module RobotCore
       else
         return
       end
+      
+      robot.wait_ajax
+      robot.click_on vendor::CART[:popup], check:true
       quantity_update = line.find_elements(xpath:vendor::CART[:update]).first if vendor::CART[:update]
       robot.click_on quantity_update, check:true, ajax:true
-      robot.wait_ajax 4
+      robot.wait_ajax
     end
     
     def check_quantity_exceed index, product
@@ -129,8 +140,7 @@ module RobotCore
         robot.click_on exceed
         line, node = line_and_node_of_quantity_at_index(index)
         effective_quantity = node.attribute("value").to_i
-        robot.order.products[index].quantity = effective_quantity
-        RobotCore::Product.new.update_quantity_of(robot.products[index], effective_quantity)
+        RobotCore::Product.new.update_quantity(index, effective_quantity)
       end
       @amount += product.quantity * robot.products[index]["price_product"]
     end

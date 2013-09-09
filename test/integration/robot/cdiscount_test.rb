@@ -75,6 +75,14 @@ class CdiscountTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end  
   
+  test "finalize order with quantity exceed disponibility" do
+    expected_products = [{"price_text"=>"13€99", "product_title"=>"Tortues Ninja - Raphael - Figurine 12cm + access", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/5/1/300x300/gio5505/rw/tortues-ninja-raphael-figurine-12cm-access.jpg", "price_product"=>13.99, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html", "id"=>nil, "expected_quantity"=>100, "quantity"=>12}]
+    billing = {:shipping=>9.99, :total=>177.87, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_10, quantity:100}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end  
+  
   test "validate order with mastercard" do
     @context['order']['credentials']['number'] = '501290129019201'
     @robot.context = @context

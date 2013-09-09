@@ -28,8 +28,9 @@ module RobotCore
       end
     end
     
-    def update_quantity_of product, quantity
-      product['quantity'] = quantity
+    def update_quantity index, quantity
+      robot.order.products[index].quantity = quantity
+      robot.products[index]['quantity'] = quantity
     end
     
   end
