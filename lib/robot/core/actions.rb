@@ -132,7 +132,8 @@ module RobotCore
     end
 
     def options_of_select identifier
-      select = @driver.find_element(identifier)
+      select = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+      select ||= @driver.find_element(identifier)
       options = @driver.options_of_select select
       options.inject({}) do |options, option|
         options.merge!({option.attribute("value") => option.text})
