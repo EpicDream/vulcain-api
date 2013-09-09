@@ -72,7 +72,7 @@ module ToysrusFranceConstants
   }
   
   PRODUCT = {
-    price_text:'//*[@id="price"]',
+    price_text:'//*[@id="price"]/dl/dd[@class="ours"]',
     title:'//*[@id="price-review-age"]',
     image:'//*[@id="curImageZoom"]'
   }
