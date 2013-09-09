@@ -79,8 +79,8 @@ class PriceMinisterTest < StrategyTest
   end
   
   test "finalize order product with warranty option" do
-    expected_products = [{"price_text"=>"289,00 € ou 60,03 € x 5", "product_title"=>"Nikon Coolpix P330 Compact 12.2 Mpix Blanc", "product_image_url"=>"http://pmcdn.priceminister.com/photo/nikon-coolpix-p330-compact-12-2-mpix-blanc-938644490_ML.jpg", "price_product"=>289.0, "price_delivery"=>10.7, "url"=>"http://www.priceminister.com/offer/buy/200868187/nikon-coolpix-p330-compact-12-2-mpix-blanc.html", "id"=>nil}]
-    billing = {:shipping=>10.7, :total=>299.7, :shipping_info=>"Pour une livraison en France"}
+    expected_products = [{"price_text"=>"296,08 € ou 61,50 € x 5", "product_title"=>"Nikon Coolpix P330 Compact 12.2 Mpix Blanc", "product_image_url"=>"http://pmcdn.priceminister.com/photo/nikon-coolpix-p330-compact-12-2-mpix-blanc-938644490_ML.jpg", "price_product"=>296.08, "price_delivery"=>nil, "url"=>"http://www.priceminister.com/offer/buy/200868187/nikon-coolpix-p330-compact-12-2-mpix-blanc.html", "id"=>nil}]
+    billing = {:shipping=>0, :total=>296.08, :shipping_info=>"Pour une livraison en France"}
     products = [{url:PRODUCT_URL_7, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
