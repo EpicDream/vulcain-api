@@ -70,7 +70,7 @@ class CdiscountTest < StrategyTest
   test "finalize order with n products and m quantity" do
     expected_products = [{"price_text"=>"13 €99", "product_title"=>"Tortues Ninja - Raphael - Figurine 12cm +\naccess\nGiochi Preziosi - Tortues Ninja - Figurine 12 cm Raphael - Retrouve Raphael l'un des personnages de la série animée Tortues Ninja avec son arme... - Garçon - A partir de 3 ans - Livré à l'unité\n  Avis clients\n5,0/5 (2 avis)\nDonnez votre avisLire les avis\nPartagez le !", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/5/1/200x200/gio5505/rw/tortues-ninja-raphael-figurine-12cm-access.jpg", "price_product"=>13.99, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html", "id"=>nil}, {"price_text"=>"18€69", "product_title"=>"Blu-Ray Django unchained", "product_image_url"=>"http://i2.cdscdn.com/pdt2/9/9/0/1/300x300/3333299202990/rw/blu-ray-django-unchained.jpg", "price_product"=>18.69, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html", "id"=>nil}]
     billing = {:shipping=>6.99, :total=>91.04, :shipping_info=>nil}
-    products = [{url:PRODUCT_URL_10, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    products = [{url:PRODUCT_URL_10, quantity:2}, {url:PRODUCT_URL_3, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  

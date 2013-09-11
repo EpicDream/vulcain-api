@@ -49,7 +49,7 @@ module AmazonFranceConstants
   CART = {
     add:'//*[@id="universal-buy-buttons-box-sequence-features"]//form//button',
     button:'//*[@id="navbar-icon-cart"]',
-    remove_item:'Supprimer',
+    remove_item:'pattern:Supprimer',
     empty_message:'//*[@id="cart-active-items"]',
     inverse_order:true,
     line:'//div[@class="cart-item"]',
@@ -58,7 +58,7 @@ module AmazonFranceConstants
     update:'.//div[@class="quantity"]/p[2]/a[1]',
     total:'//span[@class="ourprice"]',
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: 'Passer la commande',
+    submit: 'pattern:Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
     
   }

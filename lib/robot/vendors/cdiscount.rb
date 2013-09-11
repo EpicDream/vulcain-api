@@ -33,12 +33,12 @@ module CdiscountConstants
   }
   
   SHIPMENT = {
-    address_1: "DeliveryAddressLine1",
-    additionnal_address: "DeliveryDoorCode",
-    city: "DeliveryCity",
-    zip: "DeliveryZipCode",
-    mobile_phone: "DeliveryPhoneNumbers_MobileNumber",
-    land_phone: "DeliveryPhoneNumbers_PhoneNumber",
+    address_1: "pattern:DeliveryAddressLine1",
+    additionnal_address: "pattern:DeliveryDoorCode",
+    city: "pattern:DeliveryCity",
+    zip: "pattern:DeliveryZipCode",
+    mobile_phone: "pattern:DeliveryPhoneNumbers_MobileNumber",
+    land_phone: "pattern:DeliveryPhoneNumbers_PhoneNumber",
     submit_packaging: '//*[@id="ValidationSubmit"]',
     submit: '//*[@id="LoginButton"]',
     same_billing_address: '//*[@id="shippingOtherAddress"]',
@@ -51,7 +51,7 @@ module CdiscountConstants
     add:'//*[@id="fpAddToBasket"]',
     offers:'//*[@id="AjaxOfferTable"]',
     extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
-    add_from_vendor: "AddToBasketButtonOffer",
+    add_from_vendor: "pattern:AddToBasketButtonOffer",
     steps:'//*[@id="masterCart"]',
     line:'//tbody[@class="border"]',
     quantity:'.//td[@class="quantity txtGen"]/select',
@@ -59,7 +59,7 @@ module CdiscountConstants
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
     empty_message_match: /.*/,
-    submit: 'Passer la commande',
+    submit: 'pattern:Passer la commande',
     submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging]],
     popup:'//div[@class="popin-buttons"]/button'
   }

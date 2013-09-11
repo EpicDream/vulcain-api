@@ -62,7 +62,7 @@ module EveilEtJeuxConstants
   }
   
   CART = {
-    add:'Ajouter au panier',
+    add:'pattern:Ajouter au panier',
     button:nil,
     remove_item:'//*[@id="ctl00_ContentPlaceHolder1__ucBasketProductTable__rptProduct_ctl00__bDelete"]',
     line:'//table[@class="table cart"]/tbody/tr',

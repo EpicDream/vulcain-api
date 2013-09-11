@@ -104,10 +104,11 @@ class Driver
   
   def find_elements identifier, options={}
     return [] unless identifier
-    return find_elements_with_pattern(identifier, options) unless xpath?(identifier)
+    return find_elements_with_pattern(identifier, options) if pattern_search?(identifier)
     waiting(options[:nowait]) { 
-    begin  
-      elements = @driver.find_elements(:xpath => identifier)
+    begin
+      how = xpath?(identifier) ? :xpath : :css
+      elements = @driver.find_elements(how => identifier)
       elements.any? ? elements : nil
     rescue Selenium::WebDriver::Error::UnhandledAlertError
       accept_alert
@@ -117,7 +118,11 @@ class Driver
   end
   
   def xpath? identifier
-    !!(identifier =~ /^\/\//)
+    !!(identifier =~ /\/\//)
+  end
+  
+  def pattern_search? identifier
+    !!(identifier =~ /^pattern:/)
   end
   
   def find_any_element identifiers
@@ -132,6 +137,7 @@ class Driver
   end
 
   def find_elements_with_pattern pattern, options={}
+    pattern.gsub!(/^pattern:/, '')
     waiting(options[:nowait]) { 
     begin
       ["a", "input", "button", "span", "td"].each do |tag|

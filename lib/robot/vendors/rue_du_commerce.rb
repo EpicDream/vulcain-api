@@ -75,7 +75,7 @@ module RueDuCommerceConstants
     add:'//*[@id="bt_submit"] | //div[@class="buy"]/div | //*[@id="productPurchaseButton"]',
     remove_item:'//a[@class="cartProductRemove fR"]',
     remove_option:'//a[@class="cartServiceRemove fR"]',
-    submit: 'Finaliser ma commande',
+    submit: 'pattern:Finaliser ma commande',
     line:'//div[@class="cartProductDescription"]/ancestor::div[1]',
     total_line:'//span[@class="totalPrice"]',
     quantity:'.//input[@class="numberOfProduct"]',

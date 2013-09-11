@@ -80,13 +80,13 @@ module PriceMinisterConstants
     total_line:'.//li[@class="price"]',
     quantity:nil,
     update:nil,
-    remove_item:'Retirer cet article du panier',
+    remove_item:'pattern:Retirer cet article du panier',
     empty_message:'//*[@id="pm_cart"]',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: '//*[@id="terminerHaut"]/span',
     submit_success: [],
     warranty:'//*[@id="guarantee_0"]',
-    warranty_submit:'Continuer'
+    warranty_submit:'pattern:Continuer'
   }
   
   PRODUCT = {
@@ -107,7 +107,7 @@ module PriceMinisterConstants
   PAYMENT = {
     remove: nil,
     remove_confirmation: nil,
-    access: 'Continuer',
+    access: 'pattern:Continuer',
     contract_option: '//div[@class="checkup_list"]//input[@name="cbv"]',
     invoice_address: nil,
     credit_card_select:nil,

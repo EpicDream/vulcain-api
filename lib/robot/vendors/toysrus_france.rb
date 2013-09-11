@@ -56,7 +56,7 @@ module ToysrusFranceConstants
   
   CART = {
     add:'//*[@id="addItemToCartOption"]',
-    remove_item: 'Supprimer',
+    remove_item: 'pattern:Supprimer',
     empty_message: '//*[@id="main"]',
     line:'//tr[@class="orderItem"]',
     total_line:'//tr[@class="orderItem"]/td[@class="currency"][2]',

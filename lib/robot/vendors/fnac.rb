@@ -46,10 +46,10 @@ module FnacConstants
   
   CART = {
     add:'//div[@class="faHeadRight"]/div/div/a',
-    validate:'//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
-    offers:'Neuf',
-    remove_item:'Supprimer',
-    add_offer: 'Ajout au panier',
+    validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
+    offers:'pattern:Neuf',
+    remove_item:'pattern:Supprimer',
+    add_offer: 'pattern:Ajout au panier',
     cgu:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]',
     cgu_submit:'//*[@id="btnOcbContinue"]',
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
@@ -59,7 +59,7 @@ module FnacConstants
     quantity:'.//input[@type="text"]',
     quantity_set:'.//input[@value="+"][last()]',
     quantity_exceed:'//div[@class="inError"]/span[1]',
-    total_line:'totalTTC',
+    total_line:'pattern:totalTTC',
     empty_message_match: /Votre panier est vide/i,
     coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',
     coupon_recompute:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_btnSubmit"]'

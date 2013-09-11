@@ -41,7 +41,7 @@ module DartyConstants
   
   CART = {
     add:'//*[@id="sliding_basket_form"]//button',
-    remove_item:'Supprimer',
+    remove_item:'pattern:Supprimer',
     empty_message:'//*[@id="contentColOne"]',
     submit: '//*[@id="newbottomFinishButton"]',
     line:'//table[@class="dataPanier"]//td//select/ancestor::tr[1]',
