@@ -37,9 +37,9 @@ module FnacConstants
     zip: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_zipcode_txtPostalCode"]',
     mobile_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumMobile"]',
     land_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumFixe"]',
-    # select_this_address: '//*[@id="addressManager_btnChoixAddressPostal"]',
+    select_this_address: nil,
     submit: '//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]',
-    # submit_packaging: '//*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    submit_packaging: nil,
     address_option:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_qas_qsDataList_rdChoix_2"]',
     address_submit:'//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]'
   }
@@ -58,7 +58,7 @@ module FnacConstants
     line:'//tr[@class="borderedProduct"]',
     quantity:'.//input[@type="text"]',
     quantity_set:'.//input[@value="+"][last()]',
-    quantity_exceed:'//div[@class="inError"]',
+    quantity_exceed:'//div[@class="inError"]/span[1]',
     total_line:'totalTTC',
     empty_message_match: /Votre panier est vide/i,
     coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',
@@ -75,7 +75,7 @@ module FnacConstants
   
   BILL = {
     shipping:'//table[@class="recapCmd"]/tfoot/tr[1]',
-    total:'//table[@class="recapCmd"]/tfoot/tr[last()]',
+    total:'//table[@class="recapCmd"]/tfoot/tr[2]',
   }
   
   PAYMENT = {
