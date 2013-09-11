@@ -146,8 +146,9 @@ module RobotCore
     end
     
     def check_quantity_exceed index, product
+      robot.wait_ajax
       exceed = robot.find_element(vendor::CART[:quantity_exceed], nowait:true)
-      if exceed
+      if exceed && exceed.displayed?
         robot.click_on exceed
         line, quantity_set, quantity = nodes_of_quantity_at_index(index)
         effective_quantity = quantity.attribute("value").to_i
