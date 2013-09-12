@@ -114,13 +114,15 @@ class AmazonFrance
           wait_for([PAYMENT[:coupon]])
           wait_ajax 5
           self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
-          fill PAYMENT[:coupon], with:order.coupon
-          click_on PAYMENT[:coupon_recompute]
-          wait_ajax 5
+          if order.coupon
+            fill PAYMENT[:coupon], with:order.coupon
+            click_on PAYMENT[:coupon_recompute]
+            wait_ajax 5
+          end
           order.credentials.number = "4561110175016641"
           order.credentials.holder = "M ERIC LARCHEVEQUE"
           order.credentials.exp_month = 2
-          order.credentials.exp_year = 2015
+          order.credentials.exp_year = 2017
           order.credentials.cvv = "123"
           click_on '//*[@id="add-credit-card"]'
           wait_ajax 5
@@ -130,11 +132,12 @@ class AmazonFrance
             wait_ajax
             click_on PAYMENT[:access]
             wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+            wait_ajax
             click_on PAYMENT[:invoice_address], check:true
             wait_for [PAYMENT[:validate], no_thanks_button]
             click_on no_thanks_button, check:true
             wait_for [PAYMENT[:validate]]
-            wait_ajax 
+            wait_ajax 5
           end
         }
         
