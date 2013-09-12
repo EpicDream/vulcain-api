@@ -106,8 +106,6 @@ class AmazonTest < StrategyTest
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
     products = [{url:PRODUCT_URL_6, quantity:4}]
-    products = [{url:'http://www.amazon.fr/Disney-Raiponce/dp/B003VX3OOM/ref=br_lf_m_1000744653_1_1_img?ie=UTF8&m=A1X6FK5RDHNB96&s=videogames&pf_rd_p=426603507&pf_rd_s=center-5&pf_rd_t=1401&pf_rd_i=1000744653&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=0575J367GPJQ0YZ8B9E8', quantity:1},
-      {url:'http://www.amazon.fr/Disney-Epic-Mickey/dp/B0034G50QG/ref=br_lf_m_1000744653_1_2_img?ie=UTF8&m=A1X6FK5RDHNB96&s=videogames&pf_rd_p=426603507&pf_rd_s=center-5&pf_rd_t=1401&pf_rd_i=1000744653&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=0Y8RWGVQ652RQ2C9KE6B', quantity:1}]
     run_spec('validate order', products)
   end
   

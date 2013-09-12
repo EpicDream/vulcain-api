@@ -108,36 +108,52 @@ class AmazonFrance
   def instanciate_robot
     Robot.new(@context) do
       
+      step('check balance') do
+        balance = false
+        if exists? '//tr[@paymentmethodid="availablebalance"]'
+          text = get_text '//tr[@paymentmethodid="availablebalance"]'
+          balance = !!(text =~ /Utilisez.*EUR\s+\d.*/)
+        end
+        balance
+      end
+      
       step('finalize order') do
         payment = RobotCore::Payment.new
         payment.access_payment = Proc.new {
           wait_for([PAYMENT[:coupon]])
           wait_ajax 5
-          self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
-          if order.coupon
-            fill PAYMENT[:coupon], with:order.coupon
-            click_on PAYMENT[:coupon_recompute]
-            wait_ajax 5
-          end
-          order.credentials.number = "4561110175016641"
-          order.credentials.holder = "M ERIC LARCHEVEQUE"
-          order.credentials.exp_month = 2
-          order.credentials.exp_year = 2017
-          order.credentials.cvv = "123"
-          click_on '//*[@id="add-credit-card"]'
-          wait_ajax 5
-          if RobotCore::Payment.new.checkout
-            no_thanks_button = 'div.prime-nothanks-button'
-            click_on '//*[@id="new-cc"]//input[@type="button"]'
-            wait_ajax
+          balance = run_step('check balance')
+          
+          if balance
+            self.skip_assess = true
             click_on PAYMENT[:access]
-            wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-            wait_ajax
-            click_on PAYMENT[:invoice_address], check:true
-            wait_for [PAYMENT[:validate], no_thanks_button]
-            click_on no_thanks_button, check:true
-            wait_for [PAYMENT[:validate]]
+          else
+            self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
+            if order.coupon
+              fill PAYMENT[:coupon], with:order.coupon
+              click_on PAYMENT[:coupon_recompute]
+              wait_ajax 5
+            end
+            order.credentials.number = "4561110175016641"
+            order.credentials.holder = "M ERIC LARCHEVEQUE"
+            order.credentials.exp_month = 2
+            order.credentials.exp_year = 2017
+            order.credentials.cvv = "123"
+            click_on '//*[@id="add-credit-card"]'
             wait_ajax 5
+            if RobotCore::Payment.new.checkout
+              no_thanks_button = 'div.prime-nothanks-button'
+              click_on '//*[@id="new-cc"]//input[@type="button"]'
+              wait_ajax
+              click_on PAYMENT[:access]
+              wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
+              wait_ajax
+              click_on PAYMENT[:invoice_address], check:true
+              wait_for [PAYMENT[:validate], no_thanks_button]
+              click_on no_thanks_button, check:true
+              wait_for [PAYMENT[:validate]]
+              wait_ajax 5
+            end
           end
         }
         
@@ -145,19 +161,22 @@ class AmazonFrance
       end
       
       step('validate order') do
-        run_step('remove credit card')
-        open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
-        fill LOGIN[:email], with:account.login
-        fill LOGIN[:password], with:account.password
-        click_on LOGIN[:submit]
-        wait_ajax 5
-        fill PAYMENT[:coupon], with:order.credentials.voucher
-        click_on PAYMENT[:coupon_recompute]
-        click_on PAYMENT[:access]
+        unless self.skip_assess
+          run_step('remove credit card')
+          open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
+          fill LOGIN[:email], with:account.login
+          fill LOGIN[:password], with:account.password
+          click_on LOGIN[:submit]
+          wait_ajax 5
+          fill PAYMENT[:coupon], with:order.credentials.voucher
+          click_on PAYMENT[:coupon_recompute]
+          wait_ajax 5
+          click_on PAYMENT[:access]
+        end
         
         wait_for [PAYMENT[:validate]]
         click_on vendor::PAYMENT[:validate]
-
+        self.skip_assess = false
         page = wait_for([vendor::PAYMENT[:status]]) do
           screenshot
           page_source
