@@ -7,8 +7,8 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_2 = 'http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4'
   PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
   PRODUCT_URL_4 = 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'
-  PRODUCT_URL_5 = 'http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75' #avec prix livraison
-  PRODUCT_URL_6 = 'http://www.amazon.fr/gp/aw/d/2747034054/'
+  PRODUCT_URL_5 = 'http://www.amazon.fr/SEB-OF265800-Delice-Compact-Convection/dp/B003UD7ZQG/ref=sr_1_1?ie=UTF8&qid=1378981732&sr=8-1&keywords=SEB+OF265800+Four+Delice+Compact+Convection+24+L+Noir' #avec prix livraison
+  PRODUCT_URL_6 = 'http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins'
   PRODUCT_URL_7 = 'http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU'
   PRODUCT_URL_8 = 'http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21'
   PRODUCT_URL_9 = 'http://www.amazon.fr/Déguisement-Morphsuits%C2%99-adulte-vert-fluo/dp/B00B446DS4/ref=pd_sim_sbs_t_10?tag=shopelia-21'
@@ -19,7 +19,7 @@ class AmazonTest < StrategyTest
   end
   
   test "register" do
-    run_spec("register")
+    run_spec("register",false)
   end
   
   test "register failure" do
@@ -49,33 +49,31 @@ class AmazonTest < StrategyTest
   end
   
   test "finalize order" do
-    robot.expects(:submit_credit_card).returns(false)
-    expected_products = [{"price_text"=>"Prix: EUR 106,00\nLivraison gratuite (en savoir plus)", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SL500_SX150_.jpg", "price_product"=>106.0, "price_delivery"=>0, "url"=>"http://www.amazon.fr/gp/aw/d/B003UD7ZQG/ref=mp_s_a_1_3?qid=1368533395&sr=8-3&pi=SL75"}, {"price_text"=>"Prix conseillé : EUR 46,70\nPrix: EUR 44,37\nLivraison gratuite (en savoir plus)\nÉconomisez : EUR 2,33 (5 %)", "product_title"=>"Poe : Oeuvres en prose", "product_image_url"=>"http://ecx.images-amazon.com/images/I/41Q6MK48BRL._SL500_SY180_.jpg", "price_product"=>46.7, "price_delivery"=>44.37, "url"=>"http://www.amazon.fr/Poe-Oeuvres-prose-Edgar-Allan/dp/2070104540/ref=pd_sim_b_4"}]
-    products = [{url:PRODUCT_URL_5, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
+    expected_products = [{"price_text"=>"EUR 107,99", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SY355_.jpg", "price_product"=>107.99, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/SEB-OF265800-Delice-Compact-Convection/dp/B003UD7ZQG/ref=sr_1_1?ie=UTF8&qid=1378981732&sr=8-1&keywords=SEB+OF265800+Four+Delice+Compact+Convection+24+L+Noir", "id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
+    billing = {:shipping=>0.0, :total=>107.99, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_5, quantity:1}]
     
-    run_spec("finalize order", products, expected_products, nil)
+    run_spec("finalize order", products, expected_products, billing)
   end
   
   test "product price text with 'prix conseillé'" do
     assert = Proc.new {
-      puts robot.products.inspect
       assert_equal 8.74, robot.products.first["price_product"]
     }
     run_spec("add to cart", [{url:PRODUCT_URL_8, quantity:1}], assert)
   end
   
   test "finalize order with one product and quantity > 1" do
-    robot.expects(:submit_credit_card).returns(false)
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY200_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Herv&eacute;-Tullet/dp/2747034054?SubscriptionId=AKIAJMEFP2BFMHZ6VEUA&amp;tag=shopelia-21&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=2747034054", "id"=>nil}]
-    billing = {:shipping=>0.0, :total=>51.03, :shipping_info=>"Date de livraison estimée :  18 septembre 2013 - 19 septembre 2013"}
+    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "expected_quantity"=>3, "quantity"=>3}]
+    billing = {:shipping=>0.0, :total=>51.03, :shipping_info=>nil}
     products = [{url:PRODUCT_URL_6, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "finalize order with n products and m quantity" do
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins", "product_image_url"=>"http://ecx.images-amazon.com/images/I/71ZbtDd4lVL._SY600_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378397862&sr=8-1&keywords=ateliers+dessin", "id"=>nil}, {"price_text"=>"EUR 8,74", "product_title"=>"Le capital : Livre 1, sections 1 à 4", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY600_.jpg", "price_product"=>8.74, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil}]
-    billing = {:shipping=>0.0, :total=>68.51, :shipping_info=>"Date de livraison estimée :  19 septembre 2013 - 23 septembre 2013"}
+    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "expected_quantity"=>3, "quantity"=>3}, {"price_text"=>"EUR 8,74", "product_title"=>"Le capital : Livre 1, sections 1 à 4 [Poche]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY445_.jpg", "price_product"=>8.74, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
+    billing = {:shipping=>0.0, :total=>68.51, :shipping_info=>nil}
     products = [{url:PRODUCT_URL_6, quantity:3}, {url:PRODUCT_URL_8, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)
@@ -98,7 +96,6 @@ class AmazonTest < StrategyTest
     products = [{url:PRODUCT_URL_10, quantity:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
     run_spec('add to cart', products)
   end
-  
 
   test "complete order process" do
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
@@ -108,7 +105,10 @@ class AmazonTest < StrategyTest
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
-    run_spec('validate order', [{url:PRODUCT_URL_6, quantity:4}])
+    products = [{url:PRODUCT_URL_6, quantity:4}]
+    products = [{url:'http://www.amazon.fr/Disney-Raiponce/dp/B003VX3OOM/ref=br_lf_m_1000744653_1_1_img?ie=UTF8&m=A1X6FK5RDHNB96&s=videogames&pf_rd_p=426603507&pf_rd_s=center-5&pf_rd_t=1401&pf_rd_i=1000744653&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=0575J367GPJQ0YZ8B9E8', quantity:1},
+      {url:'http://www.amazon.fr/Disney-Epic-Mickey/dp/B0034G50QG/ref=br_lf_m_1000744653_1_2_img?ie=UTF8&m=A1X6FK5RDHNB96&s=videogames&pf_rd_p=426603507&pf_rd_s=center-5&pf_rd_t=1401&pf_rd_i=1000744653&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=0Y8RWGVQ652RQ2C9KE6B', quantity:1}]
+    run_spec('validate order', products)
   end
   
 end

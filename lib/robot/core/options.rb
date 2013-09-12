@@ -5,7 +5,7 @@ module RobotCore
     def initialize product
       super()
       @product = product
-      @options = product.options
+      @options = product.options || []
     end
     
     def run
