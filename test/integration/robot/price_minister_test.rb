@@ -10,6 +10,7 @@ class PriceMinisterTest < StrategyTest
   PRODUCT_URL_5 = 'http://www.priceminister.com/offer/buy/132498077/nounours-45-kiki-marron-t3ab.html'
   PRODUCT_URL_6 = 'http://www.priceminister.com/offer/buy/58876592/Le-Pire-Du-Morning-Live-2-DVD-Zone-2.html'
   PRODUCT_URL_7 = 'http://www.priceminister.com/offer/buy/200868187/nikon-coolpix-p330-compact-12-2-mpix-blanc.html'
+  PRODUCT_URL_8 = 'http://www.priceminister.com/offer/buy/159603018/cisaille-a-haies-classic-540-gardena.html'
   
   setup do
     initialize_robot_for PriceMinister

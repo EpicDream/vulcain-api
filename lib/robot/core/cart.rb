@@ -90,7 +90,12 @@ module RobotCore
     end
     
     def set_quantities
-      return unless vendor::CART[:quantity]
+      unless vendor::CART[:quantity] #quick-fix...
+        robot.order.products.each_with_index do |product, index|
+          @amount += product.quantity * robot.products[index]["price_product"]
+        end
+        return
+      end
       robot.order.products.each_with_index do |product, index|
         line, quantity_set, quantity = nodes_of_quantity_at_index(index)
         @retry_set_quantities = true and return unless quantity_set

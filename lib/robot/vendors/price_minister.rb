@@ -77,7 +77,7 @@ module PriceMinisterConstants
     color_option:'//*[@id="colorChoices"]',
     size_option:'//*[@id="sizeFilter"]',
     line:'//div[@class="pm_ctn seller_package"]',
-    total_line:'.//li[@class="price"]',
+    total_line:'//li[@class="price"]',
     quantity:nil,
     update:nil,
     remove_item:'pattern:Retirer cet article du panier',
