@@ -14,7 +14,12 @@ module RobotCore
       payment.access
       
       RobotCore::Billing.new.build
-      robot.assess
+      
+      if robot.billing.nil?
+        robot.terminate_on_error(:no_billing)
+      else
+        robot.assess
+      end
     end
     
     def validate
