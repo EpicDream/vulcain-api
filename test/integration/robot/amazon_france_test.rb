@@ -11,6 +11,8 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_6 = 'http://www.amazon.fr/gp/aw/d/2747034054/'
   PRODUCT_URL_7 = 'http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU'
   PRODUCT_URL_8 = 'http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21'
+  PRODUCT_URL_9 = 'http://www.amazon.fr/Déguisement-Morphsuits%C2%99-adulte-vert-fluo/dp/B00B446DS4/ref=pd_sim_sbs_t_10?tag=shopelia-21'
+  PRODUCT_URL_10 = 'http://www.amazon.fr/Fly-London-Yoni-Ballerines-femme/dp/B003KRQEBE/ref=sr_1_2?s=shoes&ie=UTF8&qid=1378979486&sr=1-2'
   
   setup do
     initialize_robot_for AmazonFrance
@@ -85,7 +87,18 @@ class AmazonTest < StrategyTest
     products = [{url:PRODUCT_URL_7, quantity:100}]
 
     run_spec("finalize order", products, expected_products, billing)
-  end  
+  end
+  
+  test "add to cart with product option to click" do
+    products = [{url:PRODUCT_URL_9, quantity:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
+    run_spec('add to cart', products)
+  end
+  
+  test "add to cart with product option to select and click" do
+    products = [{url:PRODUCT_URL_10, quantity:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
+    run_spec('add to cart', products)
+  end
+  
 
   test "complete order process" do
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
