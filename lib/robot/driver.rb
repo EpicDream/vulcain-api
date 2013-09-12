@@ -137,7 +137,7 @@ class Driver
   end
 
   def find_elements_with_pattern pattern, options={}
-    pattern.gsub!(/^pattern:/, '')
+    pattern = pattern.gsub(/^pattern:/, '')
     waiting(options[:nowait]) { 
     begin
       ["a", "input", "button", "span", "td"].each do |tag|
