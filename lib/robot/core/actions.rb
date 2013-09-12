@@ -158,7 +158,7 @@ module RobotCore
     end
     
     def checked? identifier
-      return unless element = find_element(identifier)
+      return unless element = find_element(identifier, nowait:true)
       element.selected?
     end
 
