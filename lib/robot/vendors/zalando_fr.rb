@@ -72,8 +72,6 @@ module ZalandoFRConstants
     total_line:'//td[@class="tPrice"]',
     quantity:'.//select[@name="quantity"]',
     update:nil,
-    color_option:'//ul[@class="colorList"]//img[@src="color_option_value"]',
-    size_option:"//*[@id='listProductSizes']//li[normalize-space(text())='size_option_value']",
     remove_item:'//input[@name="deleteFromCart"]',
     empty_message:'//*[@id="cart"]',
     empty_message_match:/panier\s+est\s+vide/i,

@@ -74,8 +74,6 @@ module PriceMinisterConstants
     add:'//div[@class="add_cart"][1]//button/span/span | //div[@id="add_cart_btn"]/button',
     offers:'//a[@class="filter10"]',
     button:nil,
-    color_option:'//*[@id="colorChoices"]',
-    size_option:'//*[@id="sizeFilter"]',
     line:'//div[@class="pm_ctn seller_package"]',
     total_line:'//li[@class="price"]',
     quantity:nil,
