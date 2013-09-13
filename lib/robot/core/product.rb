@@ -12,6 +12,7 @@ module RobotCore
       product['price_delivery'] = PRICES_IN_TEXT.(robot.get_text vendor::PRODUCT[:shipping]).first
       product['url'] = robot.current_product.url
       product['id'] = robot.current_product.id
+      product['product_version_id'] = robot.current_product.product_version_id
       product['expected_quantity'] = robot.current_product.quantity
       product['quantity'] = robot.current_product.quantity
       robot.products << product

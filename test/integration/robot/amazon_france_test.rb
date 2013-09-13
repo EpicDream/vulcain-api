@@ -88,12 +88,12 @@ class AmazonTest < StrategyTest
   end
   
   test "add to cart with product option to click" do
-    products = [{url:PRODUCT_URL_9, quantity:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
+    products = [{url:PRODUCT_URL_9, quantity:1, product_version_id:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
     run_spec('add to cart', products)
   end
   
   test "add to cart with product option to select and click" do
-    products = [{url:PRODUCT_URL_10, quantity:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
+    products = [{url:PRODUCT_URL_10, quantity:1, product_version_id:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
     run_spec('add to cart', products)
   end
 
