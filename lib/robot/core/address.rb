@@ -24,6 +24,7 @@ module RobotCore
     end
     
     def address
+      robot.terminate_on_error(:unmanaged_country) and return if !dictionary[:country] && user.address.country != 'FR'
       properties = user.address.marshal_dump.keys
       properties.each do |property|
         begin
@@ -33,7 +34,7 @@ module RobotCore
             select_city
           elsif property == :country
             country_code = COUNTRIES_CODES[user.address.send(property)][:alpha2]
-            robot.select_option(dictionary[property], country_code)
+            robot.select_option(dictionary[:country], country_code)
           else
             raise
           end

@@ -221,7 +221,7 @@ class StrategyTest < ActiveSupport::TestCase
                                           'city' => 'Rives',
                                           'mobile_phone' => '0634562345',
                                           'land_phone' => '0134562345',
-                                          'country' => 'LU'}
+                                          'country' => 'FR'}
                           }
                 }
   end
