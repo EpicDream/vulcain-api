@@ -17,7 +17,7 @@ module RobotCore
     private
     
     def select option
-      
+      robot.click_on option["xpath"]
     end
     
     def click option

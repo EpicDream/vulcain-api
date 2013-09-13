@@ -12,7 +12,7 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_7 = 'http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU'
   PRODUCT_URL_8 = 'http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21'
   PRODUCT_URL_9 = 'http://www.amazon.fr/Déguisement-Morphsuits%C2%99-adulte-vert-fluo/dp/B00B446DS4/ref=pd_sim_sbs_t_10?tag=shopelia-21'
-  PRODUCT_URL_10 = 'http://www.amazon.fr/Fly-London-Yoni-Ballerines-femme/dp/B003KRQEBE/ref=sr_1_2?s=shoes&ie=UTF8&qid=1378979486&sr=1-2'
+  PRODUCT_URL_10 = 'http://www.amazon.fr/gp/product/B00CJ5RHXM/ref=s9_simh_gw_p193_d0_i3?pf_rd_m=A1X6FK5RDHNB96&pf_rd_s=center-2&pf_rd_r=1D4X6MSB4X4BFDWTPB7K&pf_rd_t=101&pf_rd_p=312233167&pf_rd_i=405320'
   
   setup do
     initialize_robot_for AmazonFrance
@@ -87,15 +87,20 @@ class AmazonTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
-  test "add to cart with product option to click" do
-    products = [{url:PRODUCT_URL_9, quantity:1, product_version_id:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
+  test "add to cart with product option to select and click" do
+    products = [{url:PRODUCT_URL_10, quantity:1, product_version_id:1, 
+      options:[{"tagName" => "OPTION", "xpath" => '//*[@id="size_name_3"]'}, {"tagName" => "DIV", "xpath" => '//div[@id="color_name_0"]'}]}]
     run_spec('add to cart', products)
   end
   
-  test "add to cart with product option to select and click" do
-    products = [{url:PRODUCT_URL_10, quantity:1, product_version_id:1, options:[{"tagName" => "DIV", "xpath" => '//div[@id="size_name_1"]'}]}]
-    run_spec('add to cart', products)
+  test "finalize order with product option to select and click" do
+    expected_products = [{"price_text"=>"EUR 59,01", "eco_part"=>0.0, "product_title"=>"Desigual - olga - robe - femme", "product_image_url"=>"http://ecx.images-amazon.com/images/I/81WRQZdcjpL._SX342_.jpg", "price_product"=>59.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/B00CJ5RHXM/ref=s9_simh_gw_p193_d0_i3?pf_rd_m=A1X6FK5RDHNB96&pf_rd_s=center-2&pf_rd_r=1D4X6MSB4X4BFDWTPB7K&pf_rd_t=101&pf_rd_p=312233167&pf_rd_i=405320", "id"=>nil, "product_version_id"=>1, "expected_quantity"=>1, "quantity"=>1}]
+    billing = {:shipping=>0.0, :total=>59.01, :shipping_info=>"Date de livraison estimée : 18 septembre 2013 - 20 septembre 2013"}
+    
+    products = [{url:PRODUCT_URL_10, quantity:1, product_version_id:1, options:[{"tagName" => "OPTION", "xpath" => '//*[@id="size_name_3"]'}, {"tagName" => "DIV", "xpath" => '//div[@id="color_name_0"]'}]}]
+    run_spec("finalize order", products, expected_products, billing)
   end
+  
 
   test "complete order process" do
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
