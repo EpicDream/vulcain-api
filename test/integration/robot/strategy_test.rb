@@ -200,7 +200,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   def common_context
 
-    {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
+    {'account' => {'login' => 'legrand_pierre_a01@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products' => [],
                             'coupon' => 'magic-09',
@@ -221,7 +221,7 @@ class StrategyTest < ActiveSupport::TestCase
                                           'city' => 'Rives',
                                           'mobile_phone' => '0634562345',
                                           'land_phone' => '0134562345',
-                                          'country' => 'France'}
+                                          'country' => 'LU'}
                           }
                 }
   end

@@ -31,6 +31,8 @@ module RobotCore
         rescue
           if property == :city
             select_city
+          elsif property == :country
+            robot.select_option(dictionary[property], user.address.send(property))
           else
             raise
           end

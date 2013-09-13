@@ -36,6 +36,7 @@ module AmazonFranceConstants
     address_2: '//*[@id="enterAddressAddressLine2"]',
     additionnal_address: '//*[@id="GateCode"]',
     city: '//*[@id="enterAddressCity"]',
+    country: '//*[@id="enterAddressCountryCode"]',
     zip: '//*[@id="enterAddressPostalCode"]',
     mobile_phone: '//*[@id="enterAddressPhoneNumber"]',
     submit_packaging: '//*[@id="shippingOptionFormId"]//input[@type="submit"][1]',
