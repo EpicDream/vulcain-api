@@ -101,8 +101,8 @@ class AmazonTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
-
   test "complete order process" do
+    @robot.billing = {}
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
     products = [{url:PRODUCT_URL_6, quantity:3}, {url:PRODUCT_URL_8, quantity:2}]
     
