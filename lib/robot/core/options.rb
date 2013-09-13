@@ -12,6 +12,7 @@ module RobotCore
       @options.each do |option|
         select?(option) ? select(option) : click(option)
       end
+      robot.wait_ajax
     end
     
     private
