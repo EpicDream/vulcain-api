@@ -13,7 +13,7 @@ namespace :strategies do
     end
     reporter.terminate
   end
-  
+
   def test_files
     Dir.glob("#{Rails.root}/test/integration/robot/*_test.rb").map { |test_file|  
       test_file = File.basename(test_file)
