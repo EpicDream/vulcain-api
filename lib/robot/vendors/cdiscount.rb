@@ -55,7 +55,7 @@ module CdiscountConstants
     steps:'//*[@id="masterCart"]',
     line:'//tbody[@class="border"]',
     quantity:'.//td[@class="quantity txtGen"]/select',
-    total_line:'//td[@class="priceTotal"]',
+    total:'//table[@class="tbBasket"]/tfoot//tr[@class="totalPrice"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
     empty_message_match: /.*/,
@@ -65,7 +65,8 @@ module CdiscountConstants
   }
   
   PRODUCT = {
-    price_text:'//div[@class="price priceXL"] | //div[@class="priceContainer"]',
+    eco_part:'//div[@class="EcoPartStd003"]/span[1]',
+    price_text:'//div[@class="priceContainer"] | //div[@class="price priceXL"]',
     title:'//*[@id="fpBlocProduct"]/h1 | //div[@class="MpProductContentDesc"]',
     image:'//*[@id="fpBlocProduct"]/div[1]/a/img | //span[@class="MpProductContentLeft"]//img'
   }
