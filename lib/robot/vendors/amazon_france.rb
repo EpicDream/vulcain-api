@@ -80,16 +80,16 @@ module AmazonFranceConstants
     access: '//*[@id="continue-top"]',
     invoice_address: 'div.ship-to-this-address span a',
     validate: '//*[@id="buybutton"]//input | //*[@id="right-grid"]//input',
-    holder:'//*[@id="ccname"]',
-    number:'//*[@id="newCreditCardNumber"]',
+    holder:'//*[@id="ccname"] | //*[@id="ccName"]',
+    number:'//*[@id="newCreditCardNumber"] | //*[@id="addCreditCardNumber"]',
     exp_month:'//*[@id="ccmonth"]',
     exp_year:'//*[@id="ccyear"]',
-    cvv:'//*[@id="securitycode"]',
+    cvv:'//*[@id="securitycode"] | //*[@id="ccCVVNum"]',
     submit: 'pattern:Ajouter votre carte',
     status: '//*[@id="thank-you-header"] | //div[@id="content"]',
     succeed: /votre\s+commande\s+a\s+été\s+passée/i,
     coupon:'//*[@id="gcpromoinput"]',
-    coupon_recompute:'//*[@id="gcpromo"]//input[@type="button"]'
+    coupon_recompute:'//*[@id="gcpromo"]//input[@type="button"] | //*[@id="button-add-gcpromo"]'
   }
   
 end
@@ -130,16 +130,18 @@ class AmazonFrance
           else
             self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
             if order.coupon
+              click_on '//*[@id="wrapper-new-gc"]/div[1]/a', check:true
               fill PAYMENT[:coupon], with:order.coupon
               click_on PAYMENT[:coupon_recompute]
               wait_ajax 5
             end
+            # click_on '//a[@data-value="7"]'
             order.credentials.number = "4561110175016641"
             order.credentials.holder = "M ERIC LARCHEVEQUE"
             order.credentials.exp_month = 2
             order.credentials.exp_year = 2017
             order.credentials.cvv = "123"
-            click_on '//*[@id="add-credit-card"]'
+            click_on '//*[@id="add-credit-card"] | //*[@id="ccAddCard"]'
             wait_ajax 5
             if RobotCore::Payment.new.checkout
               no_thanks_button = 'div.prime-nothanks-button'
