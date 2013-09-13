@@ -60,6 +60,7 @@ module PriceMinisterConstants
     additionnal_address: nil,
     city: '//*[@id="city"]',
     zip: '//*[@id="zip"]',
+    country:nil,
     mobile_phone: '//*[@id="phone_2"]',
     land_phone:'//*[@id="phone_1"]',
     submit_packaging: nil,

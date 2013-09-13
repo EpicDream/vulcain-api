@@ -203,7 +203,7 @@ class StrategyTest < ActiveSupport::TestCase
     {'account' => {'login' => 'legrand_pierre_04@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products' => [],
-                            'coupon' => 'magic-09',
+                            'coupon' => nil,
                             'credentials' => {
                               'holder' => 'Pierre Petit', 
                               'number' => '4561003435926735', 

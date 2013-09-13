@@ -36,6 +36,7 @@ module CdiscountConstants
     address_1: "pattern:DeliveryAddressLine1",
     additionnal_address: "pattern:DeliveryDoorCode",
     city: "pattern:DeliveryCity",
+    country:nil,
     zip: "pattern:DeliveryZipCode",
     mobile_phone: "pattern:DeliveryPhoneNumbers_MobileNumber",
     land_phone: "pattern:DeliveryPhoneNumbers_PhoneNumber",

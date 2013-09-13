@@ -22,6 +22,7 @@ module DartyConstants
     email:'//*[@id="form_adresse"]/div[1]/div/div[1]/div[3]/div[2]/input',
     zip:'//*[@id="mes_parametres_code_postal"]',
     zip_popup:'//li[@class="ui-menu-item"]/a',
+    country:nil,
     password:'//*[@id="mot_de_passe"]',
     password_confirmation:'//*[@id="confirmation_mot_de_passe"]',
     address_option:'//*[@id="option_redressement_1"]',
