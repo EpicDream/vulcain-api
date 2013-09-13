@@ -145,6 +145,17 @@ class AmazonFrance
             click_on '//*[@id="add-credit-card"] | //*[@id="ccAddCard"]'
             wait_ajax 5
             if RobotCore::Payment.new.checkout
+              buttons = find_elements('//div[@class="field-span pay-date-width"]//button', nowait:true) || []
+              if buttons.any?
+                buttons.each_with_index do |button, index|
+                  click_on button
+                  wait_ajax
+                  option = find_element("//ul[@id='#{index + 1}_dropdown_combobox']//li[@role='option'][3]/a")
+                  click_on option
+                  wait_ajax
+                end
+                click_on vendor::PAYMENT[:submit]
+              end
               no_thanks_button = 'div.prime-nothanks-button'
               click_on '//*[@id="new-cc"]//input[@type="button"]'
               wait_ajax
