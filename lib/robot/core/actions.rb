@@ -1,10 +1,10 @@
 module RobotCore
   module Actions
     
-    def get_text identifier
+    def get_text identifier, options={}
       return unless identifier
       element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
-      element ||= @driver.find_element(identifier)
+      element ||= @driver.find_element(identifier, options)
       element.text
     end
     

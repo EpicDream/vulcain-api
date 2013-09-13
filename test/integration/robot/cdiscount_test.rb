@@ -104,4 +104,13 @@ class CdiscountTest < StrategyTest
     run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}], has_coupon:false)
   end
   
+  test "add eco taxe in product price and in line amount" do
+    url = 'http://www.cdiscount.com/maison/meubles-mobilier/table-basse-moderne-blanche/f-117600104-top3700590417659.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com+2238732-_-n%2fa&cid=affil'
+    expected_products = [{"price_text"=>"137 €50", "eco_part"=>1.5, "product_title"=>"TANGO Table basse laquée blanc tiroirs\ncoulissants\nTable basse avec plateaux coulissants et coffre de rangement. Structure en panneaux de fibres de moyenne densité. Finition : mélaminé Blanc brillant. Chants en PVC brillant. Fond décor papier.\n  Avis clients\nSoyez le premier à donner votre avis\nDonnez votre avis\nPartagez le !", "product_image_url"=>"http://i2.cdscdn.com/pdt2/6/5/9/1/200x200/top3700590417659/rw/table-basse-moderne-blanche.jpg", "price_product"=>139.0, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/maison/meubles-mobilier/table-basse-moderne-blanche/f-117600104-top3700590417659.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com+2238732-_-n%2fa&cid=affil", "id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
+    billing = {:shipping=>25.0, :total=>164.0, :shipping_info=>nil}
+    products = [{url:url, quantity:1}]
+
+    run_spec("finalize order", products, expected_products, billing)
+  end
+  
 end  
