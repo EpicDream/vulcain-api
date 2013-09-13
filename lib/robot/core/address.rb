@@ -32,7 +32,8 @@ module RobotCore
           if property == :city
             select_city
           elsif property == :country
-            robot.select_option(dictionary[property], user.address.send(property))
+            country_code = COUNTRIES_CODES[user.address.send(property)][:alpha2]
+            robot.select_option(dictionary[property], country_code)
           else
             raise
           end
