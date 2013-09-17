@@ -27,7 +27,6 @@ module RobotCore
     end
     
     def empty opts={}
-      RobotCore::CreditCard.new.remove
       robot.products = []
       open
       remove
