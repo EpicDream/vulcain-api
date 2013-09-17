@@ -1,16 +1,18 @@
 module RobotCore
   class Cart < RobotModule
-    attr_accessor :before_add, :best_offer
+    attr_accessor :best_offer
     
     def initialize
       super
-      @before_add = Proc.new{}
       @best_offer = Proc.new{}
     end
     
     def fill
       while product = robot.next_product
-        add_to_cart(product) if access_product_file_of(product)
+        file = RobotCore::ProductFile.new(product)
+        file.open
+        next unless file.exists?
+        add_to_cart(product)
       end
       raise RobotCore::VulcainError.new(:no_product_available) if products.empty?
       RobotCore::Quantities.new.set
@@ -19,9 +21,7 @@ module RobotCore
     
     def empty opts={}
       products = []
-      open
-      remove
-      open
+      remove_all_items
       raise RobotCore::VulcainError.new(:cart_not_emptied) unless emptied?
       robot.message :cart_emptied, :next_step => opts[:next_step] || 'add to cart'
     end
@@ -69,7 +69,6 @@ module RobotCore
       else
         PRICES_IN_TEXT.(robot.get_text vendor::CART[:total]).first
       end
-      puts "amount : #{amount}"
       @amount = amount.round(2)
     end
     
@@ -78,7 +77,6 @@ module RobotCore
       robot.order.products.each_with_index do |product, index|
         amount += product.quantity * products[index]["price_product"]
       end
-      puts "expected amount : #{amount}"
       amount.round(2)
     end
     
@@ -88,17 +86,13 @@ module RobotCore
       !robot.find_elements(vendor::CART[:line], nowait:true)
     end
     
-    def remove
-      if vendor::CART[:remove_item] =~ /\/\//
+    def remove_all_items
+      open
+      if vendor::CART[:remove_item]
         robot.click_on_all([vendor::CART[:remove_item]]) {|element|
           robot.wait_ajax
           robot.open_url vendor::URLS[:cart]
           !element.nil? 
-        }
-      elsif vendor::CART[:remove_item]
-        robot.click_on_all([vendor::CART[:remove_item]]){ |element|
-          robot.wait_ajax
-          !element.nil?
         }
       elsif robot.exists? vendor::CART[:quantity]
         robot.fill_all vendor::CART[:quantity], with:"0"
@@ -107,16 +101,9 @@ module RobotCore
     end
     
     def emptied?
+      open
       robot.wait_for [vendor::CART[:empty_message]]
       robot.get_text(vendor::CART[:empty_message]) =~ vendor::CART[:empty_message_match] 
-    end
-    
-    def access_product_file_of product
-      robot.open_url product.url
-      before_add.call
-      robot.click_on vendor::CART[:popup], check:true
-      robot.click_on vendor::CART[:extra_offers], check:true
-      robot.wait_for [vendor::CART[:add], vendor::CART[:offers]] {}
     end
     
     def add_to_cart product
