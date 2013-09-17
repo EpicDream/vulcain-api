@@ -46,7 +46,7 @@ module FnacConstants
   
   CART = {
     add:'//div[@class="faHeadRight"]/div/div/a',
-    validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
+    # validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
     offers:'pattern:Neuf',
     remove_item:'pattern:Supprimer',
     add_offer: 'pattern:Ajout au panier',

@@ -64,7 +64,6 @@ module ToysrusFranceConstants
     quantity_exceed:'//div[@class="error"]',
     update:'//*[@id="update"]',
     empty_message_match: /Votre panier ne contient aucun article/i,
-    items_lists:'//*[@id="yourShoppingCart"]',
     submit: '//*[@id="proceed-to-checkout"]',
     submit_success: [SHIPMENT[:submit], PAYMENT[:submit]],
     popup: '//*[@id="decline"]',

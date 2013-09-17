@@ -1,6 +1,18 @@
 # encoding: utf-8
 
 module RobotCore
+  
+  class VulcainError < StandardError
+    def initialize msg=:vulcain_error
+      @msg = msg
+    end
+    
+    def message
+      Robot.instance.terminate_on_error(@msg)
+      @msg
+    end
+  end
+  
   class RobotModule
     PRICES_IN_TEXT = lambda do |text| 
       break [] unless text
@@ -14,7 +26,7 @@ module RobotCore
       [:day, :month, :year].map { |seq| birthdate.send(seq).to_s.rjust(2, "0") }.join("/")
     end
     
-    attr_reader :robot, :user, :account, :vendor, :order
+    attr_reader :robot, :user, :account, :vendor, :order, :products
     
     def initialize
       @robot = Robot.instance
@@ -22,7 +34,9 @@ module RobotCore
       @account = robot.account
       @vendor = robot.vendor
       @order = robot.order
+      @products = robot.products
     end
+    
     
   end
 end

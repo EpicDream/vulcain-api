@@ -2,37 +2,32 @@ module RobotCore
   class Order < RobotModule
     
     def finalize payment=nil
-      cart = RobotCore::Cart.new
-      return unless cart.submit
-
+      RobotCore::Cart.new.submit
       RobotCore::Login.new.relog
+      
       shipping = RobotCore::Shipping.new
       shipping.run
-      robot.terminate_on_error(:no_delivery) and return unless shipping.submit_packaging
+      raise RobotCore::VulcainError.new(:no_delivery) unless shipping.submit_packaging
       
       payment ||= RobotCore::Payment.new
       payment.access
       
       RobotCore::Billing.new.build
-      
-      if robot.billing.nil?
-        robot.terminate_on_error(:no_billing)
-      else
-        robot.assess
-      end
+      raise RobotCore::VulcainError.new(:no_billing) if robot.billing.nil?
+      robot.assess
     end
     
     def validate
       payment = RobotCore::Payment.new
       payment.checkout
       
-      if payment.succeed?
+      unless payment.succeed?
         RobotCore::CreditCard.new.remove
-        robot.terminate({ billing:robot.billing})
-      else
-        RobotCore::CreditCard.new.remove
-        robot.terminate_on_error(:order_validation_failed)
+        raise RobotCore::VulcainError.new(:order_validation_failed) 
       end
+      
+      RobotCore::CreditCard.new.remove
+      robot.terminate({ billing:robot.billing})
     end
     
     def cancel
