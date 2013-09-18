@@ -39,6 +39,7 @@ module RobotCore
 
     def exists? identifier
       return false unless identifier
+      return true if identifier.is_a?(Selenium::WebDriver::Element)
       element = @driver.find_element(identifier, nowait:true)
       !!element && element.displayed?
     end

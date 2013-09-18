@@ -63,7 +63,7 @@ module RobotCore
         @quantity = options.max
         RobotCore::Product.new.update_quantity(product, @quantity)
       end
-      Action(:select_option, @quantity, value:@quantity)
+      Action(:select_option, @setter, value:@quantity)
     end
   
     def set_quantity_with_submit
