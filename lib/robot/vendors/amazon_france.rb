@@ -182,6 +182,7 @@ class AmazonFrance
           fill LOGIN[:password], with:account.password
           click_on LOGIN[:submit]
           wait_ajax 5
+          click_on '//*[@id="wrapper-new-gc"]/div[1]/a', check:true
           fill PAYMENT[:coupon], with:order.credentials.voucher
           click_on PAYMENT[:coupon_recompute]
           wait_ajax 5
