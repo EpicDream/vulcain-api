@@ -37,6 +37,7 @@ module RobotCore
     end
 
     def exists? identifier
+      return false unless identifier
       element = @driver.find_element(identifier, nowait:true)
       !!element && element.displayed?
     end
@@ -162,6 +163,6 @@ module RobotCore
       return unless element = find_element(identifier, nowait:true)
       element.selected?
     end
-
+    
   end
 end
