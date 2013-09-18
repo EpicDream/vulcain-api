@@ -120,6 +120,10 @@ class AmazonTest < StrategyTest
   end
   
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
+    @context["order"]["coupon"] = "magic09"
+    @context["order"]["credentials"]["voucher"] = "SZOO-0899"
+    @robot.context = @context
+    
     products = [{url:PRODUCT_URL_6, quantity:4}]
     run_spec('validate order', products)
   end

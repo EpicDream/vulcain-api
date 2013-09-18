@@ -205,6 +205,7 @@ class StrategyTest < ActiveSupport::TestCase
                 'order' => {'products' => [],
                             'coupon' => nil,
                             'credentials' => {
+                              'voucher' => nil,
                               'holder' => 'Pierre Petit', 
                               'number' => '4561003435926735', 
                               'exp_month' => 5,
