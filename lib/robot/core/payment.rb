@@ -15,7 +15,6 @@ module RobotCore
         robot.wait_for [vendor::PAYMENT[:access]]
         RobotCore::Billing.new.build
         remove_contracts_options
-        insert_coupon
         RobotCore::Coupon.new(vendor::PAYMENT).insert
         robot.click_on vendor::PAYMENT[:access]
         RobotCore::CreditCard.new.select

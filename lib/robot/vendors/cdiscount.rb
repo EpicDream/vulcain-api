@@ -54,8 +54,9 @@ module CdiscountConstants
     extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_from_vendor: "pattern:AddToBasketButtonOffer",
     steps:'//*[@id="masterCart"]',
-    line:'//tbody[@class="border"]',
+    line:'tbody.border',
     quantity:'.//td[@class="quantity txtGen"]/select',
+    quantity_exceed:'//td[@class="basketLineError"]',
     total:'//table[@class="tbBasket"]/tfoot//tr[@class="totalPrice"]',
     remove_item:'//button[@class="deleteProduct"]',
     empty_message:'//div[@class="emptyBasket"]',
@@ -66,8 +67,8 @@ module CdiscountConstants
   }
   
   PRODUCT = {
-    eco_part:'//div[@class="EcoPartStd003"]/span[1]',
-    price_text:'//div[@class="priceContainer"] | //div[@class="price priceXL"]',
+    eco_part:'//*[@id="OfferList"]/div[1]//div[@class="EcoPartStd003"]/span[1] | //*[@id="fpBlocPrice"]/div[@class="fpEcoTaxe"]',
+    price_text:'//*[@id="OfferList"]/div[1]//div[@class="priceContainer"] | //div[@class="price priceXL"]',
     title:'//*[@id="fpBlocProduct"]/h1 | //div[@class="MpProductContentDesc"]',
     image:'//*[@id="fpBlocProduct"]/div[1]/a/img | //span[@class="MpProductContentLeft"]//img'
   }

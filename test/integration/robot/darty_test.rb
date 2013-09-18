@@ -62,8 +62,8 @@ class DartyTest < StrategyTest
   end
 
   test "finalize order" do
-    expected_products = [{"price_text"=>"39,90 € ", "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>191919}]
-    billing = {:shipping=>0, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Mar. 10/09 et le Jeu. 12/09"}
+    expected_products = [{"price_text"=>"39,90 € ", "eco_part"=>0.0, "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>191919, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
+    billing = {:shipping=>0, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Ven. 20/09 et le Lun. 23/09"}
     products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
     
     run_spec("finalize order", products, expected_products, billing)

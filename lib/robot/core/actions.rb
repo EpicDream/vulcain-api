@@ -5,7 +5,7 @@ module RobotCore
       return unless identifier
       element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       element ||= @driver.find_element(identifier, options)
-      element.text
+      element.text if element
     end
     
     def image_url identifier
@@ -97,6 +97,7 @@ module RobotCore
         rescue Selenium::WebDriver::Error::StaleElementReferenceError
           element = nil
         end
+        
         continue = yield element
         raise("Click on all timeout") if continue && Time.now - start > 30
       end while continue

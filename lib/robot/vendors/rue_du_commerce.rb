@@ -46,7 +46,7 @@ module RueDuCommerceConstants
   PAYMENT = {
     contract_option: '//a[@href="/Contract/"] | //*[@id="golden_contract_none"]',
     contract_option_confirm:'//button[@name="goldContractValidation"]',
-    access:'//*[@id="inpMop1"]',
+    access:'//a[@class="mopcb"]',
     visa:'//input[@name="VISA"]',
     mastercard:'//input[@name="MASTERCARD"]',
     number:'//*[@id="CARD_NUMBER"]',
