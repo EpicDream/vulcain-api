@@ -84,7 +84,6 @@ class Driver
   def move_to_and_click_on element
     driver.action.move_to(element).click.perform
   rescue => e
-    puts e.inspect
   end
   
   def wait_leave identifier

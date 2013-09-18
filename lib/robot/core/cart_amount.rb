@@ -8,7 +8,6 @@ module RobotCore
     def validate
       amount = cart_amount.round(2)
       expected = expected_amount.round(2)
-      puts [amount, expected].inspect
       raise RobotCore::VulcainError.new(:cart_amount_error) unless amount == expected
       true
     end
