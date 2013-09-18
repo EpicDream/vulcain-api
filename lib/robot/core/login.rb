@@ -1,17 +1,18 @@
 module RobotCore
   class Login < RobotModule
 
+    def initialize
+      super
+      set_dictionary(:LOGIN)
+    end
+
     def run
       access_form
       2.times { decaptchatize }
       login
       submit
-      
-      if fails?
-        robot.terminate_on_error :login_failed
-      else
-        robot.message :logged, :next_step => 'empty cart'
-      end
+      raise RobotCore::VulcainError.new(:login_failed) if fails?
+      Message(:logged, :next_step => 'empty cart')
     end
     
     def renew
@@ -21,15 +22,15 @@ module RobotCore
     end
     
     def relog
-      robot.fill vendor::LOGIN[:email], with:account.login, check:true
-      robot.fill vendor::LOGIN[:password], with:account.password, check:true
-      robot.click_on vendor::LOGIN[:submit], check:true
+      Action(:fill, :email, with:account.login, check:true)
+      Action(:fill, :password, with:account.password, check:true)
+      Action(:click_on, :submit, check:true)
     end
     
     private
     
     def fails?
-      robot.exists? vendor::LOGIN[:submit]
+      Action(:exists?, :submit)
     end
     
     def resolve_captcha image_url
@@ -39,29 +40,27 @@ module RobotCore
     end
     
     def decaptchatize
-      return unless vendor::LOGIN[:captcha]
-      robot.wait_ajax
-      if robot.exists? vendor::LOGIN[:captcha]
-        element = robot.find_element vendor::LOGIN[:captcha]
-        text = resolve_captcha element.attribute('src')
-        robot.fill vendor::LOGIN[:captcha_input], with:text
-      end
-      robot.click_on vendor::LOGIN[:captcha_submit], check:true
+      return unless Action(:exists?, :captcha)
+      Action(:wait)
+      element = Action(:find_element, :captcha)
+      text = resolve_captcha element.attribute('src')
+      Action(:fill, :captcha_input, with:text)
+      Action(:click_on, :captcha_submit, check:true)
     end
     
     def access_form
-      robot.open_url vendor::URLS[:login]
-      robot.click_on vendor::LOGIN[:popup]
-      robot.click_on vendor::LOGIN[:link], check:true
+      Action(:open_url, :login)
+      Action(:click_on, :popup)
+      Action(:click_on, :link, check:true)
     end
     
     def submit
-      robot.click_on vendor::LOGIN[:submit]
+      Action(:click_on, :submit)
     end
     
     def login
-      robot.fill vendor::LOGIN[:email], with:account.login
-      robot.fill vendor::LOGIN[:password], with:account.password
+      Action(:fill, :email, with:account.login)
+      Action(:fill, :password, with:account.password)
     end
     
   end

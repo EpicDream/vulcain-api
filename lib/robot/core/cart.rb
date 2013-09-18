@@ -30,7 +30,7 @@ module RobotCore
     def submit
       open
       RobotCore::CartOptions.new.run
-      RobotCore::Coupon.new(vendor::CART).insert
+      RobotCore::Coupon.new(:CART).insert
       RobotCore::CartAmount.new().validate()
       Action(:click_on, :submit)
       Action(:open_url, :after_submit_cart)

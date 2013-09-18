@@ -17,7 +17,7 @@ module RobotCore
         when 1 then dictionary[:madam]
         when 2 then dictionary[:miss]
         end
-        robot.select_option dictionary[:gender], value
+        robot.select_option dictionary[:gender], value:value
       elsif robot.exists? dictionary[:mister]
         robot.click_on_radio user.gender, { 0 => dictionary[:mister], 1 =>  dictionary[:madam], 2 =>  dictionary[:miss] }
       end
@@ -34,7 +34,7 @@ module RobotCore
             select_city
           elsif property == :country
             country_code = COUNTRIES_CODES[user.address.send(property)][:alpha2]
-            robot.select_option(dictionary[:country], country_code)
+            robot.select_option(dictionary[:country], value:country_code)
           else
             raise
           end
@@ -70,7 +70,7 @@ module RobotCore
         text.downcase.strip.unaccent =~ Regexp.new(city) ||
         city =~ Regexp.new(text.downcase.strip.unaccent)
       end
-      robot.select_option(dictionary[:city], option[0])
+      robot.select_option(dictionary[:city], value:option[0])
     end
     
     def split_address
@@ -80,7 +80,7 @@ module RobotCore
       begin
         options = options_of_select(dictionary[:address_type])
         option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
-        robot.select_option(dictionary[:address_type], option[0])
+        robot.select_option(dictionary[:address_type], value:option[0])
       rescue
         robot.fill dictionary[:address_track], with:"#{$2} #{$3}", check:true
       else

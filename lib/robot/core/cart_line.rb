@@ -5,6 +5,7 @@ module RobotCore
   
     def initialize line
       super()
+      set_dictionary(:CART)
       @line = line
       @setter = quantity_setter()
       @value = quantity_value()
@@ -19,8 +20,8 @@ module RobotCore
       return unless @setter_type
       @quantity = to || product['expected_quantity']
       send("set_quantity_with_#{@setter_type}".to_sym)
-      robot.wait_ajax
-      robot.click_on vendor::CART[:popup], check:true
+      Action(:wait)
+      Action(:click_on, :popup, check:true)
       update_amount()
       update_quantities() if quantity_exceed?
     end
@@ -35,10 +36,10 @@ module RobotCore
     private
     
     def quantity_exceed?
-      robot.wait_ajax
-      popup = robot.find_element(vendor::CART[:quantity_exceed], nowait:true)
+      Action(:wait)
+      popup = Action(:find_element, :quantity_exceed, nowait:true)
       exceed = popup && popup.displayed?
-      robot.click_on(popup) if exceed
+      Action(:click_on, popup) if exceed
       exceed
     end
     
@@ -53,32 +54,32 @@ module RobotCore
     end
   
     def update_amount
-      robot.click_on quantity_updater, check:true, ajax:true
+      Action(:click_on, quantity_updater, check:true, ajax:true)
     end
   
     def set_quantity_with_select
-      options = robot.options_of_select(@setter).keys.map(&:to_i)
+      options = Action(:options_of_select, @setter).keys.map(&:to_i)
       unless options.include?(@quantity)
         @quantity = options.max
         RobotCore::Product.new.update_quantity(product, @quantity)
       end
-      robot.select_option(@setter, @quantity)
+      Action(:select_option, @quantity, value:@quantity)
     end
   
     def set_quantity_with_submit
       (@quantity - 1).times { 
-        robot.click_on(@setter)
-        robot.wait_ajax
+        Action(:click_on, @setter)
+        Action(:wait)
         refresh()
       }
     end
   
     def set_quantity_with_input
-      robot.fill @setter, with:@quantity
+      Action(:fill, @setter, with:@quantity)
     end
   
     def refresh #after change quantity page may be reloaded, result in stale elements
-      lines = robot.find_elements(robot.vendor::CART[:line], nowait:true) || []
+      lines = Action(:find_elements, :line, nowait:true) || []
       lines.reverse! if robot.vendor::CART[:inverse_order]
       @line = lines[self.index]
       @setter = quantity_setter()

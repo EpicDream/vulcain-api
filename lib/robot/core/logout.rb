@@ -1,10 +1,15 @@
 module RobotCore
   class Logout < RobotModule
 
+    def initialize
+      super
+      set_dictionary(:LOGIN)
+    end
+
     def run
-      robot.open_url vendor::URLS[:home]
-      robot.open_url vendor::URLS[:logout]
-      robot.click_on vendor::LOGIN[:logout], check:true
+      Action(:open_url, :home)
+      Action(:open_url, :logout)
+      Action(:click_on, :logout, check:true)
     end
     
   end

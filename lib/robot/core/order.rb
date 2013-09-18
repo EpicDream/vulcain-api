@@ -1,6 +1,11 @@
 module RobotCore
   class Order < RobotModule
     
+    def initialize
+      super
+      set_dictionary(:PAYMENT)
+    end
+    
     def finalize payment=nil
       RobotCore::Cart.new.submit
       RobotCore::Login.new.relog
@@ -31,10 +36,10 @@ module RobotCore
     end
     
     def cancel
-      robot.click_on vendor::PAYMENT[:cancel], check:true
-      robot.wait_ajax
+      Action(:click_on, :cancel, check:true)
+      Action(:wait)
       robot.accept_alert
-      robot.open_url vendor::URLS[:base]
+      Action(:open_url, :base)
       robot.run_step('empty cart', next_step:'cancel')
     end
     

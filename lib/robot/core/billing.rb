@@ -1,27 +1,28 @@
 module RobotCore
   class Billing < RobotModule
     
+    def initialize
+      super
+      set_dictionary(:BILL)
+    end
+    
     def build
       return unless build?
+      shipping, total = [:shipping, :total].map { |key| Price(key) }
+      info = Action(:get_text, :info)
+      shipping ||= shipping_from_products
       
-      shipping, total = [:shipping, :total].map { |key| 
-        PRICES_IN_TEXT.(robot.get_text vendor::BILL[key]).first
-      }
-      info = robot.get_text(vendor::BILL[:info]) if robot.exists?(vendor::BILL[:info])
       robot.billing = { shipping:shipping, total:total, shipping_info:info}
-      shipping_from_products if shipping.nil?
     end
     
     private
     
     def shipping_from_products
-      robot.billing[:shipping] = products.inject(0) { |total, product| 
-        total += product["price_delivery"] || 0 
-      }
+      products.inject(0) { |total, product| total += product["price_delivery"] }
     end
     
     def build?
-      robot.exists?(vendor::BILL[:total]) && !robot.billing
+      Action(:exists?, :total) && !robot.billing
     end
     
   end

@@ -55,12 +55,20 @@ module RobotCore
         dictionary = Object.const_get(self.vendor.to_s).const_get(:URLS)
         robot.send(:open_url, dictionary[key])
       else
-        opts ? robot.send(action, dictionary[key], opts) : robot.send(action, dictionary[key])
+        identifier = key.is_a?(Symbol) ? dictionary[key] : key
+        opts ? robot.send(action, identifier, opts) : robot.send(action, identifier)
       end
     end
     
     def Message msg, opts={}
       robot.message(msg, opts)
+    end
+    
+    def Price key, opts={}
+      dictionary = Object.const_get(self.vendor.to_s).const_get(self.class.const_get(:DIC))
+      identifier = key.is_a?(Symbol) ? dictionary[key] : key
+      
+      PRICES_IN_TEXT.(robot.get_text identifier, opts).first.to_f
     end
     
   end

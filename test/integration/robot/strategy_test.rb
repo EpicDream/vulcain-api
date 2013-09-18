@@ -47,7 +47,7 @@ class StrategyTest < ActiveSupport::TestCase
     @message.expects(:message).times(1)
     robot.expects(:terminate_on_error).with(:login_failed)
     
-    robot.run_step('login')
+    assert_raise(RobotCore::VulcainError) { robot.run_step('login') }
   end
   
   def logout
@@ -116,11 +116,11 @@ class StrategyTest < ActiveSupport::TestCase
 
     expected_products.each_with_index { |product, index|
       ["price_product", "price_delivery", "expected_quantity", "quantity"].each { |key|  
-        assert_equal product[key], robot.products[index][key]
+        assert_equal product[key], robot.products[index][key], "fail with key #{key}"
       }
     }
     [:shipping, :total].each { |key|  
-      assert_equal billing[key], robot.billing[key]
+      assert_equal billing[key], robot.billing[key], "fail with key #{key}"
     }
   end
   

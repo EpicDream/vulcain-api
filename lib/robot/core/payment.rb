@@ -15,7 +15,7 @@ module RobotCore
         robot.wait_for [vendor::PAYMENT[:access]]
         RobotCore::Billing.new.build
         remove_contracts_options
-        RobotCore::Coupon.new(vendor::PAYMENT).insert
+        RobotCore::Coupon.new(:PAYMENT).insert
         robot.click_on vendor::PAYMENT[:access]
         RobotCore::CreditCard.new.select
         robot.click_on vendor::PAYMENT[:cgu], check:true
@@ -42,8 +42,8 @@ module RobotCore
         robot.fill vendor::PAYMENT[:number], with:order.credentials.number
       end
       robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder, check:true
-      robot.select_option vendor::PAYMENT[:exp_month], order.credentials.exp_month
-      robot.select_option vendor::PAYMENT[:exp_year], order.credentials.exp_year
+      robot.select_option vendor::PAYMENT[:exp_month], value:order.credentials.exp_month
+      robot.select_option vendor::PAYMENT[:exp_year], value:order.credentials.exp_year
       robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
       robot.click_on vendor::PAYMENT[:option], check:true
       robot.click_on vendor::PAYMENT[:submit]

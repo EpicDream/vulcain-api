@@ -1,27 +1,33 @@
 module RobotCore
   class CreditCard < RobotModule
     
+    def initialize
+      super
+      set_dictionary(:PAYMENT)
+    end
+    
     def remove
       return if cannot_be_removed?
       access_form
       RobotCore::Login.new.relog
-      robot.click_on vendor::PAYMENT[:remove], check:true, ajax:true
+      Action(:click_on, :remove, check:true, ajax:true)
       robot.accept_alert
-      robot.click_on vendor::PAYMENT[:remove_confirmation], check:true
-      robot.wait_ajax
+      Action(:click_on, :remove_confirmation, check:true)
+      Action(:wait)
       robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }
-      robot.open_url vendor::URLS[:base]
+      Action(:open_url, :base)
     end
     
     def select
-      robot.click_on vendor::PAYMENT[:credit_card]
-      robot.wait_ajax
+      Action(:click_on, :credit_card)
+      Action(:wait)
+      
       if mastercard?
-        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:master_card_value], check:true
-        robot.click_on vendor::PAYMENT[:mastercard], check:true
+        Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:master_card_value], check:true)
+        Action(:click_on, :mastercard, check:true)
       else
-        robot.select_option vendor::PAYMENT[:credit_card_select], vendor::PAYMENT[:visa_value], check:true
-        robot.click_on vendor::PAYMENT[:visa], check:true
+        Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:visa_value], check:true)
+        Action(:click_on, :visa, check:true)
       end
     end
     
@@ -36,7 +42,7 @@ module RobotCore
     end
     
     def access_form
-      robot.open_url vendor::URLS[:payments]
+      Action(:open_url, :payments)
     end
     
   end

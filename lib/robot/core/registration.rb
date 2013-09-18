@@ -110,9 +110,9 @@ module RobotCore
       end
       if vendor::REGISTER[:birthdate_day]
         zero_fill?
-        robot.select_option vendor::REGISTER[:birthdate_day], user.birthdate.day
-        robot.select_option vendor::REGISTER[:birthdate_month], user.birthdate.month
-        robot.select_option vendor::REGISTER[:birthdate_year], user.birthdate.year
+        robot.select_option vendor::REGISTER[:birthdate_day], value:user.birthdate.day
+        robot.select_option vendor::REGISTER[:birthdate_month], value:user.birthdate.month
+        robot.select_option vendor::REGISTER[:birthdate_year], value:user.birthdate.year
       end
       robot.fill vendor::REGISTER[:birth_department], with:user.address.zip[0..1], check:true
     end

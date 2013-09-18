@@ -65,16 +65,16 @@ class AmazonTest < StrategyTest
   end
   
   test "finalize order with one product and quantity > 1" do
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "expected_quantity"=>3, "quantity"=>3}]
-    billing = {:shipping=>0.0, :total=>51.03, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"EUR 17,01", "eco_part"=>0.0, "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>0, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>3, "quantity"=>3}, {"price_text"=>"EUR 8,74", "eco_part"=>0.0, "product_title"=>"Le capital : Livre 1, sections 1 à 4 [Poche]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY445_.jpg", "price_product"=>8.74, "price_delivery"=>0, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
+    billing = {:shipping=>0.0, :total=>68.51, :shipping_info=>"Date de livraison estimée : "}
     products = [{url:PRODUCT_URL_6, quantity:3}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  
   
   test "finalize order with n products and m quantity" do
-    expected_products = [{"price_text"=>"EUR 17,01", "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "expected_quantity"=>3, "quantity"=>3}, {"price_text"=>"EUR 8,74", "product_title"=>"Le capital : Livre 1, sections 1 à 4 [Poche]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY445_.jpg", "price_product"=>8.74, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
-    billing = {:shipping=>0.0, :total=>68.51, :shipping_info=>nil}
+    expected_products = [{"price_text"=>"EUR 17,01", "eco_part"=>0.0, "product_title"=>"Atelier dessins [Broché]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51LQPEttnhL._SY445_.jpg", "price_product"=>17.01, "price_delivery"=>0, "url"=>"http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>3, "quantity"=>3}, {"price_text"=>"EUR 8,74", "eco_part"=>0.0, "product_title"=>"Le capital : Livre 1, sections 1 à 4 [Poche]", "product_image_url"=>"http://ecx.images-amazon.com/images/I/517n0WiHTjL._SY445_.jpg", "price_product"=>8.74, "price_delivery"=>0, "url"=>"http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
+    billing = {:shipping=>0.0, :total=>68.51, :shipping_info=>"Date de livraison estimée : "}
     products = [{url:PRODUCT_URL_6, quantity:3}, {url:PRODUCT_URL_8, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)

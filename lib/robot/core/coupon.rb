@@ -5,13 +5,13 @@ module RobotCore
     
     def initialize dictionary
       super()
-      @dictionary = dictionary
+      set_dictionary(dictionary)
     end
     
     def insert
-      robot.has_coupon = robot.has_coupon || !!robot.find_element(dictionary[:coupon], nowait:true)
-      robot.fill dictionary[:coupon], with:order.coupon, check:true
-      robot.click_on dictionary[:coupon_recompute], check:true
+      robot.has_coupon = robot.has_coupon || Action(:find_element, :coupon, nowait:true)
+      Action(:fill, :coupon, with:order.coupon, check:true)
+      Action(:click_on, :coupon_recompute, check:true)
     end
     
   end

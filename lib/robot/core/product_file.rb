@@ -3,15 +3,16 @@ module RobotCore
     
     def initialize product
       super()
+      set_dictionary(:CART)
       @product = product
       @exists = true
     end
     
     def open
       robot.open_url @product.url
-      robot.click_on vendor::CART[:popup], check:true
-      robot.click_on vendor::CART[:extra_offers], check:true #A virer , unique à CDISCOUNT faire autrement
-      @exists = robot.wait_for [vendor::CART[:add], vendor::CART[:offers]] {}
+      Action(:click_on, :popup, check:true)
+      Action(:click_on, :extra_offers, check:true)#A virer , unique à CDISCOUNT faire autrement
+      @exists = Action(:wait_for, [:add, :offers]) {}
     end
     
     def exists?

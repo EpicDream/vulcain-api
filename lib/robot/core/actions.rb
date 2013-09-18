@@ -3,6 +3,7 @@ module RobotCore
     
     def get_text identifier, options={}
       return unless identifier
+      return unless exists?(identifier)
       element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       element ||= @driver.find_element(identifier, options)
       element.text if element
@@ -126,11 +127,11 @@ module RobotCore
       end
     end
 
-    def select_option identifier, value, opts={}
+    def select_option identifier, opts={}
       select = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       select ||= @driver.find_element(identifier)
       return if opts[:check] && !select
-      @driver.select_option(select, value.to_s)
+      @driver.select_option(select, opts[:value].to_s)
     end
 
     def options_of_select identifier

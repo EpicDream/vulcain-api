@@ -3,14 +3,19 @@
 module RobotCore
   class Product < RobotModule
     
+    def initialize
+      super
+      set_dictionary(:PRODUCT)
+    end
+    
     def build
       product = Hash.new
-      product['price_text'] = robot.get_text vendor::PRODUCT[:price_text]
-      product['eco_part'] = PRICES_IN_TEXT.(robot.get_text(vendor::PRODUCT[:eco_part], nowait:true)).first.to_f
-      product['product_title'] = robot.get_text vendor::PRODUCT[:title]
-      product['product_image_url'] = robot.image_url vendor::PRODUCT[:image]
-      product['price_product'] = PRICES_IN_TEXT.(product['price_text']).first +  product['eco_part']
-      product['price_delivery'] = PRICES_IN_TEXT.(robot.get_text vendor::PRODUCT[:shipping]).first
+      product['price_text'] = Action(:get_text, :price_text)
+      product['eco_part'] = Price(:eco_part, nowait:true)
+      product['product_title'] = Action(:get_text, :title)
+      product['product_image_url'] = Action(:image_url, :image)
+      product['price_product'] = Price(:price_text) + product['eco_part']
+      product['price_delivery'] = Price(:shipping)
       product['url'] = robot.current_product.url
       product['id'] = robot.current_product.id
       product['product_version_id'] = robot.current_product.product_version_id

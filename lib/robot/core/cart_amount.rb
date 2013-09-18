@@ -3,11 +3,11 @@ module RobotCore
     
     def initialize
       super
+      set_dictionary(:CART)
     end
     
     def validate
-      amount = cart_amount.round(2)
-      expected = expected_amount.round(2)
+      amount, expected = cart_amount.round(2), expected_amount.round(2)
       raise RobotCore::VulcainError.new(:cart_amount_error) unless amount == expected
       true
     end
@@ -15,13 +15,11 @@ module RobotCore
     private
     
     def cart_amount
-      if vendor::CART[:total_line] 
-        totals = robot.find_elements(vendor::CART[:total_line], nowait:true)
-        totals.inject(0) { |sum, total| 
-          sum += (PRICES_IN_TEXT.(robot.get_text total).first || 0)
-        }
+      if Action(:exists?, :total_line) 
+        totals = Action(:find_elements, :total_line, nowait:true)
+        totals.inject(0) { |sum, total| sum += (Price(total) || 0)}
       else
-        PRICES_IN_TEXT.(robot.get_text vendor::CART[:total]).first
+        Price(:total)
       end
     end
     
