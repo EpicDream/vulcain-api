@@ -200,7 +200,7 @@ class StrategyTest < ActiveSupport::TestCase
   
   def common_context
 
-    {'account' => {'login' => 'legrand_pierre_0489000@free.fr', 'password' => 'shopelia2013'},
+    {'account' => {'login' => 'pierre_petit_05@free.fr', 'password' => 'shopelia2013'},
                 'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
                 'order' => {'products' => [],
                             'coupon' => nil,
