@@ -89,7 +89,7 @@ class RueDuCommerceTest < StrategyTest
   end  
   
   test "complete order process" do
-    products = [{url:PRODUCT_5_URL, quantity:2}, {url:PRODUCT_3_URL, quantity:3}]
+    products = [{url:PRODUCT_5_URL, quantity:2}]
     
     run_spec("complete order process", products, has_coupon:true)
   end

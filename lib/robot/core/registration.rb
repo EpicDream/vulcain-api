@@ -9,6 +9,8 @@ module RobotCore
     def run
       access_form
       login
+      Action(:wait)
+      
       raise RobotCore::VulcainError.new(:account_creation_failed) if still_login_step?
       Address.new.fill_using(:REGISTER)
 
