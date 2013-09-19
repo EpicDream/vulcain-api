@@ -5,6 +5,7 @@ module RobotCore
     
     def initialize
       super
+      set_dictionary(:PAYMENT)
       @access_payment = nil
     end
     
@@ -12,14 +13,14 @@ module RobotCore
       if @access_payment
         @access_payment.call
       else
-        robot.wait_for [vendor::PAYMENT[:access]]
+        Action(:wait_for, [:access])
         RobotCore::Billing.new.build
         remove_contracts_options
         RobotCore::Coupon.new(:PAYMENT).insert
-        robot.click_on vendor::PAYMENT[:access]
+        Action(:click_on, :access)
         RobotCore::CreditCard.new.select
-        robot.click_on vendor::PAYMENT[:cgu], check:true
-        robot.click_on(vendor::PAYMENT[:access], check:true)
+        Action(:click_on, :cgu, check:true)
+        Action(:click_on, :access, check:true)
       end
     end
     
@@ -33,48 +34,45 @@ module RobotCore
       
       if vendor::PAYMENT[:number].is_a?(Array)
         0.upto(3) { |i|  
-          robot.click_on vendor::PAYMENT[:number][i]
-          robot.wait_ajax
-          robot.fill vendor::PAYMENT[:number][i], with:order.credentials.number[i*4..(i*4 + 3)]
-          robot.wait_ajax
+          Action(:click_on, dictionary[:number][i])
+          Action(:wait)
+          Action(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
+          Action(:wait)
         }
       else
-        robot.fill vendor::PAYMENT[:number], with:order.credentials.number
+        Action(:fill, :number, with:order.credentials.number)
       end
-      robot.fill vendor::PAYMENT[:holder], with:order.credentials.holder, check:true
-      robot.select_option vendor::PAYMENT[:exp_month], value:order.credentials.exp_month
-      robot.select_option vendor::PAYMENT[:exp_year], value:order.credentials.exp_year
-      robot.fill vendor::PAYMENT[:cvv], with:order.credentials.cvv
-      robot.click_on vendor::PAYMENT[:option], check:true
-      robot.click_on vendor::PAYMENT[:submit]
-      robot.wait_leave vendor::PAYMENT[:submit]
-
-      robot.click_on vendor::PAYMENT[:cgu], check:true
-      robot.click_on vendor::PAYMENT[:validate], check:true
+      Action(:fill, :holder, with:order.credentials.holder, check:true)
+      Action(:select_option, :exp_month, value:order.credentials.exp_month)
+      Action(:select_option, :exp_year, value:order.credentials.exp_year)
+      Action(:fill, :cvv, with:order.credentials.cvv)
+      Action(:click_on, :option, check:true)
+      Action(:click_on, :submit)
+      Action(:wait_leave, :submit)
+      Action(:click_on, :cgu, check:true)
+      Action(:click_on, :validate, check:true)
       true
     end
     
     def succeed?
-      robot.wait_for([vendor::PAYMENT[:status]]) {
-        robot.screenshot
-        robot.page_source
+      Action(:wait_for, [:status]) {
+        Screenshot()
         return false
       }
-      robot.screenshot
-      robot.page_source
-      status = robot.get_text vendor::PAYMENT[:status]
-      !!(status =~ vendor::PAYMENT[:succeed])
+      Screenshot()
+      status = Action(:get_text, :status)
+      !!(status =~ dictionary[:succeed])
     end
     
     private
     
     def remove_contracts_options
-      return unless robot.checked?(vendor::PAYMENT[:contract_option])
-      robot.click_on vendor::PAYMENT[:contract_option], check:true
-      if vendor::PAYMENT[:contract_option_confirm]
-        robot.wait_for([vendor::PAYMENT[:contract_option_confirm]])
-        robot.click_on vendor::PAYMENT[:contract_option], check:true
-        robot.click_on vendor::PAYMENT[:contract_option_confirm], check:true
+      return unless Action(:checked?, :contract_option)
+      Action(:click_on, :contract_option, check:true)
+      if dictionary[:contract_option_confirm]
+        Action(:wait_for, [:contract_option_confirm])
+        Action(:click_on, :contract_option, check:true)
+        Action(:click_on, :contract_option, check:true)
       end
     end
     

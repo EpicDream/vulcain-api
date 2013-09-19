@@ -79,5 +79,10 @@ module RobotCore
       PRICES_IN_TEXT.(robot.get_text identifier, opts).first.to_f
     end
     
+    def Screenshot
+      robot.screenshot
+      robot.page_source
+    end
+    
   end
 end
