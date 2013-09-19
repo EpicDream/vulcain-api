@@ -1,10 +1,15 @@
 module RobotCore
   class Shipping < RobotModule
     
+    def initialize
+      super
+      set_dictionary(:SHIPMENT)
+    end
+    
     def run
       return unless form_exists?
       access_form
-      Address.new.fill_using(vendor::SHIPMENT)
+      Address.new.fill_using(:SHIPMENT)
       submit
       submit_options
     end

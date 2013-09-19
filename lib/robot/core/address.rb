@@ -3,7 +3,7 @@ module RobotCore
     attr_accessor :dictionary
     
     def fill_using dictionary
-      @dictionary = dictionary
+      set_dictionary(dictionary)
       gender
       address
     end
@@ -11,80 +11,81 @@ module RobotCore
     private
     
     def gender
-      if robot.exists? dictionary[:gender]
+      if Action(:exists?, :gender)
         value = case user.gender
         when 0 then dictionary[:mister]
         when 1 then dictionary[:madam]
         when 2 then dictionary[:miss]
         end
-        robot.select_option dictionary[:gender], value:value
-      elsif robot.exists? dictionary[:mister]
-        robot.click_on_radio user.gender, { 0 => dictionary[:mister], 1 =>  dictionary[:madam], 2 =>  dictionary[:miss] }
+        Action(:select_option, :gender, value:value)
+      elsif Action(:exists?, :mister)
+        Action(:click_on_radio, user.gender, { 0 => dictionary[:mister], 1 =>  dictionary[:madam], 2 =>  dictionary[:miss] })
       end
     end
     
     def address
-      robot.terminate_on_error(:unmanaged_country) and return if !dictionary[:country] && user.address.country != 'FR'
+      raise RobotCore::VulcainError.new(:unmanaged_country) if !dictionary[:country] && user.address.country != 'FR'
+      
       properties = user.address.marshal_dump.keys
       properties.each do |property|
         begin
-          robot.fill dictionary[property], with:user.address.send(property).unaccent, check:true
+          Action(:fill, property, with:user.address.send(property).unaccent, check:true)
         rescue
           if property == :city
             select_city
           elsif property == :country
             country_code = COUNTRIES_CODES[user.address.send(property)][:alpha2]
-            robot.select_option(dictionary[:country], value:country_code)
+            Action(:select_option, :country, value:country_code)
           else
             raise
           end
         end
         if property == :mobile_phone && dictionary[:sms_options]
-          robot.click_on dictionary[:city] #lose focus
-          robot.wait_ajax
-          dictionary[:sms_options].each { |identifier| robot.click_on identifier}
+          Action(:click_on, :city)
+          Action(:wait)
+          dictionary[:sms_options].each { |identifier| Action(:click_on, identifier)}
         end
         zip_popup if property == :zip && dictionary[:zip_popup]
       end
-      split_address if robot.exists? dictionary[:address_type]
-      robot.fill dictionary[:address_identifier], with:user.last_name, check:true
+      split_address if Action(:exists?, :address_type)
+      Action(:fill, :address_identifier, with:user.last_name, check:true)
     end
     
     def zip_popup
-      robot.wait_ajax
-      elements = robot.find_elements(dictionary[:zip_popup])
+      Action(:wait)
+      elements = Action(:find_elements, :zip_popup)
       elements.each do |e|
         city = user.address.city.gsub(/-/, ' ').downcase.strip
-        robot.driver.click_on(e) if e.text.downcase.strip == city
+        Action(:click_on, e) if e.text.downcase.strip == city
       end
     end
     
     def select_city
-      robot.click_on dictionary[:city]#leave focus
-
-      robot.wait_ajax
+      Action(:click_on, :city)
+      Action(:wait)
+      
       city = user.address.city.gsub(/-/, ' ').downcase.strip.unaccent
-      options = robot.options_of_select(dictionary[:city])
+      options = Action(:options_of_select, :city)
       option = options.detect do |value, text|
         text.downcase.strip.unaccent == city ||
         text.downcase.strip.unaccent =~ Regexp.new(city) ||
         city =~ Regexp.new(text.downcase.strip.unaccent)
       end
-      robot.select_option(dictionary[:city], value:option[0])
+      Action(:select_option, :city, value:option[0])
     end
     
     def split_address
       user.address.address_1 =~ /(\d+)[\s,]+(.*?)\s+(.*)/
-      robot.fill dictionary[:address_number], with:$1, check:true
+      Action(:fill, :address_number, with:$1, check:true)
 
       begin
-        options = options_of_select(dictionary[:address_type])
+        options = Action(:options_of_select, :address_type)
         option = options.detect { |value, text|  text.downcase.strip == $2.downcase.strip}
-        robot.select_option(dictionary[:address_type], value:option[0])
+        Action(:select_option, :address_type, value:option[0])
       rescue
-        robot.fill dictionary[:address_track], with:"#{$2} #{$3}", check:true
+        Action(:fill, :address_track, with:"#{$2} #{$3}", check:true)
       else
-        robot.fill dictionary[:address_track], with:$3, check:true
+        Action(:fill, :address_track, with:$3, check:true)
       end
     end
         

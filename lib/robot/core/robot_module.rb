@@ -27,6 +27,7 @@ module RobotCore
     end
     
     attr_reader :robot, :user, :account, :vendor, :order, :products
+    attr_accessor :dictionary
     
     def initialize
       @robot = Robot.instance
@@ -38,24 +39,24 @@ module RobotCore
     end
     
     def set_dictionary dico
-      self.class.const_set(:DIC, dico) unless self.class.constants.include?(:DIC)
+      self.dictionary = Object.const_get(self.vendor.to_s).const_get(dico)
     end
     
     def Action action, key=nil, opts=nil, &block
-      dictionary = Object.const_get(self.vendor.to_s).const_get(self.class.const_get(:DIC))
       case action
       when :wait then robot.wait_ajax(key || 2)
+      when :click_on_radio then robot.click_on_radio(key, opts)
       when :wait_for, :click_on_all
         if block_given?
-          robot.send(action, key.map { |k|  dictionary[k]}.flatten, &block)
+          robot.send(action, key.map { |k| self.dictionary[k]}.flatten, &block)
         else
-          robot.send(action, key.map { |k|  dictionary[k]}.flatten)
+          robot.send(action, key.map { |k| self.dictionary[k]}.flatten)
         end
       when :open_url
-        dictionary = Object.const_get(self.vendor.to_s).const_get(:URLS)
-        robot.send(:open_url, dictionary[key])
+        dic = Object.const_get(self.vendor.to_s).const_get(:URLS)
+        robot.send(:open_url, dic[key])
       else
-        identifier = key.is_a?(Symbol) ? dictionary[key] : key
+        identifier = key.is_a?(Symbol) ? self.dictionary[key] : key
         opts ? robot.send(action, identifier, opts) : robot.send(action, identifier)
       end
     end
@@ -65,8 +66,7 @@ module RobotCore
     end
     
     def Price key, opts={}
-      dictionary = Object.const_get(self.vendor.to_s).const_get(self.class.const_get(:DIC))
-      identifier = key.is_a?(Symbol) ? dictionary[key] : key
+      identifier = key.is_a?(Symbol) ? self.dictionary[key] : key
       
       PRICES_IN_TEXT.(robot.get_text identifier, opts).first.to_f
     end

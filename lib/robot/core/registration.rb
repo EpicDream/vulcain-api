@@ -10,7 +10,7 @@ module RobotCore
         return
       end
       
-      Address.new.fill_using(vendor::REGISTER)
+      Address.new.fill_using(:REGISTER)
       
       phone
       birthdate
