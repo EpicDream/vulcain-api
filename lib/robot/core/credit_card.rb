@@ -11,7 +11,7 @@ module RobotCore
       access_form
       RobotCore::Login.new.relog
       Action(:click_on, :remove, check:true, ajax:true)
-      robot.accept_alert
+      Action(:accept_alert)
       Action(:click_on, :remove_confirmation, check:true)
       Action(:wait)
       robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }

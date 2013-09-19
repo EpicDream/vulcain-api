@@ -60,9 +60,9 @@ class CdiscountTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"21\n€35", "product_title"=>"HARIBO Happy Box Haribo 600g (x5)", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/x/5/1/200x200/har693925x5/rw/happy-box-haribo-600g.jpg", "price_product"=>nil, "price_delivery"=>nil, "url"=>"http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html"}]
-    billing = {:shipping=>6.99, :total=>49.69, :shipping_info=>nil}
-    products = [{url:PRODUCT_URL_1, quantity:2}]
+    expected_products = [{"price_text"=>"13\n€99", "eco_part"=>0.0, "product_title"=>"Tortues Ninja - Raphael - Figurine 12cm +\naccess\nGiochi Preziosi - Tortues Ninja - Figurine 12 cm Raphael - Retrouve Raphael l'un des personnages de la série animée Tortues Ninja avec son arme... - Garçon - A partir de 3 ans - Livré à l'unité\n  Avis clients\n5,0/5 (2 avis)\nDonnez votre avisLire les avis\nPartagez le !", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/5/1/200x200/gio5505/rw/tortues-ninja-raphael-figurine-12cm-access.jpg", "price_product"=>13.99, "price_delivery"=>0.0, "url"=>"http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
+    billing = {:shipping=>2.99, :total=>30.97, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_10, quantity:2}]
 
     run_spec("finalize order", products, expected_products, billing)
   end

@@ -12,7 +12,11 @@ module RobotCore
       
       shipping = RobotCore::Shipping.new
       shipping.run
-      raise RobotCore::VulcainError.new(:no_delivery) unless shipping.submit_packaging
+      
+      Action(:wait_for, [:submit, :access, [:SHIPMENT, :submit_packaging]])
+      
+      success = shipping.submit_packaging
+      raise RobotCore::VulcainError.new(:no_delivery) unless success 
       
       payment ||= RobotCore::Payment.new
       payment.access
@@ -38,7 +42,7 @@ module RobotCore
     def cancel
       Action(:click_on, :cancel, check:true)
       Action(:wait)
-      robot.accept_alert
+      Action(:accept_alert)
       Action(:open_url, :base)
       robot.run_step('empty cart', next_step:'cancel')
     end

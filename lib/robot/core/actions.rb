@@ -28,7 +28,7 @@ module RobotCore
       sleep(n)
     end
 
-    def accept_alert
+    def accept_alert opt={}
       @driver.accept_alert
     rescue Selenium::WebDriver::Error::NoAlertPresentError
     end

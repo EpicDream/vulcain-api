@@ -47,10 +47,18 @@ module RobotCore
       when :wait then robot.wait_ajax(key || 2)
       when :click_on_radio then robot.click_on_radio(key, opts)
       when :wait_for, :click_on_all
+        keys = key.map { |k| 
+          if k.is_a?(Symbol)
+            self.dictionary[k]
+          else
+            dic = Object.const_get(self.vendor.to_s).const_get(k[0])
+            dic[k[1]]
+          end
+        }.flatten
         if block_given?
-          robot.send(action, key.map { |k| self.dictionary[k]}.flatten, &block)
+          robot.send(action, keys, &block)
         else
-          robot.send(action, key.map { |k| self.dictionary[k]}.flatten)
+          robot.send(action, keys)
         end
       when :open_url
         dic = Object.const_get(self.vendor.to_s).const_get(:URLS)
