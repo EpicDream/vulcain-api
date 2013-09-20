@@ -12,6 +12,8 @@ module RobotCore
       robot.has_coupon = robot.has_coupon || Action(:find_element, :coupon, nowait:true)
       Action(:fill, :coupon, with:order.coupon, check:true)
       Action(:click_on, :coupon_recompute, check:true)
+      Action(:wait)
+      Action(:accept_alert)
     end
     
   end

@@ -63,6 +63,7 @@ module RobotCore
       when Action(:exists?, :remove_item)
         Action(:click_on_all, [:remove_item]) { |element|  
           Action(:wait)
+          Action(:accept_alert)
           Action(:open_url, :cart)
           !element.nil? 
         }

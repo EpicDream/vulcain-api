@@ -21,6 +21,7 @@ module RobotCore
       @quantity = to || product['expected_quantity']
       send("set_quantity_with_#{@setter_type}".to_sym)
       Action(:wait)
+      Action(:accept_alert)
       Action(:click_on, :popup, check:true)
       update_amount()
       update_quantities() if quantity_exceed?
