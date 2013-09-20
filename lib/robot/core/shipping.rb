@@ -15,6 +15,7 @@ module RobotCore
     end
     
     def submit_packaging
+      Action(:wait)
       Action(:click_on, :option, check:true)
       Action(:click_on, :packaging, check:true)
       success = Action(:click_on, :submit_packaging)

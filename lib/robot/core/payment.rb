@@ -18,9 +18,16 @@ module RobotCore
         remove_contracts_options
         RobotCore::Coupon.new(:PAYMENT).insert
         Action(:click_on, :access)
+        Action(:accept_alert)
+        Action(:wait)
         RobotCore::CreditCard.new.select
         Action(:click_on, :cgu, check:true)
         Action(:click_on, :access, check:true)
+        Action(:wait)
+        RobotCore::Billing.new.build
+        Action(:click_on, :cgu, check:true)
+        Action(:click_on, :terminate, check:true)
+        Action(:wait)
       end
     end
     
@@ -31,7 +38,7 @@ module RobotCore
       order.credentials.exp_year = order.credentials.exp_year.to_s[2..-1] if vendor::PAYMENT[:trunc_year]
       
       RobotCore::CreditCard.new.select
-      
+      #TODO : A mettre dans module CreditCard
       if vendor::PAYMENT[:number].is_a?(Array)
         0.upto(3) { |i|  
           Action(:click_on, dictionary[:number][i])

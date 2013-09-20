@@ -81,6 +81,7 @@ module RobotCore
       Action(:open_url, :base)
       Action(:open_url, :account)
       Action(:open_url, :register)
+      Action(:click_on, :button, check:true)
       Action(:wait_for, [:submit_login, :submit])
     end
     
