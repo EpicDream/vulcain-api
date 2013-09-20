@@ -116,8 +116,10 @@ module RobotCore
       return false if !identifier.is_a?(Selenium::WebDriver::Element) && args[:check] && !exists?(identifier)
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       input ||= @driver.find_element(identifier)
+      input.send_keys :backspace, :backspace
       input.clear
       input.send_key args[:with]
+      input.send_keys :tab
     end
     
     def fill_all identifier, args={}
