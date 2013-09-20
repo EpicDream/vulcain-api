@@ -62,13 +62,15 @@ module <%= vendor_name %>Constants
     shipment_mode:nil,
     select_this_address: nil,
     address_option: nil,
-    address_submit: nil
+    address_submit: nil,
+    option:nil
   }
-  
+
   CART = {
     add:nil,
     button:nil,
     quantity:nil,
+    quantity_set:nil,
     quantity_exceed:nil,
     line:nil,
     update:nil,
@@ -80,6 +82,8 @@ module <%= vendor_name %>Constants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: nil,
     submit_success: [],
+    coupon:nil,
+    coupon_recompute:nil
   }
   
   PRODUCT = {
