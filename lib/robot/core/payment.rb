@@ -17,16 +17,16 @@ module RobotCore
         RobotCore::Billing.new.build
         remove_contracts_options
         RobotCore::Coupon.new(:PAYMENT).insert
-        Action(:click_on, :access)
+        MAction(:click_on, :access)
         Action(:accept_alert)
         Action(:wait)
         RobotCore::CreditCard.new.select
-        Action(:click_on, :cgu, check:true)
-        Action(:click_on, :access, check:true)
+        Action(:click_on, :cgu)
+        Action(:click_on, :access)
         Action(:wait)
         RobotCore::Billing.new.build
-        Action(:click_on, :cgu, check:true)
-        Action(:click_on, :terminate, check:true)
+        Action(:click_on, :cgu)
+        Action(:click_on, :terminate)
         Action(:wait)
       end
     end
@@ -41,23 +41,23 @@ module RobotCore
       #TODO : A mettre dans module CreditCard
       if vendor::PAYMENT[:number].is_a?(Array)
         0.upto(3) { |i|  
-          Action(:click_on, dictionary[:number][i])
+          MAction(:click_on, dictionary[:number][i])
           Action(:wait)
-          Action(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
+          MAction(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
           Action(:wait)
         }
       else
-        Action(:fill, :number, with:order.credentials.number)
+        MAction(:fill, :number, with:order.credentials.number)
       end
-      Action(:fill, :holder, with:order.credentials.holder, check:true)
-      Action(:select_option, :exp_month, value:order.credentials.exp_month)
-      Action(:select_option, :exp_year, value:order.credentials.exp_year)
-      Action(:fill, :cvv, with:order.credentials.cvv)
-      Action(:click_on, :option, check:true)
-      Action(:click_on, :submit)
+      Action(:fill, :holder, with:order.credentials.holder)
+      MAction(:select_option, :exp_month, value:order.credentials.exp_month)
+      MAction(:select_option, :exp_year, value:order.credentials.exp_year)
+      MAction(:fill, :cvv, with:order.credentials.cvv)
+      Action(:click_on, :option)
+      MAction(:click_on, :submit)
       Action(:wait_leave, :submit)
-      Action(:click_on, :cgu, check:true)
-      Action(:click_on, :validate, check:true)
+      Action(:click_on, :cgu)
+      Action(:click_on, :validate)
       true
     end
     
@@ -75,11 +75,11 @@ module RobotCore
     
     def remove_contracts_options
       return unless Action(:checked?, :contract_option)
-      Action(:click_on, :contract_option, check:true)
+      Action(:click_on, :contract_option)
       if dictionary[:contract_option_confirm]
         Action(:wait_for, [:contract_option_confirm])
-        Action(:click_on, :contract_option, check:true)
-        Action(:click_on, :contract_option, check:true)
+        Action(:click_on, :contract_option)
+        Action(:click_on, :contract_option)
       end
     end
     

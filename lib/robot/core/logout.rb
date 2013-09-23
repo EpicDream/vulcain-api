@@ -9,7 +9,7 @@ module RobotCore
     def run
       Action(:open_url, :home)
       Action(:open_url, :logout)
-      Action(:click_on, :logout, check:true)
+      Action(:click_on, :logout)
     end
     
   end

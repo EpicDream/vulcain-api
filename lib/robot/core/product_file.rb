@@ -10,13 +10,13 @@ module RobotCore
     
     def open
       robot.open_url @product.url
-      Action(:click_on, :popup, check:true)
-      Action(:click_on, :extra_offers, check:true)#A virer , unique à CDISCOUNT faire autrement
+      Action(:click_on, :popup)
+      Action(:click_on, :extra_offers)#A virer , unique à CDISCOUNT faire autrement
       @exists = Action(:wait_for, [:add, :offers]) {}
     end
     
     def exists?
-      @exists
+      !!@exists
     end
     
   end

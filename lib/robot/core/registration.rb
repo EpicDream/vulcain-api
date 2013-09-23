@@ -30,7 +30,7 @@ module RobotCore
     private
     
     def options
-      [dictionary[:option]].flatten.each { |option| Action(:click_on, option, check:true) }
+      [dictionary[:option]].flatten.each { |option| Action(:click_on, option) }
     end
     
     def fails?
@@ -38,28 +38,28 @@ module RobotCore
     end
     
     def password
-      Action(:fill, :email_confirmation, with:account.login, check:true)
-      Action(:fill, :password, with:account.password, check:true)
-      Action(:fill, :password_confirmation, with:account.password, check:true)
+      Action(:fill, :email_confirmation, with:account.login)
+      Action(:fill, :password, with:account.password)
+      Action(:fill, :password_confirmation, with:account.password)
     end
     
     def pseudonym n=0
       return unless dictionary[:pseudonym]
       pseudonym = account.login.match(/(.*?)@.*/).captures.first.gsub(/\.|_|-/, '')[0..9]
       pseudonym += n.to_s.rjust(2, "0")
-      Action(:fill, :pseudonym, with:pseudonym, check:true)
+      Action(:fill, :pseudonym, with:pseudonym)
     end
     
     def submit
-      Action(:click_on, :cgu, check:true)
-      Action(:click_on, :submit)
+      Action(:click_on, :cgu)
+      MAction(:click_on, :submit)
       Action(:wait)
     end
     
     def submit_with_new_pseudonym
       return unless dictionary[:pseudonym]
       10.times do |n|
-        node = Action(:find_element, :error, nowait:true)
+        node = Action(:find_element, :error)
         error = !!node && Action(:get_text, :error)
         if error =~ dictionary[:pseudonym_error_match]
           pseudonym(n + 1)
@@ -72,8 +72,8 @@ module RobotCore
     
     def submit_options
       if Action(:exists?, :address_option)
-        Action(:click_on, :address_option)
-        Action(:move_to_and_click_on, :submit)
+        MAction(:click_on, :address_option)
+        MAction(:move_to_and_click_on, :submit)
       end
     end
     
@@ -90,29 +90,29 @@ module RobotCore
     end
     
     def login
-      Action(:fill, :email, with:account.login, check:true )
-      Action(:fill, :email_confirmation, with:account.login, check:true)
-      Action(:fill, :password, with:account.password, check:true)
-      Action(:fill, :password_confirmation, with:account.password, check:true)
-      Action(:click_on, :submit_login, check:true)
+      Action(:fill, :email, with:account.login)
+      Action(:fill, :email_confirmation, with:account.login)
+      Action(:fill, :password, with:account.password)
+      Action(:fill, :password_confirmation, with:account.password)
+      Action(:click_on, :submit_login)
     end
     
     def phone
-      Action(:fill, :mobile_phone, with:user.address.mobile_phone, check:true)
-      Action(:fill, :land_phone, with:user.address.land_phone, check:true)
+      Action(:fill, :mobile_phone, with:user.address.mobile_phone)
+      Action(:fill, :land_phone, with:user.address.land_phone)
     end
     
     def birthdate
       if dictionary[:birthdate]
-        Action(:fill, :birthdate, with:BIRTHDATE_AS_STRING.(user.birthdate))
+        MAction(:fill, :birthdate, with:BIRTHDATE_AS_STRING.(user.birthdate))
       end
       if dictionary[:birthdate_day]
         zero_fill?
-        Action(:select_option, :birthdate_day, value:user.birthdate.day)
-        Action(:select_option, :birthdate_month, value:user.birthdate.month)
-        Action(:select_option, :birthdate_year, value:user.birthdate.year)
+        MAction(:select_option, :birthdate_day, value:user.birthdate.day)
+        MAction(:select_option, :birthdate_month, value:user.birthdate.month)
+        MAction(:select_option, :birthdate_year, value:user.birthdate.year)
       end
-      Action(:fill, :birth_department, with:user.address.zip[0..1], check:true)
+      Action(:fill, :birth_department, with:user.address.zip[0..1])
     end
     
     def zero_fill?

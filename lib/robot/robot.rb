@@ -159,6 +159,7 @@ class Robot
   
   def load_common_steps
     step('run') do
+      open_url order.products[0].url #affiliation
       step = account.new_account ? 'create account' : 'renew login'
       run_step step
     end

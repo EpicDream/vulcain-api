@@ -46,7 +46,7 @@ class EveilEtJeuxTest < StrategyTest
   test "empty cart" do
     assert = Proc.new do
       @robot.open_url EveilEtJeux::URLS[:cart]
-      assert_equal nil, @robot.find_elements('//td[@class="field_article_quant"]', nowait:true)
+      assert_equal nil, @robot.find_elements('//td[@class="field_article_quant"]')
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     

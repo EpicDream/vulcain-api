@@ -21,14 +21,14 @@ module RobotCore
       @quantity = to || product['expected_quantity']
       send("set_quantity_with_#{@setter_type}".to_sym)
       Action(:wait)
-      Action(:click_on, :popup, check:true)
+      Action(:click_on, :popup)
       update_amount()
       update_quantities() if quantity_exceed?
     end
   
     def self.all
       robot = Robot.instance
-      lines = robot.find_elements(robot.vendor::CART[:line], nowait:true) || []
+      lines = robot.find_elements(robot.vendor::CART[:line]) || []
       lines.reverse! if robot.vendor::CART[:inverse_order]
       lines.map { |line| new(line)}
     end
@@ -37,9 +37,9 @@ module RobotCore
     
     def quantity_exceed?
       Action(:wait)
-      popup = Action(:find_element, :quantity_exceed, nowait:true)
+      popup = Action(:find_element, :quantity_exceed)
       exceed = popup && popup.displayed?
-      Action(:click_on, popup) if exceed
+      MAction(:click_on, popup) if exceed
       exceed
     end
     
@@ -54,7 +54,7 @@ module RobotCore
     end
   
     def update_amount
-      Action(:click_on, quantity_updater, check:true, ajax:true)
+      Action(:click_on, quantity_updater, ajax:true)
     end
   
     def set_quantity_with_select
@@ -63,23 +63,23 @@ module RobotCore
         @quantity = options.max
         RobotCore::Product.new.update_quantity(product, @quantity)
       end
-      Action(:select_option, @setter, value:@quantity)
+      MAction(:select_option, @setter, value:@quantity)
     end
   
     def set_quantity_with_submit
       (@quantity - 1).times { 
-        Action(:click_on, @setter)
+        MAction(:click_on, @setter)
         Action(:wait)
         refresh()
       }
     end
   
     def set_quantity_with_input
-      Action(:fill, @setter, with:@quantity)
+      MAction(:fill, @setter, with:@quantity)
     end
   
     def refresh #after change quantity page may be reloaded, result in stale elements
-      lines = Action(:find_elements, :line, nowait:true) || []
+      lines = Action(:find_elements, :line) || []
       lines.reverse! if robot.vendor::CART[:inverse_order]
       @line = lines[self.index]
       @setter = quantity_setter()

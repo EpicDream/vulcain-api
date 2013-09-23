@@ -144,7 +144,7 @@ class PoolTest <  ActiveSupport::TestCase
   
   def vulcains
     (1..3).map do |n|
-      Vulcain.new(exchange:@io_stub, id:"127.0.0.1|#{n}", idle:true, host:"127.0.0.1", ack_ping:false)
+      Vulcain.new(exchange:@io_stub, id:"127.0.0.1|#{n}", idle:true, host:"127.0.0.1", ack_ping:true)
     end
   end
   

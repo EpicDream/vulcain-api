@@ -15,11 +15,11 @@ module RobotCore
     private
     
     def warranty
-      [:warranty, :warranty_submit].each { |key| Action(:click_on, key, check:true) }
+      [:warranty, :warranty_submit].each { |key| Action(:click_on, key) }
     end
     
     def cgu
-      [:cgu, :cgu_submit].each { |key| Action(:click_on, key, check:true) }
+      [:cgu, :cgu_submit].each { |key| Action(:click_on, key) }
     end
     
     def remove_options

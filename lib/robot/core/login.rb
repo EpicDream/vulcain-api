@@ -17,14 +17,13 @@ module RobotCore
     
     def renew
       robot.run_step('logout')
-      robot.open_url robot.order.products[0].url
       run
     end
     
     def relog
-      Action(:fill, :email, with:account.login, check:true)
-      Action(:fill, :password, with:account.password, check:true)
-      Action(:click_on, :submit, check:true)
+      Action(:fill, :email, with:account.login)
+      Action(:fill, :password, with:account.password)
+      Action(:click_on, :submit)
     end
     
     private
@@ -42,25 +41,25 @@ module RobotCore
     def decaptchatize
       return unless Action(:exists?, :captcha)
       Action(:wait)
-      element = Action(:find_element, :captcha)
+      element = MAction(:find_element, :captcha)
       text = resolve_captcha element.attribute('src')
-      Action(:fill, :captcha_input, with:text)
-      Action(:click_on, :captcha_submit, check:true)
+      MAction(:fill, :captcha_input, with:text)
+      Action(:click_on, :captcha_submit)
     end
     
     def access_form
       Action(:open_url, :login)
       Action(:click_on, :popup)
-      Action(:click_on, :link, check:true)
+      Action(:click_on, :link)
     end
     
     def submit
-      Action(:click_on, :submit)
+      MAction(:click_on, :submit)
     end
     
     def login
-      Action(:fill, :email, with:account.login)
-      Action(:fill, :password, with:account.password)
+      MAction(:fill, :email, with:account.login)
+      MAction(:fill, :password, with:account.password)
     end
     
   end
