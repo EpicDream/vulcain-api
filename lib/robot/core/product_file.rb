@@ -16,7 +16,7 @@ module RobotCore
     end
     
     def exists?
-      @exists
+      !!@exists
     end
     
   end

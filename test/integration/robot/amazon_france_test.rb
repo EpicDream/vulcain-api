@@ -8,7 +8,7 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_3 = 'http://www.amazon.fr/Oakley-Represent-Short-homme-Stone/dp/B0097LKBAW/ref=sr_1_2?s=sports&ie=UTF8&qid=1365505290&sr=1-2'
   PRODUCT_URL_4 = 'http://www.amazon.fr/gp/product/B009062O3Q/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=ALO9KG7XBFFMS'
   PRODUCT_URL_5 = 'http://www.amazon.fr/SEB-OF265800-Delice-Compact-Convection/dp/B003UD7ZQG/ref=sr_1_1?ie=UTF8&qid=1378981732&sr=8-1&keywords=SEB+OF265800+Four+Delice+Compact+Convection+24+L+Noir' #avec prix livraison
-  PRODUCT_URL_6 = 'http://www.amazon.fr/Atelier-dessins-Hervé-Tullet/dp/2747034054/ref=sr_1_1?ie=UTF8&qid=1378981778&sr=8-1&keywords=Atelier+dessins'
+  PRODUCT_URL_6 = 'http://www.amazon.fr/Smith-Wesson-Extreme-Linerlock-tactical/dp/B000UUV1EY/ref=sr_1_1?ie=UTF8&qid=1379951980&sr=8-1&keywords=couteau'
   PRODUCT_URL_7 = 'http://www.amazon.fr/Ravensburger-Puzzle-Pi&eacuteces-Princesse-Cheval/dp/B001KBYUOU'
   PRODUCT_URL_8 = 'http://www.amazon.fr/gp/product/2081217961/ref=s9_simh_gw_p14_d7_i1?tag=shopelia-21'
   PRODUCT_URL_9 = 'http://www.amazon.fr/Déguisement-Morphsuits%C2%99-adulte-vert-fluo/dp/B00B446DS4/ref=pd_sim_sbs_t_10?tag=shopelia-21'
@@ -113,7 +113,7 @@ class AmazonTest < StrategyTest
   test "complete order process" do
     @robot.billing = {}
     RobotCore::Payment.any_instance.expects(:checkout).returns(false)
-    products = [{url:PRODUCT_URL_6, quantity:3}, {url:PRODUCT_URL_8, quantity:2}]
+    products = [{url:PRODUCT_URL_6, quantity:2}, {url:PRODUCT_URL_8, quantity:3}]
     
     run_spec("complete order process", products, has_coupon:true)
   end
