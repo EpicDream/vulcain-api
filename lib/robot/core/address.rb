@@ -23,8 +23,12 @@ module RobotCore
       end
     end
     
+    def unmanaged_country?
+      !dictionary[:country] && user.address.country != 'FR'
+    end
+    
     def address
-      raise RobotCore::VulcainError.new(:unmanaged_country) if !dictionary[:country] && user.address.country != 'FR'
+      raise RobotCore::VulcainError.new(:unmanaged_country) if unmanaged_country?
       
       properties = user.address.marshal_dump.keys
       properties.each do |property|
