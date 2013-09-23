@@ -24,7 +24,9 @@ class Driver
   end
   
   def get url
-    @driver.get url
+    @driver.get(url)
+  rescue => e #quick fix
+    nil
   end
   
   def current_url

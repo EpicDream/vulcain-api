@@ -66,7 +66,7 @@ module RobotCore
           Action(:open_url, :cart)
           !element.nil? 
         }
-      when Action(:exists?, :quantity)
+      when Action(:exists?, :line)
         Action(:fill_all, :quantity, with:0)
         Action(:click_on, :update)
       else
