@@ -15,9 +15,9 @@ module RobotCore
     end
     
     def submit_packaging
-      Action(:click_on, :option, check:true)
-      Action(:click_on, :packaging, check:true)
-      success = Action(:click_on, :submit_packaging)
+      Action(:click_on, :option)
+      Action(:click_on, :packaging)
+      success = MAction(:click_on, :submit_packaging)
       Action(:wait_for, [:submit_success])
       success
     end
@@ -25,28 +25,28 @@ module RobotCore
     private
     
     def form_exists?
-      Action(:click_on, :shipment_mode, check:true)
-      Action(:click_on, :add_address, check:true)
-      Action(:click_on, :select_this_address, check:true)
+      Action(:click_on, :shipment_mode)
+      Action(:click_on, :add_address)
+      Action(:click_on, :select_this_address)
       Action(:exists?, :city)
     end
     
     def submit_options
-      Action(:fill, :mobile_phone, with:user.address.mobile_phone, check:true)
-      Action(:click_on, :address_option, check:true)
-      Action(:click_on, :address_submit, check:true)
-      Action(:click_on, :address_confirm, check:true)
-      Action(:click_on, :option, check:true)
+      Action(:fill, :mobile_phone, with:user.address.mobile_phone)
+      Action(:click_on, :address_option)
+      Action(:click_on, :address_submit)
+      Action(:click_on, :address_confirm)
+      Action(:click_on, :option)
     end
     
     def submit
-      Action(:click_on, :same_billing_address, check:true)
-      Action(:click_on, :submit)
+      Action(:click_on, :same_billing_address)
+      MAction(:click_on, :submit)
       Action(:wait_for, [:submit_packaging, :address_submit])
     end
     
     def access_form
-      Action(:click_on, :add_address, check:true)
+      Action(:click_on, :add_address)
       Action(:wait_for, [:city])
     end
     

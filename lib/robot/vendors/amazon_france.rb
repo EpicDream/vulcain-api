@@ -127,13 +127,13 @@ class AmazonFrance
           
           if balance
             self.skip_assess = true
-            click_on PAYMENT[:access]
+            click_on PAYMENT[:access], mandatory:true
           else
-            self.has_coupon = !!find_element(PAYMENT[:coupon], nowait:true)
+            self.has_coupon = !!find_element(PAYMENT[:coupon])
             if order.coupon
-              click_on '//*[@id="wrapper-new-gc"]/div[1]/a', check:true
-              fill PAYMENT[:coupon], with:order.coupon
-              click_on PAYMENT[:coupon_recompute]
+              click_on '//*[@id="wrapper-new-gc"]/div[1]/a'
+              fill PAYMENT[:coupon], with:order.coupon, mandatory:true
+              click_on PAYMENT[:coupon_recompute], mandatory:true
               wait_ajax 5
             end
             # click_on '//a[@data-value="7"]'
@@ -145,7 +145,7 @@ class AmazonFrance
             click_on '//*[@id="add-credit-card"] | //*[@id="ccAddCard"]'
             wait_ajax 5
             if RobotCore::Payment.new.checkout
-              buttons = find_elements('//div[@class="field-span pay-date-width"]//button', nowait:true) || []
+              buttons = find_elements('//div[@class="field-span pay-date-width"]//button') || []
               if buttons.any?
                 buttons.each_with_index do |button, index|
                   click_on button
@@ -154,17 +154,17 @@ class AmazonFrance
                   click_on option
                   wait_ajax
                 end
-                click_on vendor::PAYMENT[:submit]
+                click_on vendor::PAYMENT[:submit], mandatory:true
               end
               no_thanks_button = 'div.prime-nothanks-button'
               click_on '//*[@id="new-cc"]//input[@type="button"]'
               wait_ajax
-              click_on PAYMENT[:access]
+              click_on PAYMENT[:access], mandatory:true
               wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
               wait_ajax
-              click_on PAYMENT[:invoice_address], check:true
+              click_on PAYMENT[:invoice_address]
               wait_for [PAYMENT[:validate], no_thanks_button]
-              click_on no_thanks_button, check:true
+              click_on no_thanks_button
               wait_for [PAYMENT[:validate]]
               wait_ajax 5
             end
@@ -178,19 +178,19 @@ class AmazonFrance
         unless self.skip_assess
           run_step('remove credit card')
           open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
-          fill LOGIN[:email], with:account.login
-          fill LOGIN[:password], with:account.password
-          click_on LOGIN[:submit]
+          fill LOGIN[:email], with:account.login, mandatory:true
+          fill LOGIN[:password], with:account.password, mandatory:true
+          click_on LOGIN[:submit], mandatory:true
           wait_ajax 5
-          click_on '//*[@id="wrapper-new-gc"]/div[1]/a', check:true
-          fill PAYMENT[:coupon], with:order.credentials.voucher
-          click_on PAYMENT[:coupon_recompute]
+          click_on '//*[@id="wrapper-new-gc"]/div[1]/a'
+          fill PAYMENT[:coupon], with:order.credentials.voucher, mandatory:true
+          click_on PAYMENT[:coupon_recompute], mandatory:true
           wait_ajax 5
-          click_on PAYMENT[:access]
+          click_on PAYMENT[:access], mandatory:true
         end
         
         wait_for [PAYMENT[:validate]]
-        click_on vendor::PAYMENT[:validate]
+        click_on vendor::PAYMENT[:validate], mandatory:true
         self.skip_assess = false
         page = wait_for([vendor::PAYMENT[:status]]) do
           screenshot

@@ -40,7 +40,7 @@ module RobotCore
     end
     
     def cancel
-      Action(:click_on, :cancel, check:true)
+      Action(:click_on, :cancel)
       Action(:wait)
       Action(:accept_alert)
       Action(:open_url, :base)

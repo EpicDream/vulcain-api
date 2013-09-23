@@ -24,7 +24,9 @@ class Driver
   end
   
   def get url
-    @driver.get url
+    @driver.get(url)
+  rescue => e #quick fix
+    nil
   end
   
   def current_url
@@ -88,7 +90,7 @@ class Driver
   
   def wait_leave identifier
     duration = 0
-    while find_element(identifier, nowait:true)
+    while find_element(identifier)
       sleep(0.5)
       duration += 0.5
       raise if duration >= LEAVE_PAGE_TIMEOUT
@@ -104,7 +106,7 @@ class Driver
   def find_elements identifier, options={}
     return [] unless identifier
     return find_elements_with_pattern(identifier, options) if pattern_search?(identifier)
-    waiting(options[:nowait]) { 
+    waiting(options[:mandatory]) { 
     begin
       how = xpath?(identifier) ? :xpath : :css
       elements = @driver.find_elements(how => identifier)
@@ -128,7 +130,7 @@ class Driver
     return if identifiers.nil? || identifiers.empty?
     waiting { 
       identifiers.inject(nil) do |element, identifier|
-        element = find_element(identifier, nowait:true)
+        element = find_element(identifier)
         break element if element
         nil
       end
@@ -137,7 +139,7 @@ class Driver
 
   def find_elements_with_pattern pattern, options={}
     pattern = pattern.gsub(/^pattern:/, '')
-    waiting(options[:nowait]) { 
+    waiting(options[:mandatory]) { 
     begin
       ["a", "input", "button", "span", "td"].each do |tag|
         ["text()", "@id", "@name", "@class", "@value", "@title", "@href"].each do |attribute|
@@ -167,9 +169,9 @@ class Driver
     FileUtils.cp_r(PROFILE_PATH, @profile_path)
   end
   
-  def waiting nowait=false
+  def waiting wait=false
     attempts = 0
-    if nowait
+    unless wait
       yield
     else
       wait.until do 

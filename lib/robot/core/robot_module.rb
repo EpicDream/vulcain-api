@@ -68,6 +68,11 @@ module RobotCore
         opts ? robot.send(action, identifier, opts) : robot.send(action, identifier)
       end
     end
+
+    #Node MUST be present with MAction and action MUST be executed. Else exception.
+    def MAction action, key=nil, opts={}, &block
+      Action(action, key, opts.merge({mandatory:true}), &block)
+    end
     
     def Message msg, opts={}
       robot.message(msg, opts)

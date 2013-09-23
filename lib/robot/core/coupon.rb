@@ -9,9 +9,9 @@ module RobotCore
     end
     
     def insert
-      robot.has_coupon = robot.has_coupon || Action(:find_element, :coupon, nowait:true)
-      Action(:fill, :coupon, with:order.coupon, check:true)
-      Action(:click_on, :coupon_recompute, check:true)
+      robot.has_coupon = robot.has_coupon || Action(:find_element, :coupon)
+      Action(:fill, :coupon, with:order.coupon)
+      Action(:click_on, :coupon_recompute)
       Action(:wait)
       Action(:accept_alert)
     end
