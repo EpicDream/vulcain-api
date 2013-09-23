@@ -17,7 +17,6 @@ module RobotCore
     def open_url url
       return unless url
       @driver.get url
-      wait_for ["//body"]
     end
 
     def current_url
