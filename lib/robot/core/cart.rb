@@ -32,7 +32,7 @@ module RobotCore
       RobotCore::CartOptions.new.run
       RobotCore::Coupon.new(:CART).insert
       RobotCore::CartAmount.new().validate()
-      Action(:click_on, :submit)
+      MAction(:click_on, :submit)
       Action(:open_url, :after_submit_cart)
       raise RobotCore::VulcainError.new(:out_of_stock) if out_of_stock?
       true
@@ -41,8 +41,8 @@ module RobotCore
     def open
       Action(:open_url, :cart) or Action(:click_on, :button)
       Action(:wait_for, [:submit, :empty_message])
-      Action(:click_on, :popup, check:true)
-      Action(:click_on, :submit) if two_steps_cart?
+      Action(:click_on, :popup)
+      MAction(:click_on, :submit) if two_steps_cart?
       Action(:wait_for, [:line, :empty_message])
     end
     
@@ -54,7 +54,7 @@ module RobotCore
     end
     
     def two_steps_cart?
-      !Action(:find_elements, :line, nowait:true)
+      !Action(:find_elements, :line)
     end
     
     def remove_all_items
@@ -68,7 +68,7 @@ module RobotCore
         }
       when Action(:exists?, :line)
         Action(:fill_all, :quantity, with:0)
-        Action(:click_on, :update)
+        MAction(:click_on, :update)
       else
       end
     end
@@ -86,7 +86,7 @@ module RobotCore
       if Action(:exists?, :offers)
         best_offer.call
       else
-        Action(:click_on, :add)
+        MAction(:click_on, :add)
       end
       RobotCore::CartOptions.new.run
       Action(:wait, 4)

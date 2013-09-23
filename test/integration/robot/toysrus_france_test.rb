@@ -47,7 +47,7 @@ class ToysrusFranceTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new do
-      elements = robot.find_elements('//tr[@class="orderItem"]', nowait:true) || []
+      elements = robot.find_elements('//tr[@class="orderItem"]') || []
       assert_equal 0, elements.count
     end
     products = [{url:PRODUCT_URL_1, quantity:1}]

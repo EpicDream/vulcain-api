@@ -87,7 +87,7 @@ class CdiscountTest < StrategyTest
     @context['order']['credentials']['number'] = '501290129019201'
     @robot.context = @context
     
-    run_spec("validate order", [{url:PRODUCT_URL_1, quantity:1}])
+    run_spec("validate order", [{url:PRODUCT_URL_10, quantity:1}])
   end
 
   test "handle out of stock (click on 'Passer la commande' has no action even manually)" do

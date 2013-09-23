@@ -39,7 +39,7 @@ module RobotCore
     def exists? identifier
       return false unless identifier
       return true if identifier.is_a?(Selenium::WebDriver::Element)
-      element = @driver.find_element(identifier, nowait:true)
+      element = @driver.find_element(identifier)
       !!element && element.displayed?
     end
     
@@ -54,7 +54,7 @@ module RobotCore
     def find_first_element_in identifiers, options={}
       index = options[:start_index] || 0
       identifiers.each do |identifier|
-        element = @driver.find_element(identifier, nowait:true, index:index)
+        element = @driver.find_element(identifier, index:index)
         return element if element
       end
       nil
@@ -67,7 +67,9 @@ module RobotCore
     end
 
     def click_on identifier, opts={}
-      return if !identifier.is_a?(Selenium::WebDriver::Element) && opts[:check] && !exists?(identifier)
+      unless opts[:mandatory] || identifier.is_a?(Selenium::WebDriver::Element)
+        return if !exists?(identifier)
+      end
       attempts = 0
       begin
         element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
@@ -112,7 +114,9 @@ module RobotCore
     end
 
     def fill identifier, args={}
-      return false if !identifier.is_a?(Selenium::WebDriver::Element) && args[:check] && !exists?(identifier)
+      unless args[:mandatory] || identifier.is_a?(Selenium::WebDriver::Element)
+        return false if !exists?(identifier)
+      end
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       input ||= @driver.find_element(identifier)
       input.clear
@@ -130,7 +134,7 @@ module RobotCore
     def select_option identifier, opts={}
       select = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       select ||= @driver.find_element(identifier)
-      return if opts[:check] && !select
+      return if !opts[:mandatory] && !select
       @driver.select_option(select, opts[:value].to_s)
     end
 
@@ -161,7 +165,7 @@ module RobotCore
     end
     
     def checked? identifier
-      return unless element = find_element(identifier, nowait:true)
+      return unless element = find_element(identifier)
       element.selected?
     end
     

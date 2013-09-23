@@ -42,7 +42,7 @@ class DriverTest < ActiveSupport::TestCase
   
   test "find element nowait" do
     xpath = '//*[@id="dropdown_selected_size_name"]'
-    assert select = @driver.find_element(xpath, nowait:true)
+    assert select = @driver.find_element(xpath)
   end
   
   test "click on" do
