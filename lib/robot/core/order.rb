@@ -16,13 +16,13 @@ module RobotCore
       Action(:wait_for, [:submit, :access, [:SHIPMENT, :submit_packaging]])
       
       success = shipping.submit_packaging
-      raise RobotCore::VulcainError.new(:no_delivery) unless success 
+      Terminate(:no_delivery) and return unless success 
       
       payment ||= RobotCore::Payment.new
       payment.access
       
       RobotCore::Billing.new.build
-      raise RobotCore::VulcainError.new(:no_billing) if robot.billing.nil?
+      Terminate(:no_billing) and return if robot.billing.nil?
       robot.assess
     end
     
@@ -32,7 +32,7 @@ module RobotCore
       
       unless payment.succeed?
         RobotCore::CreditCard.new.remove
-        raise RobotCore::VulcainError.new(:order_validation_failed) 
+        Terminate(:order_validation_failed) and return 
       end
       
       RobotCore::CreditCard.new.remove

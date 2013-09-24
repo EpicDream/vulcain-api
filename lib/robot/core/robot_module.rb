@@ -89,5 +89,9 @@ module RobotCore
       robot.page_source
     end
     
+    def Terminate msg
+      Robot.instance.terminate_on_error(msg)
+    end
+    
   end
 end

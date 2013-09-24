@@ -11,7 +11,7 @@ module RobotCore
       2.times { decaptchatize }
       login
       submit
-      raise RobotCore::VulcainError.new(:login_failed) if fails?
+      Terminate(:login_failed) and return if fails?
       Message(:logged, :next_step => 'empty cart')
     end
     

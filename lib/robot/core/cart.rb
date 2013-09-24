@@ -15,7 +15,7 @@ module RobotCore
         next unless file.exists?
         add_to_cart(product)
       end
-      raise RobotCore::VulcainError.new(:no_product_available) if products.empty?
+      Terminate(:no_product_available) and return if products.empty?
       RobotCore::Quantities.new.set
       Message(:cart_filled, :next_step => 'finalize order')
     end
@@ -23,7 +23,7 @@ module RobotCore
     def empty opts={}
       products = []
       remove_all_items
-      raise RobotCore::VulcainError.new(:cart_not_emptied) unless emptied?
+      Terminate(:cart_not_emptied) and return unless emptied?
       Message(:cart_emptied, :next_step => opts[:next_step] || 'add to cart')
     end
     
@@ -34,7 +34,7 @@ module RobotCore
       RobotCore::CartAmount.new().validate()
       MAction(:click_on, :submit)
       Action(:open_url, :after_submit_cart)
-      raise RobotCore::VulcainError.new(:out_of_stock) if out_of_stock?
+      Terminate(:out_of_stock) and return if out_of_stock?
       true
     end
     

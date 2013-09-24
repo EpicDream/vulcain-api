@@ -28,7 +28,7 @@ module RobotCore
     end
     
     def address
-      raise RobotCore::VulcainError.new(:unmanaged_country) if unmanaged_country?
+      Terminate(:unmanaged_country) and return if unmanaged_country?
       
       properties = user.address.marshal_dump.keys
       properties.each do |property|

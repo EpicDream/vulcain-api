@@ -11,7 +11,7 @@ module RobotCore
       login
       Action(:wait)
       
-      raise RobotCore::VulcainError.new(:account_creation_failed) if still_login_step?
+      Terminate(:account_creation_failed) and return if still_login_step?
       Address.new.fill_using(:REGISTER)
 
       phone
@@ -23,7 +23,7 @@ module RobotCore
       submit
       submit_options
       
-      raise RobotCore::VulcainError.new(:account_creation_failed) if fails? && !submit_with_new_pseudonym
+      Terminate(:account_creation_failed) and return if fails? && !submit_with_new_pseudonym
       Message(:account_created, :next_step => 'renew login')
     end
     
