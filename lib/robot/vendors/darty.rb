@@ -46,6 +46,7 @@ module DartyConstants
     empty_message:'//*[@id="contentColOne"]',
     submit: '//*[@id="newbottomFinishButton"]',
     line:'//table[@class="dataPanier"]//td//select/ancestor::tr[1]',
+    title:'.//*[@class="nomPdt"]',
     quantity:'.//select',
     total_line:'//td[@class="somme"]/p[@class="nomPdt"]',
     empty_message_match: /Votre panier est actuellement vide/i,

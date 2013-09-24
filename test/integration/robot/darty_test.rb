@@ -69,6 +69,14 @@ class DartyTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "add to cart with n products and m quantities" do
+    expected_products = []
+    billing = {}
+    products = [{url:PRODUCT_URL_3, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "finalize order with quantity exceed disponibility" do
     expected_products = [{"price_text"=>"39,90 € ", "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>nil, "expected_quantity"=>100, "quantity"=>10}]
     billing = {:shipping=>0, :total=>399.0, :shipping_info=>"Livraison par Colissimo :\nEntre le Jeu. 12/09 et le Sam. 14/09"}

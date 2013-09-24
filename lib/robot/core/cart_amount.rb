@@ -15,7 +15,7 @@ module RobotCore
     private
     
     def cart_amount
-      if Action(:exists?, :total_line) 
+      unless Action(:exists?, :total) 
         totals = Action(:find_elements, :total_line)
         totals.inject(0) { |sum, total| sum += (Price(total) || 0)}
       else
