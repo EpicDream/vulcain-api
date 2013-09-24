@@ -24,12 +24,14 @@ module RobotCore
       products << product
     end
     
-    def update_with price_text, shipping_text
+    def update_from_vendor_offer
+      shipping_text = Action(:get_text, :offer_shipping_text)
       product = products.last
-      product['price_text'] = price_text
-      product['price_product'] = PRICES_IN_TEXT.(price_text).first
+      product['price_text'] = Action(:get_text, :offer_price_text)
+      product['eco_part'] = Price(:eco_part).to_f
+      product['price_product'] = Price(:offer_price_text) + product['eco_part']
       unless shipping_text =~ /Livraison gratuite . partir/i
-        product['price_delivery'] = PRICES_IN_TEXT.(shipping_text).first
+        product['price_delivery'] = Price(:offer_shipping_text)
       else
         product['price_delivery'] = 0
       end

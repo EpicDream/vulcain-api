@@ -72,7 +72,8 @@ module PriceMinisterConstants
   }
   
   CART = {
-    add:'//div[@class="add_cart"][1]//button/span/span | //div[@id="add_cart_btn"]/button',
+    add:'//div[@class="addToCart"]//form//button[@type="submit"]',
+    add_offer:'//div[@class="add_cart"][1]//button/span/span | //div[@id="add_cart_btn"]/button',
     offers:'//a[@class="filter10"]',
     button:nil,
     line:'//div[@class="pm_ctn seller_package"]',
@@ -170,23 +171,7 @@ class PriceMinister
   end
   
   def instanciate_robot
-    Robot.new(@context) do
-      step('add to cart') do
-        cart = RobotCore::Cart.new
-        cart.best_offer = Proc.new {
-          if exists?(CART[:offers])
-            click_on CART[:offers]
-            wait_ajax
-            offer_price_text = get_text PRODUCT[:offer_price_text]
-            offer_shipping_text = get_text PRODUCT[:offer_shipping_text]
-            RobotCore::Product.new.update_with(offer_price_text, offer_shipping_text)
-          end
-          click_on CART[:add]
-          
-        }
-        cart.fill
-      end
-    end
+    Robot.new(@context) {}
   end
   
 end

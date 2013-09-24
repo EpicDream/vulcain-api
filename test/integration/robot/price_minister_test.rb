@@ -72,8 +72,8 @@ class PriceMinisterTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"1,50 €", "eco_part"=>0.0, "product_title"=>"Le Pire Du Morning Live 2 (Suite Et Fin)", "product_image_url"=>"http://pmcdn.priceminister.com/photo/Le-Pire-Du-Morning-Live-2-DVD-Zone-2-876810421_ML.jpg", "price_product"=>1.5, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/58876592/Le-Pire-Du-Morning-Live-2-DVD-Zone-2.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}, {"price_text"=>"12,34 €", "eco_part"=>0.0, "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>12.34, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
-    billing = {:shipping=>5.8, :total=>19.64, :shipping_info=>"Pour une livraison en France"}
+    expected_products = [{"price_text"=>"1,50 €", "eco_part"=>0.0, "product_title"=>"Le Pire Du Morning Live 2 (Suite Et Fin)", "product_image_url"=>"http://pmcdn.priceminister.com/photo/Le-Pire-Du-Morning-Live-2-DVD-Zone-2-876810421_ML.jpg", "price_product"=>1.5, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/58876592/Le-Pire-Du-Morning-Live-2-DVD-Zone-2.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}, {"price_text"=>"9,90 €", "eco_part"=>0.0, "product_title"=>"Skyfall - Blu-Ray", "product_image_url"=>"http://pmcdn.priceminister.com/photo/skyfall-blu-ray-de-sam-mendes-956962520_ML.jpg", "price_product"=>9.9, "price_delivery"=>2.9, "url"=>"http://www.priceminister.com/offer/buy/188963705/skyfall-blu-ray-de-sam-mendes.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
+    billing = {:shipping=>5.8, :total=>17.2, :shipping_info=>"Pour une livraison en France"}
     products = [{url:PRODUCT_URL_6, quantity:1}, {url:PRODUCT_URL_1, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)

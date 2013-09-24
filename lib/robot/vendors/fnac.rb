@@ -46,10 +46,9 @@ module FnacConstants
   
   CART = {
     add:'//div[@class="faHeadRight"]/div/div/a',
-    # validate: '//*[@id="popinArticleJustAdded"]/div[3]/a[2]',
     offers:'pattern:Neuf',
-    remove_item:'pattern:Supprimer',
     add_offer: 'pattern:Ajout au panier',
+    remove_item:'pattern:Supprimer',
     cgu:'//*[@id="ChkCgv"] | //*[@id="OPControl1_ctl00_CheckBoxCGV"]',
     cgu_submit:'//*[@id="btnOcbContinue"]',
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
@@ -110,19 +109,6 @@ class Fnac
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('add to cart') do
-        cart = RobotCore::Cart.new
-        cart.best_offer = Proc.new {
-          click_on CART[:offers]
-          offer_price_text = get_text PRODUCT[:offer_price_text]
-          offer_shipping_text = get_text PRODUCT[:offer_shipping_text]
-          RobotCore::Product.new.update_with(offer_price_text, offer_shipping_text)
-          click_on CART[:add_offer]
-        }
-        cart.fill
-      end
-      
     end
   end
 end

@@ -18,7 +18,7 @@ module RobotCore
     private
     
     def shipping_from_products
-      products.inject(0) { |total, product| total += product["price_delivery"] }
+      products.inject(0) { |total, product| total += product["price_delivery"].to_f }
     end
     
     def build?

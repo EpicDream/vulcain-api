@@ -84,7 +84,10 @@ module RobotCore
       RobotCore::Product.new.build
       Action(:wait)
       if Action(:exists?, :offers)
-        best_offer.call
+        MAction(:click_on, :offers)
+        Action(:wait)
+        RobotCore::Product.new.update_from_vendor_offer
+        MAction(:click_on, :add_offer)
       else
         MAction(:click_on, :add)
       end

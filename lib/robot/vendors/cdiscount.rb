@@ -50,10 +50,8 @@ module CdiscountConstants
   
   CART = {
     add:'//*[@id="fpAddToBasket"]',
-    offers:'//*[@id="AjaxOfferTable"]',
-    extra_offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
-    add_from_vendor: "pattern:AddToBasketButtonOffer",
-    steps:'//*[@id="masterCart"]',
+    offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
+    add_offer:'button[id^=AddToBasketButtonOffer]',
     line:'tbody.border',
     quantity:'.//td[@class="quantity txtGen"]/select',
     quantity_exceed:'//td[@class="basketLineError"]',
@@ -67,8 +65,10 @@ module CdiscountConstants
   }
   
   PRODUCT = {
+    offer_price_text:'//*[@id="OfferList"]/div[1]//div[@class="priceContainer"]',
+    offer_shipping_text:nil,
     eco_part:'//*[@id="OfferList"]/div[1]//div[@class="EcoPartStd003"]/span[1] | //*[@id="fpBlocPrice"]/div[@class="fpEcoTaxe"]',
-    price_text:'//*[@id="OfferList"]/div[1]//div[@class="priceContainer"] | //div[@class="price priceXL"]',
+    price_text:'//div[@class="price priceXL"]',
     title:'//*[@id="fpBlocProduct"]/h1 | //div[@class="MpProductContentDesc"]',
     image:'//*[@id="fpBlocProduct"]/div[1]/a/img | //span[@class="MpProductContentLeft"]//img'
   }
@@ -109,18 +109,7 @@ class Cdiscount
   end
   
   def instanciate_robot
-    Robot.new(@context) do
-
-      step('add to cart') do
-        cart = RobotCore::Cart.new
-        cart.best_offer = Proc.new {
-          click_on CART[:add_from_vendor]
-          wait_ajax 4
-        }
-        cart.fill
-      end
-      
-    end 
+    Robot.new(@context) {}
   end
   
 end

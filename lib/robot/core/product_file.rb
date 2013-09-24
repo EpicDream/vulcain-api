@@ -11,7 +11,6 @@ module RobotCore
     def open
       robot.open_url @product.url
       Action(:click_on, :popup)
-      Action(:click_on, :extra_offers)#A virer , unique à CDISCOUNT faire autrement
       @exists = Action(:wait_for, [:add, :offers]) {}
     end
     
