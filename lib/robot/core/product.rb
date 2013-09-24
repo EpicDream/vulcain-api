@@ -11,7 +11,7 @@ module RobotCore
     def build
       product = Hash.new
       product['price_text'] = Action(:get_text, :price_text)
-      product['eco_part'] = Price(:eco_part)
+      product['eco_part'] = Price(:eco_part).to_f
       product['product_title'] = Action(:get_text, :title)
       product['product_image_url'] = Action(:image_url, :image)
       product['price_product'] = Price(:price_text) + product['eco_part']
