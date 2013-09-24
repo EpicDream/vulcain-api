@@ -81,7 +81,7 @@ module RobotCore
     def Price key, opts={}
       identifier = key.is_a?(Symbol) ? self.dictionary[key] : key
       
-      PRICES_IN_TEXT.(robot.get_text identifier, opts).first.to_f
+      PRICES_IN_TEXT.(robot.get_text identifier, opts).first
     end
     
     def Screenshot
