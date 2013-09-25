@@ -1,7 +1,7 @@
 module RobotCore
   class CartLine < RobotModule
   
-    attr_accessor :product, :index, :title, 
+    attr_accessor :product, :index, :title
   
     def initialize line
       super()
@@ -30,7 +30,6 @@ module RobotCore
     def self.all
       robot = Robot.instance
       lines = robot.find_elements(robot.vendor::CART[:line]) || []
-      # lines.reverse! if robot.vendor::CART[:inverse_order]
       lines.map { |line| new(line)}
     end
   
@@ -81,7 +80,6 @@ module RobotCore
   
     def refresh #after change quantity page may be reloaded, result in stale elements
       lines = Action(:find_elements, :line) || []
-      # lines.reverse! if robot.vendor::CART[:inverse_order]
       @line = lines[self.index]
       @setter = quantity_setter()
       @value = quantity_value()

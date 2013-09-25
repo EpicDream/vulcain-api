@@ -11,6 +11,7 @@ module RobotCore
       
       products.each { |product|
         line, index = line_and_index_of(product)
+        Terminate(:cart_line_mapping_error) and return unless line
         line.index = index
         line.product = product
         next if line.quantity_cannot_be_set?
@@ -23,11 +24,13 @@ module RobotCore
     def line_and_index_of product
       lines = RobotCore::CartLine.all
       index = -1
-      
+
       return [lines.first, 0] if products.count.zero?
       line = lines.detect { |line|  
-        regexp = Regexp.escape(product['product_title'])
-        match = line.title =~ Regexp.new(regexp, true)
+        title_1 = product['product_title'].gsub(/\n/, ' ')
+        title_2 = line.title.gsub(/\n/, ' ')
+        match = title_1 =~ Regexp.new(Regexp.escape(title_2), Regexp::IGNORECASE)
+        match ||= title_2 =~ Regexp.new(Regexp.escape(title_1), Regexp::IGNORECASE)
         index += 1
         match
       }

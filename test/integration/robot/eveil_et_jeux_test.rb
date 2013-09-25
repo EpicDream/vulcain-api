@@ -43,6 +43,12 @@ class EveilEtJeuxTest < StrategyTest
     run_spec("add to cart", products, assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "empty cart" do
     assert = Proc.new do
       @robot.open_url EveilEtJeux::URLS[:cart]

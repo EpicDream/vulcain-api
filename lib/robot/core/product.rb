@@ -25,6 +25,7 @@ module RobotCore
     end
     
     def update_from_vendor_offer
+      Action(:wait_for, [:offer_price_text])
       shipping_text = Action(:get_text, :offer_shipping_text)
       product = products.last
       product['price_text'] = Action(:get_text, :offer_price_text)

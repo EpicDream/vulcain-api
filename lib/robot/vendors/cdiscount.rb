@@ -53,6 +53,7 @@ module CdiscountConstants
     offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_offer:'button[id^=AddToBasketButtonOffer]',
     line:'tbody.border',
+    title:'.//dd[@class="productName"]',
     quantity:'.//td[@class="quantity txtGen"]/select',
     quantity_exceed:'//td[@class="basketLineError"]',
     total:'//table[@class="tbBasket"]/tfoot//tr[@class="totalPrice"]',
@@ -65,7 +66,7 @@ module CdiscountConstants
   }
   
   PRODUCT = {
-    offer_price_text:'//*[@id="OfferList"]/div[1]//div[@class="priceContainer"]',
+    offer_price_text:'//*[@id="OfferList"]//div[@class="priceContainer"]',
     offer_shipping_text:nil,
     eco_part:'//*[@id="OfferList"]/div[1]//div[@class="EcoPartStd003"]/span[1] | //*[@id="fpBlocPrice"]/div[@class="fpEcoTaxe"]',
     price_text:'//div[@class="price priceXL"]',

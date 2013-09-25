@@ -49,6 +49,12 @@ class AmazonTest < StrategyTest
     run_spec("empty cart", products, assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_URL_5, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "finalize order" do
     expected_products = [{"price_text"=>"EUR 107,99", "product_title"=>"SEB OF265800 Four Delice Compact Convection 24 L Noir", "product_image_url"=>"http://ecx.images-amazon.com/images/I/51ZiEbWyB3L._SY355_.jpg", "price_product"=>107.99, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/SEB-OF265800-Delice-Compact-Convection/dp/B003UD7ZQG/ref=sr_1_1?ie=UTF8&qid=1378981732&sr=8-1&keywords=SEB+OF265800+Four+Delice+Compact+Convection+24+L+Noir", "id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
     billing = {:shipping=>0.0, :total=>107.99, :shipping_info=>nil}

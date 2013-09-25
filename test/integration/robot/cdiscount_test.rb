@@ -59,6 +59,12 @@ class CdiscountTest < StrategyTest
     run_spec("add to cart", [{url:PRODUCT_URL_3, quantity:1}], assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_URL_5, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "finalize order" do
     expected_products = [{"price_text"=>"13\n€99", "eco_part"=>0.0, "product_title"=>"Tortues Ninja - Raphael - Figurine 12cm + access", "product_image_url"=>"http://i2.cdscdn.com/pdt2/5/0/5/1/300x300/gio5505/rw/tortues-ninja-raphael-figurine-12cm-access.jpg", "price_product"=>13.99, "price_delivery"=>nil, "url"=>"http://www.cdiscount.com/juniors/figurines/tortues-ninja-raphael-figurine-12cm-access/f-1206757-gio5505.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
     billing = {:shipping=>2.99, :total=>30.97, :shipping_info=>nil}

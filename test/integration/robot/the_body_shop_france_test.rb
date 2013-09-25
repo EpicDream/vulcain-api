@@ -54,6 +54,12 @@ class TheBodyShopFranceTest < StrategyTest
     run_spec("empty cart", products, assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "finalize order" do
     expected_products = [{"price_text"=>"28,00 €", "product_title"=>"EAU DE PARFUM WHITE MUSK®", "product_image_url"=>"http://www.thebodyshop.fr/images/packshot/products/large/11121m_l.jpg", "price_product"=>28.0, "price_delivery"=>nil, "url"=>"http://www.thebodyshop.fr/parfums/eaux-de-toilette-parfums/eau-de-parfum-white-musk.aspx", "id"=>nil}]
     billing = {:shipping=>0.0, :total=>42.0, :shipping_info=>"Livraison sous 6 à 10 jours ouvrables"}

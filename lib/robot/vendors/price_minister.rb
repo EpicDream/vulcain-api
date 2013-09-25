@@ -77,6 +77,7 @@ module PriceMinisterConstants
     offers:'//a[@class="filter10"]',
     button:nil,
     line:'//div[@class="pm_ctn seller_package"]',
+    title:'.//h3[@class="mf_hproduct"]',
     total_line:'//li[@class="price"]',
     quantity:nil,
     update:nil,

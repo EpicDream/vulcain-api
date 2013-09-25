@@ -69,6 +69,7 @@ module ZalandoFRConstants
     add:'//*[@id="addToCartBtn"]',
     button:nil,
     line:'//select[@name="quantity"]/ancestor::tr[1]',
+    title:'.//div[@class="articleBox"]/h4',
     total_line:'//td[@class="tPrice"]',
     quantity:'.//select[@name="quantity"]',
     update:nil,

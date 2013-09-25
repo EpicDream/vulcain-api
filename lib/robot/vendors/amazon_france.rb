@@ -49,8 +49,8 @@ module AmazonFranceConstants
   CART = {
     add:'//*[@id="bb_atc_button"]',
     remove_item:'pattern:Supprimer',
-    inverse_order:true,
     line:'//*[@id="item-block"]',
+    title:'.//span[@class="product-title"]',
     quantity:'.//input[@type="text"]',
     quantity_exceed:'//div[@class="update-quantity-message"]/img[@class="close-box"]',
     update:'.//div[@class="switch-position quantity"]/p[2]/a[1]',

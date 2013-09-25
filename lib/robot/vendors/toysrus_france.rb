@@ -59,6 +59,7 @@ module ToysrusFranceConstants
     remove_item: 'pattern:Supprimer',
     empty_message: '//*[@id="main"]',
     line:'//tr[@class="orderItem"]',
+    title:'.//div[@class="product-name"]',
     total_line:'//tr[@class="orderItem"]/td[@class="currency"][2]',
     quantity:'.//td[@class="qty"]/input',
     quantity_exceed:'//div[@class="error"]',
@@ -73,7 +74,7 @@ module ToysrusFranceConstants
   
   PRODUCT = {
     price_text:'//*[@id="price"]/dl/dd[@class="ours"]',
-    title:'//*[@id="price-review-age"]',
+    title:'//*[@id="price-review-age"]/h1',
     image:'//*[@id="curImageZoom"]'
   }
   

@@ -46,6 +46,12 @@ class FnacTest < StrategyTest
     run_spec("empty cart", products, assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_5_URL, quantity:2}, {url:PRODUCT_2_URL, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "finalize order" do
     expected_products = [{"price_text"=>"12,33€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.33, "price_delivery"=>nil, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil}, {"price_text"=>"32€", "product_title"=>"Donkey Kong Country Returns 3DS", "product_image_url"=>"http://multimedia.fnac.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/8/5/5/0045496523558.jpg", "price_product"=>32.0, "price_delivery"=>nil, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1", "id"=>nil}]
     billing = {:shipping=>6.28, :total=>50.61, :shipping_info=>nil}

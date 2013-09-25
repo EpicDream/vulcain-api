@@ -77,6 +77,7 @@ module RueDuCommerceConstants
     remove_option:'//a[@class="cartServiceRemove fR"]',
     submit: 'pattern:Finaliser ma commande',
     line:'//div[@class="cartProductDescription"]/ancestor::div[1]',
+    title:'.//span[@class="productName"]',
     total_line:'//span[@class="totalPrice"]',
     quantity:'.//input[@class="numberOfProduct"]',
     quantity_exceed:'//ul[@class="messages"]/li[@class="error"]',

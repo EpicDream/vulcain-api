@@ -46,6 +46,12 @@ class RueDuCommerceTest < StrategyTest
     run_spec("empty cart", products, assert)
   end
   
+  test "add to cart with n products and m quantities" do
+    products = [{url:PRODUCT_1_URL, quantity:2}, {url:PRODUCT_2_URL, quantity:3}]
+    
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
   test "delete product options" do
     assert = Proc.new { assert_equal 1, robot.find_elements(RueDuCommerce::CART[:remove_item]).count }
     products = [{url:PRODUCT_5_URL, quantity:1}]

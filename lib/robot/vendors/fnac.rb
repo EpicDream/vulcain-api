@@ -55,6 +55,7 @@ module FnacConstants
     submit_success: [LOGIN[:submit]],
     empty_message: '//*[@id="ShoppingCartDiv"]',
     line:'//tr[@class="borderedProduct"]',
+    title:'.//div[@class="productDesc"]',
     quantity:'.//input[@type="text"]',
     quantity_set:'.//input[@value="+"][last()]',
     quantity_exceed:'//div[@class="inError"]/span[1]',
