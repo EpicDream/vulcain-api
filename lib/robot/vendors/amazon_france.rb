@@ -178,6 +178,7 @@ class AmazonFrance
         unless self.skip_assess
           run_step('remove credit card')
           open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
+          wait_ajax 3
           fill LOGIN[:email], with:account.login, mandatory:true
           fill LOGIN[:password], with:account.password, mandatory:true
           click_on LOGIN[:submit], mandatory:true
