@@ -55,6 +55,7 @@ module RobotCore
     end
     
     def succeed?
+      Action(:wait, 10)
       Action(:wait_for, [:status]) {
         Screenshot()
         return false
