@@ -128,6 +128,7 @@ class AmazonTest < StrategyTest
     @context["order"]["coupon"] = "magic09"
     @context["order"]["credentials"]["voucher"] = "SZOO-0899"
     @robot.context = @context
+    @robot.expects(:terminate_on_error).with(:order_validation_failed)
     
     products = [{url:PRODUCT_URL_6, quantity:4}]
     run_spec('validate order', products)

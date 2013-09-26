@@ -193,25 +193,15 @@ class AmazonFrance
         wait_for [PAYMENT[:validate]]
         click_on vendor::PAYMENT[:validate], mandatory:true
         self.skip_assess = false
-        page = wait_for([vendor::PAYMENT[:status]]) do
-          screenshot
-          page_source
-          terminate_on_error(:failure)
+        
+        unless RobotCore::Payment.new.succeed?
+          RobotCore::CreditCard.new.remove
+          terminate_on_error(:order_validation_failed)
+        else
+          RobotCore::CreditCard.new.remove
+          terminate({ billing:self.billing })
         end
 
-        if page
-          screenshot
-          page_source
-          status = get_text vendor::PAYMENT[:status]
-          if status =~ vendor::PAYMENT[:succeed]
-            run_step('remove credit card')
-            terminate({ billing:self.billing})
-          else
-            run_step('remove credit card')
-            terminate_on_error(:failure)
-          end
-        end
-        
       end
       
     end
