@@ -1,6 +1,6 @@
 module RobotCore
   class Payment < RobotModule
-    
+    WAIT_SUCCESS_TIMEOUT = 15
     attr_accessor :access_payment
     
     def initialize
@@ -55,14 +55,20 @@ module RobotCore
     end
     
     def succeed?
-      Action(:wait, 10)
-      Action(:wait_for, [:status]) {
-        Screenshot()
-        return false
-      }
+      start = Time.now
+      success = false
+      
+      while (Time.now - start < WAIT_SUCCESS_TIMEOUT) && !success
+        begin
+          sleep 0.5
+          status = robot.get_text("//body")
+          success = !!(status =~ dictionary[:succeed])
+        rescue
+          retry if Time.now - start < WAIT_SUCCESS_TIMEOUT
+        end
+      end
       Screenshot()
-      status = Action(:get_text, :status)
-      !!(status =~ dictionary[:succeed])
+      success
     end
     
     private
