@@ -54,7 +54,7 @@ module FnacConstants
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
     empty_message: '//*[@id="ShoppingCartDiv"]',
-    line:'//tr[@class="borderedProduct"]',
+    line:'table.sousPanier>tbody>tr',
     title:'.//div[@class="productDesc"]',
     quantity:'.//input[@type="text"]',
     quantity_set:'.//input[@value="+"][last()]',

@@ -11,7 +11,8 @@ class FnacTest < StrategyTest
   PRODUCT_6_URL = "http://www.fnac.com/mp13051465/Machine-a-coudre-835-Sapphire-Husqvarna/w-4"
   PRODUCT_7_URL = "http://ad.zanox.com/ppc/?25134383C1552684717T&ULP=[[video.fnac.com%2Fa1772597%2FLa-Belle-et-le-Clochard-Edition-simple-DVD-Zone-2]]"
   PRODUCT_8_URL = "http://www4.fnac.com/Samsung-Galaxy-S3-Mini-i8190-Bleu-GadgetsInfinity/w-4/oref3a832154-673a-178f-4391-1ccbc8969db7"
-
+  PRODUCT_9_URL = "'http://www.fnac.com/WD-My-Passport-500-Go-Argent-USB-3-0-2-0/a4128439/w-4?ectrans=1&Origin=zanox1464273'"
+  
   setup do
     initialize_robot_for Fnac
   end
@@ -60,10 +61,10 @@ class FnacTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end  
   
-  test "finalize order with one product and quantity > 1" do
+  test "finalize order with one product and quantity equal 1" do
     expected_products = [{"price_text"=>"12,30€", "product_title"=>"Delta machine - Edition deluxe", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/7/2/3/0887654606327.jpg", "price_product"=>12.3, "price_delivery"=>2.39, "url"=>"http://musique.fnac.com/a5377201/Depeche-Mode-Delta-machine-Edition-deluxe-CD-album#bl=HGMUblo1", "id"=>nil, "expected_quantity"=>3, "quantity"=>3}, {"price_text"=>"39,90€", "product_title"=>"Donkey Kong Country Returns 3DS", "product_image_url"=>"http://static.fnac-static.com/multimedia/FR/Images_Produits/FR/fnac.com/Visual_Principal_340/8/5/5/0045496523558.jpg", "price_product"=>39.9, "price_delivery"=>0, "url"=>"http://jeux-video.fnac.com/a5858638/Donkey-Kong-Country-Returns-3D-Jeu-Nintendo-3DS#bl=HGACBAN1", "id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
     billing = {:shipping=>3.99, :total=>120.69, :shipping_info=>nil}
-    products = [{url:PRODUCT_1_URL, quantity:3}]
+    products = [{url:PRODUCT_9_URL, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end  
