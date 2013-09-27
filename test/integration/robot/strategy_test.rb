@@ -66,7 +66,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def add_to_cart products, assert=Proc.new{}
-    @message.expects(:message).times(6..16)
+    @message.expects(:message).times(0..16)
     @context['order']['products'] = products
     @robot.context = @context
     

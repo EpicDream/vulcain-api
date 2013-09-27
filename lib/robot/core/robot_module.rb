@@ -91,6 +91,7 @@ module RobotCore
     
     def Terminate msg
       Robot.instance.terminate_on_error(msg)
+      true
     end
     
   end

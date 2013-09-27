@@ -9,6 +9,7 @@ module RobotCore
     end
     
     def fill
+      Terminate(:single_quantity_only) and return if quantities_unhandled?
       while product = robot.next_product
         file = RobotCore::ProductFile.new(product)
         file.open
@@ -47,6 +48,11 @@ module RobotCore
     end
     
     private
+    
+    def quantities_unhandled?
+      return unless defined?(vendor::SINGLE_QUANTITY)
+      order.products.map(&:quantity).any? { |quantity| quantity > 1 }
+    end
     
     def out_of_stock?
       Action(:wait_for, [:submit_success]) { return true }

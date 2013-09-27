@@ -95,4 +95,12 @@ class PriceMinisterTest < StrategyTest
     run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_6, quantity:1}], has_coupon:true)
   end
   
+  test "terminate on error if any quantity is greater than one" do
+    assert = Proc.new {}
+    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:1}]
+    robot.expects(:terminate_on_error).with(:single_quantity_only)
+    
+    run_spec("add to cart", products, assert)
+  end
+  
 end
