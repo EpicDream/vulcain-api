@@ -1,9 +1,12 @@
+require 'syslog'
+
 class Log
   CR = "\n"
   RUNNING_MESSAGE = File.read("#{Rails.root}/lib/ascii-art-texts/started.txt")
   SYSLOG_FILE_PATH = "/var/log/vulcain-dispatcher/vulcain-dispatcher.log"
   include MongoMapper::Document
   timestamps!
+  Syslog.open unless Syslog.opened?
   
   scope :crashes, ->(_) { where(:verb => 'failure')}
   scope :since, ->(since) { where(:created_at.gte => since) }
@@ -37,8 +40,8 @@ class Log
     console ? head + log : log
   end
   
-  def self.syslog data #TODO : utiliser ruby stdlib Syslog
-    File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{Time.now} #{data}\n") }
+  def self.syslog data
+    Syslog.log(Syslog::LOG_INFO, "VulcainApi=#{data}".gsub(/%/, '%%')) rescue nil
   end
   
   def self.skip? data
