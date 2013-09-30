@@ -120,6 +120,7 @@ module RobotCore
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       input ||= @driver.find_element(identifier)
       input.clear
+      sleep 0.5
       input.send_key args[:with]
     end
     
