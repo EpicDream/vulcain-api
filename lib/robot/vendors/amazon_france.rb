@@ -136,7 +136,6 @@ class AmazonFrance
               click_on PAYMENT[:coupon_recompute], mandatory:true
               wait_ajax 5
             end
-            # click_on '//a[@data-value="7"]'
             order.credentials.number = "4561110175016641"
             order.credentials.holder = "M ERIC LARCHEVEQUE"
             order.credentials.exp_month = 2

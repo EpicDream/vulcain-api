@@ -17,9 +17,9 @@ module RobotCore
     PRICES_IN_TEXT = lambda do |text| 
       break [] unless text
       text.gsub!(/\n/, ' ')
-      text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map do |price| 
+      text.scan(/(EUR\s+\d+(?:,\d+)?)|(\d+.*?[,\.€]+\s*\d*\s*€*)/).flatten.compact.map { |price| 
         price.gsub(/\s/, '').gsub(/[,€]/, '.').gsub(/EUR/, '').to_f
-      end
+      }
     end
     
     BIRTHDATE_AS_STRING = lambda do |birthdate|
@@ -47,14 +47,7 @@ module RobotCore
       when :wait then robot.wait_ajax(key || 2)
       when :click_on_radio then robot.click_on_radio(key, opts)
       when :wait_for, :click_on_all
-        keys = key.map { |k| 
-          if k.is_a?(Symbol)
-            self.dictionary[k]
-          else
-            dic = Object.const_get(self.vendor.to_s).const_get(k[0])
-            dic[k[1]]
-          end
-        }.flatten
+        keys = key.map { |k| k.is_a?(Symbol) ? self.dictionary[k] : Object.const_get(self.vendor.to_s).const_get(k[0])[k[1]]}.flatten
         if block_given?
           robot.send(action, keys, &block)
         else
