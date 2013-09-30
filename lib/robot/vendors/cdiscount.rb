@@ -52,7 +52,7 @@ module CdiscountConstants
     add:'//*[@id="fpAddToBasket"]',
     offers:'//div[@id="fpBlocPrice"]//span[@class="href underline"]',
     add_offer:'button[id^=AddToBasketButtonOffer]',
-    line:'tbody.border',
+    line:'//div[@class="cartContent"]/table/tbody[@class="border"]',
     title:'.//dd[@class="productName"]',
     quantity:'.//td[@class="quantity txtGen"]/select',
     quantity_exceed:'//td[@class="basketLineError"]',
