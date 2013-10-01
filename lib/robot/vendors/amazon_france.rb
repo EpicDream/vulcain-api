@@ -76,8 +76,8 @@ module AmazonFranceConstants
   }
   
   PAYMENT = {
-    remove: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
-    remove_confirmation: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input',
+    remove: '//img[@alt="Supprimer"]/ancestor::a[1]',
+    remove_confirmation: '//input[@name="confirmDelete"]',
     remove_must_match:/Vous n'avez actuellement aucun mode de paiement/i,
     access: '//*[@id="continue-top"]',
     invoice_address: 'div.ship-to-this-address span a',

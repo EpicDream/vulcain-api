@@ -10,8 +10,10 @@ module RobotCore
       return if cannot_be_removed?
       access_form
       RobotCore::Login.new.relog
+      Action(:wait)
       Action(:click_on, :remove, ajax:true)
       Action(:accept_alert)
+      Action(:wait)
       Action(:click_on, :remove_confirmation)
       Action(:wait)
       robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }
