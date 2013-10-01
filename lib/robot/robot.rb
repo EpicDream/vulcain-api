@@ -113,14 +113,12 @@ class Robot
     messager.admin.message(:failure)
     messager.logging.message(:failure, {error_message:error_type})
     
-    EventMachine.add_timer(1) {
-      if @driver
-        screenshot
-        page_source
-        @driver.quit
-      end
-      exit
-    }
+    if @driver
+      screenshot
+      page_source
+      @driver.quit
+    end
+    exit
   end
   
   def assert error_type=:assert_failure, &block
