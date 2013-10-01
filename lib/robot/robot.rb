@@ -117,6 +117,7 @@ class Robot
       page_source
       @driver.quit
     end
+    raise "Vulcain Terminate On Error"
   end
   
   def assert error_type=:assert_failure, &block
