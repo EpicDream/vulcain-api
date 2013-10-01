@@ -112,12 +112,15 @@ class Robot
     messager.dispatcher.message(:failure, {status:error_type})
     messager.admin.message(:failure)
     messager.logging.message(:failure, {error_message:error_type})
-    if @driver
-      screenshot
-      page_source
-      @driver.quit
-    end
-    raise "Vulcain Terminate On Error"
+    
+    EventMachine.add_timer(1) {
+      if @driver
+        screenshot
+        page_source
+        @driver.quit
+      end
+      exit
+    }
   end
   
   def assert error_type=:assert_failure, &block
