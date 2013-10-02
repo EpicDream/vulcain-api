@@ -21,6 +21,7 @@ module RobotCore
     end
     
     def select
+      Action(:wait)
       MAction(:click_on, :credit_card)
       Action(:wait)
       

@@ -46,6 +46,7 @@ module RobotCore
       MAction(:select_option, :exp_month, value:order.credentials.exp_month)
       MAction(:select_option, :exp_year, value:order.credentials.exp_year)
       MAction(:fill, :cvv, with:order.credentials.cvv)
+      Action(:fill, :email, with:account.login) #yes they can!
       Action(:click_on, :option)
       MAction(:click_on, :submit)
       Action(:wait_leave, :submit)
