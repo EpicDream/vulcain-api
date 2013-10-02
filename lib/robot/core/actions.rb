@@ -120,8 +120,11 @@ module RobotCore
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       input ||= @driver.find_element(identifier)
       input.clear
-      sleep 0.5
-      input.send_key args[:with]
+      10.times do #hackfuck, should not have to do that
+        input.send_key args[:with].to_s
+        break if input["value"] == args[:with].to_s
+        wait_ajax 0.5
+      end
     end
     
     def fill_all identifier, args={}
