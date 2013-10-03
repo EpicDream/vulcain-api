@@ -43,7 +43,7 @@ module RobotCore
         Terminate(:order_validation_failed)
       else
         RobotCore::CreditCard.new.remove
-        Robot.instance.terminate({ billing:self.billing })
+        robot.terminate({ billing:robot.billing })
       end      
     end
     
