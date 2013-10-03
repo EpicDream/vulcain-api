@@ -1,10 +1,8 @@
 module RobotCore
   class Cart < RobotModule
-    attr_accessor :best_offer
     
     def initialize
       super
-      @best_offer = Proc.new{}
       set_dictionary(:CART)
     end
     

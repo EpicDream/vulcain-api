@@ -13,12 +13,7 @@ class Robot
   attr_accessor :skip_assess, :has_coupon
   
   def initialize context, &block
-    begin
-      @driver = Driver.new(context[:options] || {})
-    rescue
-      terminate_on_error :driver_failed
-    end
-    
+    @driver = Driver.new(context[:options] || {}) rescue nil
     @block = block
     self.context = context
     @next_step = nil
@@ -46,7 +41,11 @@ class Robot
   end
 
   def run
-    run_step('run')
+    unless @driver
+      terminate_on_error(:driver_instanciation_failure)
+    else
+      run_step('run')
+    end
   end
   
   def crawl
@@ -113,9 +112,13 @@ class Robot
     messager.dispatcher.message(:failure, {status:error_type})
     messager.admin.message(:failure)
     messager.logging.message(:failure, {error_message:error_type})
-    screenshot
-    page_source
-    @driver.quit
+    
+    if @driver
+      screenshot
+      page_source
+      @driver.quit
+    end
+    exit
   end
   
   def assert error_type=:assert_failure, &block

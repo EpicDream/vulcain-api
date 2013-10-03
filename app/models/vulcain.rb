@@ -8,6 +8,10 @@ class Vulcain
     end
   end
   
+  def suicide
+    `kill -2 #{self.pid}`
+  end
+  
   def start session
     @idle = false
     @uuid = session['uuid']

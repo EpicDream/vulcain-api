@@ -9,7 +9,8 @@ module AmazonFranceConstants
     login:'https://www.amazon.fr/ap/signin/277-9087248-8119314?_encoding=UTF8&openid.assoc_handle=frflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.fr%2Fgp%2Fcss%2Fhomepage.html%3Fie%3DUTF8%26ref_%3Dgno_yam_ya',
     logout:'http://www.amazon.fr/gp/flex/sign-out.html/ref=gno_signout?ie=UTF8&action=sign-out&path=%2Fgp%2Fyourstore%2Fhome&signIn=1&useRedirectOnSuccess=1',
     payments:'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments',
-    cart:'http://www.amazon.fr/gp/cart/view.html/ref=gno_cart'
+    cart:'http://www.amazon.fr/gp/cart/view.html/ref=gno_cart',
+    shipping:"https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
   }
   
   REGISTER = {
@@ -75,8 +76,8 @@ module AmazonFranceConstants
   }
   
   PAYMENT = {
-    remove: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[4]/a[1]',
-    remove_confirmation: '//html/body/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/b/input',
+    remove: '//img[@alt="Supprimer"]/ancestor::a[1]',
+    remove_confirmation: '//input[@name="confirmDelete"]',
     remove_must_match:/Vous n'avez actuellement aucun mode de paiement/i,
     access: '//*[@id="continue-top"]',
     invoice_address: 'div.ship-to-this-address span a',
@@ -90,13 +91,22 @@ module AmazonFranceConstants
     status: '//*[@id="thank-you-header"] | //div[@id="content"]',
     succeed: /votre\s+commande\s+a\s+été\s+passée/i,
     coupon:'//*[@id="gcpromoinput"]',
-    coupon_recompute:'//*[@id="gcpromo"]//input[@type="button"] | //*[@id="button-add-gcpromo"]'
+    coupon_recompute:'//*[@id="gcpromo"]//input[@type="button"] | //*[@id="button-add-gcpromo"]',
   }
   
 end
 
 class AmazonFrance
   include AmazonFranceConstants
+  SPECIFIC = {
+    balance:'//tr[@paymentmethodid="availablebalance"]',
+    coupon_show_link:'//*[@id="wrapper-new-gc"]/div[1]/a',
+    credit_card_show_link:'//*[@id="add-credit-card"] | //*[@id="ccAddCard"]',
+    expires_buttons:'//div[@class="field-span pay-date-width"]//button',
+    expires_options: lambda { |index| "//ul[@id='#{index + 1}_dropdown_combobox']//li[@role='option'][3]/a"  },
+    no_thanks_button:'div.prime-nothanks-button',
+    new_cc:'//*[@id="new-cc"]//input[@type="button"]',
+  }
   
   attr_accessor :context, :robot
   
@@ -108,102 +118,15 @@ class AmazonFrance
   
   def instanciate_robot
     Robot.new(@context) do
-      
-      step('check balance') do
-        balance = false
-        if exists? '//tr[@paymentmethodid="availablebalance"]'
-          text = get_text '//tr[@paymentmethodid="availablebalance"]'
-          balance = !!(text =~ /Utilisez.*EUR\s+\d.*/)
-        end
-        balance
-      end
-      
+
       step('finalize order') do
-        payment = RobotCore::Payment.new
-        payment.access_payment = Proc.new {
-          wait_for([PAYMENT[:coupon]])
-          wait_ajax 5
-          balance = run_step('check balance')
-          
-          if balance
-            self.skip_assess = true
-            click_on PAYMENT[:access], mandatory:true
-          else
-            self.has_coupon = !!find_element(PAYMENT[:coupon])
-            if order.coupon
-              click_on '//*[@id="wrapper-new-gc"]/div[1]/a'
-              fill PAYMENT[:coupon], with:order.coupon, mandatory:true
-              click_on PAYMENT[:coupon_recompute], mandatory:true
-              wait_ajax 5
-            end
-            order.credentials.number = "4561110175016641"
-            order.credentials.holder = "M ERIC LARCHEVEQUE"
-            order.credentials.exp_month = 2
-            order.credentials.exp_year = 2017
-            order.credentials.cvv = "123"
-            click_on '//*[@id="add-credit-card"] | //*[@id="ccAddCard"]'
-            wait_ajax 5
-            if RobotCore::Payment.new.checkout
-              buttons = find_elements('//div[@class="field-span pay-date-width"]//button') || []
-              if buttons.any?
-                buttons.each_with_index do |button, index|
-                  click_on button
-                  wait_ajax
-                  option = find_element("//ul[@id='#{index + 1}_dropdown_combobox']//li[@role='option'][3]/a")
-                  click_on option
-                  wait_ajax
-                end
-                click_on vendor::PAYMENT[:submit], mandatory:true
-              end
-              no_thanks_button = 'div.prime-nothanks-button'
-              click_on '//*[@id="new-cc"]//input[@type="button"]'
-              wait_ajax
-              click_on PAYMENT[:access], mandatory:true
-              wait_for [PAYMENT[:validate], PAYMENT[:invoice_address]]
-              wait_ajax
-              click_on PAYMENT[:invoice_address]
-              wait_for [PAYMENT[:validate], no_thanks_button]
-              click_on no_thanks_button
-              wait_for [PAYMENT[:validate]]
-              wait_ajax 5
-            end
-          end
-        }
-        
-        RobotCore::Order.new.finalize(payment)
+        RobotCore::AmazonPayment.new.finalize
       end
       
       step('validate order') do
-        unless self.skip_assess
-          run_step('remove credit card')
-          open_url "https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
-          wait_ajax 3
-          fill LOGIN[:email], with:account.login, mandatory:true
-          fill LOGIN[:password], with:account.password, mandatory:true
-          click_on LOGIN[:submit], mandatory:true
-          wait_ajax 5
-          click_on '//*[@id="wrapper-new-gc"]/div[1]/a'
-          fill PAYMENT[:coupon], with:order.credentials.voucher, mandatory:true
-          click_on PAYMENT[:coupon_recompute], mandatory:true
-          wait_ajax 5
-          click_on PAYMENT[:access], mandatory:true
-        end
-        
-        wait_for [PAYMENT[:validate]]
-        click_on vendor::PAYMENT[:validate], mandatory:true
-        self.skip_assess = false
-        
-        unless RobotCore::Payment.new.succeed?
-          RobotCore::CreditCard.new.remove
-          terminate_on_error(:order_validation_failed)
-        else
-          RobotCore::CreditCard.new.remove
-          terminate({ billing:self.billing })
-        end
-
+        RobotCore::AmazonPayment.new.validate
       end
       
     end
   end
-  
 end

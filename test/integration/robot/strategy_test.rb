@@ -47,7 +47,7 @@ class StrategyTest < ActiveSupport::TestCase
     @message.expects(:message).times(1)
     robot.expects(:terminate_on_error).with(:login_failed)
     
-    assert_raise(RobotCore::VulcainError) { robot.run_step('login') }
+    robot.run_step('login')
   end
   
   def logout

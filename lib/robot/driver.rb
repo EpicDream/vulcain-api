@@ -5,7 +5,7 @@ class Driver
   MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
   PROFILE_PATH = Dir.home + "/.config/google-chrome/Default"
   TIMEOUT = ENV["RAILS_ENV"] == "test" ? 8 : 40
-  MAX_ATTEMPTS_ON_RAISE = 20
+  MAX_ATTEMPTS_ON_RAISE = 10
   LEAVE_PAGE_TIMEOUT = 10
   
   attr_accessor :driver, :wait
@@ -24,9 +24,10 @@ class Driver
   end
   
   def get url
-    @driver.get(url)
-  rescue => e #quick fix
-    nil
+    waiting(true){
+      @driver.get(url)
+      true
+    }
   end
   
   def current_url
@@ -169,9 +170,9 @@ class Driver
     FileUtils.cp_r(PROFILE_PATH, @profile_path)
   end
   
-  def waiting wait=false
+  def waiting dowait=false
     attempts = 0
-    unless wait
+    unless dowait
       yield
     else
       wait.until do 

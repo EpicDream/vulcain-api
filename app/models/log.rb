@@ -4,6 +4,7 @@ class Log
   SYSLOG_FILE_PATH = "/var/log/vulcain-dispatcher/vulcain-dispatcher.log"
   include MongoMapper::Document
   timestamps!
+  Log.create_index('created_at')
   
   scope :crashes, ->(_) { where(:verb => 'failure')}
   scope :since, ->(since) { where(:created_at.gte => since) }
@@ -37,7 +38,8 @@ class Log
     console ? head + log : log
   end
   
-  def self.syslog data #TODO : utiliser ruby stdlib Syslog
+  def self.syslog data
+    return if data['verb'] == "screenshot" || data['verb'] == "page_source"
     File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{Time.now} #{data}\n") }
   end
   

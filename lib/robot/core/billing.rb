@@ -7,6 +7,7 @@ module RobotCore
     end
     
     def build
+      Action(:wait)
       return unless build?
       shipping, total = [:shipping, :total].map { |key| Price(key) }
       info = Action(:get_text, :info)

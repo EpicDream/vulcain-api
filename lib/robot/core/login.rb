@@ -59,6 +59,7 @@ module RobotCore
     
     def login
       MAction(:fill, :email, with:account.login)
+      MAction(:wait)
       MAction(:fill, :password, with:account.password)
     end
     

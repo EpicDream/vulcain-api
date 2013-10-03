@@ -49,6 +49,9 @@ module <%= vendor_name %>Constants
   }
   
   SHIPMENT = {
+    first_name:nil,
+    last_name:nil,
+    email:nil,
     full_name: nil,
     address_1: nil,
     address_2: nil,
@@ -80,6 +83,9 @@ module <%= vendor_name %>Constants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: nil,
     submit_success: [],
+    coupon:nil,
+    coupon_recompute:nil
+    
   }
   
   PRODUCT = {
@@ -99,6 +105,7 @@ module <%= vendor_name %>Constants
     remove_confirmation: nil,
     access: nil,
     invoice_address: nil,
+    credit_card:nil,
     credit_card_select:nil,
     master_card_value:nil,
     visa_value:nil,
