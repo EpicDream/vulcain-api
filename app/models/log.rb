@@ -38,7 +38,8 @@ class Log
     console ? head + log : log
   end
   
-  def self.syslog data #TODO : utiliser ruby stdlib Syslog
+  def self.syslog data
+    return if data['verb'] == "screenshot" || data['verb'] == "page_source"
     File.open(SYSLOG_FILE_PATH, 'a+') {|f| f.write("#{Time.now} #{data}\n") }
   end
   
