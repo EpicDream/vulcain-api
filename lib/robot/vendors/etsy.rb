@@ -1,41 +1,41 @@
 # encoding: utf-8
-module <%= vendor_name %>Constants
+module EtsyConstants
   
   URLS = {
-    base:nil,
-    home:nil,
+    base:'http://www.etsy.com/',
+    home:'http://www.etsy.com/',
     account:nil,
-    login:nil,
+    # login:'https://www.etsy.com/fr/signin?from_page=http%3A%2F%2Fwww.etsy.com%2F&ref=so_sign',
     payments:nil,
-    cart:nil,
-    register:nil
+    cart:'https://www.etsy.com/fr/cart?ref=so_cart',
   }
   
   REGISTER = {
+    button:'//*[@id="register"]',
     gender:nil,
-    mister:nil,
-    madam:nil,
-    miss:nil,
-    last_name:nil,
-    first_name:nil,
+    mister:'//input[@id="male"]',
+    madam:'//input[@id="female"]',
+    miss:'//input[@id="private"]',
+    last_name:'//input[@id="last-name"]',
+    first_name:'//input[@id="first-name"]',
     land_phone:nil,
     mobile_phone:nil,
     address_1:nil,
     address_2:nil,
-    email:nil,
+    email:'//input[@id="email"]',
+    pseudonym:'//input[@id="username"]',
     email_confirmation:nil,
     zip:nil,
-    password:nil,
+    password:'//input[@id="password"]',
     city:nil,
     cgu:nil,
-    password_confirmation:nil,
+    password_confirmation:'//input[@id="password-repeat"]',
     address_option:nil,
     birthdate_day:nil,
     birthdate_month:nil,
     birthdate_year:nil,
-    submit: nil,
+    submit: '//*[@id="registration-form"]//input[@value="Register"]',
     submit_login:nil,
-    pseudonym:nil,
   }
   
   LOGIN = {
@@ -126,7 +126,7 @@ module <%= vendor_name %>Constants
   
 end
 
-module <%= vendor_name %>Crawler
+module EtsyCrawler
   class ProductCrawler
     
     attr_reader :product
@@ -154,16 +154,21 @@ module <%= vendor_name %>Crawler
   end
 end
 
-class <%= vendor_name %>
-  include <%= vendor_name %>Constants
-  include <%= vendor_name %>Crawler
-  
+class Etsy
+  include EtsyConstants
+  include EtsyCrawler
+  SPECIFIC = {
+    popup_lang: '//input[@name="save"]'
+  }
   attr_accessor :context, :robot
   
   def initialize context
     @context = context
     @robot = instanciate_robot
-    @robot.vendor = <%= vendor_name %>
+    @robot.open_url(URLS[:base])
+    @robot.click_on(SPECIFIC[:popup_lang])
+    @robot.wait_ajax
+    @robot.vendor = Etsy
   end
   
   def instanciate_robot

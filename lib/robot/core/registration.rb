@@ -81,7 +81,9 @@ module RobotCore
       Action(:open_url, :base)
       Action(:open_url, :account)
       Action(:open_url, :register)
+      Action(:click_on, :button)
       Action(:wait_for, [:submit_login, :submit])
+      Action(:wait)
     end
     
     def still_login_step?
