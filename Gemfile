@@ -8,7 +8,7 @@ gem 'rails-api'
 gem 'unicorn'
 gem "amqp", "~> 0.9.0"
 gem "httparty"
-gem "selenium-webdriver"
+gem "selenium-webdriver", "= 2.31.0"
 gem "redis"
 gem "mongo_mapper"
 gem "sqlite3"
