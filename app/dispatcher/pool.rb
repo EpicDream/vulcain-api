@@ -46,7 +46,7 @@ module Dispatcher
     
     def block vulcain
       Log.create({verb:'failure', session:{uuid:vulcain.uuid, vulcain_id:vulcain.id}, content:{status:'killed'}})
-      `kill -2 #{vulcain.pid}` 
+      vulcain.suicide()
       pop(vulcain.id)
     end
     
