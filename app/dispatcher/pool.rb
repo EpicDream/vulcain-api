@@ -45,8 +45,9 @@ module Dispatcher
     end
     
     def block vulcain
-      Log.create({verb:'failure', session:{uuid:vulcain.uuid, vulcain_id:vulcain.id}, content:{status:'blocked'}})
-      vulcain.blocked = true
+      Log.create({verb:'failure', session:{uuid:vulcain.uuid, vulcain_id:vulcain.id}, content:{status:'killed'}})
+      `kill -2 #{vulcain.pid}` 
+      pop(vulcain.id)
     end
     
     def can_check_timeout_of? vulcain
