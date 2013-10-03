@@ -4,6 +4,7 @@ class Log
   SYSLOG_FILE_PATH = "/var/log/vulcain-dispatcher/vulcain-dispatcher.log"
   include MongoMapper::Document
   timestamps!
+  Log.create_index('created_at')
   
   scope :crashes, ->(_) { where(:verb => 'failure')}
   scope :since, ->(since) { where(:created_at.gte => since) }
