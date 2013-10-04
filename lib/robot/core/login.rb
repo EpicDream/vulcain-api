@@ -29,6 +29,7 @@ module RobotCore
     private
     
     def fails?
+      Action(:wait)
       Action(:exists?, :submit)
     end
     

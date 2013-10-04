@@ -57,7 +57,7 @@ module RobotCore
     end
     
     def submit_with_new_pseudonym
-      return unless dictionary[:pseudonym]
+      return if !dictionary[:pseudonym] || !dictionary[:pseudonym_error_match]
       10.times do |n|
         node = Action(:find_element, :error)
         error = !!node && Action(:get_text, :error)
@@ -81,7 +81,9 @@ module RobotCore
       Action(:open_url, :base)
       Action(:open_url, :account)
       Action(:open_url, :register)
-      Action(:click_on, :button)
+      Action(:click_on, :button_1)
+      Action(:wait)
+      Action(:click_on, :button_2)
       Action(:wait_for, [:submit_login, :submit])
       Action(:wait)
     end
