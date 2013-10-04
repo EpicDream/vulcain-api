@@ -30,16 +30,20 @@ module RobotCore
     def address
       Terminate(:unmanaged_country) and return if unmanaged_country?
       
+      if Action(:exists?, :country)
+        country_code = COUNTRIES_CODES[user.address.send(:country)][:alpha2]
+        MAction(:select_option, :country, value:country_code)
+        Action(:wait, 4)
+      end
+      
       properties = user.address.marshal_dump.keys
       properties.each do |property|
+        next if property == :country
         begin
           Action(:fill, property, with:user.address.send(property).unaccent)
         rescue
           if property == :city
             select_city
-          elsif property == :country
-            country_code = COUNTRIES_CODES[user.address.send(property)][:alpha2]
-            MAction(:select_option, :country, value:country_code)
           else
             raise
           end
