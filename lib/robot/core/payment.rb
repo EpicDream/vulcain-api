@@ -43,8 +43,14 @@ module RobotCore
         MAction(:fill, :number, with:order.credentials.number)
       end
       Action(:fill, :holder, with:order.credentials.holder)
-      MAction(:select_option, :exp_month, value:order.credentials.exp_month)
-      MAction(:select_option, :exp_year, value:order.credentials.exp_year)
+      exp_month = Action(:find_element, :exp_month)
+      if exp_month.tag_name == 'input'
+        MAction(:fill, :exp_month, with:order.credentials.exp_month.to_s.rjust(2, "0"))
+        MAction(:fill, :exp_year, with:order.credentials.exp_year.to_s[2..-1])
+      else
+        MAction(:select_option, :exp_month, value:order.credentials.exp_month)
+        MAction(:select_option, :exp_year, value:order.credentials.exp_year)
+      end
       MAction(:fill, :cvv, with:order.credentials.cvv)
       Action(:fill, :email, with:account.login) #yes they can!
       Action(:click_on, :option)
