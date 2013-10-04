@@ -5,62 +5,45 @@ module EtsyConstants
     base:'http://www.etsy.com/',
     home:'http://www.etsy.com/',
     account:nil,
-    # login:'https://www.etsy.com/fr/signin?from_page=http%3A%2F%2Fwww.etsy.com%2F&ref=so_sign',
     payments:nil,
     cart:'https://www.etsy.com/fr/cart?ref=so_cart',
+    logout:'https://www.etsy.com/logout.php?ref=si_logout'
   }
   
   REGISTER = {
-    button:'//*[@id="register"]',
-    gender:nil,
+    button_1:'//*[@id="register"] | //a[@id="sign-in"]',
+    button_2:'//*[@id="register-tab"]',
     mister:'//input[@id="male"]',
     madam:'//input[@id="female"]',
     miss:'//input[@id="private"]',
     last_name:'//input[@id="last-name"]',
     first_name:'//input[@id="first-name"]',
-    land_phone:nil,
-    mobile_phone:nil,
-    address_1:nil,
-    address_2:nil,
     email:'//input[@id="email"]',
     pseudonym:'//input[@id="username"]',
-    email_confirmation:nil,
-    zip:nil,
     password:'//input[@id="password"]',
-    city:nil,
-    cgu:nil,
     password_confirmation:'//input[@id="password-repeat"]',
-    address_option:nil,
-    birthdate_day:nil,
-    birthdate_month:nil,
-    birthdate_year:nil,
     submit: '//*[@id="registration-form"]//input[@value="Register"]',
-    submit_login:nil,
   }
   
   LOGIN = {
-    link:nil,
-    email:nil,
-    password:nil,
-    submit: nil,
-    logout:nil,
-    captcha:nil,
-    captcha_submit:nil,
-    captcha_input:nil
+    link:'//a[@id="sign-in"]',
+    email:'//*[@id="username-existing"]',
+    password:'//*[@id="password-existing"]',
+    submit: '//*[@id="signin-button"]//input[@type="submit"]  | //*[@id="signin_button"]',
   }
   
   SHIPMENT = {
-    first_name:nil,
-    last_name:nil,
-    email:nil,
+    first_name:'//*[@id="first_name"]',
+    last_name:'//*[@id="last_name"]',
+    email:'//*[@id="email-address"]',
     full_name: nil,
-    address_1: nil,
-    address_2: nil,
+    address_1: '//*[@id="address1"]',
+    address_2: '//*[@id="address2"]',
     additionnal_address: nil,
-    city: nil,
-    country:nil,
-    zip: nil,
-    mobile_phone: nil,
+    city: '//*[@id="city"]',
+    country:'//*[@id="country_code"]',
+    zip: '//*[@id="zip"]',
+    mobile_phone: '//*[@id="H_PhoneNumber"]',
     submit_packaging: nil,
     submit: nil,
     shipment_mode:nil,
@@ -70,7 +53,7 @@ module EtsyConstants
   }
   
   CART = {
-    add:nil,
+    add:'//*[@id="listing-page-cart"]//form//button',
     button:nil,
     quantity:nil,
     quantity_exceed:nil,
@@ -78,26 +61,25 @@ module EtsyConstants
     title:nil,
     update:nil,
     total_line:nil,
-    total:nil,
-    remove_item:nil,
-    empty_message:nil,
-    empty_message_match:/panier\s+est\s+vide/i,
-    submit: nil,
+    total:'//table[@class="summary-details"]//tr[@class="item-total"]',
+    remove_item:'//li[@class="action-remove"]/a',
+    empty_message:'//body',
+    empty_message_match:/cart\s+is\s+empty/i,
+    submit: '//input[@name="submit_button"]',
     submit_success: [],
     coupon:nil,
     coupon_recompute:nil
-    
   }
   
   PRODUCT = {
-    price_text:nil,
-    title:nil,
-    image:nil
+    price_text:'//*[@id="listing-price"]',
+    title:'//*[@id="listing-page-cart-inner"]/h1/span',
+    image:'//*[@id="image-0"]/img'
   }
   
   BILL = {
-    shipping:nil,
-    total:nil,
+    shipping:'//*[@id="displayShippingAmount"]',
+    total:'span.grandTotal',
     info:nil
   }
   
@@ -109,16 +91,18 @@ module EtsyConstants
     credit_card:nil,
     credit_card_select:nil,
     master_card_value:nil,
+    mastercard:'//*[@id="mastercard"]',
+    visa:'//*[@id="visa"]',
     visa_value:nil,
-    validate: nil,
+    validate: '//*[@id="submitBilling"]',
     holder:nil,
-    number:nil,
-    exp_month:nil,
-    exp_year:nil,
-    cvv:nil,
+    number:'//*[@id="cc_number"]',
+    exp_month:'//*[@id="expdate_month"]',
+    exp_year:'//*[@id="expdate_year"]',
+    cvv:'//*[@id="cvv2_number"]',
     submit: nil,
-    status: nil,
-    succeed: nil,
+    status: '//body',
+    succeed: //,
     cgu:nil,
     coupon:nil,
     coupon_recompute:nil
@@ -126,37 +110,10 @@ module EtsyConstants
   
 end
 
-module EtsyCrawler
-  class ProductCrawler
-    
-    attr_reader :product
-    
-    def initialize robot, xpaths
-      @robot = robot
-      @xpaths = xpaths
-      @product = {:options => {}}
-    end
-    
-    def crawl url
-      @url = url
-      @robot.open_url url
-      @page = Nokogiri::HTML.parse @robot.driver.page_source
-      build_options
-      build_product
-    end
-    
-    def build_options
-    end
-    
-    def build_product
-    end
-    
-  end
-end
-
 class Etsy
+  SINGLE_QUANTITY = true
+  
   include EtsyConstants
-  include EtsyCrawler
   SPECIFIC = {
     popup_lang: '//input[@name="save"]'
   }

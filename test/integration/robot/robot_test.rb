@@ -26,4 +26,9 @@ class RobotTest < ActiveSupport::TestCase
     assert_equal [14.99], RobotCore::RobotModule::PRICES_IN_TEXT.("14\n€99")
   end
   
+  test "USD prices" do
+    assert_equal [18.00], RobotCore::RobotModule::PRICES_IN_TEXT.("$18.00 USD")
+    assert_equal [66.18], RobotCore::RobotModule::PRICES_IN_TEXT.("$66.18 USD")
+  end
+  
 end
