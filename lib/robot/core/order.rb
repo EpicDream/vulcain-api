@@ -13,6 +13,8 @@ module RobotCore
       shipping = RobotCore::Shipping.new
       shipping.run
       
+      RobotCore::Gift.new.set_message
+      
       Action(:wait_for, [:submit, :access, [:SHIPMENT, :submit_packaging]])
       
       success = shipping.submit_packaging
