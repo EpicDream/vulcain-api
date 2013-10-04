@@ -10,6 +10,7 @@ module RobotCore
       return unless form_exists?
       access_form
       Address.new.fill_using(:SHIPMENT)
+      Action(:fill, :email, with:account.login)
       submit
       submit_options
     end
