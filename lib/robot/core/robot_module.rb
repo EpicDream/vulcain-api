@@ -89,6 +89,11 @@ module RobotCore
       robot.page_source
     end
     
+    def Match key, text
+      text = Action(:get_text, key) 
+      text =~ Regexp.new(Regexp.escape(text), Regexp::IGNORECASE)
+    end
+    
     def Terminate msg
       Robot.instance.terminate_on_error(msg)
       true

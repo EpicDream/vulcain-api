@@ -18,4 +18,6 @@ require_relative 'options'
 require_relative 'cart_line'
 require_relative 'quantities'
 require_relative 'coupon'
+require_relative 'gift'
+
 require_relative 'amazon_payment'
