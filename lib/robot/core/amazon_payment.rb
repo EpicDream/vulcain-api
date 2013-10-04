@@ -34,6 +34,7 @@ module RobotCore
         MAction(:click_on, :access)
       end
       
+      Action(:wait, 5)
       Action(:wait_for, [:validate])
       Action(:click_on, :validate)
       robot.skip_assess = false

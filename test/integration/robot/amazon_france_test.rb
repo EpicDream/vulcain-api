@@ -139,10 +139,12 @@ class AmazonTest < StrategyTest
   test "validate order insert cb, get billing, go back and insert voucher for payment" do
     @context["order"]["coupon"] = "magic09"
     @context["order"]["credentials"]["voucher"] = "SZOO-0899"
+    @context["order"]["gift_message"] = "Gros cadeau"
+    
     @robot.context = @context
     @robot.expects(:terminate_on_error).with(:order_validation_failed)
     
-    products = [{url:PRODUCT_URL_6, quantity:4}]
+    products = [{url:PRODUCT_URL_12, quantity:1}]
     run_spec('validate order', products)
   end
   

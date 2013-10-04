@@ -25,6 +25,8 @@ module RobotCore
       
       RobotCore::Billing.new.build
       Terminate(:no_billing) and return if robot.billing.nil?
+      
+      RobotCore::Gift.new.check
       robot.assess
     end
     

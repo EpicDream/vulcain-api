@@ -20,5 +20,11 @@ module RobotCore
       Action(:wait_leave, :gift_submit)
     end
     
+    def check
+      return unless order.gift_message
+      presence = Match(:gift_message_text, order.gift_message[0..10])
+      Terminate(:gift_message_failure) unless presence
+    end
+    
   end
 end
