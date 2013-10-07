@@ -119,12 +119,12 @@ module RobotCore
       end
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       input ||= @driver.find_element(identifier)
-      input.clear
       10.times do |n|
+        input.clear
+        wait_ajax 0.5
         input.send_key args[:with].to_s
         break if input["value"] == args[:with].to_s
         terminate_on_error(:fill_input_error) if n == 9
-        wait_ajax 0.5
       end
     end
     
