@@ -2,8 +2,8 @@
 module EtsyConstants
   
   URLS = {
-    base:'http://www.etsy.com/',
-    home:'http://www.etsy.com/',
+    base:'http://www.etsy.fr/?ulsfg=true',
+    home:'http://www.etsy.fr/?ulsfg=true',
     account:nil,
     payments:nil,
     cart:'https://www.etsy.com/fr/cart?ref=so_cart',

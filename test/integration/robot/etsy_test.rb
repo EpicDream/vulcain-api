@@ -52,7 +52,7 @@ class EtsyTest < StrategyTest
   end
   
   test "finalize order" do
-    expected_products = [{"price_text"=>"$66.18 USD", "eco_part"=>0.0, "product_title"=>"Second - Handbuilt Ceramic Female Sculpture, 'Spring goddess', Stoneware Art Sculpture Figure", "product_image_url"=>"http://img1.etsystatic.com/017/0/6597520/il_570xN.488348481_dntv.jpg", "price_product"=>66.18, "price_delivery"=>nil, "url"=>"http://www.etsy.com/listing/159080629/second-handbuilt-ceramic-female?ref=listing-shop-header-3", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
+    expected_products = [{"price_text"=>"€48.56 EUR", "eco_part"=>0.0, "product_title"=>"Second - Handbuilt Ceramic Female Sculpture, 'Spring goddess', Stoneware Art Sculpture Figure", "product_image_url"=>"http://img1.etsystatic.com/017/0/6597520/il_570xN.488348481_dntv.jpg", "price_product"=>48.56, "price_delivery"=>nil, "url"=>"http://www.etsy.com/listing/159080629/second-handbuilt-ceramic-female?ref=listing-shop-header-3", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
     billing = {:shipping=>6.8, :total=>46.8, :shipping_info=>nil}
     products = [{url:PRODUCT_URL_1, quantity:1}]
 
