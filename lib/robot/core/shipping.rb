@@ -15,6 +15,7 @@ module RobotCore
     end
     
     def submit_packaging
+      Action(:move_to_and_click_on, :cgu)
       Action(:click_on, :option)
       Action(:click_on, :packaging)
       success = MAction(:click_on, :submit_packaging)

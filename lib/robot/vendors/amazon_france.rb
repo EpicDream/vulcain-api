@@ -60,7 +60,11 @@ module AmazonFranceConstants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: 'pattern:Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
-    
+    gift_option:'p.gift>input[type=checkbox]',
+    gift_message_option:'input[id^=includeMessageCheckbox]',
+    gift_message:'textarea[id^=message-area]',
+    gift_submit:'div.save-gift-button-box input[type=submit]',
+    gift_message_text: '//body'
   }
   
   PRODUCT = {
@@ -81,7 +85,7 @@ module AmazonFranceConstants
     remove_must_match:/Vous n'avez actuellement aucun mode de paiement/i,
     access: '//*[@id="continue-top"]',
     invoice_address: 'div.ship-to-this-address span a',
-    validate: '//*[@id="buybutton"]//input | //*[@id="right-grid"]//input',
+    validate: '//*[@id="buybutton"]//input | //*[@id="right-grid"]//input | //input[@name="placeYourOrder1"] | //div[@id="right-grid"]//input[@type="submit"]',
     holder:'//*[@id="ccname"] | //*[@id="ccName"]',
     number:'//*[@id="newCreditCardNumber"] | //*[@id="addCreditCardNumber"]',
     exp_month:'//*[@id="ccmonth"] | //*[@id="ccMonth"]',

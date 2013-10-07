@@ -29,8 +29,10 @@ module RobotCore
     def submit
       open
       RobotCore::CartOptions.new.run
+      RobotCore::Gift.new.set
       RobotCore::Coupon.new(:CART).insert
-      RobotCore::CartAmount.new().validate()
+      RobotCore::CartAmount.new().validate().inspect
+      
       MAction(:click_on, :submit)
       Action(:open_url, :after_submit_cart)
       Terminate(:out_of_stock) and return if out_of_stock?
