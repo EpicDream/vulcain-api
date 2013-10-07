@@ -114,7 +114,6 @@ module EveilEtJeuxConstants
     submit: '//*[@id="ctl00_ContentPlaceHolder1__bPaiement"]',
     status: '//*[@id="HTML_content"]/h1',
     succeed: /Votre commande est valid./i,
-    zero_fill:true
   }
   
 end

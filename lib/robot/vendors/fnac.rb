@@ -91,7 +91,6 @@ module FnacConstants
     submit:  '//*[@id="submit3"]',
     status: '//body',
     succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
-    zero_fill: true,
     remove_must_match: /Vous n'avez pas indiqué de carte de paiement/i
   }
   

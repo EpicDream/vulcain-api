@@ -57,8 +57,6 @@ module RueDuCommerceConstants
     status: '//html/body/div',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
-    zero_fill: true,
-    trunc_year: true,
     coupon:'//*[@id="bhaInputText"]',
     coupon_recompute:'//*[@id="bhaInputSubmit"]',
     remove_must_match: /Votre portefeuille est vide/i,

@@ -106,20 +106,11 @@ module RobotCore
         MAction(:fill, :birthdate, with:BIRTHDATE_AS_STRING.(user.birthdate))
       end
       if dictionary[:birthdate_day]
-        zero_fill?
         MAction(:select_option, :birthdate_day, value:user.birthdate.day)
         MAction(:select_option, :birthdate_month, value:user.birthdate.month)
         MAction(:select_option, :birthdate_year, value:user.birthdate.year)
       end
       Action(:fill, :birth_department, with:user.address.zip[0..1])
-    end
-    
-    def zero_fill?
-      options = Action(:options_of_select, :birthdate_day)
-      if options.keys.include?("01")
-        user.birthdate.day = user.birthdate.day.to_s.rjust(2, "0")
-        user.birthdate.month = user.birthdate.month.to_s.rjust(2, "0")
-      end
     end
     
   end

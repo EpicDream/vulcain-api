@@ -26,10 +26,6 @@ module RobotCore
     
     def checkout
       RobotCore::Billing.new.build
-      
-      order.credentials.exp_month = order.credentials.exp_month.to_s.rjust(2, "0") if vendor::PAYMENT[:zero_fill]
-      order.credentials.exp_year = order.credentials.exp_year.to_s[2..-1] if vendor::PAYMENT[:trunc_year]
-      
       RobotCore::CreditCard.new.select
       
       if vendor::PAYMENT[:number].is_a?(Array)

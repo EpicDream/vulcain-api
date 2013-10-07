@@ -77,7 +77,7 @@ class SuperInsoliteTest < StrategyTest
   end  
   
   test "validate order" do
-    run_spec("validate order", [{url:PRODUCT_URL_2, quantity:1}])
+    run_spec("validate order", [{url:PRODUCT_URL_3, quantity:1}])
   end
   
   test "complete order process" do

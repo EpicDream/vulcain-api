@@ -85,8 +85,6 @@ module SuperInsoliteConstants
     cvv:'//*[@id="b2b-cvv-input"]',
     submit: '//*[@id="b2b-submit"]',
     email: '//*[@id="b2b-email-input"]',
-    zero_fill:true,
-    trunc_year:true,
     succeed: //,
     cgu:nil,
   }

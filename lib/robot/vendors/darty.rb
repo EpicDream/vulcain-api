@@ -76,7 +76,6 @@ module DartyConstants
     submit: '//*[@id="cb_submit"]',
     status: '//div[@id="recu_header"]',
     succeed: /Nous avons pris en compte votre commande/i,
-    zero_fill: true,
     access:nil
   }
   

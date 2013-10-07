@@ -92,5 +92,10 @@ module RobotCore
       true
     end
     
+    def ZeroFill check_key, ivar
+      options = Action(:options_of_select, check_key)
+      ivar = ivar.to_s.rjust(2, "0") if options.keys.include?("01")
+    end
+    
   end
 end
