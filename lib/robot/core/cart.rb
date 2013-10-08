@@ -73,7 +73,7 @@ module RobotCore
           !element.nil? 
         }
       when Action(:exists?, :line)
-        Action(:fill_all, :quantity, with:0)
+        Action(:fill_all, :quantity, with:0, ajax:true)
         MAction(:click_on, :update)
       else
       end
