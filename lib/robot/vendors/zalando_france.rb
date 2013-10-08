@@ -1,5 +1,5 @@
 # encoding: utf-8
-module ZalandoFRConstants
+module ZalandoFranceConstants
   
   URLS = {
     base:'http://www.zalando.fr/',
@@ -117,15 +117,15 @@ module ZalandoFRConstants
   
 end
 
-class ZalandoFR
-  include ZalandoFRConstants
+class ZalandoFrance
+  include ZalandoFranceConstants
   
   attr_accessor :context, :robot
   
   def initialize context
     @context = context
     @robot = instanciate_robot
-    @robot.vendor = ZalandoFR
+    @robot.vendor = ZalandoFrance
   end
   
   def instanciate_robot

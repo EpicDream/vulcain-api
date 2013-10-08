@@ -1,14 +1,14 @@
 # encoding: UTF-8
 require_relative 'strategy_test'
-require_robot 'zalando_fr'
+require_robot 'zalando_france'
 
-class ZalandoFRTest < StrategyTest
+class ZalandoFranceTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html'
   PRODUCT_URL_2 = 'http://www.zalando.fr/nordlux-funk-27-abat-jour-noir-nl173b001-802.html'
   PRODUCT_URL_3 = 'http://www.zalando.fr/tommy-hilfiger-chiara-polo-jaune-to121d01b-206.html'
   
   setup do
-    initialize_robot_for ZalandoFR
+    initialize_robot_for ZalandoFrance
   end
   
   test "register" do
@@ -37,8 +37,8 @@ class ZalandoFRTest < StrategyTest
   
   test "add to cart" do
     assert = Proc.new do
-      robot.open_url ZalandoFR::URLS[:cart]
-      assert_equal 2, robot.find_elements(ZalandoFR::CART[:remove_item]).count
+      robot.open_url ZalandoFrance::URLS[:cart]
+      assert_equal 2, robot.find_elements(ZalandoFrance::CART[:remove_item]).count
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     
@@ -53,8 +53,8 @@ class ZalandoFRTest < StrategyTest
   
   test "add to cart with color and size options" do
     assert = Proc.new do
-      robot.open_url ZalandoFR::URLS[:cart]
-      assert_equal 1, robot.find_elements(ZalandoFR::CART[:remove_item]).count
+      robot.open_url ZalandoFrance::URLS[:cart]
+      assert_equal 1, robot.find_elements(ZalandoFrance::CART[:remove_item]).count
     end
     products = [{url:PRODUCT_URL_3, quantity:1, color:'http://i1.ztat.net/selector/TO/12/1D/01/B2/06/TO121D01B-206@1.1.jpg', size:'L'}]
     
@@ -63,8 +63,8 @@ class ZalandoFRTest < StrategyTest
   
   test "empty cart" do
     assert = Proc.new do
-      robot.open_url ZalandoFR::URLS[:cart]
-      assert robot.get_text(ZalandoFR::CART[:empty_message]) =~ ZalandoFR::CART[:empty_message_match]
+      robot.open_url ZalandoFrance::URLS[:cart]
+      assert robot.get_text(ZalandoFrance::CART[:empty_message]) =~ ZalandoFrance::CART[:empty_message_match]
     end
     products = [{url:PRODUCT_URL_1, quantity:1}, {url:PRODUCT_URL_2, quantity:1}]
     

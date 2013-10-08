@@ -9,7 +9,7 @@ def products_urls vendor
   when "Cdiscount" then ["http://www.cdiscount.com/juniors/jeux-et-jouets-par-type/puzzle-cars-2-250-pieces/f-1200622-cle29633.html"]
   when "EveilEtJeux" then ["http://www.eveiletjeux.com/brainbox-voyage-autour-du-monde/produit/122996#xtatc=INT-2151-||"]
   when "PriceMinister" then ["http://www.priceminister.com/offer/buy/132498077/nounours-45-kiki-marron-t3ab.html"]
-    
+  when "ZalandoFrance" then ["http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html"]
   end
 end
 
