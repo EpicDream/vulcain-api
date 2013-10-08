@@ -38,7 +38,7 @@ module RobotCore
     def quantity_exceed?
       Action(:wait)
       popup = Action(:find_element, :quantity_exceed)
-      exceed = popup && popup.displayed?
+      exceed = (popup && popup.displayed?) || Action(:accept_alert)
       MAction(:click_on, popup) if exceed
       exceed
     end
