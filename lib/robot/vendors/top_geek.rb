@@ -31,17 +31,8 @@ module TopGeekConstants
   }
   
   PAYMENT = {
-    remove: nil,
-    remove_confirmation: nil,
-    access: nil,
-    invoice_address: nil,
     credit_card:'//*[@id="HOOK_PAYMENT"]/p[1]/a',
     visa:'//img[@title="Visa"]',
-    credit_card_select:nil,
-    master_card_value:nil,
-    visa_value:nil,
-    validate: nil,
-    holder:nil,
     number:'//input[@name="vads_card_number"]',
     exp_month:'//select[@name="vads_expiry_month"]',
     exp_year:'//select[@name="vads_expiry_year"]',
@@ -50,30 +41,19 @@ module TopGeekConstants
     status: '//body',
     cancel:'//*[@id="backToBoutiqueForm"]/button',
     succeed: /merci/i,
-    cgu:nil,
-    coupon:nil,
-    coupon_recompute:nil
   }
   
   SHIPMENT = {
-    first_name:nil,
-    last_name:nil,
-    email:nil,
-    full_name: nil,
     address_1: '//*[@id="address1"]',
     address_2: '//*[@id="address2"]',
-    additionnal_address: nil,
     city: '//*[@id="city"]',
-    country:nil,
     zip: '//*[@id="postcode"]',
     mobile_phone: '//*[@id="phone_mobile"]',
     submit_packaging: '//input[@name="processCarrier"]',
     submit: '//*[@id="submitAddress"]',
     submit_success: [PAYMENT[:credit_card]],
     packaging:'//*[@id="delivery_option_1384_3"]',
-    shipment_mode:nil,
     select_this_address: '//input[@name="processAddress"]',
-    address_option: nil,
     address_submit: '//input[@name="processAddress"]',
     cgu:'//label[@for="cgv"]'
   }
@@ -84,8 +64,6 @@ module TopGeekConstants
     quantity_exceed:nil,
     line:'//*[@id="cart_summary"]/tbody/tr',
     title:'.//td[@class="cart_description"]',
-    update:nil,
-    total_line:nil,
     total:'//*[@id="total_product"]',
     remove_item:'a.cart_quantity_delete',
     empty_message:'//body',
@@ -94,7 +72,6 @@ module TopGeekConstants
     submit_success: [SHIPMENT[:submit]],
     coupon:'//*[@id="discount_name"]',
     coupon_recompute:'//input[@name="submitAddDiscount"]'
-    
   }
   
   PRODUCT = {
