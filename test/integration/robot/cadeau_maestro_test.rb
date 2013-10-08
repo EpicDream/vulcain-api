@@ -54,8 +54,8 @@ class CadeauMaestroTest < StrategyTest
   
   test "finalize order" do
     expected_products = [{"price_text"=>"69,00 €", "eco_part"=>0.0, "product_title"=>"Montre Bluetooth ZeWatch", "product_image_url"=>"http://www.cadeau-maestro.com/1764-6929-large/montre-bluetooth-zewatch.jpg", "price_product"=>69.0, "price_delivery"=>nil, "url"=>"http://www.cadeau-maestro.com/334-montres/1764-montre-bluetooth-zewatch.html", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
-    billing = {:shipping=>0.0, :total=>69.0, :shipping_info=>nil}
-    products = [{url:PRODUCT_URL_1, quantity:1}]
+    billing = {:shipping=>4.5, :total=>13.4, :shipping_info=>nil}
+    products = [{url:PRODUCT_URL_2, quantity:1}]
 
     run_spec("finalize order", products, expected_products, billing)
   end

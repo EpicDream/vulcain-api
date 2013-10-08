@@ -34,23 +34,8 @@ module CadeauMaestroConstants
   }
   
   SHIPMENT = {
-    first_name:nil,
-    last_name:nil,
-    email:nil,
-    full_name: nil,
-    address_1: nil,
-    address_2: nil,
-    additionnal_address: nil,
-    city: nil,
-    country:nil,
-    zip: nil,
-    mobile_phone: nil,
     submit_packaging: '//input[@name="processCarrier"]',
-    submit: nil,
-    shipment_mode:nil,
     select_this_address: '//input[@name="processAddress"]',
-    address_option: nil,
-    address_submit:nil,
     cgu:'//*[@id="cgv"]'
   }
   
@@ -61,6 +46,7 @@ module CadeauMaestroConstants
     line:'//*[@id="cart_summary"]/tbody/tr',
     title:'.//td[@class="cart_description"]',
     total_line:'.//span[@class="price"]',
+    shipping:'//*[@id="total_shipping"]',
     remove_item:nil,
     empty_message:'//body',
     empty_message_match:/panier\s+est\s+vide/i,
