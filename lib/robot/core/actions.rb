@@ -28,8 +28,10 @@ module RobotCore
     end
 
     def accept_alert opt={}
-      @driver.accept_alert
+      message = @driver.accept_alert
+      !message || message["message"] !~ /no alert open/
     rescue Selenium::WebDriver::Error::NoAlertPresentError
+      return false
     end
 
     def execute_script script
@@ -141,6 +143,7 @@ module RobotCore
       inputs.each do |input|
         input.clear
         input.send_key args[:with]
+        wait_ajax if args[:ajax]
       end
     end
 
