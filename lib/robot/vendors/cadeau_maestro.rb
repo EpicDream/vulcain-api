@@ -60,7 +60,7 @@ module CadeauMaestroConstants
     quantity_exceed:nil,
     line:'//*[@id="cart_summary"]/tbody/tr',
     title:'.//td[@class="cart_description"]',
-    total:'//*[@id="total_price"]',
+    total_line:'.//span[@class="price"]',
     remove_item:nil,
     empty_message:'//body',
     empty_message_match:/panier\s+est\s+vide/i,
