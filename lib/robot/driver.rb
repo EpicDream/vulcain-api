@@ -18,8 +18,8 @@ class Driver
   end
   
   def quit
-    # @driver.quit
-    # FileUtils.rm_rf(@profile_path) if @profile_path
+    @driver.quit
+    FileUtils.rm_rf(@profile_path) if @profile_path
     true
   end
   
@@ -60,14 +60,7 @@ class Driver
   
   def select_option select, value
     options = options_of_select(select)
-    values = options.map { |option|  option.attribute("value") }
-    puts "#{value} #{options.inspect}"
-    rjust_or_trunc = ->(value) { !values.include?(value) && value =~ /^\d+$/ }
-    value = value.rjust(2, "0") if rjust_or_trunc.(value)
-    puts "#{value}"
-    value = value[2..-1] if rjust_or_trunc.(value)
-    puts "#{value}"
-    
+    value = adjusted_value_for_options(options, value)
     options.each do |option|
       next unless option.attribute("value") == value
       option.click
@@ -165,6 +158,14 @@ class Driver
   end
  
   private
+  
+  def adjusted_value_for_options options, value
+    values = options.map { |option| option.attribute("value") }
+    rjust_or_trunc = ->(value) { !values.include?(value) && value =~ /^\d+$/ }
+    value = value.rjust(2, "0") if rjust_or_trunc.(value)
+    value = value[2..-1] if rjust_or_trunc.(value)
+    value
+  end
   
   def switches options
     mkdir_profile if options[:profile_dir].nil?
