@@ -31,7 +31,8 @@ module RobotCore
       RobotCore::CartOptions.new.run
       RobotCore::Gift.new.set
       RobotCore::Coupon.new(:CART).insert
-      RobotCore::CartAmount.new().validate().inspect
+      RobotCore::CartAmount.new().validate()
+      RobotCore::Billing.new.shipping_from_dictionary(dictionary) if dictionary[:shipping]
       
       MAction(:click_on, :submit)
       Action(:open_url, :after_submit_cart)

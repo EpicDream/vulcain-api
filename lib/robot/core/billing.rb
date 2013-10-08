@@ -1,5 +1,6 @@
 module RobotCore
   class Billing < RobotModule
+    @@shipping = nil
     
     def initialize
       super
@@ -11,9 +12,14 @@ module RobotCore
       return unless build?
       shipping, total = [:shipping, :total].map { |key| Price(key) }
       info = Action(:get_text, :info)
+      shipping ||= @@shipping
       shipping ||= shipping_from_products
-      
+
       robot.billing = { shipping:shipping, total:total, shipping_info:info}
+    end
+    
+    def shipping_from_dictionary dico
+      @@shipping = Price(dico[:shipping])
     end
     
     private
