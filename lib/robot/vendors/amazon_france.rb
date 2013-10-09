@@ -19,7 +19,8 @@ module AmazonFranceConstants
     email_confirmation: '//*[@id="ap_email_check"]',
     password:'//*[@id="ap_password"]',
     password_confirmation:'//*[@id="ap_password_check"]',
-    submit: '//*[@id="continue-input"]'
+    submit: '//*[@id="continue-input"]',
+    country:true
   }
   
   LOGIN = {
