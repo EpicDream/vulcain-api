@@ -7,6 +7,7 @@ module RobotCore
     end
     
     def run
+      RobotCore::Billing.new.build
       return unless form_exists?
       access_form
       Address.new.fill_using(:SHIPMENT)
