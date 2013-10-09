@@ -67,7 +67,7 @@ module VulcainApi
     }
     
     config.dispatcher = {
-      strategies: ["AmazonFrance", "RueDuCommerce", "Fnac", "Cdiscount", "Darty", "ToysrusFrance", "EveilEtJeux", "PriceMinister", "TheBodyShopFrance", "ZalandoFrance", "SuperInsolite", "TopGeek", "CadeauMaestro", "Nodshop", "LaGeekerie", "LeDindon"],
+      strategies: YAML.load_file("#{Rails.root}/config/merchants.yml"),
       min_idle_vulcains: 5,
       max_idle_average: 50, # %
       running_timeout_after: 5.minutes,      
