@@ -17,14 +17,13 @@ module RobotCore
       
       Action(:wait_for, [:submit, :access, [:SHIPMENT, :submit_packaging]])
       
-      success = shipping.submit_packaging
-      Terminate(:no_delivery) and return unless success 
+      shipping.submit_packaging || Terminate(:no_delivery)
       
       payment ||= RobotCore::Payment.new
       payment.access
       
       RobotCore::Billing.new.build
-      Terminate(:no_billing) and return if robot.billing.nil?
+      Terminate(:no_billing) if robot.billing.nil?
       
       RobotCore::Gift.new.check
       robot.assess
