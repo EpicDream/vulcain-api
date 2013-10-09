@@ -2,7 +2,7 @@
 require 'test_helper'
 require "#{Rails.root}/lib/robot/core/robot_module"
 
-class RobotTest < ActiveSupport::TestCase
+class RobotModuleTest < ActiveSupport::TestCase
   
   test "extract prices from text with euro at end" do
     assert_equal [10.20, 10.30], RobotCore::RobotModule::PRICES_IN_TEXT.("lorem 10,20€ lorem 10,30 €")
