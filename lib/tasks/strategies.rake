@@ -8,7 +8,7 @@ namespace :strategies do
     reporter = StrategiesTestsReport.new
     
     test_files.each do |vendor, test_file|
-      output = `rake -f /home/vulcain/vulcain-api/Rakefile test:units TEST=test/integration/robot/strategies/#{test_file}  TESTOPTS=--name=test_complete_order_process`
+      output = `/usr/local/bin/rake -f /home/vulcain/vulcain-api/Rakefile test:units TEST=test/integration/robot/strategies/#{test_file}  TESTOPTS=--name=test_complete_order_process`
       reporter.analyze(vendor, output)
     end
     reporter.terminate
