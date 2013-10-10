@@ -2,7 +2,8 @@
 require 'test_helper'
 
 class StrategyTest < ActiveSupport::TestCase
-
+  CONTEXT_FIXTURE_FILE_PATH = "#{Rails.root}/test/fixtures/order_context.yml"
+  
   attr_accessor :robot, :context
   
   teardown do
@@ -189,7 +190,7 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def initialize_robot_for vendor
-    @context = common_context
+    @context = YAML.load_file(CONTEXT_FIXTURE_FILE_PATH)
     @vendor = vendor
     @robot = vendor.new(@context).robot
     @robot.vendor = vendor
@@ -197,35 +198,6 @@ class StrategyTest < ActiveSupport::TestCase
     @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
     @robot.stubs(:screenshot)
     @robot.stubs(:page_source)
-  end
-  
-  def common_context
-
-    {'account' => {'login' => 'pierre_petit_05@free.fr', 'password' => 'shopelia2013'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
-                'order' => {'products' => [],
-                            'coupon' => nil,
-                            'credentials' => {
-                              'voucher' => nil,
-                              'holder' => 'Pierre Petit', 
-                              'number' => '4561003435926735', 
-                              'exp_month' => 5,
-                              'exp_year' => 2014,
-                              'cvv' => 123}},
-                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'gender' => 0,
-                           'address' => { 'address_1' => '55 Rue Didier Kléber',
-                                          'address_2' => '',
-                                          'first_name' => 'Pierre',
-                                          'last_name' => 'Legrand',
-                                          'additionnal_address' => '',
-                                          'zip' => '38140',
-                                          'city' => 'Rives',
-                                          'mobile_phone' => '0634562345',
-                                          'land_phone' => '0134562345',
-                                          'country' => 'FR'}
-                          }
-                }
   end
   
 end

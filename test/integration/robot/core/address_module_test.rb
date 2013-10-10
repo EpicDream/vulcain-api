@@ -21,12 +21,14 @@ class VendorForTest
 end
 
 class AddressModuleTest < ActiveSupport::TestCase
+  CONTEXT_FIXTURE_FILE_PATH = "#{Rails.root}/test/fixtures/order_context.yml"
   TEST_URL = "file:///#{Rails.root}/test/fixtures/address_module_test_page.html"
+
   @@done = 0
   
   setup do
     if @@done == 0
-      @@runner = VendorForTest.new(common_context)
+      @@runner = VendorForTest.new context()
       @@robot = @@runner.robot
       @@robot.open_url(TEST_URL)
     end
@@ -57,34 +59,10 @@ class AddressModuleTest < ActiveSupport::TestCase
     @@robot
   end
   
-  def common_context
-
-    {'account' => {'login' => 'pierre_petit_05@free.fr', 'password' => 'shopelia2013'},
-                'session' => {'uuid' => '0129801H', 'callback_url' => 'http://'},
-                'order' => {'products' => [],
-                            'coupon' => nil,
-                            'credentials' => {
-                              'voucher' => nil,
-                              'holder' => 'Pierre Petit', 
-                              'number' => '4561003435926735', 
-                              'exp_month' => 5,
-                              'exp_year' => 2014,
-                              'cvv' => 123}},
-                'user' => {'birthdate' => {'day' => 1, 'month' => 4, 'year' => 1985},
-                           'gender' => 1,
-                           'address' => { 'address_1' => '55 Rue Didier Kléber',
-                                          'address_2' => '',
-                                          'first_name' => 'Pierre',
-                                          'last_name' => 'Legrand',
-                                          'additionnal_address' => '',
-                                          'zip' => '38140',
-                                          'city' => 'Rives',
-                                          'mobile_phone' => '0634562345',
-                                          'land_phone' => '0134562345',
-                                          'country' => 'FR'}
-                          }
-                }
+  def context
+    @context = YAML.load_file(CONTEXT_FIXTURE_FILE_PATH)
+    @context['user']['gender'] = 1
+    @context
   end
-  
   
 end

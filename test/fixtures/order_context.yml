@@ -1,0 +1,34 @@
+---
+account:
+  login: pierre_petit_05@free.fr
+  password: shopelia2013
+session:
+  uuid: 0129801H
+  callback_url: http://
+order:
+  products: []
+  coupon: 
+  credentials:
+    voucher: 
+    holder: Pierre Petit
+    number: '4561003435926735'
+    exp_month: 5
+    exp_year: 2014
+    cvv: 123
+user:
+  birthdate:
+    day: 1
+    month: 4
+    year: 1985
+  gender: 0
+  address:
+    address_1: 55 Rue Didier Kleber
+    address_2: ''
+    first_name: Pierre
+    last_name: Legrand
+    additionnal_address: ''
+    zip: '38140'
+    city: Rives
+    mobile_phone: '0634562345'
+    land_phone: '0134562345'
+    country: FR
