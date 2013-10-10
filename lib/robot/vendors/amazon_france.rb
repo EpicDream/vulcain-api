@@ -49,7 +49,7 @@ module AmazonFranceConstants
   
   CART = {
     add:'//*[@id="bb_atc_button"]',
-    offers: '//*[@id="olpDivId"]//a[1]',
+    offers: '//*[@id="olpDivId"]//a[1] | //*[@id="secondaryUsedAndNew"]//a[1]',
     add_offer: '//input[@name="submit.addToCart"][1]',
     remove_item:'pattern:Supprimer',
     line:'//*[@id="item-block"]',
