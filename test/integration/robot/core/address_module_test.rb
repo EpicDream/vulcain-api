@@ -10,6 +10,13 @@ class VendorForTest
     miss:"2",
   }
   
+  XPATHS_2 = {
+    mister:'//input[@id="radio-1"]',
+    madam:'//input[@id="radio-2"]',
+    miss:'//input[@id="radio-3"]',
+  }
+  
+  
   attr_accessor :context, :robot
   
   def initialize context
@@ -44,13 +51,18 @@ class AddressModuleTest < ActiveSupport::TestCase
   end
   
   test "set correct gender with select" do
+    @modul.user.gender = 1
     @modul.send(:gender)
     
     assert robot.find_element("//option[@value='1']").selected?
   end
   
   test "set correct gender with radio" do
+    @modul.set_dictionary(:XPATHS_2)
+    @modul.user.gender = 2
+    @modul.send(:gender)
     
+    assert robot.find_element("//input[@id='radio-3']").selected?
   end
   
   private
