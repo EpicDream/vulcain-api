@@ -9,6 +9,11 @@ module RobotCore
       element.text if element
     end
     
+    def tabulation element=nil
+      element = element || find_element('//body')
+      element.send_key([:tab])
+    end
+    
     def image_url identifier
       element = find_element(identifier)
       element && element.attribute('src')
