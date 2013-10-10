@@ -4,19 +4,14 @@ function stop_dispatcher {
   /etc/init.d/vulcain-dispatcher stop
 }
 
-function restart_dispatcher {
-  echo 'Restart dispatcher ...'
-  /etc/init.d/vulcain-dispatcher restart
+function start_dispatcher {
+  echo 'Start Dispatcher ...'
+  /etc/init.d/vulcain-dispatcher start
 }
 
 function kill_vulcains {
   echo 'Kill(SIGINT) Vulcains Processes ...'
   kill -2 $(ps aux | pgrep -f 'vulcain/bin/run.rb')
-}
-
-function start_dispatcher {
-  echo 'Start Dispatcher ...'
-  /etc/init.d/vulcain-dispatcher start
 }
 
 function restart_unicorns {
@@ -43,8 +38,12 @@ if [ "$1" = "--hard" ]; then
     exit
   fi
   
+elif [ "$1" = "--soft" ]; then
+  stop_dispatcher
+  start_dispatcher
+  sleep 10
+  reload_vulcains
 else
-  restart_dispatcher
   reload_vulcains
 fi
 
