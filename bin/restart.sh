@@ -30,7 +30,7 @@ function reload_vulcains {
 }
 
 
-if [ $1 = "--hard" ]; then
+if [ "$1" = "--hard" ]; then
   echo 'WARNING. This script will kill all vulcains processes. Be sure no one is running.'
   read -p 'Continue?(y/n)' choice
 
@@ -41,7 +41,8 @@ if [ $1 = "--hard" ]; then
     restart_unicorns
   else
     exit
-  fi  
+  fi
+  
 else
   restart_dispatcher
   reload_vulcains
