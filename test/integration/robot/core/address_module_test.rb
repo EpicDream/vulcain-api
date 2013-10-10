@@ -16,7 +16,6 @@ class VendorForTest
     miss:'//input[@id="radio-3"]',
   }
   
-  
   attr_accessor :context, :robot
   
   def initialize context
@@ -28,29 +27,26 @@ class VendorForTest
 end
 
 class AddressModuleTest < ActiveSupport::TestCase
+  include ActiveSupportTestCaseExtension
   CONTEXT_FIXTURE_FILE_PATH = "#{Rails.root}/test/fixtures/order_context.yml"
   TEST_URL = "file:///#{Rails.root}/test/fixtures/address_module_test_page.html"
 
-  @@done = 0
   
   setup do
-    if @@done == 0
+    before_all_tests {
       @@runner = VendorForTest.new context()
       @@robot = @@runner.robot
       @@robot.open_url(TEST_URL)
-    end
-    @@done += 1
+    }
     @modul = RobotCore::Address.new
-    @modul.set_dictionary(:XPATHS_1)
   end
   
   teardown do
-    if @@done == 2
-      robot.driver.quit rescue nil
-    end
+    after_all_tests { robot.driver.quit }
   end
   
   test "set correct gender with select" do
+    @modul.set_dictionary(:XPATHS_1)
     @modul.user.gender = 1
     @modul.send(:gender)
     
