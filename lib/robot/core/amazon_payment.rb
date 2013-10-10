@@ -87,7 +87,7 @@ module RobotCore
       MAction(:wait)
       Action(:click_on, :invoice_address)
       Action(:wait_for, [:validate, [:SPECIFIC, :no_thanks_button]])
-      Action(:click_on, AmazonFrance::SPECIFIC[:no_thanks_button])
+      Action(:move_to_and_click_on, AmazonFrance::SPECIFIC[:no_thanks_button])
       Action(:wait_for, [:validate])
       Action(:wait, 5)
     end
