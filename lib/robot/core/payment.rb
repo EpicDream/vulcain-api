@@ -27,28 +27,7 @@ module RobotCore
     def checkout
       RobotCore::Billing.new.build
       RobotCore::CreditCard.new.select
-      
-      if vendor::PAYMENT[:number].is_a?(Array)
-        0.upto(3) { |i|  
-          MAction(:click_on, dictionary[:number][i])
-          Action(:wait)
-          MAction(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
-          Action(:wait)
-        }
-      else
-        MAction(:fill, :number, with:order.credentials.number)
-      end
-      Action(:fill, :holder, with:order.credentials.holder)
-      MAction(:select_option, :exp_month, value:order.credentials.exp_month)
-      MAction(:select_option, :exp_year, value:order.credentials.exp_year)
-      MAction(:fill, :cvv, with:order.credentials.cvv)
-      Action(:fill, :email, with:account.login) #yes they can!
-      Action(:click_on, :option)
-      MAction(:click_on, :submit)
-      Action(:wait_leave, :submit)
-      Action(:click_on, :cgu)
-      Action(:click_on, :validate)
-      true
+      RobotCore::CreditCard.new.fill
     end
     
     def succeed?

@@ -34,7 +34,35 @@ module RobotCore
       end
     end
     
+    def fill
+      fill_number()
+      Action(:fill, :holder, with:order.credentials.holder)
+      MAction(:select_option, :exp_month, value:order.credentials.exp_month)
+      MAction(:select_option, :exp_year, value:order.credentials.exp_year)
+      MAction(:fill, :cvv, with:order.credentials.cvv)
+      Action(:fill, :email, with:account.login) #yes they can!
+      Action(:click_on, :option)
+      MAction(:click_on, :submit)
+      Action(:wait_leave, :submit)
+      Action(:click_on, :cgu)
+      Action(:click_on, :validate)
+      true
+    end
+    
     private
+    
+    def fill_number
+      if dictionary[:number].is_a?(Array)
+        0.upto(3) { |i|  
+          MAction(:click_on, dictionary[:number][i])
+          Action(:wait)
+          MAction(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
+          Action(:wait, 1)
+        }
+      else
+        MAction(:fill, :number, with:order.credentials.number)
+      end
+    end
     
     def mastercard?
       !!(order.credentials.number =~ /^5/)
