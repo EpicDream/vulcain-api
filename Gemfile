@@ -23,7 +23,5 @@ group :assets do
 end
 
 group :test do
-  gem 'vcr'
-  gem 'webmock'
   gem "mocha", :require => false
 end
