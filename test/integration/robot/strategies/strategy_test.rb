@@ -134,7 +134,9 @@ class StrategyTest < ActiveSupport::TestCase
     robot.run_step('empty cart')
     robot.run_step('add to cart')
     robot.run_step('finalize order')
-    assert !!opts[:has_coupon] == !!robot.has_coupon, "Coupon checking failure"
+    if opts.has_key?(:has_coupon)
+      assert !!opts[:has_coupon] == !!robot.has_coupon, "Coupon checking failure"
+    end
   end
   
   def validate_order products

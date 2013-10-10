@@ -91,7 +91,7 @@ class FnacTest < StrategyTest
   
   test "complete order process" do
     products = [{url:PRODUCT_1_URL, quantity:1}, {url:PRODUCT_2_URL, quantity:2}]
-    run_spec("complete order process", products, has_coupon:false)
+    run_spec("complete order process", products)
   end
   
   test "cancel order" do

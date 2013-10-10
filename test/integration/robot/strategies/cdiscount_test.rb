@@ -107,7 +107,7 @@ class CdiscountTest < StrategyTest
   end
   
   test "complete order process with product without coupon" do
-    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}], has_coupon:false)
+    run_spec("complete order process", [{url:PRODUCT_URL_1, quantity:1}])
   end
   
   test "add eco taxe in product price and in line amount" do
