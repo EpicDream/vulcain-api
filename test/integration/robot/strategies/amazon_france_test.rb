@@ -148,4 +148,12 @@ class AmazonTest < StrategyTest
     run_spec('validate order', products)
   end
   
+  test "finalize order with offer from merchant" do
+    expected_products = [{"price_text"=>"EUR 19,95 (EUR 49,87 / 100 g)\n+ EUR 5,00 de frais de livraison", "eco_part"=>0.0, "product_title"=>"GC Tooth Mousse mint 40g", "product_image_url"=>"http://ecx.images-amazon.com/images/I/81e3JtxZkyL._SY355_.jpg", "price_product"=>19.95, "price_delivery"=>nil, "url"=>"http://www.amazon.fr/dp/B0071QGRAS", "id"=>nil, "product_version_id"=>nil, "expected_quantity"=>1, "quantity"=>1}]
+    billing = {:shipping=>5.0, :total=>24.95, :shipping_info=>nil}
+    
+    products = [{url:'http://www.amazon.fr/dp/B0071QGRAS', quantity:1}]
+    run_spec("finalize order", products, expected_products, billing)
+  end
+  
 end

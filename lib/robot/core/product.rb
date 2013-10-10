@@ -14,7 +14,7 @@ module RobotCore
       product['eco_part'] = Price(:eco_part).to_f
       product['product_title'] = Action(:get_text, :title)
       product['product_image_url'] = Action(:image_url, :image)
-      product['price_product'] = Price(:price_text) + product['eco_part']
+      product['price_product'] = Price(:price_text).to_f + product['eco_part']
       product['price_delivery'] = Price(:shipping)
       product['url'] = robot.current_product.url
       product['id'] = robot.current_product.id
