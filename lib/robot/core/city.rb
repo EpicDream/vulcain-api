@@ -7,6 +7,7 @@ module RobotCore
     end
     
     def set
+      return unless dictionary[:city]
       tag_name = Action(:find_element, :city).tag_name
       send("set_city_via_#{tag_name}")
     end

@@ -7,7 +7,8 @@ module RobotCore
     end
     
     def set
-      send("set_via_#{tag_name}")
+      selector = tag_name
+      send("set_via_#{selector}") if selector
     end
     
     private
