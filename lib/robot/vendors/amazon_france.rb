@@ -50,6 +50,8 @@ module AmazonFranceConstants
   
   CART = {
     add:'//*[@id="bb_atc_button"]',
+    offers: '//*[@id="olpDivId"]//a[1]',
+    add_offer: '//input[@name="submit.addToCart"][1]',
     remove_item:'pattern:Supprimer',
     line:'//*[@id="item-block"]',
     title:'.//span[@class="product-title"]',
@@ -70,6 +72,7 @@ module AmazonFranceConstants
   
   PRODUCT = {
     price_text:'//*[@id="actualPriceValue"]',
+    offer_price_text:'div.olpOffer div',
     title:'//*[@id="btAsinTitle"]',
     image:'//*[@id="main-image"]'
   }
