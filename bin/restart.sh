@@ -5,7 +5,7 @@ function stop_dispatcher {
 }
 
 function restart_dispatcher {
-  echo 'Stop dispatcher ...'
+  echo 'Restart dispatcher ...'
   /etc/init.d/vulcain-dispatcher restart
 }
 
