@@ -8,12 +8,22 @@ class VendorForTest
     mister:"0",
     madam:"1",
     miss:"2",
+    city:'//*[@id="city-input"]',
+    zip:'//*[@id="zip-input"]'
   }
   
   XPATHS_2 = {
     mister:'//input[@id="radio-1"]',
     madam:'//input[@id="radio-2"]',
     miss:'//input[@id="radio-3"]',
+    first_name:'//input[@id="firstname"]',
+    city:'//select[@id="city"]',
+    mobile_phone:'//*[@id="mobilephone"]',
+    sms_options: ['//*[@id="sms-1"]', '//*[@id="sms-2"]'],
+    zip_popup: '.zip-popup',
+    address_number: '//*[@id="address-number"]',
+    address_type: '//*[@id="address-type"]',
+    address_track: '//*[@id="address-track"]'
   }
   
   attr_accessor :context, :robot
@@ -46,19 +56,44 @@ class AddressModuleTest < ActiveSupport::TestCase
   end
   
   test "set correct gender with select" do
-    @modul.set_dictionary(:XPATHS_1)
     @modul.user.gender = 1
-    @modul.send(:gender)
+    @modul.fill_using(:XPATHS_1)
     
     assert robot.find_element("//option[@value='1']").selected?
   end
   
   test "set correct gender with radio" do
-    @modul.set_dictionary(:XPATHS_2)
     @modul.user.gender = 2
-    @modul.send(:gender)
+    @modul.fill_using(:XPATHS_2)
     
     assert robot.find_element("//input[@id='radio-3']").selected?
+  end
+  
+  test "select city via select combo" do
+    @modul.fill_using(:XPATHS_2)
+    
+    assert robot.find_element("//select[@id='city']/option[@value='0']").selected?
+  end
+  
+  test "check sms options" do
+    @modul.fill_using(:XPATHS_2)
+    
+    assert robot.find_element("//*[@id='sms-1']").selected?
+    assert robot.find_element("//*[@id='sms-2']").selected?
+  end
+  
+  test "select zip code from select combo" do
+    @modul.fill_using(:XPATHS_2)
+    
+    assert robot.find_element("//*[@name='zip-popup-to-check']").selected?
+  end
+  
+  test "split address" do
+    @modul.fill_using(:XPATHS_2)
+    
+    assert robot.find_element("//select[@id='address-type']/option[@value='0']").selected?
+    assert_equal "55", robot.find_element('//*[@id="address-number"]').attribute("value")
+    assert_equal "Didier Kleber", robot.find_element('//*[@id="address-track"]').attribute("value")
   end
   
   private

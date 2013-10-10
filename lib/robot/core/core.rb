@@ -1,5 +1,8 @@
 require_relative 'robot_module'
 require_relative 'actions'
+require_relative 'gender'
+require_relative 'city'
+require_relative 'country'
 require_relative 'address'
 require_relative 'registration'
 require_relative 'login'

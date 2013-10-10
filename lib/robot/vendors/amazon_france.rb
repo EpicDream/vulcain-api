@@ -112,7 +112,7 @@ class AmazonFrance
     credit_card_show_link:'//*[@id="add-credit-card"] | //*[@id="ccAddCard"]',
     expires_buttons:'//div[@class="field-span pay-date-width"]//button',
     expires_options: lambda { |index| "//ul[@id='#{index + 1}_dropdown_combobox']//li[@role='option'][3]/a"  },
-    no_thanks_button:'div.prime-nothanks-button',
+    no_thanks_button:'div.ap_custom_close',
     new_cc:'//*[@id="new-cc"]//input[@type="button"]',
   }
   
