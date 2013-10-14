@@ -140,7 +140,7 @@ class Driver
   
   def find_any_element identifiers
     return if identifiers.nil? || identifiers.empty?
-    waiting { 
+    waiting(true) { 
       identifiers.inject(nil) do |element, identifier|
         element = find_element(identifier)
         break element if element

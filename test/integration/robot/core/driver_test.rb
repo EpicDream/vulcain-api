@@ -108,4 +108,15 @@ class DriverTest < ActiveSupport::TestCase
     @driver.select_option(select, "2014")
   end
   
+  test "find any element should raise if no element found after TIMEOUT" do
+    assert_raise Selenium::WebDriver::Error::TimeOutError do
+      @driver.find_any_element(['//*[@id="toto"]', nil])
+    end
+  end
+  
+  test "find any element should not raise if  element exists" do
+    assert @driver.find_any_element(['//body', nil])
+  end
+  
+  
 end
