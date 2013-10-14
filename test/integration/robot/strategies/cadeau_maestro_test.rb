@@ -5,6 +5,7 @@ require_robot 'cadeau_maestro'
 class CadeauMaestroTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.cadeau-maestro.com/334-montres/1764-montre-bluetooth-zewatch.html'
   PRODUCT_URL_2 = 'http://www.cadeau-maestro.com/192-glacons-originaux/1509-glacons-balles-ak47-5060111430832.html'
+  PRODUCT_URL_3 = 'http://www.cadeau-maestro.com/346-accessoires-musique/446-otamatone.html'
   
   setup do
     initialize_robot_for CadeauMaestro
@@ -83,7 +84,7 @@ class CadeauMaestroTest < StrategyTest
   end
   
   test "complete order process" do
-    run_spec("complete order process", [{url:PRODUCT_URL_2, quantity:2}], has_coupon:true)
+    run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}], has_coupon:true)
   end
   
 end
