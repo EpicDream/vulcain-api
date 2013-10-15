@@ -75,6 +75,7 @@ module LeDindonConstants
     cancel:'//*[@id="backToBoutiqueForm"]/button',
     status: '//body',
     succeed: /merci/,
+    access: '//input[@src="http://www.ledindon.com/logos/paiement-spplus.gif"]'
   }
   
 end
