@@ -7,7 +7,8 @@ class SuperInsoliteTest < StrategyTest
   PRODUCT_URL_2 = 'http://www.super-insolite.com/cadeau-anniversaire-original/mug-matrix-code.html'
   PRODUCT_URL_3 = 'http://www.super-insolite.com/jouets-toys-gadgets-insolites/peluches-insolites-originales/peluche-gremlins-gizmo.html'
   PRODUCT_URL_4 = 'http://www.super-insolite.com/ou-est-charlie-kit-hiver.html'
-  
+  PRODUCT_URL_5 = 'http://www.super-insolite.com/chauffe-main-revolver.html'
+
   setup do
     initialize_robot_for SuperInsolite
   end
@@ -81,7 +82,7 @@ class SuperInsoliteTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_URL_4, quantity:2}]
+    products = [{url:PRODUCT_URL_5, quantity:2}]
     run_spec("complete order process", products, has_coupon:true)
   end
   
