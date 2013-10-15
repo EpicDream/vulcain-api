@@ -18,6 +18,7 @@ class AmazonTest < StrategyTest
   
   setup do
     initialize_robot_for AmazonFrance
+    RobotCore::AmazonPayment.any_instance.stubs(:validate)
   end
   
   test "register" do
@@ -130,7 +131,6 @@ class AmazonTest < StrategyTest
   
   test "complete order process" do
     @robot.billing = {}
-    RobotCore::Payment.any_instance.expects(:checkout).returns(false)
     products = [{url:PRODUCT_URL_6, quantity:2}, {url:PRODUCT_URL_8, quantity:3}]
     
     run_spec("complete order process", products, has_coupon:true)
