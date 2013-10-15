@@ -34,11 +34,12 @@ class StrategiesTestsReport
   
   def initialize
     @errors = {}
-    @outputs = {}
+    @output = File.open(TESTS_RESULT_FILE_PATH, "w+").tap {|f| f.truncate(0)}
   end
   
   def analyze vendor, output
-    @outputs[vendor] = output
+    log(vendor, output)
+    
     errors = GREP_TRACE.(output)
     if errors.any?
       trace = errors[0]
@@ -52,7 +53,7 @@ class StrategiesTestsReport
   def terminate
     nagios
     leftronic
-    output_tests_result
+    @output.close
   end
   
   private
@@ -73,12 +74,9 @@ class StrategiesTestsReport
     `curl -i -X POST -k -d '{"accessKey": "yiOeiGcux3ZuhdsWuVHJ", "streamName": "vulcain_core_status", "point": #{point}}' https://www.leftronic.com/customSend/`
   end
   
-  def output_tests_result
-    File.open(TESTS_RESULT_FILE_PATH, "w+") { |file| 
-      @outputs.each{ |vendor, trace| 
-        file.write("\n==#{vendor}==\n#{trace}")
-      }
-    }
+  def log vendor, output
+    @output.write("\n==#{vendor}==\n#{output}")
+    @output.flush
   end
   
 end
