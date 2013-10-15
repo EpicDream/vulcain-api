@@ -69,7 +69,7 @@ module TopGeekConstants
     empty_message:'//body',
     empty_message_match:/panier\s+est\s+vide/i,
     submit: '//p[@class="cart_navigation"]/a',
-    submit_success: [SHIPMENT[:submit]],
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address]],
     coupon:'//*[@id="discount_name"]',
     coupon_recompute:'//input[@name="submitAddDiscount"]'
   }
