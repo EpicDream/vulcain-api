@@ -26,28 +26,11 @@ module RobotCore
       Action(:wait)
       
       if mastercard?
-        #temporary to get trace and find why sometimes input is not filled
-        begin
-          File.open("/var/log/vulcain-dispatcher/vulcain.log", 'a+') {|f| 
-            f.write("DEBUG ~ :  MASTERCARD #{order.credentials.number}\n") 
-          }
-        rescue
-        end
-        
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:master_card_value])
         Action(:click_on, :mastercard)
       else
-        #temporary to get trace and find why sometimes input is not filled
-        begin
-          File.open("/var/log/vulcain-dispatcher/vulcain.log", 'a+') {|f| 
-            f.write("DEBUG ~ :  VISA #{order.credentials.number}\n") 
-          }
-        rescue
-        end
-        
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:visa_value])
         Action(:click_on, :visa)
-        sleep 200
       end
     end
     
