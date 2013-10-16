@@ -19,6 +19,7 @@ class Driver
   end
   
   def quit
+    return true if ENV['SKIP_DRIVER_QUIT']
     @driver.quit
     FileUtils.rm_rf(@profile_path) if @profile_path
     true

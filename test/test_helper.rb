@@ -1,4 +1,6 @@
 ENV["RAILS_ENV"] = "test"
+ENV['SKIP_DRIVER_QUIT'] = ENV['TEXTMATE_MODE_TEST']
+
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'robot/core_extensions'
