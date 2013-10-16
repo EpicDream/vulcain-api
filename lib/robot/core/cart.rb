@@ -14,7 +14,7 @@ module RobotCore
         next unless file.exists?
         add_to_cart(product)
       end
-      Terminate(:no_product_available) and return if products.empty?
+      Terminate(:failure_no_product_available) if products.empty?
       RobotCore::Quantities.new.set
       Message(:cart_filled, :next_step => 'finalize order')
     end
