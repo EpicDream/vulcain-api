@@ -15,6 +15,7 @@ class AmazonTest < StrategyTest
   PRODUCT_URL_10 = 'http://www.amazon.fr/gp/product/B00CJ5RHXM/ref=s9_simh_gw_p193_d0_i3?pf_rd_m=A1X6FK5RDHNB96&pf_rd_s=center-2&pf_rd_r=1D4X6MSB4X4BFDWTPB7K&pf_rd_t=101&pf_rd_p=312233167&pf_rd_i=405320'
   PRODUCT_URL_11 = 'http://www.amazon.fr/Gianfranco-Ferre-704FDBND80859-Sac-main/dp/B00ATFY8DQ/ref=sr_1_3?tag=shopelia-21'
   PRODUCT_URL_12 = 'http://www.amazon.fr/gp/product/B002SVEMM6/ref=ox_sc_act_title_1?ie=UTF8&psc=1&smid=A1X6FK5RDHNB96'
+  PRODUCT_URL_13 = 'http://www.amazon.fr/dp/B0002LXXC4?tag=shopelia-21' #only access via merchants offers
   
   setup do
     initialize_robot_for AmazonFrance
@@ -131,7 +132,7 @@ class AmazonTest < StrategyTest
   
   test "complete order process" do
     @robot.billing = {}
-    products = [{url:PRODUCT_URL_6, quantity:2}, {url:PRODUCT_URL_8, quantity:3}]
+    products = [{url:PRODUCT_URL_13, quantity:1}, {url:PRODUCT_URL_8, quantity:3}]
     
     run_spec("complete order process", products, has_coupon:true)
   end
