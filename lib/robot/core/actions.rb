@@ -122,14 +122,6 @@ module RobotCore
 
     def fill identifier, args={}
       unless args[:mandatory] || identifier.is_a?(Selenium::WebDriver::Element)
-        #temporary to get trace and find why sometimes input is not filled
-        begin
-          File.open("/var/log/vulcain-dispatcher/vulcain.log", 'a+') {|f| 
-            f.write("DEBUG ~ :  #{identifier} | #{args[:with]} | #{exists?(identifier).inspect}\n") 
-          }
-        rescue
-        end
-        
         return false if !exists?(identifier)
       end
       input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
