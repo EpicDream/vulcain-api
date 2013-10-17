@@ -4,22 +4,24 @@ ENV['DISPLAY'] = ':0' if ENV['DISPLAY'].nil?
 namespace :strategies do
   
   desc "regression test which run complete ordering until payment for each strategy"
-  task :test => :environment do
+  task :test, [:tests] => :environment do |t, args|
+    tests = args[:tests].split('-') if args[:tests]
     reporter = StrategiesTestsReport.new
     
-    test_files.each do |vendor, test_file|
-      output = `rake -f /home/vulcain/vulcain-api/Rakefile test:units TEST=test/integration/robot/strategies/#{test_file}  TESTOPTS=--name=test_complete_order_process`
+    test_files(tests).each do |vendor, test_file|
+      output = `rake test:units TEST=test/integration/robot/strategies/#{test_file}  TESTOPTS=--name=test_complete_order_process`
       reporter.analyze(vendor, output)
     end
     reporter.terminate
   end
 
-  def test_files
+  def test_files tests=nil
     Dir.glob("#{Rails.root}/test/integration/robot/strategies/*_test.rb").map { |test_file|  
       test_file = File.basename(test_file)
       test_file =~ /(.*?)_test.rb/
+      next if tests && !tests.include?($1)
       [$1, test_file]
-    }
+    }.compact
   end
   
 end
