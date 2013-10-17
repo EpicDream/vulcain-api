@@ -1,19 +1,7 @@
 # encoding: utf-8
-
 module RobotCore
-  
-  class VulcainError < StandardError
-    def initialize msg=:vulcain_error
-      @msg = msg
-    end
-    
-    def message
-      Robot.instance.terminate_on_error(@msg)
-      @msg
-    end
-  end
-  
   class RobotModule
+    VULCAIN_LOG_FILE_PATH = "/var/log/vulcain-dispatcher/vulcain.log"
     PRICES_IN_TEXT = lambda do |text| 
       break [] unless text
       text.gsub!(/\n/, ' ')
@@ -40,6 +28,13 @@ module RobotCore
     
     def set_dictionary dico
       self.dictionary = Object.const_get(self.vendor.to_s).const_get(dico)
+    end
+    
+    def log message, sleep_time=0
+      File.open(VULCAIN_LOG_FILE_PATH, 'a+') do |f| 
+        f.write(message) 
+      end rescue nil
+      sleep(sleep_time)
     end
     
     def Action action, key=nil, opts=nil, &block
@@ -73,7 +68,6 @@ module RobotCore
     
     def Price key, opts={}
       identifier = key.is_a?(Symbol) ? self.dictionary[key] : key
-      
       PRICES_IN_TEXT.(robot.get_text identifier, opts).first
     end
     
