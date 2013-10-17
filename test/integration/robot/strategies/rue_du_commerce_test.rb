@@ -10,7 +10,8 @@ class RueDuCommerceTest < StrategyTest
   PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
   PRODUCT_6_URL = "http://www.rueducommerce.fr/m/ps/mpid:MP-050B5M9378958#moid:MO-050B5M15723442"
   PRODUCT_7_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5Bm/ps/mpid:MP-4CE8FM4915673%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
-  
+  PRODUCT_8_URL = "http://www.rueducommerce.fr/Composants/Disque-Dur-externe/Disque-Dur-externe-portable/INTENSO/MP-56BB1M1063603-Intenso-MemoryStation-2-5-Usb-320GB-Disque-dur-externe-blanc.htm#moid:MO-B72FDM12453752"
+
   setup do
     initialize_robot_for RueDuCommerce
   end
@@ -95,7 +96,7 @@ class RueDuCommerceTest < StrategyTest
   end  
   
   test "complete order process" do
-    products = [{url:PRODUCT_5_URL, quantity:2}]
+    products = [{url:PRODUCT_8_URL, quantity:2}]
     
     run_spec("complete order process", products, has_coupon:true)
   end
