@@ -67,9 +67,9 @@ module RobotCore
       nil
     end
 
-    def move_to_and_click_on identifier
+    def move_to_and_click_on identifier, opts={}
       element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
-      element ||= @driver.find_element(identifier)
+      element ||= @driver.find_element(identifier, opts)
       element && @driver.move_to_and_click_on(element) 
     end
 
@@ -80,11 +80,11 @@ module RobotCore
       attempts = 0
       begin
         element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
-        element ||= @driver.find_element(identifier)
+        element ||= @driver.find_element(identifier, opts)
         @driver.click_on element
       rescue Selenium::WebDriver::Error::UnknownError
         @driver.scroll(0, 200)
-        move_to_and_click_on(identifier)
+        move_to_and_click_on(identifier, opts)
       rescue Selenium::WebDriver::Error::StaleElementReferenceError
         attempts += 1
         if attempts < 20
