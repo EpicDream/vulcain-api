@@ -7,7 +7,6 @@ class Driver
   TIMEOUT = ENV["RAILS_ENV"] == "test" ? 8 : 40
   MAX_ATTEMPTS_ON_RAISE = 10
   LEAVE_PAGE_TIMEOUT = 10
-  FILL_ATTEMPTS = 5
   
   attr_accessor :driver, :wait
   
@@ -25,11 +24,34 @@ class Driver
     true
   end
   
+  def pending_ajax?
+    script = %Q{
+      if (typeof jQuery !== 'undefined') {
+        return jQuery.active != 0;
+      }
+      else if(typeof Ajax !== 'undefined'){
+        return Ajax.activeRequestCount != 0;
+      }
+      else {
+        return false;
+      }
+    }
+    execute_script(script)
+  end
+  
   def get url
     waiting(true){
       @driver.get(url)
       true
     }
+    wait_ajax()
+  end
+  
+  def wait_ajax
+    waiting(true){
+      !pending_ajax?
+    }
+    true
   end
   
   def current_url
@@ -57,12 +79,9 @@ class Driver
   end
   
   def fill element, with
-    FILL_ATTEMPTS.times do |n|
-      element.clear
-      element.send_key with.to_s
-      return true if element["value"] == with.to_s
-    end
-    false
+    element.clear
+    element.send_key with.to_s
+    wait_ajax()
   end
 
   def options_of_select select
@@ -77,27 +96,21 @@ class Driver
       option.click
       break
     end
+    wait_ajax()
   end
 
   def click_on element
     return unless element
-    attempts = 0
-    begin
-      element.click
-    rescue Timeout::Error
-      #strange behaviour, the element is well clicked but this wait TIMEOUT and raise Timeout::Error
-      return
-    rescue => e
-      if (attempts += 1) <= MAX_ATTEMPTS_ON_RAISE
-        sleep(0.5) and retry #wait element clickable
-      else
-        raise
-      end
-    end
+    msg = element.click
+    wait_ajax()
+    return msg
+  rescue Timeout::Error
+    #strange behaviour, the element is well clicked but this wait TIMEOUT and raise Timeout::Error
   end
  
   def move_to_and_click_on element
     driver.action.move_to(element).click.perform
+    wait_ajax()
   rescue => e
   end
   

@@ -81,12 +81,15 @@ module RobotCore
       begin
         element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
         element ||= @driver.find_element(identifier, opts)
-        @driver.click_on element
+        msg = @driver.click_on element
+        raise if msg && msg["message"] =~ /Element is not clickable/
+        raise if msg && msg["message"] =~ /stale element reference/
       rescue Selenium::WebDriver::Error::UnknownError
         @driver.scroll(0, 200)
         move_to_and_click_on(identifier, opts)
-      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+      rescue => e
         attempts += 1
+        element = nil
         if attempts < 20
           sleep(0.5) and retry 
         else
