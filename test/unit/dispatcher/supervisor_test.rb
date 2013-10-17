@@ -17,11 +17,12 @@ class SupervisorTest <  ActiveSupport::TestCase
   test "check timeouts of vulcains" do
     @pool.pool = vulcains
     vulcain = @pool.pool.first
+    vulcain.stubs(:suicide)
     vulcain.run_since = Time.now - 5.minutes
     
     @supervisor.check_timeouts.call
     
-    assert vulcain.blocked
+    assert !@pool.pool.include?(vulcain)
     assert_equal 2, @pool.pool.count { |vulcain| !vulcain.blocked  }
   end
   

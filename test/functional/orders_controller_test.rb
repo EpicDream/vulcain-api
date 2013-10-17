@@ -34,7 +34,6 @@ class OrdersControllerTest < ActionController::TestCase
     assert_response 200
   end
   
-  
   private
   
   def request_body
