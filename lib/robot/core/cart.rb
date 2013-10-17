@@ -33,8 +33,8 @@ module RobotCore
       RobotCore::Coupon.new(:CART).insert
       RobotCore::CartAmount.new().validate()
       RobotCore::Billing.new.shipping_from_dictionary(dictionary) if dictionary[:shipping]
-      
-      MAction(:move_to_and_click_on, :submit)
+      Action(:click_on, :popup)
+      MAction(:click_on, :submit)
       Action(:open_url, :after_submit_cart)
       Terminate(:out_of_stock) and return if out_of_stock?
       true
