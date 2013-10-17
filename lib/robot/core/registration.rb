@@ -9,7 +9,7 @@ module RobotCore
     def run
       access_form
       login
-      Action(:wait)
+      
       
       Terminate(:account_creation_failed) and return if still_login_step?
       Address.new.fill_using(:REGISTER)
@@ -53,7 +53,7 @@ module RobotCore
     def submit
       Action(:click_on, :cgu)
       MAction(:click_on, :submit)
-      Action(:wait)
+      
     end
     
     def submit_with_new_pseudonym

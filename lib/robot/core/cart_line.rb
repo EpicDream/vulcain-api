@@ -21,7 +21,7 @@ module RobotCore
       return unless @setter_type
       @quantity = to || product['expected_quantity']
       send("set_quantity_with_#{@setter_type}".to_sym)
-      Action(:wait)
+      
       Action(:click_on, :popup)
       update_amount()
       update_quantities() if quantity_exceed?
@@ -36,7 +36,7 @@ module RobotCore
     private
     
     def quantity_exceed?
-      Action(:wait)
+      
       popup = Action(:find_element, :quantity_exceed)
       exceed = (popup && popup.displayed?) || Action(:accept_alert)
       MAction(:click_on, popup) if exceed
@@ -69,7 +69,7 @@ module RobotCore
     def set_quantity_with_submit
       (@quantity - 1).times { 
         MAction(:click_on, @setter)
-        Action(:wait)
+        
         refresh()
       }
     end

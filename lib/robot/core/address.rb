@@ -34,13 +34,13 @@ module RobotCore
     def sms_options
       return unless dictionary[:sms_options]
       Action(:tabulation)
-      Action(:wait)
+      
       dictionary[:sms_options].each { |identifier| MAction(:click_on, identifier)}
     end
     
     def zip_popup
       return unless dictionary[:zip_popup]
-      Action(:wait)
+      
       elements = MAction(:find_elements, :zip_popup)
       elements.each do |e|
         city = user.address.city.gsub(/-/, ' ').downcase.strip

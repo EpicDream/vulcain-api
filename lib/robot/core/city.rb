@@ -16,7 +16,6 @@ module RobotCore
     
     def set_city_via_select
       Action(:tabulation)
-      Action(:wait)
       MAction(:select_option, :city, value:option_to_select())
     end
     

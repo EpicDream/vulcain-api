@@ -44,7 +44,6 @@ module RobotCore
     
     def cancel
       Action(:click_on, :cancel)
-      Action(:wait)
       Action(:accept_alert)
       Action(:open_url, :base)
       robot.run_step('empty cart', next_step:'cancel')

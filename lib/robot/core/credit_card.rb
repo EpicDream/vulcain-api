@@ -10,20 +10,20 @@ module RobotCore
       return if cannot_be_removed?
       access_form
       RobotCore::Login.new.relog
-      Action(:wait)
+      
       Action(:click_on, :remove, ajax:true)
       Action(:accept_alert)
-      Action(:wait)
+      
       Action(:click_on, :remove_confirmation)
-      Action(:wait)
+      
       robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }
       Action(:open_url, :base)
     end
     
     def select
-      Action(:wait)
+      
       MAction(:click_on, :credit_card)
-      Action(:wait)
+      
       
       if mastercard?
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:master_card_value])
@@ -55,9 +55,7 @@ module RobotCore
       if dictionary[:number].is_a?(Array)
         0.upto(3) { |i|  
           MAction(:click_on, dictionary[:number][i])
-          Action(:wait)
           MAction(:fill, dictionary[:number][i], with:order.credentials.number[i*4..(i*4 + 3)])
-          Action(:wait, 1)
         }
       else
         MAction(:fill, :number, with:order.credentials.number)

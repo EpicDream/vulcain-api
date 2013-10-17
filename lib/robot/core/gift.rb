@@ -9,7 +9,6 @@ module RobotCore
     def set
       return unless order.gift_message
       MAction(:click_on, :gift_option)
-      Action(:wait)
     end
     
     def set_message

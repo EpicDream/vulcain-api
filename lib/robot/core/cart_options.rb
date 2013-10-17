@@ -23,7 +23,7 @@ module RobotCore
     end
     
     def remove_options
-      Action(:click_on_all, [:remove_option]){ |e| Action(:wait); !e.nil? }
+      Action(:click_on_all, [:remove_option]){ |e| !e.nil? }
     end
     
   end

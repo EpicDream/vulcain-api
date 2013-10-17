@@ -40,7 +40,7 @@ module RobotCore
     
     def decaptchatize
       return unless Action(:exists?, :captcha)
-      Action(:wait)
+      
       element = MAction(:find_element, :captcha)
       text = resolve_captcha element.attribute('src')
       MAction(:fill, :captcha_input, with:text)
@@ -59,7 +59,6 @@ module RobotCore
     
     def login
       MAction(:fill, :email, with:account.login)
-      MAction(:wait)
       MAction(:fill, :password, with:account.password)
     end
     

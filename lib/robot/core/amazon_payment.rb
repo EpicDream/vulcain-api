@@ -27,14 +27,11 @@ module RobotCore
       unless robot.skip_assess
         robot.run_step('remove credit card')
         Action(:open_url, :shipping)
-        Action(:wait, 3)
         RobotCore::Login.new.relog
-        Action(:wait, 3)
         fill_coupon(order.credentials.voucher)
         MAction(:click_on, :access)
       end
       
-      Action(:wait, 5)
       Action(:wait_for, [:validate])
       Action(:click_on, :validate)
       robot.skip_assess = false
@@ -56,13 +53,12 @@ module RobotCore
         Action(:click_on, AmazonFrance::SPECIFIC[:coupon_show_link])
         MAction(:fill, :coupon, with:code)
         MAction(:click_on, :coupon_recompute)
-        Action(:wait, 5)
       end
     end
     
     def fill_credit_card
-      Action(:click_on, AmazonFrance::SPECIFIC[:credit_card_show_link])
-      Action(:wait)
+      Action(:click_on, AmazonFrance::SPECIFIC[:credit_card_show_link], ajax:true)
+      
       RobotCore::Payment.new.checkout
       redo_expires_with_buttons()#suck!
     end
@@ -71,29 +67,26 @@ module RobotCore
       return unless buttons = Action(:find_elements, AmazonFrance::SPECIFIC[:expires_buttons])
       buttons.each_with_index do |button, index|
         Action(:click_on, button)
-        Action(:wait)
+        
         option = Action(:find_element, AmazonFrance::SPECIFIC[:expires_options].(index))
         Action(:click_on, option)
-        Action(:wait)
+        
       end
       MAction(:click_on, :submit)
     end
     
     def access_validation
       Action(:click_on, AmazonFrance::SPECIFIC[:new_cc])
-      Action(:wait)
       MAction(:click_on, :access)
       Action(:wait_for, [:validate, :invoice_address])
-      MAction(:wait)
       Action(:click_on, :invoice_address)
       Action(:wait_for, [:validate, [:SPECIFIC, :no_thanks_button]])
       Action(:move_to_and_click_on, AmazonFrance::SPECIFIC[:no_thanks_button])
       Action(:wait_for, [:validate])
-      Action(:wait, 5)
     end
     
     def balance_positive?
-      Action(:wait)
+      
       balance = Action(:get_text, AmazonFrance::SPECIFIC[:balance])
       !!(balance =~ /Utilisez.*EUR\s+\d.*/)
     end

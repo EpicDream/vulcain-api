@@ -69,7 +69,7 @@ module RobotCore
       case
       when Action(:exists?, :remove_item)
         Action(:click_on_all, [:remove_item]) { |element|
-          Action(:wait)
+          
           Action(:accept_alert)
           Action(:open_url, :cart)
           !element.nil? 
@@ -90,17 +90,16 @@ module RobotCore
     def add_to_cart product
       RobotCore::Options.new(product).run #move in ProductFile ?
       RobotCore::Product.new.build
-      Action(:wait)
+      
       if Action(:exists?, :offers)
         MAction(:click_on, :offers)
-        Action(:wait)
+        
         RobotCore::Product.new.update_from_vendor_offer
         MAction(:click_on, :add_offer)
       else
         MAction(:click_on, :add)
       end
       RobotCore::CartOptions.new.run
-      Action(:wait, 4)
     end
     
   end
