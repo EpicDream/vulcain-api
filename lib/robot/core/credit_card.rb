@@ -71,7 +71,8 @@ module RobotCore
     end
     
     def e_card?
-      !!(order.credentials.number =~ /^415/)
+      # !!(order.credentials.number =~ /^415/)
+      false
     end
     
     def cannot_be_removed?
