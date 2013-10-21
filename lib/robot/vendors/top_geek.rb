@@ -22,6 +22,8 @@ module TopGeekConstants
     cgu:'//*[@id="customer_privacy"]',
     submit: '//*[@id="submitAccount"]',
     submit_login:'//*[@id="SubmitCreate"]',
+    cgu: '//*[@id="customer_privacy"]',
+    popup: '//*[@id="ac_mbox_close"]'
   }
   
   LOGIN = {

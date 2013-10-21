@@ -10,7 +10,7 @@ module RobotCore
       access_form
       login
       
-      
+      sleep 4
       Terminate(:account_creation_failed) and return if still_login_step?
       Address.new.fill_using(:REGISTER)
 
@@ -19,10 +19,12 @@ module RobotCore
       password
       pseudonym
       options
-      
+      Action(:wait)
       submit
-      submit_options
-      
+      Action(:wait)
+      submit_options  
+      Action(:wait)
+          
       Terminate(:account_creation_failed) and return if fails? && !submit_with_new_pseudonym
       Message(:account_created, :next_step => 'renew login')
     end
@@ -51,9 +53,10 @@ module RobotCore
     end
     
     def submit
-      Action(:click_on, :cgu)
+      Action(:move_to_and_click_on, :cgu)
+      Action(:click_on, :popup)
+      Action(:move_to_and_click_on, :cgu) unless Action(:checked?, :cgu) #fuck topgeek
       MAction(:click_on, :submit)
-      
     end
     
     def submit_with_new_pseudonym
