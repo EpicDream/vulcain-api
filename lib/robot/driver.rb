@@ -7,7 +7,6 @@ class Driver
   TIMEOUT = ENV["RAILS_ENV"] == "test" ? 8 : 40
   MAX_ATTEMPTS_ON_RAISE = 10
   LEAVE_PAGE_TIMEOUT = 10
-  FILL_ATTEMPTS = 5
   
   attr_accessor :driver, :wait
   
@@ -57,12 +56,9 @@ class Driver
   end
   
   def fill element, with
-    FILL_ATTEMPTS.times do |n|
-      element.clear
-      element.send_key with.to_s
-      return true if element["value"] == with.to_s
-    end
-    false
+    element.clear
+    element.send_key with.to_s
+    true
   end
 
   def options_of_select select
