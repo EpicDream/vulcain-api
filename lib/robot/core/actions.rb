@@ -107,11 +107,11 @@ module RobotCore
       begin
         element = find_first_element_in(identifiers, options)
         begin
-          @driver.click_on(element)
+          msg = @driver.click_on(element)
+          raise Selenium::WebDriver::Error::StaleElementReferenceError if msg && msg["message"] =~ /stale element reference/
         rescue Selenium::WebDriver::Error::StaleElementReferenceError
           element = nil
         end
-        
         continue = yield element
         raise("Click on all timeout") if continue && Time.now - start > 30
       end while continue
