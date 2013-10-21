@@ -44,7 +44,8 @@ module RobotCore
     def submit
       Action(:click_on, :same_billing_address)
       MAction(:click_on, :submit)
-      Action(:wait_for, [:submit_packaging, :address_submit])
+      Action(:wait, 4)
+      #Action(:wait_for, [:submit_packaging, :address_submit])
     end
     
     def access_form

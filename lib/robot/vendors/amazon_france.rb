@@ -89,7 +89,7 @@ module AmazonFranceConstants
     remove: '//img[@alt="Supprimer"]/ancestor::a[1]',
     remove_confirmation: '//input[@name="confirmDelete"]',
     remove_must_match:/Vous n'avez actuellement aucun mode de paiement/i,
-    access: '//*[@id="continue-top"]',
+    access: '//*[@id="continue-bottom"]',
     invoice_address: 'div.ship-to-this-address span a',
     validate: '//*[@id="buybutton"]//input | //*[@id="right-grid"]//input | //input[@name="placeYourOrder1"] | //div[@id="right-grid"]//input[@type="submit"]',
     holder:'//*[@id="ccname"] | //*[@id="ccName"]',

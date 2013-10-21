@@ -10,9 +10,13 @@ module RobotCore
     
     def remove
       set_dictionary(:SHIPMENT)
+      Action(:wait, 4)
       Action(:open_url, :addresses)
+      Action(:wait, 4)
       Action(:click_on, :remove_address)
+      Action(:wait, 2)
       Action(:click_on, :confirm_remove_address)
+      Action(:wait, 2)
     end
     
     private
