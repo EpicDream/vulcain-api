@@ -80,7 +80,7 @@ class EveilEtJeuxTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:2}]
+    products = [{url:PRODUCT_URL_1, quantity:2}]
     
     run_spec("complete order process", products, has_coupon:true)
   end

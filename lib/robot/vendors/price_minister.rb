@@ -91,7 +91,7 @@ module PriceMinisterConstants
   }
   
   PRODUCT = {
-    offer_price_text:'//li[@class="price"][1] | //li[@itemprop="price"]',
+    offer_price_text:'//li[@class="price"][1] | //li[@itemprop="price"] | //span[@itemprop="price"]',
     offer_shipping_text:'//div[@id="advert_list"]//ul[@class="details1"]/li[2]',
     price_text:'//ul[@class="priceInfos"] | //li[@itemprop="price"]',
     title:'//div[@class="productTitle"]/h1 | //div[@class="fn"]',
