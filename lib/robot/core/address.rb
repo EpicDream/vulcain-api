@@ -8,6 +8,13 @@ module RobotCore
       fill_form()
     end
     
+    def remove
+      set_dictionary(:SHIPMENT)
+      Action(:open_url, :addresses)
+      Action(:click_on, :remove_address)
+      Action(:click_on, :confirm_remove_address)
+    end
+    
     private
     
     def unmanaged_country?

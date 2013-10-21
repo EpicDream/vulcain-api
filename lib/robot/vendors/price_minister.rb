@@ -122,8 +122,7 @@ module PriceMinisterConstants
     cvv:'//*[@id="cvv_key"]',
     submit: '//*[@id="validate_card"]',
     option:'//*[@id="cc_save_card"]',
-    status:'//*[@id="checkout_pay_success"]',
-    succeed: /.*/,
+    succeed: /Merci pour votre achat/i,
     cgu:nil,
     coupon:'//input[@name="secret_name"]',
     coupon_recompute:'//input[@name="submitbtn"]'

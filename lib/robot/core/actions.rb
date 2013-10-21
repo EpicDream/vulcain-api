@@ -127,9 +127,14 @@ module RobotCore
       unless args[:mandatory] || identifier.is_a?(Selenium::WebDriver::Element)
         return false if !exists?(identifier)
       end
-      input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
-      input ||= @driver.find_element(identifier)
-      @driver.fill(input, args[:with]) || terminate_on_error(:fill_input_error)
+      begin
+        input = identifier if identifier.is_a?(Selenium::WebDriver::Element)
+        input ||= @driver.find_element(identifier)
+        @driver.fill(input, args[:with])
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        input = nil
+        retry
+      end
     end
     
     def fill_all identifier, args={}

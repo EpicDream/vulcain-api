@@ -28,6 +28,8 @@ module RobotCore
       if mastercard?
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:master_card_value])
         Action(:click_on, :mastercard)
+      elsif e_card?
+        Action(:click_on, :e_card)
       else
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:visa_value])
         Action(:click_on, :visa)
@@ -64,6 +66,11 @@ module RobotCore
     
     def mastercard?
       !!(order.credentials.number =~ /^5/)
+    end
+    
+    def e_card?
+      # !!(order.credentials.number =~ /^415/)
+      false
     end
     
     def cannot_be_removed?

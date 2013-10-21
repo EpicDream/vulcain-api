@@ -10,7 +10,8 @@ module AmazonFranceConstants
     logout:'http://www.amazon.fr/gp/flex/sign-out.html/ref=gno_signout?ie=UTF8&action=sign-out&path=%2Fgp%2Fyourstore%2Fhome&signIn=1&useRedirectOnSuccess=1',
     payments:'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments',
     cart:'http://www.amazon.fr/gp/cart/view.html/ref=gno_cart',
-    shipping:"https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1"
+    shipping:"https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1",
+    addresses:"https://www.amazon.fr/gp/css/account/address/view.html"
   }
   
   REGISTER = {
@@ -44,7 +45,9 @@ module AmazonFranceConstants
     submit: '//button[@name="shipToThisAddress"] | //input[@name="shipToThisAddress"]',
     select_this_address: 'pattern:Envoyer à cette adresse',
     address_option: '//*[@id="addr_0"]',
-    address_submit: '//input[@name="useSelectedAddress"]'
+    address_submit: '//input[@name="useSelectedAddress"]',
+    remove_address: '//img[@alt="Supprimer"]/ancestor::a[1]',
+    confirm_remove_address: '//*[@id="deleteAddressDiv"]/a'
   }
   
   CART = {

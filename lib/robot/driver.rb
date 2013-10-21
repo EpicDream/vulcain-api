@@ -26,21 +26,6 @@ class Driver
     true
   end
   
-  def pending_ajax?
-    script = %Q{
-      if (typeof jQuery !== 'undefined') {
-        return jQuery.active != 0;
-      }
-      else if(typeof Ajax !== 'undefined'){
-        return Ajax.activeRequestCount != 0;
-      }
-      else {
-        return false;
-      }
-    }
-    execute_script(script)
-  end
-  
   def get url
     waiting(true){
       @driver.get(url)
@@ -200,6 +185,21 @@ class Driver
   
   def wait_ajax
     ajax_wait.until { !pending_ajax? } rescue true 
+  end
+  
+  def pending_ajax?
+    script = %Q{
+      if (typeof jQuery !== 'undefined') {
+        return jQuery.active != 0;
+      }
+      else if(typeof Ajax !== 'undefined'){
+        return Ajax.activeRequestCount != 0;
+      }
+      else {
+        return false;
+      }
+    }
+    execute_script(script)
   end
   
   def waiting dowait=false, ajax=false

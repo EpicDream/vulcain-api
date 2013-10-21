@@ -81,6 +81,7 @@ module FnacConstants
   PAYMENT = {
     visa:'//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_0"]',
     mastercard: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_1"]',
+    e_card: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_3_ogoneCardRadio_0"]',
     cgu:nil,
     access:'//*[@id="addressManager_btnChoixAddressPostal"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     cancel:'//*[@id="ncol_cancel"]',
