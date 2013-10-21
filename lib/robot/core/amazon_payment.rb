@@ -77,7 +77,10 @@ module RobotCore
     
     def access_validation
       Action(:click_on, AmazonFrance::SPECIFIC[:new_cc])
-      MAction(:click_on, :access, ajax:true)
+      Action(:click_on, :access, ajax:true)
+      Action(:click_on, :access, ajax:true)
+      Action(:click_on, :access, ajax:true)
+      
       Action(:wait_for, [:validate, :invoice_address])
       Action(:click_on, :invoice_address)
       Action(:wait_for, [:validate, [:SPECIFIC, :no_thanks_button]])
