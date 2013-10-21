@@ -33,6 +33,7 @@ module TopGeekConstants
   PAYMENT = {
     credit_card:'//*[@id="HOOK_PAYMENT"]/p[1]/a',
     visa:'//img[@title="Visa"]',
+    mastercard:'//img[@title="Mastercard"]',
     number:'//input[@name="vads_card_number"]',
     exp_month:'//select[@name="vads_expiry_month"]',
     exp_year:'//select[@name="vads_expiry_year"]',
