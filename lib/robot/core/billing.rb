@@ -28,6 +28,7 @@ module RobotCore
     end
     
     def build?
+      Action(:wait)
       Action(:exists?, :total) && !robot.billing
     end
     

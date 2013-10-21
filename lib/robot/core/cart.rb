@@ -44,7 +44,7 @@ module RobotCore
       Action(:open_url, :cart) or Action(:click_on, :button)
       Action(:wait_for, [:submit, :empty_message])
       Action(:click_on, :popup)
-      MAction(:click_on, :submit) if two_steps_cart?
+      Action(:click_on, :submit) if two_steps_cart?
       Action(:wait_for, [:line, :empty_message])
     end
     
@@ -69,20 +69,18 @@ module RobotCore
       case
       when Action(:exists?, :remove_item)
         Action(:click_on_all, [:remove_item]) { |element|
-          
           Action(:accept_alert)
           Action(:open_url, :cart)
           !element.nil? 
         }
       when Action(:exists?, :line)
         Action(:fill_all, :quantity, with:0, ajax:true)
-        MAction(:click_on, :update)
+        Action(:click_on, :update)
       else
       end
     end
     
     def emptied?
-      open
       Action(:wait_for, [:empty_message])
       Action(:get_text, :empty_message) =~ vendor::CART[:empty_message_match] 
     end
@@ -93,11 +91,12 @@ module RobotCore
       
       if Action(:exists?, :offers)
         MAction(:click_on, :offers)
-        
+        Action(:wait)
         RobotCore::Product.new.update_from_vendor_offer
         MAction(:click_on, :add_offer)
       else
         MAction(:click_on, :add)
+        Action(:wait)
       end
       RobotCore::CartOptions.new.run
     end
