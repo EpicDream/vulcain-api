@@ -21,10 +21,7 @@ module RobotCore
     end
     
     def select
-      
-      MAction(:click_on, :credit_card)
-      
-      
+      Action(:click_on, :credit_card)
       if mastercard?
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:master_card_value])
         Action(:click_on, :mastercard)
