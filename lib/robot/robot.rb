@@ -190,6 +190,7 @@ class Robot
     step('empty cart') do |args|
       next_step = args && args[:next_step]
       run_step('remove credit card')
+      RobotCore::Address.new.remove()
       RobotCore::Cart.new.empty(next_step:next_step)
     end
 
