@@ -184,7 +184,11 @@ class Driver
   end
   
   def wait_ajax
-    ajax_wait.until { !pending_ajax? } rescue true 
+    ajax_wait.until { !pending_ajax? } 
+  rescue
+  ensure
+    sleep 1
+    return true
   end
   
   def pending_ajax?
