@@ -53,7 +53,7 @@ module FnacConstants
     cgu_submit:'//*[@id="btnOcbContinue"]',
     submit: '//*[@id="shoppingCartGoHref"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
     submit_success: [LOGIN[:submit]],
-    empty_message: '//*[@id="ShoppingCartDiv"]',
+    empty_message: '//body',
     line:'table.sousPanier>tbody>tr',
     title:'.//div[@class="productDesc"]',
     quantity:'.//input[@type="text"]',

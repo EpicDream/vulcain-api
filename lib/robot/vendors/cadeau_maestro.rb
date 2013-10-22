@@ -36,7 +36,7 @@ module CadeauMaestroConstants
   SHIPMENT = {
     submit_packaging: '//input[@name="processCarrier"]',
     select_this_address: '//input[@name="processAddress"]',
-    cgu:'//*[@id="cgv"]'
+    cgu:'//span[@class="bg_checkbox"]'
   }
   
   CART = {
@@ -44,13 +44,13 @@ module CadeauMaestroConstants
     quantity:'.//input[@class="cart_quantity_input"]',
     quantity_exceed:nil,
     line:'//*[@id="cart_summary"]/tbody/tr',
-    title:'.//td[@class="cart_description"]',
-    total_line:'.//span[@class="price"]',
+    title:'.//td[@class="cart_product"]',
+    total_line:'.//td[@class="cart_total"]',
     shipping:'//*[@id="total_shipping"]',
-    remove_item:nil,
+    remove_item:'//td[@class="cart_total"]/a',
     empty_message:'//body',
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: '//p[@class="cart_navigation"]/a',
+    submit: '//a[@title="Suivant"]',
     submit_success: [SHIPMENT[:submit]],
     coupon:'//*[@id="discount_name"]',
     coupon_recompute:'//*[@id="voucher"]//input[@name="submitAddDiscount"]'
@@ -58,8 +58,8 @@ module CadeauMaestroConstants
   
   PRODUCT = {
     price_text:'//*[@id="our_price_display"]',
-    title:'//*[@id="primary_block"]/h1',
-    image:'//*[@id="bigpic"]'
+    title:'//h1[@itemprop="name"]',
+    image:'//img[@itemprop="image"]'
   }
   
   BILL = {
