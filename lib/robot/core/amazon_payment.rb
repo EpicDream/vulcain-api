@@ -93,8 +93,9 @@ module RobotCore
     end
     
     def balance_positive?
-      
+      Action(:wait)
       balance = Action(:get_text, AmazonFrance::SPECIFIC[:balance])
+      log("BALANCE : #{balance.inspect}")
       !!(balance =~ /Utilisez.*EUR\s+\d.*/)
     end
     

@@ -109,7 +109,7 @@ end
 class AmazonFrance
   include AmazonFranceConstants
   SPECIFIC = {
-    balance:'//tr[@paymentmethodid="availablebalance"]',
+    balance:'//tr[@paymentmethodid="availablebalance"] | //label[@class="balance-checkbox"]',
     coupon_show_link:'//*[@id="wrapper-new-gc"]/div[1]/a',
     credit_card_show_link:'//*[@id="add-credit-card"] | //*[@id="ccAddCard"]',
     expires_buttons:'//div[@class="field-span pay-date-width"]//button',
