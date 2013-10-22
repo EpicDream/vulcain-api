@@ -92,6 +92,8 @@ module RobotCore
       if Action(:exists?, :offers)
         MAction(:click_on, :offers)
         Action(:wait)
+        Action(:click_on, :offer_option)
+        Action(:wait)
         RobotCore::Product.new.update_from_vendor_offer
         MAction(:click_on, :add_offer)
       else

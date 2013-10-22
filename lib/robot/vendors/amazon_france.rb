@@ -54,6 +54,7 @@ module AmazonFranceConstants
     add:'//*[@id="bb_atc_button"]',
     offers: '//*[@id="olpDivId"]//a[1] | //*[@id="secondaryUsedAndNew"]//a[1] | //*[@id="primaryUsedAndNew"]//a[1]',
     add_offer: '//input[@name="submit.addToCart"][1]',
+    offer_option: '//*[@id="olpFilterCheckbox"]',
     remove_item:'pattern:Supprimer',
     line:'//*[@id="item-block"]',
     title:'.//span[@class="product-title"]',
