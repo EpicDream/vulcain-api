@@ -19,7 +19,6 @@ class AmazonTest < StrategyTest
   
   setup do
     initialize_robot_for AmazonFrance
-    RobotCore::AmazonPayment.any_instance.stubs(:validate)
   end
   
   test "register" do

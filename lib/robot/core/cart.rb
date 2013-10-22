@@ -91,16 +91,12 @@ module RobotCore
       
       if Action(:exists?, :offers)
         MAction(:click_on, :offers)
-        Action(:wait)
         MAction(:click_on, :new_offer)
-        Action(:wait)
-        Action(:click_on, :offer_option)
-        Action(:wait)
+        Action(:click_on, :offer_option) if order.gift_message #TODO : move in Gift module
         RobotCore::Product.new.update_from_vendor_offer
         MAction(:click_on, :add_offer)
       else
         MAction(:click_on, :add)
-        Action(:wait)
       end
       RobotCore::CartOptions.new.run
     end
