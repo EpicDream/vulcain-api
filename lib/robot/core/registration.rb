@@ -53,9 +53,7 @@ module RobotCore
     end
     
     def submit
-      Action(:move_to_and_click_on, :cgu)
-      Action(:click_on, :popup)
-      Action(:move_to_and_click_on, :cgu) unless Action(:checked?, :cgu) #fuck topgeek
+      Action(:move_to_and_click_on, :cgu, scroll:true)
       MAction(:click_on, :submit)
     end
     

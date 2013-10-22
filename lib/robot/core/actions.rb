@@ -70,6 +70,7 @@ module RobotCore
     def move_to_and_click_on identifier, opts={}
       element = identifier if identifier.is_a?(Selenium::WebDriver::Element)
       element ||= @driver.find_element(identifier, opts)
+      @driver.scroll(0, 200) if opts[:scroll]
       element && @driver.move_to_and_click_on(element) 
     end
 
@@ -85,8 +86,7 @@ module RobotCore
         raise if msg && msg["message"] =~ /Element is not clickable/
         raise if msg && msg["message"] =~ /stale element reference/
       rescue Selenium::WebDriver::Error::UnknownError
-        @driver.scroll(0, 200)
-        move_to_and_click_on(identifier, opts)
+        move_to_and_click_on(identifier, opts.merge!({scroll:true}))
       rescue => e
         attempts += 1
         element = nil
