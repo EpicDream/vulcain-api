@@ -42,6 +42,7 @@ module TopGeekConstants
     cvv:'//*[@id="cvvid"]',
     submit: '//*[@id="validationButtonCard"]',
     status: '//body',
+    succeed: /enregistr.*succ.s/i,
     cancel:'//*[@id="backToBoutiqueForm"]/button',
     succeed: /merci/i,
   }
