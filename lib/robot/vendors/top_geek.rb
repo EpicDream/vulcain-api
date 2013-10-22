@@ -8,7 +8,8 @@ module TopGeekConstants
     payments:nil,
     cart:'http://www.topgeek.net/fr/commande',
     register:'http://www.topgeek.net/fr/authentification',
-    logout:'http://www.topgeek.net/fr/?mylogout='
+    logout:'http://www.topgeek.net/fr/?mylogout=',
+    addresses:"http://www.topgeek.net/fr/adresses"
   }
   
   REGISTER = {
@@ -59,7 +60,9 @@ module TopGeekConstants
     packaging:'//*[@id="delivery_option_1384_3"]',
     select_this_address: '//input[@name="processAddress"]',
     address_submit: '//input[@name="processAddress"]',
-    cgu:'//label[@for="cgv"]'
+    cgu:'//label[@for="cgv"]',
+    remove_address: '//a[@title="Supprimer"]',
+    confirm_remove_address: nil
   }
   
   CART = {

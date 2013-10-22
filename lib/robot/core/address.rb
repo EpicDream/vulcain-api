@@ -15,6 +15,7 @@ module RobotCore
       Action(:wait)
       Action(:click_on, :remove_address)
       Action(:wait)
+      Action(:accept_alert)
       Action(:click_on, :confirm_remove_address)
       Action(:wait)
     end
