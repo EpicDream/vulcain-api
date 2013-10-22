@@ -13,9 +13,7 @@ module RobotCore
         Action(:wait_for, [:coupon])
         if balance_positive?
           robot.skip_assess = true
-          Action(:click_on, :access, ajax:true)
-          Action(:click_on, :access, ajax:true)
-          Action(:click_on, :access, ajax:true)
+          click_access_button()
         else
           fill_coupon(order.coupon)
           fill_credit_card()
@@ -31,9 +29,7 @@ module RobotCore
         Action(:open_url, :shipping)
         RobotCore::Login.new.relog
         fill_coupon(order.credentials.voucher)
-        Action(:click_on, :access, ajax:true)
-        Action(:click_on, :access, ajax:true)
-        Action(:click_on, :access, ajax:true)
+        click_access_button()
       end
       
       Action(:wait_for, [:validate])
@@ -81,9 +77,7 @@ module RobotCore
     
     def access_validation
       Action(:click_on, AmazonFrance::SPECIFIC[:new_cc])
-      Action(:click_on, :access, ajax:true)
-      Action(:click_on, :access, ajax:true)
-      Action(:click_on, :access, ajax:true)
+      click_access_button()
       
       Action(:wait_for, [:validate, :invoice_address])
       Action(:click_on, :invoice_address)
@@ -104,6 +98,11 @@ module RobotCore
       order.credentials.exp_month = 2
       order.credentials.exp_year = 2017
       order.credentials.cvv = "123"
+    end
+    
+    def click_access_button
+      Action(:wait)
+      3.times { Action(:click_on, :access, ajax:true) }
     end
     
   end
