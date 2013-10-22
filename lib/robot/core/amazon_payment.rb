@@ -13,7 +13,9 @@ module RobotCore
         Action(:wait_for, [:coupon])
         if balance_positive?
           robot.skip_assess = true
-          MAction(:click_on, :access)
+          Action(:click_on, :access, ajax:true)
+          Action(:click_on, :access, ajax:true)
+          Action(:click_on, :access, ajax:true)
         else
           fill_coupon(order.coupon)
           fill_credit_card()
@@ -29,7 +31,9 @@ module RobotCore
         Action(:open_url, :shipping)
         RobotCore::Login.new.relog
         fill_coupon(order.credentials.voucher)
-        MAction(:click_on, :access)
+        Action(:click_on, :access, ajax:true)
+        Action(:click_on, :access, ajax:true)
+        Action(:click_on, :access, ajax:true)
       end
       
       Action(:wait_for, [:validate])
