@@ -5,7 +5,7 @@ module ToysrusFranceConstants
     register:'https://www.toysrus.fr/login.jsp',
     login:'https://www.toysrus.fr/login.jsp',
     logout:'https://www.toysrus.fr/j_logout',
-    payments:'',
+    addresses:'https://www.toysrus.fr/secure/addressbook.jsp',
     cart:'http://www.toysrus.fr/cart/shoppingcart.jsp'
   }
   
@@ -33,7 +33,8 @@ module ToysrusFranceConstants
     submit: '//*[@id="address-sugg-diff-bott"]',
     address_submit: '//*[@id="address-sugg-diff-bott2"]',
     submit_packaging: '//*[@id="proceed"]/button',
-    same_billing_address: '//*[@id="shipOption2"]'
+    same_billing_address: '//*[@id="shipOption2"]',
+    remove_address: '//ul[@class="address-book-enteries"]//a[2]',
   }
   
   PAYMENT = {
