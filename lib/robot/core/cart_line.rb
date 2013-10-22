@@ -104,6 +104,7 @@ module RobotCore
     end
   
     def setter_type
+      return unless @setter
       case
       when @setter.tag_name == 'select' then :select
       when @setter.attribute('type') == 'submit' then :submit
