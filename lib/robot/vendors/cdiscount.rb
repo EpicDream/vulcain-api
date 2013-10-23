@@ -3,31 +3,36 @@ module CdiscountConstants
   URLS = {
     base:'http://www.cdiscount.com/',
     home:'https://clients.cdiscount.com/Account/Home.aspx',
-    register:'https://clients.cdiscount.com/Account/RegistrationForm.aspx',
+    register:'https://clients.cdiscount.com/',
     login:'https://clients.cdiscount.com/',
     payments:'https://clients.cdiscount.com/Account/CustomerPaymentMode.aspx',
     cart:'http://www.cdiscount.com/Basket.html'
   }
   
   REGISTER = {
-    mister:'//*[@id="cphMainArea_UserRegistrationCtl_optM"]',
-    madam:'//*[@id="cphMainArea_UserRegistrationCtl_optMme"]',
-    miss:'//*[@id="cphMainArea_UserRegistrationCtl_optMlle"]',
+    gender:'//*[@id="cphMainArea_UserRegistrationCtl_ddlCivilite"]',
+    mister:'optM',
+    madam:'optMme',
+    miss:'optMelle',
     last_name:'//*[@id="cphMainArea_UserRegistrationCtl_txtName"]',
     first_name:'//*[@id="cphMainArea_UserRegistrationCtl_txtFisrtName"]',
     birthdate:'//*[@id="cphMainArea_UserRegistrationCtl_txtBirthDate"]',
-    email:'//*[@id="cphMainArea_UserRegistrationCtl_txtEmail"]',
-    email_confirmation:'//*[@id="cphMainArea_UserRegistrationCtl_txtCheckEmail"]',
-    password:'//*[@id="cphMainArea_UserRegistrationCtl_txtPassWord"]',
-    password_confirmation:'//*[@id="cphMainArea_UserRegistrationCtl_txtCheckPassWord"]',
-    cgu:'//*[@id="cphMainArea_UserRegistrationCtl_CheckBoxSellCondition"]',
+    email:'//*[@id="cphMainArea_UserNewAccount_txtMailNew"]',
+    password:'//*[@id="cphMainArea_UserNewAccount_txtPassWordNew"]',
+    password_confirmation:'//*[@id="cphMainArea_UserNewAccount_txtPassWordNew2"]',
     birth_department:'//*[@id="cphMainArea_UserRegistrationCtl_txtBirthDepartment"]',
-    submit: '//*[@id="cphMainArea_UserRegistrationCtl_btnValidate"]'
+    submit: '//*[@id="cphMainArea_UserRegistrationCtl_btnValidate"]',
+    submit_login: '//*[@id="cphMainArea_UserNewAccount_btnValidate"]',
+    mobile_phone:'//*[@id="cphMainArea_UserRegistrationCtl_txtMobile"]',
+    land_phone:'//*[@id="cphMainArea_UserRegistrationCtl_txtPhone"]',
+    address_1:'//*[@id="cphMainArea_UserRegistrationCtl_txtAddress"]',
+    zip:'//*[@id="cphMainArea_UserRegistrationCtl_txtPostalCode"]',
+    city:'//*[@id="cphMainArea_UserRegistrationCtl_txtTown"]',
   }
   
   LOGIN = {
-    email:'//*[@id="cphMainArea_UCUserConnect_txtMail"]',
-    password:'//*[@id="cphMainArea_UCUserConnect_txtPassWord1"]',
+    email:'//*[@id="cphMainArea_UCUserConnect_txtMailConnect"]',
+    password:'//*[@id="cphMainArea_UCUserConnect_txtPassWordConnect"]',
     submit: '//*[@id="cphMainArea_UCUserConnect_btnValidate"]',
     logout:'//*[@id="cphLeftArea_LeftArea_hlLogOff"]'
   }

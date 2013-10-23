@@ -5,7 +5,7 @@ require_robot 'cdiscount'
 class CdiscountTest < StrategyTest
   PRODUCT_URL_1 = 'http://m.cdiscount.com/au-quotidien/alimentaire/happy-box-haribo-600g/f-127010208-har693925x5.html'
   PRODUCT_URL_2 = 'http://www.cdiscount.com/dvd/films-blu-ray/blu-ray-django-unchained/f-1043313-3333299202990.html'
-  PRODUCT_URL_3 = 'http://www.cdiscount.com/informatique/cle-usb/hp-v195b-usb-flash-drive-4-go/f-107225309-fdu4gbhpv195bef.html'
+  PRODUCT_URL_3 = 'http://www.cdiscount.com/informatique/cle-usb/cle-usb-16go-sandisk-cruzer-edge/f-107225312-sdcz51016gb35.html'
   PRODUCT_URL_4 = 'http://pdt.tradedoubler.com/click?a(2238732)p(72222)prod(1040145061)ttid(5)url(http%3A%2F%2Fwww.cdiscount.com%2Fdp.asp%3Fsku%3DLG8808992997504%26refer%3D*)'
   PRODUCT_URL_5 = 'http://www.cdiscount.com/au-quotidien/alimentaire/haribo-schtroumpfs-xxl-60-pieces/f-1270102-harischtrouxxl.html?cm_mmc=Toolbox-_-Affiliation-_-Prixing.com%202238732-_-n/a&cid=affil'
   PRODUCT_URL_6 = 'http://www.cdiscount.com/pret-a-porter/vetements-femme/l-amie-de-paris-t-shirt-femme-bleu/f-11302173234-s303bleu.html'
@@ -16,6 +16,7 @@ class CdiscountTest < StrategyTest
   
   setup do
     initialize_robot_for Cdiscount
+    @robot.open_url('http://www.cdiscount.com/')
   end
   
   test "register" do
@@ -53,7 +54,7 @@ class CdiscountTest < StrategyTest
     assert = Proc.new {
       robot.open_url Cdiscount::URLS[:cart]
       title = robot.get_text('//tr[@class="basketProductName"]')
-      assert title =~ /Puzzle Cars/
+      assert title =~ /Sandisk/
     }
     
     run_spec("add to cart", [{url:PRODUCT_URL_3, quantity:1}], assert)
