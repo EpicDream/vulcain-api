@@ -15,7 +15,7 @@ class Admin::LogsController < ApplicationController
   private
   
   def find_shopelia_order
-    @order = Log.order_with_uuid(params[:id]).last.context          
+    @order = Log.order_with_uuid(params[:id]).last
   end
   
 end
