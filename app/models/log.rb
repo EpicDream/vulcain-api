@@ -11,7 +11,7 @@ class Log
   
   def self.create data
     return if skip?(data)
-    super data
+    super(data) rescue nil
     syslog data
   end
   
