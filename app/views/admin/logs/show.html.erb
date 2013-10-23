@@ -7,7 +7,7 @@
     </tr>
 	</thead>
   <tbody>
-    <% @order && @order["products"].each do |product|%>
+    <% @order && @order["order"]["products"].each do |product|%>
       <tr>
         <td><%= link_to URI.unescape(product["url"]), URI.unescape(product["url"]) %></td>
         <td><%= product["quantity"]%></td>
@@ -16,6 +16,11 @@
     <% end %>
   </tbody>
 </table>
+
+<a href="#run-order">Show Run Order</a>
+<pre id="run-order">
+  <%= JSON.pretty_generate(@order).strip %>
+</pre>
 
 <table id="no-more-tables"  class="table table-striped table-bordered ">
 	<thead>

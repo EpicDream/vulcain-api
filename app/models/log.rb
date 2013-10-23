@@ -8,7 +8,7 @@ class Log
   
   scope :crashes, ->(_) { where(:verb => 'failure')}
   scope :since, ->(since) { where(:created_at.gte => since) }
-  scope :order_with_uuid, ->(uuid) { where('context.session.uuid' => uuid)}
+  scope :order_with_uuid, ->(uuid) { where('context.session.uuid' => uuid, 'verb' => 'run')}
   scope :assess_with_uuid, ->(uuid) { where('session.uuid' => uuid, 'verb' => 'assess')}
   
   def self.create data

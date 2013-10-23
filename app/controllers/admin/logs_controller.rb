@@ -9,18 +9,13 @@ class Admin::LogsController < ApplicationController
   def show
     @logs = Log.where('session.uuid' => params[:id], :verb.ne => nil)
                .sort(:created_at => 'asc')
-               
     render 'show', :layout => 'layouts/admin'
   end
   
   private
   
   def find_shopelia_order
-    return if params[:id] =~ /pic/ #crawl log, not shopelia order
-    @order = Log.where(verb:'run', 'context.session.uuid' => params[:id])
-                .last
-                .context["order"]
-                .except("credentials")
+    @order = Log.order_with_uuid(params[:id]).last.context          
   end
   
 end
