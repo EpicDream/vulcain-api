@@ -1,7 +1,11 @@
 # encoding: utf-8
+require 'pathname'
+
 module RobotCore
   class RobotModule
     VULCAIN_LOG_FILE_PATH = "/var/log/vulcain-dispatcher/vulcain.log"
+    DEBUG_LOG_FILE_PATH = "/tmp/vulcain_debug.log"
+    
     PRICES_IN_TEXT = lambda do |text| 
       break [] unless text
       text.gsub!(/\n/, ' ')
@@ -28,6 +32,17 @@ module RobotCore
     
     def set_dictionary dico
       self.dictionary = Object.const_get(self.vendor.to_s).const_get(dico)
+    end
+    
+    def start_debug_mode
+      File.open(DEBUG_LOG_FILE_PATH, "w") { |f| f.truncate(0) }
+      proc = Proc.new do |op, file, line, method, binding, klass|
+        if file =~ /\/vulcain/
+          source = Pathname.new(file).basename.to_s
+          File.open(DEBUG_LOG_FILE_PATH, "a+") { |f| f.write("#{source} #{line} #{method} #{klass}\n") }
+        end
+      end
+      set_trace_func(proc)
     end
     
     def log message, sleep_time=0
