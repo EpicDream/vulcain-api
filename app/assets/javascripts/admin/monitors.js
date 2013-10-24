@@ -1,13 +1,3 @@
-var Alert = {
-	dog: function() {
-		return document.getElementById("sound-dog");
-	},
-	
-	alarm: function() {
-		return document.getElementById("sound-alarm");
-	}
-}
-
 var Graph = {
 	_idleGraph: null,
 	
@@ -34,7 +24,6 @@ var Graph = {
 		};
 		
 		var idleAlert = samples.idles[samples.idles.length - 1].y == 0;
-		//idleAlert ? Alert.dog().play() : Alert.dog().pause();
 		if (this._idleGraph){
 			this._idleGraph.setData(data);
 		}
@@ -62,12 +51,10 @@ var Refresh = {
 			status.text(dispatcher.touchtime);
 			
 			if (dispatcher.down) {
-				//Alert.alarm().play();
 				status.toggleClass("down", true);
 			}
 			else{
 				status.toggleClass("down", false);
-				Alert.alarm().pause();
 			}
 		});
 		
