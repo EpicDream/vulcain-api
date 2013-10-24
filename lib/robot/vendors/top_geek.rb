@@ -45,7 +45,6 @@ module TopGeekConstants
     status: '//body',
     succeed: /enregistr.*succ.s/i,
     cancel:'//*[@id="backToBoutiqueForm"]/button',
-    succeed: /merci/i,
   }
   
   SHIPMENT = {
