@@ -8,7 +8,7 @@ var PageSource = {
     } else {
       Window.document.body.innerHTML = html;
     };
-  };
+  }
 };
 
 var Log = {
@@ -21,9 +21,7 @@ var Log = {
     $("#crash-status").on("change", function () {
       window.location = '/admin/logs/?crash=' + $(this).is(":checked");
     });
-
   }
-
 };
 
 $(document).ready(function() {
