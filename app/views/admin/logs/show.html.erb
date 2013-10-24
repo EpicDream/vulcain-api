@@ -7,7 +7,7 @@
     </tr>
 	</thead>
   <tbody>
-    <% @order && @order["order"]["products"].each do |product|%>
+    <% @order && @order.context["order"]["products"].each do |product|%>
       <tr>
         <td><%= link_to URI.unescape(product["url"]), URI.unescape(product["url"]) %></td>
         <td><%= product["quantity"]%></td>
