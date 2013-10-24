@@ -13,11 +13,11 @@ module RobotCore
       if @access_payment
         @access_payment.call
       else
-        Action(:wait_for, [:access])
+        Action(:wait_for, [:access, :credit_card])
         RobotCore::Billing.new.build
         remove_contracts_options
         RobotCore::Coupon.new(:PAYMENT).insert
-        MAction(:click_on, :access)
+        Action(:click_on, :access)
         RobotCore::CreditCard.new.select
         Action(:click_on, :cgu)
         Action(:click_on, :access)

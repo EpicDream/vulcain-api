@@ -31,6 +31,7 @@ module RobotCore
         Action(:select_option, :credit_card_select, value:vendor::PAYMENT[:visa_value])
         Action(:click_on, :visa)
       end
+      Action(:click_on, :validate_credit_card)
     end
     
     def fill

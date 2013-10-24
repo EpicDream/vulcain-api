@@ -16,6 +16,7 @@ module RobotCore
     end
     
     def submit_packaging
+      Action(:wait)
       Action(:move_to_and_click_on, :cgu)
       Action(:click_on, :option)
       Action(:click_on, :packaging)
