@@ -37,10 +37,10 @@ module SuperInsoliteConstants
     city: '//*[@id="billing:city"]',
     country:nil,
     zip: '//*[@id="billing:postcode"]',
-    submit_packaging: nil,
-    submit: '//*[@id="onestepcheckout-place-order"]',
-    shipment_mode:'//*[@id="s_method_owebiashipping2_national"]',
-    select_this_address: nil,
+    submit_packaging: '//*[@id="shipping-method-buttons-container"]/button',
+    submit: '//*[@id="onestepcheckout-place-order"] | //*[@id="billing-buttons-container"]/button',
+    packaging:'//*[@id="s_method_owebiashipping2_national"]',
+    select_this_address: '//*[@id="billing-buttons-container"]/button',
     address_option: nil,
     address_submit: nil
   }
@@ -49,7 +49,6 @@ module SuperInsoliteConstants
     add:'#productAddToCartInput',
     button:nil,
     quantity:'.//input[@class="input-text qty"]',
-    # quantity_exceed:'//li[@class="error-msg"]',
     line:'//table[@id="shopping-cart-table"]/tbody/tr',
     title:'.//h4[@class="title"]',
     update:'//table[@id="shopping-cart-table"]/tfoot/tr//button[2]',
@@ -58,8 +57,8 @@ module SuperInsoliteConstants
     remove_item:'//table[@id="shopping-cart-table"]/tbody/tr/td[1]/a',
     empty_message:'//body',
     empty_message_match:/panier\s+est\s+vide/i,
-    submit: '//img[@alt="Commander"]',
-    submit_success: [SHIPMENT[:submit]],
+    submit: '//button[@title="Commander"]',
+    submit_success: [SHIPMENT[:submit], SHIPMENT[:submit_packaging], SHIPMENT[:select_this_address]],
     coupon:'//*[@id="discount-coupon-form"]//input[@id="coupon_code"]',
     coupon_recompute:'//*[@id="discount-coupon-form"]//button'
   }
@@ -71,13 +70,14 @@ module SuperInsoliteConstants
   }
   
   BILL = {
-    shipping:'//table[@class="onestepcheckout-totals"]/tbody/tr[last() - 2]',
-    total:'//table[@class="onestepcheckout-totals"]/tbody/tr[last()]',
+    shipping:'//*[@id="checkout-review-table"]/tfoot/tr[2]',
+    total:'//*[@id="checkout-review-table"]/tfoot/tr[last()]',
     info:nil
   }
   
   PAYMENT = {
-    access: '//*[@id="onestepcheckout-place-order"]',
+    validate_credit_card: '//*[@id="payment-buttons-container"]/button',
+    access: '//button[@title="Valider la commande"]',
     credit_card: '//*[@id="p_method_be2bill_standard"]',
     number:['//input[@id="cc1"]', '//input[@id="cc2"]', '//input[@id="cc3"]', '//input[@id="cc4"]'],
     exp_month:'//*[@id="b2b-month-input"]',
@@ -85,7 +85,7 @@ module SuperInsoliteConstants
     cvv:'//*[@id="b2b-cvv-input"]',
     submit: '//*[@id="b2b-submit"]',
     email: '//*[@id="b2b-email-input"]',
-    succeed: //,
+    succeed: /(merci|enreg.*?succ)/,
     cgu:nil,
   }
   
