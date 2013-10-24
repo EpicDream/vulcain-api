@@ -20,9 +20,9 @@ var Log = {
 
     $("#crash-status").on("change", function () {
       window.location = '/admin/logs/?crash=' + $(this).is(":checked");
-    }):
+    });
 
-  },
+  }
 
 };
 
