@@ -98,7 +98,7 @@ class ToysrusFranceTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_3, quantity:3}]
+    products = [{url:PRODUCT_URL_1, quantity:1}]
     
     run_spec("complete order process", products, has_coupon:true)
   end
