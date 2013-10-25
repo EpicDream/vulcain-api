@@ -84,7 +84,7 @@ class CadeauMaestroTest < StrategyTest
   end
   
   test "complete order process" do
-    #run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}, {url:PRODUCT_URL_1, quantity:1}], has_coupon:true)
+    run_spec("complete order process", [{url:PRODUCT_URL_3, quantity:2}, {url:PRODUCT_URL_1, quantity:1}], has_coupon:true)
   end
   
 end

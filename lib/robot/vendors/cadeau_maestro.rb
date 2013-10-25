@@ -64,12 +64,12 @@ module CadeauMaestroConstants
   
   BILL = {
     shipping:nil,
-    total:'//*[@id="center_column"]/h4/span',
+    total:'//table[@class="sips_trans_ref_table"]/tbody/tr[last()]',
     info:nil
   }
   
   PAYMENT = {
-    credit_card:'//*[@id="HOOK_PAYMENT"]/p/a',
+    credit_card:nil,
     visa:'//input[@name="VISA"]',
     master_card:'//input[@name="MASTERCARD"]',
     number:'//*[@id="CARD_NUMBER"]',
@@ -103,6 +103,7 @@ class CadeauMaestro
           open_url("http://www.cadeau-maestro.com/commande?step=3&cgv=1&id_carrier=326")
           RobotCore::Billing.new.build
           RobotCore::CreditCard.new.select
+          wait_for [PAYMENT[:submit]]
         }
         RobotCore::Order.new.finalize(payment)
       end
