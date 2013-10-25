@@ -6,6 +6,7 @@ class ZalandoFranceTest < StrategyTest
   PRODUCT_URL_1 = 'http://www.zalando.fr/salt-pepper-liv-mood-lampe-de-table-marron-ps873d002-701.html'
   PRODUCT_URL_2 = 'http://www.zalando.fr/nordlux-funk-27-abat-jour-noir-nl173b001-802.html'
   PRODUCT_URL_3 = 'http://www.zalando.fr/tommy-hilfiger-chiara-polo-jaune-to121d01b-206.html'
+  PRODUCT_URL_4 = 'http://www.zalando.fr/clayre-eef-theiere-orange-cl572d009-205.html'
   
   setup do
     initialize_robot_for ZalandoFrance
@@ -100,7 +101,7 @@ class ZalandoFranceTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_URL_1, quantity:2}, {url:PRODUCT_URL_2, quantity:3}]
+    products = [{url:PRODUCT_URL_4, quantity:2}]
     
     run_spec("complete order process", products, has_coupon:true)
   end
