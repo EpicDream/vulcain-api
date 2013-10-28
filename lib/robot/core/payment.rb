@@ -19,6 +19,7 @@ module RobotCore
         RobotCore::Coupon.new(:PAYMENT).insert
         Action(:click_on, :access)
         RobotCore::CreditCard.new.select
+        RobotCore::Billing.new.build
         Action(:click_on, :cgu)
         Action(:click_on, :access)
       end
