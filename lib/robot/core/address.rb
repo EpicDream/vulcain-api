@@ -23,7 +23,7 @@ module RobotCore
     private
     
     def unmanaged_country?
-      !dictionary[:country] && user.address.country != 'FR'
+      !dictionary[:country] && !['FR', 'CH'].include?(user.address.country)
     end
     
     def fill_form
