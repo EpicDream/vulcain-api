@@ -8,7 +8,8 @@ gem 'rails-api'
 gem 'unicorn'
 gem "amqp", "~> 0.9.0"
 gem "httparty"
-gem "selenium-webdriver", "= 2.31.0"
+gem "selenium-webdriver", "= 2.37.0"
+
 gem "redis"
 gem "mongo_mapper"
 gem "sqlite3"
@@ -25,3 +26,4 @@ end
 group :test do
   gem "mocha", :require => false
 end
+
