@@ -20,6 +20,13 @@ module RobotCore
       Action(:wait)
     end
     
+    def error?
+      set_dictionary(:SHIPMENT)
+      return false unless dictionary[:address_error]
+      error = Action(:get_text, :address_error)
+      error =~ dictionary[:address_error_pattern]
+    end
+    
     private
     
     def unmanaged_country?

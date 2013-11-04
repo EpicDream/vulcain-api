@@ -131,7 +131,7 @@ class AmazonTest < StrategyTest
   
   test "complete order process" do
     @robot.billing = {}
-    products = [{url:PRODUCT_URL_13, quantity:1}, {url:PRODUCT_URL_8, quantity:3}]
+    products = [{url:PRODUCT_URL_13, quantity:1}]
     
     run_spec("complete order process", products, has_coupon:true)
   end

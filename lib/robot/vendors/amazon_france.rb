@@ -47,7 +47,9 @@ module AmazonFranceConstants
     address_option: '//*[@id="addr_0"]',
     address_submit: '//input[@name="useSelectedAddress"]',
     remove_address: '//img[@alt="Supprimer"]/ancestor::a[1]',
-    confirm_remove_address: '//*[@id="deleteAddressDiv"]/a'
+    confirm_remove_address: '//*[@id="deleteAddressDiv"]/a',
+    address_error:'//*[@id="identity-add-new-address"]/div[1]/div/p',
+    address_error_pattern:/Le nom de rue.*n'est pas valide/
   }
   
   CART = {
