@@ -16,7 +16,6 @@ class CdiscountTest < StrategyTest
   
   setup do
     initialize_robot_for Cdiscount
-    @robot.open_url('http://www.cdiscount.com/')
   end
   
   test "register" do
