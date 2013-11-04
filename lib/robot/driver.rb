@@ -27,10 +27,7 @@ class Driver
   end
   
   def get url
-    waiting(true){
-      @driver.get(url)
-      true
-    }
+    @driver.get(url) rescue nil
     wait_ajax()
   end
   
