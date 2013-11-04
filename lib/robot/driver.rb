@@ -172,7 +172,7 @@ class Driver
     mkdir_profile if options[:profile_dir].nil?
     user_agent = options[:user_agent] || DESKTOP_USER_AGENT
     user_data_dir = options[:profile_dir] || @profile_path
-    ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}", "--disable-keep-alive"]
+    ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}"]
   end
   
   def mkdir_profile
