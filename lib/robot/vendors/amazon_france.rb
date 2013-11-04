@@ -11,7 +11,7 @@ module AmazonFranceConstants
     payments:'https://www.amazon.fr/gp/css/account/cards/view.html?ie=UTF8&ref_=ya_manage_payments',
     cart:'http://www.amazon.fr/gp/cart/view.html/ref=gno_cart',
     shipping:"https://www.amazon.fr/gp/buy/shipoptionselect/handlers/continue.html?ie=UTF8&fromAnywhere=1",
-    addresses:"https://www.amazon.fr/gp/css/account/address/view.html"
+    addresses:"https://www.amazon.fr/gp/css/account/address/view.html?ie=UTF8&ref_=ya_manage_address_book"
   }
   
   REGISTER = {
