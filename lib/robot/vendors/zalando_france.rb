@@ -62,7 +62,7 @@ module ZalandoFranceConstants
     shipment_mode:'//*[@id="shippingLAP"]',
     address_option: nil,
     address_submit: '//*[@id="editShippingAddress"]/div[2]/div/input',
-    add_address: '//input[@name="postShippingMethod"]'
+    add_address: '//button[@name="postShippingMethod"]'
   }
   
   CART = {
@@ -95,7 +95,7 @@ module ZalandoFranceConstants
   PAYMENT = {
     remove: '//input[@name="deletePaymentMethod"]',
     remove_confirmation: nil,
-    access: nil,
+    access: '//button[@name="postPaymentMethod"]',
     invoice_address: nil,
     credit_card_select:'//*[@id="creditCardType"]',
     master_card_value:'MASTERCARD',
