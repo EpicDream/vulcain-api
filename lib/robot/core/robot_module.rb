@@ -34,11 +34,11 @@ module RobotCore
       self.dictionary = Object.const_get(self.vendor.to_s).const_get(dico)
     end
     
-    def start_debug_mode
+    def start_debug_mode filter=true
       File.open(DEBUG_LOG_FILE_PATH, "w+") { |f| f.truncate(0) }
       
       proc = Proc.new do |op, file, line, method, binding, klass|
-        if file =~ /\/vulcain/
+        if file =~ /\/vulcain/ || !filter
           source = Pathname.new(file).basename.to_s
           url = eval("url", binding) rescue nil
           identifier = eval("identifier", binding) rescue nil
