@@ -17,7 +17,6 @@ module RobotCore
       Action(:click_on, :remove_confirmation)
       
       robot.assert(:card_not_removed) { robot.find_element("//body").text =~ vendor::PAYMENT[:remove_must_match] }
-      Action(:open_url, :base)
     end
     
     def select
