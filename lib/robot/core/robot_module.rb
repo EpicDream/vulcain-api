@@ -35,11 +35,18 @@ module RobotCore
     end
     
     def start_debug_mode
-      File.open(DEBUG_LOG_FILE_PATH, "w") { |f| f.truncate(0) }
+      File.open(DEBUG_LOG_FILE_PATH, "w+") { |f| f.truncate(0) }
+      
       proc = Proc.new do |op, file, line, method, binding, klass|
         if file =~ /\/vulcain/
           source = Pathname.new(file).basename.to_s
-          File.open(DEBUG_LOG_FILE_PATH, "a+") { |f| f.write("#{source} #{line} #{method} #{klass}\n") }
+          url = eval("url", binding) rescue nil
+          identifier = eval("identifier", binding) rescue nil
+          File.open(DEBUG_LOG_FILE_PATH, "a+") { |f| 
+            f.write("#{source} #{line} #{method} #{klass}\n") 
+            f.write("url : #{url}\n") if url
+            f.write("identifier : #{identifier}\n") if identifier
+          }
         end
       end
       set_trace_func(proc)
