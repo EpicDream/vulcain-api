@@ -3,8 +3,8 @@ module FnacConstants
   URLS = {
     base:'http://www.fnac.com/',
     home:'http://www.fnac.com/',
-    login:'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fAccount%2fProfil%2fDefault.aspx&PageAuth=X',
-    register: 'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&pagepar=&PageRedir=https%3a%2f%2fsecure.fnac.com%2fAccount%2fProfil%2fDefault.aspx&PageAuth=X',
+    login:'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&PageRedir=http%3a%2f%2fwww.fnac.com%2f',
+    register:'https://secure.fnac.com/Account/Logon/Logon.aspx?LogonType=Standard&PageRedir=http%3a%2f%2fwww.fnac.com%2f',
     payments:'https://secure.fnac.com/Account/Profil/Default.aspx?AID=f4dc3c57-2b16-2d6b-73eb-2fb19a86b4af#creditcards',
     cart:'http://www4.fnac.com/Account/Basket/IntermediaryBasket.aspx',
   }
