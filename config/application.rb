@@ -70,7 +70,7 @@ module VulcainApi
       strategies: YAML.load_file("#{Rails.root}/config/merchants.yml"),
       min_idle_vulcains: 5,
       max_idle_average: 50, # %
-      running_timeout_after: 5.minutes,      
+      running_timeout_after: 25.minutes,      
       ensure_min_idle_vulcains_every: 30.seconds,
       dump_idles_samples_every: 60.seconds,
       ensure_max_idle_vulcains_every: 1.hour,
