@@ -4,7 +4,6 @@ ENV['SKIP_DRIVER_QUIT'] = ENV['TEXTMATE_MODE_TEST']
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'robot/core_extensions'
-require 'selenium/chrome/mavericks'
 
 def require_robot strategy
   require "#{Rails.root}/lib/robot/vendors/#{strategy}"

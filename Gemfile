@@ -23,6 +23,5 @@ end
 
 group :test do
   gem "mocha", :require => false
-  gem 'selenium-chrome-mavericks', :require => false
 end
 

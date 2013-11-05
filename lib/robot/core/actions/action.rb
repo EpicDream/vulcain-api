@@ -1,5 +1,22 @@
-module RobotCore
-  module Actions
+module Robot
+  class Action
+    
+    def self.ready? context
+      return true if defined?(@@driver) && !@@driver.nil?
+      @@driver = Driver.new(context) rescue nil
+    end
+    
+    def quit
+      @driver.quit
+    end
+    
+    def screenshot
+      @driver.screenshot
+    end
+    
+    def page_source
+      @driver.page_source
+    end
     
     def get_text identifier, options={}
       return unless identifier
