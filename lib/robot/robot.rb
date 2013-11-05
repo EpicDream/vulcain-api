@@ -1,7 +1,6 @@
 # encoding: utf-8
 require "ostruct"
 require "nokogiri"
-require "html_to_plain_text"
 require_relative "core/core" unless ENV['VULCAIN-CORE']
 
 class Robot
@@ -156,10 +155,6 @@ class Robot
     @session = context['session']
   end
   
-  def scraped_text xpath, page
-    HtmlToPlainText.plain_text page.xpath(xpath).to_s
-  end
-  
   def load_common_steps
     step('run') do
       open_url order.products[0].url #affiliation
@@ -196,10 +191,6 @@ class Robot
 
     step('add to cart') do
       RobotCore::Cart.new.fill
-    end
-    
-    step('fill shipping form') do
-      RobotCore::Shipping.new.run
     end
     
     step('finalize order') do

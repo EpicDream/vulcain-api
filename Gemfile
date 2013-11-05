@@ -16,7 +16,6 @@ gem "bson_ext"
 gem 'bootstrap-sass', '~> 2.3.1.0'
 gem 'deathbycaptcha'
 gem "nokogiri"
-gem "html_to_plain_text", "~> 1.0.2"
 
 group :assets do
   gem 'sass-rails', '~> 3.2'
