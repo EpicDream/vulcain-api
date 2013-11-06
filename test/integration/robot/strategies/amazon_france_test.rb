@@ -156,4 +156,11 @@ class AmazonTest < StrategyTest
     run_spec("finalize order", products, expected_products, billing)
   end
   
+  test "click with offer option(Amazon products only)" do
+    url = "http://www.amazon.fr/gp/product/B003AEBICC"
+    
+    products = [{url:url, quantity:1}]
+    run_spec("add to cart", products, Proc.new {})
+  end
+  
 end
