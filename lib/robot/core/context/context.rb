@@ -24,7 +24,7 @@ module Robot
         next unless @ctx[ivar]
         instance_variable_set "@#{ivar}", @ctx[ivar].to_openstruct
       end
-      defaults()
+      defaults() if user
     end
     
     def defaults
