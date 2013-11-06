@@ -6,16 +6,16 @@ module Robot
       @@driver = Driver.new(context) rescue nil
     end
     
-    def quit
-      @driver.quit
+    def self.quit
+      @@driver and @@driver.quit
     end
     
-    def screenshot
-      @driver.screenshot
+    def self.screenshot
+      @@driver and @@driver.screenshot
     end
     
-    def page_source
-      @driver.page_source
+    def self.page_source
+      @@driver and @driver.page_source
     end
     
     def get_text identifier, options={}
@@ -36,9 +36,8 @@ module Robot
       element && element.attribute('src')
     end
 
-    def open_url url
-      return unless url
-      @driver.get url
+    def open url
+      url and @@driver.get url
     end
 
     def current_url
