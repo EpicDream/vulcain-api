@@ -1,6 +1,6 @@
 # encoding: utf-8
 unless ENV['VULCAIN-CORE']
-  [:actions, :droplets, :steps].each { |folder|  
+  [:context, :actions, :droplets, :steps].each { |folder|  
     Dir[File.dirname(__FILE__) + "/#{folder}/*.rb"].each {|file| require file }
   }
 end
@@ -13,7 +13,7 @@ module Robot
     
     def initialize context
       @context = Robot::Context.new(context)
-      @step = nil
+      @machine = Robot::State::Machine.new(@context)
       @@instance = self
     end
     
@@ -21,12 +21,8 @@ module Robot
       @@instance
     end
     
-    def start
-      Robot::Step::Terminate.on(:error, :driver) unless Robot::Action.ready?(@context)
-    end
-    
-    def steps
-      
+    def run
+      @machine.step
     end
     
   end
