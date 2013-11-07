@@ -3,17 +3,25 @@ require "ostruct"
 module Robot
   class Context
     attr_accessor :account, :order, :answers, :user
-    attr_accessor :options
+    attr_reader :options
+    attr_reader :vendor
+    attr_reader :affiliation_url
     
     def initialize context
       @ctx = context
       @options = context[:options] || {}
+      @vendor = context['vendor']
       set_ivars_from_context
     end
     
-    def merge context
+    def merge! context
       @ctx.merge!(context)
       set_ivars_from_context
+    end
+    
+    def affiliation_url
+      product = order.products[0]
+      product && product.url
     end
     
     private
@@ -27,7 +35,7 @@ module Robot
       user_defaults() if user
     end
     
-    def defaults
+    def user_defaults
       user.address.land_phone ||= "04" + user.address.mobile_phone[2..-1]
       user.address.mobile_phone ||= "06" + user.address.land_phone[2..-1]
       user.address.full_name = "#{user.address.first_name} #{user.address.last_name}"
