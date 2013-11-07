@@ -31,6 +31,10 @@ module AmazonFranceConstants
     next0: '//*[@id="signInSubmit-input"]',
   }
   
+  LOGOUT = {
+    url: URLS[:logout],
+  }
+  
   SHIPMENT = {
     full_name: '//*[@id="enterAddressFullName"]',
     address_1: '//*[@id="enterAddressAddressLine1"]',

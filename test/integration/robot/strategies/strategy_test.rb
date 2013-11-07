@@ -20,7 +20,7 @@ class StrategyTest < ActiveSupport::TestCase
   def register
     @context["account"]["new_account"] = true
     @robot.context.merge!(@context)
-    @machine.break_step = 'Login'
+    @machine.break_step = 'Cart'
     Robot::Message.expects(:forward).with(:dispatcher, :account_created)
     
     @machine.step
@@ -31,7 +31,7 @@ class StrategyTest < ActiveSupport::TestCase
     @context['account']['login'] = 'legrand_pierre_04@free.fr'
     @context['account']['password'] = ''
     @robot.context.merge!(@context)
-    @machine.break_step = 'Login'
+    @machine.break_step = 'Cart'
 
     Robot::Step::Terminate.expects(:on).with(:error, :account_creation_failed)
     
@@ -56,10 +56,10 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def logout
-    @message.expects(:message).times(4)
-    robot.run_step('login')
-    robot.run_step('logout')
-    #assert..
+    @machine.break_step = 'Login'
+    Robot::Message.expects(:forward).with(:dispatcher, :logout)
+
+    @machine.step
   end
   
   def remove_credit_card assert=Proc.new{}
