@@ -15,12 +15,13 @@ module AmazonFranceConstants
   }
   
   REGISTER = {
+    url: URLS[:register],
     full_name:'//*[@id="ap_customer_name"]',
     email:'//*[@id="ap_email"]',
     email_confirmation: '//*[@id="ap_email_check"]',
     password:'//*[@id="ap_password"]',
     password_confirmation:'//*[@id="ap_password_check"]',
-    submit: '//*[@id="continue-input"]',
+    next0: '//*[@id="continue-input"]',
   }
   
   LOGIN = {
@@ -125,22 +126,21 @@ class AmazonFrance
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context
+    @context = context.merge!({'vendor' => AmazonFrance})
     @robot = instanciate_robot
-    @robot.vendor = AmazonFrance
   end
   
   def instanciate_robot
-    Robot.new(@context) do
-
-      step('finalize order') do
-        RobotCore::AmazonPayment.new.finalize
-      end
-      
-      step('validate order') do
-        RobotCore::AmazonPayment.new.validate
-      end
-      
-    end
+    Robot::Agent.new(@context) # do
+# 
+#       step('finalize order') do
+#         RobotCore::AmazonPayment.new.finalize
+#       end
+#       
+#       step('validate order') do
+#         RobotCore::AmazonPayment.new.validate
+#       end
+#       
+#     end
   end
 end
