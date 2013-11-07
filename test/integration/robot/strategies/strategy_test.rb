@@ -39,19 +39,20 @@ class StrategyTest < ActiveSupport::TestCase
   end
   
   def login
-    @message.expects(:message).times(1)
-    robot.expects(:message).with(:logged, :next_step => 'empty cart')
+    @machine.break_step = 'Cart'
+    Robot::Message.expects(:forward).with(:dispatcher, :logged)
 
-    robot.run_step('login')
+    @machine.step
   end
   
   def login_failure
-    @context['account']['password'] = "badpassword"
-    robot.context = @context
-    @message.expects(:message).times(1)
-    robot.expects(:terminate_on_error).with(:login_failed)
+    @context['account']['password'] = ''
+    @robot.context.merge!(@context)
+    @machine.break_step = 'Cart'
     
-    robot.run_step('login')
+    Robot::Step::Terminate.expects(:on).with(:error, :login_failed)
+    
+    @machine.step
   end
   
   def logout
