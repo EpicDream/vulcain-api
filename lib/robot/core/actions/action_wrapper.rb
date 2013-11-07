@@ -32,6 +32,10 @@ module Robot
       @success = action(:wait_leave, nexts.last)
     end
     
+    def popup?
+      action :click_on, :popup
+    end
+    
     def status
       @success ? {success:success_code} : error()
     end
