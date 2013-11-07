@@ -25,12 +25,10 @@ module AmazonFranceConstants
   }
   
   LOGIN = {
+    url: URLS[:login],
     email:'//*[@id="ap_email"]',
     password:'//*[@id="ap_password"]',
-    submit: '//*[@id="signInSubmit-input"]',
-    captcha:'//*[@id="ap_captcha_img"]/img | //*[@id="ra-captcha-img"]/img | /html/body/table/tbody/tr[1]/td/img',
-    captcha_submit:'//html/body/table/tbody/tr[1]/td/form/input[2]',
-    captcha_input:'//*[@id="ap_captcha_guess"] | //*[@id="ra-captcha-guess"] | //*[@id="captchacharacters"]'
+    next0: '//*[@id="signInSubmit-input"]',
   }
   
   SHIPMENT = {
