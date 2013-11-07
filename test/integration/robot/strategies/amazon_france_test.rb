@@ -22,7 +22,7 @@ class AmazonTest < StrategyTest
   end
   
   test "register" do
-    run_spec("register", false)
+    run_spec("register")
   end
   
   test "register failure" do

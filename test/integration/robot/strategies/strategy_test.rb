@@ -17,22 +17,25 @@ class StrategyTest < ActiveSupport::TestCase
     send(name.gsub(/\s/, '_'), *args)
   end
   
-  def register skip=false
-    skip "Can' create account each time!" if skip
-    @message.expects(:message).times(1)
-    robot.expects(:message).with(:account_created, :next_step => 'renew login')
-
-    robot.run_step('create account')
+  def register
+    @context["account"]["new_account"] = true
+    @robot.context.merge!(@context)
+    @machine.break_step = 'Login'
+    Robot::Message.expects(:forward).with(:dispatcher, :account_created)
+    
+    @machine.step
   end
   
   def register_failure
-    @message.expects(:message).times(1)
+    @context["account"]["new_account"] = true
     @context['account']['login'] = 'legrand_pierre_04@free.fr'
     @context['account']['password'] = ''
-    @robot.context = @context
-    robot.expects(:terminate_on_error).with(:account_creation_failed)
+    @robot.context.merge!(@context)
+    @machine.break_step = 'Login'
+
+    Robot::Step::Terminate.expects(:on).with(:error, :account_creation_failed)
     
-    robot.run_step('create account')
+    @machine.step
   end
   
   def login
@@ -195,11 +198,11 @@ class StrategyTest < ActiveSupport::TestCase
     @context = YAML.load_file(CONTEXT_FIXTURE_FILE_PATH)
     @vendor = vendor
     @robot = vendor.new(@context).robot
-    @robot.vendor = vendor
+    @machine = @robot.machine
     @message = stub
     @robot.messager = stub(:logging => @message, :dispatcher => @message, :vulcain => @message, :admin => @message)
-    @robot.stubs(:screenshot)
-    @robot.stubs(:page_source)
+    Driver.any_instance.stubs(:screenshot)
+    Driver.any_instance.stubs(:page_source)
   end
   
 end
