@@ -78,24 +78,24 @@ module RobotCore
       end
     end
     
-    def access_form
-      Action(:open_url, :base)
-      Action(:open_url, :account)
-      Action(:open_url, :register)
-      Action(:wait_for, [:submit_login, :submit])
-    end
+    # def access_form
+    #   Action(:open_url, :base)
+    #   Action(:open_url, :account)
+    #   Action(:open_url, :register)
+    #   Action(:wait_for, [:submit_login, :submit])
+    # end
     
     def still_login_step?
       !dictionary[:submit_login].nil? && Action(:exists?, :submit_login)
     end
     
-    def login
-      Action(:fill, :email, with:account.login)
-      Action(:fill, :email_confirmation, with:account.login)
-      Action(:fill, :password, with:account.password)
-      Action(:fill, :password_confirmation, with:account.password)
-      Action(:click_on, :submit_login)
-    end
+    # def login
+    #   Action(:fill, :email, with:account.login)
+    #   Action(:fill, :email_confirmation, with:account.login)
+    #   Action(:fill, :password, with:account.password)
+    #   Action(:fill, :password_confirmation, with:account.password)
+    #   Action(:click_on, :submit_login)
+    # end
     
     def phone
       Action(:fill, :mobile_phone, with:user.address.mobile_phone)
