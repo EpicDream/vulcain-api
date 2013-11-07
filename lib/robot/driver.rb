@@ -11,7 +11,7 @@ class Driver
   
   attr_accessor :driver, :wait, :ajax_wait
   
-  def initialize options={}
+  def initialize options=nil
     @profile_path = "/tmp/google-chrome-profiles/#{Process.pid}/"
     @driver = Selenium::WebDriver.for :chrome, switches: switches(options)
     @wait = Selenium::WebDriver::Wait.new(:timeout => TIMEOUT)
@@ -96,7 +96,7 @@ class Driver
     while find_element(identifier)
       sleep(0.5)
       duration += 0.5
-      raise if duration >= LEAVE_PAGE_TIMEOUT
+      return false if duration >= LEAVE_PAGE_TIMEOUT
     end
     true
   end
