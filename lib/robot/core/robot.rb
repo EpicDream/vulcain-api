@@ -1,6 +1,6 @@
 # encoding: utf-8
 unless ENV['VULCAIN-CORE']
-  [:context, :actions, :droplets, :steps].each { |folder|  
+  [:context, :machine, :actions, :droplets, :steps].each { |folder|  
     Dir[File.dirname(__FILE__) + "/#{folder}/*.rb"].each {|file| require file }
   }
 end
@@ -8,8 +8,8 @@ end
 module Robot
   class Agent
     attr_accessor :messager #set by vulcain instance
-    attr_accessor :vendor #set by vendor instance
-    attr_accessor :context, :driver
+    attr_reader :machine
+    attr_accessor :context
     
     def initialize context
       @context = Robot::Context.new(context)

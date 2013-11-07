@@ -1,5 +1,6 @@
 module Robot
   module Step
+    
     class Start
       
       def initialize context
@@ -7,9 +8,16 @@ module Robot
       end
       
       def run
-        Robot::Step::Terminate.on(:error, :driver) unless Robot::Action.ready?(@context)
-        Robot::Action.open(order.products[0].url) #affiliation
+        return {error:failure_code} unless Robot::Action.ready?(@context)
+        Robot::Action.open(@context.affiliation_url)
+        {}
       end
+      
+      def failure_code
+        :driver_instanciation_faiure
+      end
+      
     end
+    
   end
 end
