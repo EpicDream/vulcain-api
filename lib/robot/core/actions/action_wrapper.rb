@@ -36,6 +36,10 @@ module Robot
       action :click_on, :popup
     end
     
+    def assert
+      
+    end
+    
     def status
       @success ? {success:success_code} : error()
     end

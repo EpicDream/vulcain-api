@@ -1,7 +1,8 @@
 module Robot
   module State
-    Start = ->(context) { context.account.new_account ? :Registration : :Login }
-    Registration = ->(context) { :Login }
+    Start = ->(context) { context.account.new_account ? :Registration : :Logout }
+    Logout = ->(context) { :Login }
+    Registration = ->(context) { :Cart }
     Login = ->(context) { :Cart }
     # FILL_CART = ->() { CHECKOUT }
     # CHECKOUT = ->() { DELIVERY }
