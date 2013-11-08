@@ -59,7 +59,7 @@ module FnacConstants
     quantity:'.//input[@type="text"]',
     quantity_set:'.//input[@value="+"][last()]',
     quantity_exceed:'//div[@class="inError"]/span[1]',
-    total_line:'pattern:totalTTC',
+    total:'div.totalyPrice',
     empty_message_match: /Votre panier est vide/i,
     coupon:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_txtAdvCode"]',
     coupon_recompute:'//*[@id="OPControl1_ctl00_SlotBasket_ctl00_OPSlotContainer3_ctl01_btnSubmit"]'

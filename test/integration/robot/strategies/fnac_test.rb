@@ -13,6 +13,7 @@ class FnacTest < StrategyTest
   PRODUCT_8_URL = "http://www4.fnac.com/Samsung-Galaxy-S3-Mini-i8190-Bleu-GadgetsInfinity/w-4/oref3a832154-673a-178f-4391-1ccbc8969db7"
   PRODUCT_9_URL = "http://www.fnac.com/WD-My-Passport-500-Go-Argent-USB-3-0-2-0/a4128439/w-4?ectrans=1&Origin=zanox1464273"
   PRODUCT_10_URL = "http://www4.fnac.com/Taf-Toys-Nouveau-Tapis-avec-Arches/a3721549/w-4"
+  PRODUCT_11_URL = "http://livre.fnac.com/a2896498/Eckhart-Tolle-Le-pouvoir-du-moment-present?ectrans=1&Origin=zanox1464273"
   
   setup do
     initialize_robot_for Fnac
@@ -91,7 +92,7 @@ class FnacTest < StrategyTest
   end
   
   test "complete order process" do
-    products = [{url:PRODUCT_9_URL, quantity:1}]
+    products = [{url:PRODUCT_11_URL, quantity:1}]
     run_spec("complete order process", products)
   end
   
