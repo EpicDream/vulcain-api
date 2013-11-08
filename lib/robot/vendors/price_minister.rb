@@ -96,7 +96,7 @@ module PriceMinisterConstants
     price_text:'//ul[@class="priceInfos"] | //li[@itemprop="price"]',
     title:'//div[@class="productTitle"]/h1 | //div[@class="fn"]',
     image:'//img[@itemprop="image"]',
-    shipping:'//li[@class="shipping"]'
+    shipping:'li[class^=shipping]'
   }
   
   BILL = {
