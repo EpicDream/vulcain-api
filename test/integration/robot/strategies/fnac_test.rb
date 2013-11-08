@@ -88,7 +88,7 @@ class FnacTest < StrategyTest
   end  
   
   test "validate order" do
-    run_spec("validate order", [{url:PRODUCT_1_URL, quantity:1}])
+    run_spec("validate order", [{url:PRODUCT_11_URL, quantity:1}])
   end
   
   test "complete order process" do

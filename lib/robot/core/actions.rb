@@ -76,7 +76,7 @@ module RobotCore
 
     def click_on identifier, opts={}
       unless opts[:mandatory] || identifier.is_a?(Selenium::WebDriver::Element)
-        return if !exists?(identifier)
+        return true if !exists?(identifier)
       end
       attempts = 0
       begin

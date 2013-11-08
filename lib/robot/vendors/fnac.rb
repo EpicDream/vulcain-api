@@ -24,6 +24,24 @@ module FnacConstants
     submit: '//*[@id="RegistrationMemberId_submitButton"]'
   }
   
+  PAYMENT = {
+    visa:'//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_0"]',
+    mastercard: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_1"]',
+    e_card: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_3_ogoneCardRadio_0"]',
+    cgu:'//*[@id="OPControl1_ctl00_CheckBoxCGV"]',
+    access:'//*[@id="addressManager_btnChoixAddressPostal"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
+    cancel:'//*[@id="ncol_cancel"]',
+    number:'//*[@id="Ecom_Payment_Card_Number"]',
+    exp_month:'//*[@id="Ecom_Payment_Card_ExpDate_Month"]',
+    exp_year:'//*[@id="Ecom_Payment_Card_ExpDate_Year"]',
+    cvv:'//*[@id="Ecom_Payment_Card_Verification"]',
+    submit:  '//*[@id="submit3"]',
+    status: '//body',
+    succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
+    remove_must_match: /Vous n'avez pas indiqué de carte de paiement/i
+  }
+  
+  
   LOGIN = {
     email:'//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtEmail"] | //*[@id="OPControl1_ctl00_LoginControlSlot_ctl00_txtEmail"]',
     password:'//*[@id="LogonAccountSteamRollPlaceHolder_ctl00_txtPassword"] | //*[@id="OPControl1_ctl00_LoginControlSlot_ctl00_txtPassword"]',
@@ -37,9 +55,9 @@ module FnacConstants
     zip: '//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_zipcode_txtPostalCode"]',
     mobile_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumMobile"]',
     land_phone:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_phone_txtNumFixe"]',
-    select_this_address: nil,
+    select_this_address: '//*[@id="addressManager_btnChoixAddressPostal"]',
     submit: '//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]',
-    submit_packaging: nil,
+    submit_success: [PAYMENT[:access]],
     address_option:'//*[@id="addressManager_shippingAdressControlManager_adressForm_CurrentAddressContainer_qas_qsDataList_rdChoix_2"]',
     address_submit:'//*[@id="addressManager_shippingAdressControlManager_adressForm_btnNextButton"]'
   }
@@ -76,23 +94,6 @@ module FnacConstants
   BILL = {
     shipping:'//table[@class="recapCmd"]/tfoot/tr[1]',
     total:'//table[@class="recapCmd"]/tfoot/tr[2]',
-  }
-  
-  PAYMENT = {
-    visa:'//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_0"]',
-    mastercard: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_0_ogoneCardRadio_1"]',
-    e_card: '//*[@id="OPControl1_ctl00_MainPaymentSlot_ctl04_OgoneCreditCardRepeater_CreditCardGroupRepeater_3_ogoneCardRadio_0"]',
-    cgu:nil,
-    access:'//*[@id="addressManager_btnChoixAddressPostal"] | //*[@id="OPControl1_ctl00_BtnContinueCommand"]',
-    cancel:'//*[@id="ncol_cancel"]',
-    number:'//*[@id="Ecom_Payment_Card_Number"]',
-    exp_month:'//*[@id="Ecom_Payment_Card_ExpDate_Month"]',
-    exp_year:'//*[@id="Ecom_Payment_Card_ExpDate_Year"]',
-    cvv:'//*[@id="Ecom_Payment_Card_Verification"]',
-    submit:  '//*[@id="submit3"]',
-    status: '//body',
-    succeed: /Votre\s+commande\s+a\s+bien\s+été\s+enregistrée/i,
-    remove_must_match: /Vous n'avez pas indiqué de carte de paiement/i
   }
   
 end
