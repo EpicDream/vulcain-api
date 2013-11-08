@@ -116,7 +116,7 @@ module PriceMinisterConstants
     visa_value:nil,
     validate: nil,
     holder:nil,
-    number:'//*[@id="cc_number"]',
+    number:'//input[@id="cc_number"]',
     exp_month:'//*[@id="cc_month"]',
     exp_year:'//*[@id="cc_year"]',
     cvv:'//*[@id="cvv_key"]',
