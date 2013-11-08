@@ -72,7 +72,7 @@ module PriceMinisterConstants
   }
   
   CART = {
-    add:'//div[@class="addToCart"]//form//button[@type="submit"]',
+    add:'//div[@class="addToCart"]//form//button[@type="submit"] | //button[@class="pm_continue"]',
     add_offer:'//div[@class="add_cart"][1]//button/span/span | //div[@id="add_cart_btn"]/button',
     offers:'//a[@class="filter10"]',
     button:nil,
