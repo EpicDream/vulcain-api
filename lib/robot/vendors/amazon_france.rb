@@ -86,7 +86,7 @@ module AmazonFranceConstants
   BILL = {
     shipping:'//*[@id="SPCSubtotals-marketplace"]//tr[2] | //*[@id="subtotals-marketplace-table"]//tr[2]',
     total:'//*[@id="SPCSubtotals-marketplace"]//tr[last()] | //*[@id="subtotals-marketplace-table"]//tr[last()]',
-    info:'//div[@class="shipment-promise"] | //span[@data-promisetype="delivery"]'
+    info:'//span[@data-promisetype="delivery"]/ancestor::div[1]'
   }
   
   PAYMENT = {

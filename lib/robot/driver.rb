@@ -70,7 +70,7 @@ class Driver
     value = adjusted_value_for_options(options, value)
     options.each do |option|
       next unless option.attribute("value") == value
-      option.click
+      option.click rescue nil
       break
     end
     wait_ajax()
