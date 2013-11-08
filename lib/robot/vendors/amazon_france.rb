@@ -53,6 +53,7 @@ module AmazonFranceConstants
   }
   
   CART = {
+    prioritize_add:true,
     add:'//*[@id="bb_atc_button"]',
     offers: '//*[@id="olpDivId"]//a[1] | //*[@id="secondaryUsedAndNew"]//a[1] | //*[@id="primaryUsedAndNew"]//a[1]',
     add_offer: '//input[@name="submit.addToCart"][1]',

@@ -88,8 +88,9 @@ module RobotCore
     def add_to_cart product
       RobotCore::Options.new(product).run #move in ProductFile ?
       RobotCore::Product.new.build
-      
-      if Action(:exists?, :offers)
+      if dictionary[:prioritize_add] && Action(:exists?, :add)
+        MAction(:click_on, :add)
+      elsif Action(:exists?, :offers)
         MAction(:click_on, :offers)
         MAction(:click_on, :new_offer)
         Action(:click_on, :offer_option)
