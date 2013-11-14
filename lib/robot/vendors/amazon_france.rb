@@ -70,7 +70,7 @@ module AmazonFranceConstants
     empty_message_match:/panier\s+est\s+vide/i,
     submit: 'pattern:Passer la commande',
     submit_success: [LOGIN[:submit], SHIPMENT[:full_name]],
-    gift_option:'p.gift>input[type=checkbox]',
+    gift_option:'//div[@id="gift-wrap-item"]/input',
     gift_message_option:'input[id^=includeMessageCheckbox]',
     gift_message:'textarea[id^=message-area]',
     gift_submit:'div.save-gift-button-box input[type=submit]',
