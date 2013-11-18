@@ -7,7 +7,7 @@ class StrategyGenerator < Rails::Generators::Base
   end
   
   def create_strategy_test
-    template "strategy_test.rb.erb", "test/integration/robot/#{vendor_name.underscore}_test.rb"
+    template "strategy_test.rb.erb", "test/integration/robot/strategies/#{vendor_name.underscore}_test.rb"
   end
   
 end
