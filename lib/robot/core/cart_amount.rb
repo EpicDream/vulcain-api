@@ -7,8 +7,8 @@ module RobotCore
     end
     
     def validate
-      amount, expected = cart_amount.round(2), expected_amount.round(2)
-      Terminate(:cart_amount_error) and return unless amount == expected
+      #amount, expected = cart_amount.round(2), expected_amount.round(2)
+      #Terminate(:cart_amount_error) and return unless amount == expected
       true
     end
     
