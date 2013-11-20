@@ -173,7 +173,7 @@ class Driver
     user_agent = options[:user_agent] || DESKTOP_USER_AGENT
     user_data_dir = options[:profile_dir] || @profile_path
     switches = ["--user-agent=#{user_agent}", "--user-data-dir=#{user_data_dir}"]
-    switches << ["--proxy-server=176.31.231.202:3128"] if options[:use_proxy] || ENV['VULCAIN_USE_PROXY']
+    switches << "--proxy-server=176.31.231.202:3128" if options[:use_proxy] || ENV['VULCAIN_USE_PROXY']
     switches
   end
   
