@@ -56,7 +56,7 @@ module TopGeekConstants
     submit_packaging: '//input[@name="processCarrier"]',
     submit: '//*[@id="submitAddress"]',
     submit_success: [PAYMENT[:credit_card]],
-    packaging:'//*[@id="delivery_option_1582_2"]',
+    packaging:'//div[@class="delivery_options"]/div[3]',
     select_this_address: '//input[@name="processAddress"]',
     address_submit: '//input[@name="processAddress"]',
     cgu:'//label[@for="cgv"]',
