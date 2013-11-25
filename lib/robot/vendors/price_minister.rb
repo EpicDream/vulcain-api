@@ -137,7 +137,7 @@ class PriceMinister
   attr_accessor :context, :robot
   
   def initialize context
-    @context = context
+    @context = context.merge!({options:{use_proxy:true}})
     @robot = instanciate_robot
     @robot.vendor = PriceMinister
   end
