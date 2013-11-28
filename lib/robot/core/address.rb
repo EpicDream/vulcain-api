@@ -59,12 +59,12 @@ module RobotCore
     
     def zip_popup
       return unless dictionary[:zip_popup]
-      
-      elements = MAction(:find_elements, :zip_popup)
+      Action(:wait)
+      elements = Action(:find_elements, :zip_popup)
       elements.each do |e|
         city = user.address.city.gsub(/-/, ' ').downcase.strip
         MAction(:click_on, e) if e.text.downcase.strip == city
-      end
+      end if elements
     end
     
     def split_address

@@ -13,6 +13,8 @@ class OrdersController < ApplicationController
     else
       Dispatcher::AMQPController.request(message)
     end
+  rescue #AMQP::TCPConnectionFailed
+    render :json => {:error => "Connection to RabbitMQ server failure"}.to_json, :status => 500
   end
   
   private
