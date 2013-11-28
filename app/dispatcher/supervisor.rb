@@ -17,8 +17,10 @@ module Dispatcher
     
     def ensure_min_idle_vulcains
       Proc.new {
-        delta = CONFIG[:min_idle_vulcains] - @pool.idle_vulcains.count
-        delta.times { Vulcain.mount_new_instance }
+        if AMQP.connection.connected? #else mount instances without end if RabbitMQ server is down ...
+          delta = CONFIG[:min_idle_vulcains] - @pool.idle_vulcains.count
+          delta.times { Vulcain.mount_new_instance }
+        end
       }
     end
     
