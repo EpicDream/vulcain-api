@@ -44,7 +44,7 @@ module DartyConstants
     add:'//*[@id="sliding_basket_form"]//button',
     remove_item:'pattern:Supprimer',
     empty_message:'//*[@id="contentColOne"]',
-    submit: '//*[@id="newbottomFinishButton"]',
+    submit: '//*[@id="newtopFinishButton"]',
     line:'//table[@class="dataPanier"]//td//select/ancestor::tr[1]',
     title:'.//*[@class="nomPdt"]',
     quantity:'.//select',

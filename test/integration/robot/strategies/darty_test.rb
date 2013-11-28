@@ -8,6 +8,7 @@ class DartyTest < StrategyTest
   PRODUCT_URL_3 = 'http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html'
   PRODUCT_URL_4 = 'http://www.darty.com/nav/achat/petit_electromenager/chauffage_ventilation/purificateur/okoia_bulle.html'
   PRODUCT_URL_5 = 'http://www.darty.com/nav/achat/petit_electromenager/beaute_feminine-epilation/epilation_semi-definitive/silk_n_glide.html'
+  PRODUCT_URL_6 = 'http://www.darty.com/nav/achat/accessoires/petit_appareil_cuisson/poubelle/temium_poubelle_automatique_50l.html?dartycid=aff_1532882_lien-profond-libre_lientexte'
   
   setup do
     initialize_robot_for Darty
@@ -64,7 +65,7 @@ class DartyTest < StrategyTest
   test "finalize order" do
     expected_products = [{"price_text"=>"39,90 € ", "eco_part"=>0.0, "product_title"=>"COLE AND MASON BOBBI", "product_image_url"=>"http://image.darty.com/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi_d1305153752801A_143153346.jpg", "price_product"=>39.9, "price_delivery"=>nil, "url"=>"http://www.darty.com/nav/achat/encastrable/casserolerie/moulin_poivre_sel/cole_and_mason_bobbi.html", "id"=>191919, "product_version_id"=>nil, "expected_quantity"=>2, "quantity"=>2}]
     billing = {:shipping=>0, :total=>79.8, :shipping_info=>"Livraison par Colissimo :\nEntre le Ven. 20/09 et le Lun. 23/09"}
-    products = [{url:PRODUCT_URL_3, quantity:2, id:191919}]
+    products = [{url:PRODUCT_URL_6, quantity:1, id:191919}]
     
     run_spec("finalize order", products, expected_products, billing)
   end
