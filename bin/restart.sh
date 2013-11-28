@@ -1,12 +1,7 @@
 #!/bin/bash
-function stop_dispatcher {
+function restart_dispatcher {
   echo 'Stop dispatcher ...'
-  /etc/init.d/vulcain-dispatcher stop
-}
-
-function start_dispatcher {
-  echo 'Start Dispatcher ...'
-  /etc/init.d/vulcain-dispatcher start
+  bundle exec /etc/init.d/vulcain-dispatcher restart
 }
 
 function kill_vulcains {
@@ -14,35 +9,30 @@ function kill_vulcains {
   kill -2 $(ps aux | pgrep -f 'vulcain/bin/run.rb')
 }
 
-function restart_unicorns {
-  echo 'Restart Unicorns ...'
-  /etc/init.d/vulcain-unicorn restart
-}
-
 function reload_vulcains {
-  echo 'Reload Vulcains ...'
+  echo 'Reloading Vulcains ...'
   kill -s USR2 $(ps aux | pgrep -f 'dispatcher')
 }
-
 
 if [ "$1" = "--hard" ]; then
   echo 'WARNING. This script will kill all vulcains processes. Be sure no one is running.'
   read -p 'Continue?(y/n)' choice
 
   if [ $choice = "y" ]; then
-    stop_dispatcher
     kill_vulcains
-    start_dispatcher
-    restart_unicorns
+    restart_dispatcher
   else
     exit
   fi
-  
 elif [ "$1" = "--soft" ]; then
-  stop_dispatcher
-  start_dispatcher
-  sleep 10
   reload_vulcains
+  restart_dispatcher
+elif [ "$1" = "--help" ]; then
+  echo ''
+  echo 'Without args : reload vulcains'
+  echo ''
+  echo '--hard : /!\ Kill all vulcains and restart dispatcher'
+  echo '--soft : Reload vulcains and restart dispatcher'
 else
   reload_vulcains
 fi
