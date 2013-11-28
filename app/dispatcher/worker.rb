@@ -6,7 +6,13 @@ module Dispatcher
       AMQP.start(configuration) do |connection|
         begin
           @connection = connection  
+          @connection.on_tcp_connection_loss do |conn, settings|
+            #puts "[network failure] Trying to reconnect..."
+            @connection.reconnect(false, 2)
+          end
+          
           @channel = AMQP::Channel.new(connection)
+          @channel.auto_recovery = true
           @channel.on_error(&channel_error_handler)
           @exchange = @channel.headers("amqp.headers")
           @queues = [VULCAINS_QUEUE, LOGGING_QUEUE, ADMIN_QUEUE, RUN_API_QUEUE, ANSWER_API_QUEUE, INFORMATION_API_QUEUE].inject({}) do |h, name|
