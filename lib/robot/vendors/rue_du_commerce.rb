@@ -100,6 +100,7 @@ class RueDuCommerce
   
   def initialize context
     @context = context
+    @context['order']['coupon'] = "RDCNOEL"
     @robot = instanciate_robot
     @robot.vendor = RueDuCommerce
   end
