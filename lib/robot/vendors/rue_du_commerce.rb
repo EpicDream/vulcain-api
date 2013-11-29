@@ -57,8 +57,6 @@ module RueDuCommerceConstants
     status: '//html/body/div',
     succeed: /Merci\s+pour\s+votre\s+commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
-    coupon:'//*[@id="bhaInputText"]',
-    coupon_recompute:'//*[@id="bhaInputSubmit"]',
     remove_must_match: /Votre portefeuille est vide/i,
   }
   
@@ -82,6 +80,8 @@ module RueDuCommerceConstants
     update:'//div[@class="cartProductQuantity fR"]/button[1]', 
     submit_success: [SHIPMENT[:submit], SHIPMENT[:select_this_address], LOGIN[:email]],
     empty_message: '//body',
+    coupon:'//*[@id="bhaInputText"]',
+    coupon_recompute:'//*[@id="bhaInputSubmit"]',
     empty_message_match: /Votre panier ne contient aucun article/i
   }
   
