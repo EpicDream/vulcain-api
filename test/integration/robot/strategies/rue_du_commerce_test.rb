@@ -10,7 +10,7 @@ class RueDuCommerceTest < StrategyTest
   PRODUCT_5_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
   PRODUCT_6_URL = "http://www.rueducommerce.fr/m/ps/mpid:MP-050B5M9378958#moid:MO-050B5M15723442"
   PRODUCT_7_URL = "http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5Bm/ps/mpid:MP-4CE8FM4915673%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr"
-  PRODUCT_8_URL = "http://www.rueducommerce.fr/Composants/Disque-Dur-externe/Disque-Dur-externe-portable/INTENSO/MP-56BB1M1063603-Intenso-MemoryStation-2-5-Usb-320GB-Disque-dur-externe-blanc.htm#moid:MO-B72FDM12453752"
+  PRODUCT_8_URL = "http://www.rueducommerce.fr/Accessoires-Consommables/Accessoire-iPhone/Casques-ecouteurs-Kit-pieton-pour-iPhone/APPLE/MP-FEC97M8607984-Ecouteurs-Apple-EarPods-Md827Z-M-A-avec-t-eacute-l-eacute-commande-et-micro.htm"
 
   setup do
     initialize_robot_for RueDuCommerce
@@ -63,7 +63,7 @@ class RueDuCommerceTest < StrategyTest
   test "finalize order" do
     expected_products = [{"price_text"=>"29.99 €", "product_title"=>"PHILIPS-PTA436\nPHILIPS Lunettes pour jeux à deux joueurs en plein écran pour téléviseurs Easy 3D - PTA436", "product_image_url"=>"http://s1.static69.com/hifi/images/produits/big/PHILIPS-PTA436.jpg", "price_product"=>29.99, "price_delivery"=>nil, "url"=>"http://ad.zanox.com/ppc/?19436175C242487251&ULP=%5B%5BTV-Hifi-Home-Cinema/showdetl.cfm?product_id=4898282%2523xtor%253dAL-67-75%255blien_catalogue%255d-120001%255bzanox%255d-%255bZXADSPACEID%255d%5D%5D#rueducommerce.fr", "id"=>nil}]
     billing = {:shipping=>2.0, :total=>40.62, :shipping_info=>"Date de livraison estimée le mardi 30 juillet par Livraison Rapide à domicile par Colissimo"}
-    products = [{url:PRODUCT_5_URL, quantity:2}]
+    products = [{url:PRODUCT_8_URL, quantity:1}]
     
     run_spec("finalize order", products, expected_products, billing)
   end

@@ -11,6 +11,7 @@ module RobotCore
       while product = robot.next_product
         file = RobotCore::ProductFile.new(product)
         file.open
+        Action(:wait)
         next unless file.exists?
         add_to_cart(product)
       end

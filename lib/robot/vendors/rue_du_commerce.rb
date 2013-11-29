@@ -38,9 +38,9 @@ module RueDuCommerceConstants
   }
   
   PRODUCT = {
-    price_text:'//*[@id="zm_price_final"] | //div[@class="prices"]/table[2]//td[@class="px_ctc"] | //span[@class="priceAmount"]',
-    title:'//*[@itemprop="name"] | //div[@class="headTit"]',
-    image:'//*[@id="zm_main_image"] | //img[@itemprop="image"]',
+    price_text:'//*[@id="zm_price_final"] | //div[@class="prices"]/table[2]//td[@class="px_ctc"] | //span[@class="priceAmount"] | //span[@class="newPrice"]',
+    title:'//*[@itemprop="name"] | //div[@class="headTit"] | //h1[@class="ficheProduit_titrePopup"]',
+    image:'//*[@id="zm_main_image"] | //img[@itemprop="image"] | //*[@id="linkPhoto"]/img',
   }
   
   PAYMENT = {
@@ -70,7 +70,7 @@ module RueDuCommerceConstants
   }
   
   CART = {
-    add:'//*[@id="bt_submit"] | //div[@class="buy"]/div | //*[@id="productPurchaseButton"]',
+    add:'//*[@id="bt_submit"] | //div[@class="buy"]/div | //*[@id="productPurchaseButton"] | //button[@id="addToCartButton"]',
     remove_item:'//a[@class="cartProductRemove fR"]',
     remove_option:'//a[@class="cartServiceRemove fR"]',
     submit: 'pattern:Finaliser ma commande',
