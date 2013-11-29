@@ -55,7 +55,7 @@ module RueDuCommerceConstants
     cvv:'//*[@id="CVV_KEY"]',
     submit: '//input[@name="PAIEMENT"]',
     status: '//html/body/div',
-    succeed: /Merci\s+pour\s+votre\s+commande/i,
+    succeed: /confirmation.*commande/i,
     cancel: '//*[@id="contentsips"]/center[1]/form/input[2]',
     remove_must_match: /Votre portefeuille est vide/i,
   }
