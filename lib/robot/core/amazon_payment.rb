@@ -13,8 +13,6 @@ module RobotCore
         Action(:wait_for, [:coupon])
         if balance_positive?
           robot.skip_assess = true
-          fill_credit_card() #since 07/2014 seems that CC must be refilled.
-          Action(:click_on, AmazonFrance::SPECIFIC[:new_cc])
           click_access_button()
         else
           fill_coupon(order.coupon)
